@@ -81,7 +81,7 @@ load_tabular_data <- function(directory) {
     
     # get relative file path
     current_file_path_relative <- substr(current_file_path, nchar(current_directory) + 1, nchar(current_file_path)) %>% 
-      paste0(current_parent_directory, .)
+      paste0(current_parent_directory, "/", .)
     
     # get file extension
     current_file_extension <- fs::path_ext(current_file_path)
