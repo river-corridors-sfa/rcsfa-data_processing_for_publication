@@ -13,6 +13,7 @@
 
 # data package directory (do not include a "/" at the end)
 directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
+directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v3/v3_CM_SSS_Data_Package"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
@@ -32,12 +33,15 @@ library(tidyverse)
 library(rlog)
 library(fs)
 library(clipr)
+library(tools)
 
 # load functions
 source("./Data_Transformation/functions/load_tabular_data.R")
 source("./Data_Package_Documentation/functions/create_dd_skeleton.R")
 source("./Data_Package_Documentation/functions/create_flmd_skeleton.R")
 source("./Data_Package_Documentation/functions/query_dd_database.R")
+source("./Data_Package_Documentation/functions/query_flmd_database.R")
+
 
 # load helper functions
 source("./Data_Transformation/functions/rename_column_headers.R")
@@ -71,6 +75,8 @@ flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
   # Export out .csvs at your choosing. Only run the lines you want. 
   # Remember to properly name the dd and flmd files and to update the flmd to reflect such changes.
 
+# write out data package data
+save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
 
 # write out skeleton dd
 write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"), na = "")
