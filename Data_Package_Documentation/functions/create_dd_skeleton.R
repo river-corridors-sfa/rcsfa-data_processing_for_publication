@@ -2,7 +2,7 @@
 # Date Created: 2024-02-01
 # Author: Bibi Powers-McCormack
 
-# Objective: 
+# Objective: create an empty dd skeleton
 
 # Inputs: 
   # the headers df from load_tabular_data
@@ -14,6 +14,10 @@
 ### FUNCTION ###################################################################
 
 create_dd_skeleton <- function(headers_df) {
+  
+  # load libraries
+  library(tidyverse)
+  library(rlog)
   
   # get df of headers
   current_headers <- headers_df
@@ -27,7 +31,7 @@ create_dd_skeleton <- function(headers_df) {
     "Term_Type" = as.character()
   )
   
-  ### check and add dd and flmd columns ########################################
+  ### check and ask to add dd and flmd columns #################################
   log_info("Checking for presence of dd and flmd headers.")
   
   dd_headers <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type")
