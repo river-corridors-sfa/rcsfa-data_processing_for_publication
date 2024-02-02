@@ -63,7 +63,7 @@ create_flmd_skeleton <- function(relative_file_paths) {
     current_file_path_relative <- current_file_paths[i]
     
     # get file name
-    current_file_name <- basename(current_file_path)
+    current_file_name <- basename(current_file_path_relative)
     
     # get file path
     current_file_path <- str_replace(string = current_file_path_relative, pattern = paste0("/", current_file_name), replacement = "")
@@ -87,6 +87,35 @@ create_flmd_skeleton <- function(relative_file_paths) {
   
   
   ### adding dd and flmd file placeholders if applicable #######################
+  if (tolower(user_input_add_dd_file) == "y") {
+    
+    # adding dd file to flmd if user indicated Y
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      add_row(
+        "File_Name" = "[INSERT DD FILENAME]_dd.csv",
+        "File_Description" = "",
+        "Standard" = "",
+        "Date_Start" = "",
+        "Date_End" = "",
+        "Missing_Value_Codes" = "",
+        "File_Path" = ""
+      )
+  }
+  
+  if (tolower(user_input_add_flmd_file) == "y") {
+    
+    # adding flmd file to flmd if user indicated Y
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      add_row(
+        "File_Name" = "[INSERT FLMD FILENAME]_flmd.csv",
+        "File_Description" = "",
+        "Standard" = "",
+        "Date_Start" = "",
+        "Date_End" = "",
+        "Missing_Value_Codes" = "",
+        "File_Path" = ""
+      )
+  }
   
   
   
