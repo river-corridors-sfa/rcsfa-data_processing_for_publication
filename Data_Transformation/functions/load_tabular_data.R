@@ -4,6 +4,7 @@
 
 # Objective: 
   # A function where you provide a directory and in return, get...
+    # the directory
     # a list of the files within
     # a list of the relative files within
     # the tabular data as a list
@@ -14,6 +15,7 @@
 
 # Outputs: 
   # a single list with the following
+    # the directory provided as the input
     # string of all file names
     # string of all file names (relative)
     # list of tabular data
@@ -152,7 +154,8 @@ load_tabular_data <- function(directory) {
   log_info("load_tabular_data complete.")
   
   ### prep return ##############################################################
-  return = list(file_paths = file_paths_all,
+  return = list(directory = current_directory, 
+                file_paths = file_paths_all,
                 file_paths_relative = c(file_paths_relative),
                 data = current_tabular_data,
                 headers = current_headers_df)
