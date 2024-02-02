@@ -31,11 +31,16 @@ getwd()
 library(tidyverse)
 library(rlog)
 library(fs)
+library(clipr)
 
 # load functions
 source("./Data_Transformation/functions/load_tabular_data.R")
 source("./Data_Package_Documentation/functions/create_dd_skeleton.R")
 source("./Data_Package_Documentation/functions/create_flmd_skeleton.R")
+source("./Data_Package_Documentation/functions/query_dd_database.R")
+
+# load helper functions
+source("./Data_Transformation/functions/rename_column_headers.R")
 
 
 ### Run Functions ##############################################################
@@ -68,16 +73,16 @@ flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
 
 
 # write out skeleton dd
-write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"))
+write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"), na = "")
 
 # write out populated dd
-write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"))
+write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
 
 # write out skeleton flmd
-write_csv(flmd_skeleton, paste0(out_directory, "/skeleton_flmd.csv"))
+write_csv(flmd_skeleton, paste0(out_directory, "/skeleton_flmd.csv"), na = "")
 
 # writ eout populated flmd
-write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_flmd.csv"))
+write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_flmd.csv"), na = "")
 
 
 # open the directory the files were saved to
