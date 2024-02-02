@@ -111,6 +111,8 @@ create_dd_skeleton <- function(headers_df) {
   ### adding dd and flmd headers if applicable #################################
   if (tolower(user_input_add_dd_headers) == "y"){
     
+    log_info("Adding the 5 dd headers to the dd.")
+    
     # adding dd headers to dd if user indicated Y
     for (header in dd_headers) {
       current_dd_skeleton <- current_dd_skeleton %>% 
@@ -125,6 +127,8 @@ create_dd_skeleton <- function(headers_df) {
   }
   
   if (tolower(user_input_add_flmd_headers == "y")) {
+    
+    log_info("Adding the 7 flmd headers to the dd.")
     
     # adding flmd headers to dd if user indicated Y
     for (header in flmd_headers) {
@@ -143,6 +147,7 @@ create_dd_skeleton <- function(headers_df) {
   current_dd_skeleton <- current_dd_skeleton %>% 
     arrange(Column_or_Row_Name)
   
+  log_info(paste0("The dd skeleton has ", nrow(current_dd_skeleton), " headers."))
   
   log_info("create_dd_skeleton complete.")
   return(current_dd_skeleton)  
