@@ -210,6 +210,8 @@ query_dd_database <- function(dd_skeleton) {
     
   }
   
+  log_info("query_dd_database complete.")
+  
   return(edit_skeleton_dd)
   
 }
