@@ -35,6 +35,7 @@ library(fs)
 # load functions
 source("./Data_Transformation/functions/load_tabular_data.R")
 source("./Data_Package_Documentation/functions/create_dd_skeleton.R")
+source("./Data_Package_Documentation/functions/create_flmd_skeleton.R")
 
 
 ### Run Functions ##############################################################
