@@ -117,11 +117,11 @@ load_tabular_data <- function(directory) {
       
       if (current_file_extension == "tsv") {
         
-        current_data <- read_tsv(current_file_path, show_col_types = F, skip - as.numeric(user_input))
+        current_data <- read_tsv(current_file_path, show_col_types = F, skip = as.numeric(user_input))
         
       } else if (current_file_extension == "csv") {
         
-        current_data <- read_csv(current_file_path, show_col_types = F, skip - as.numeric(user_input))
+        current_data <- read_csv(current_file_path, show_col_types = F, skip = as.numeric(user_input))
       
       }
       
