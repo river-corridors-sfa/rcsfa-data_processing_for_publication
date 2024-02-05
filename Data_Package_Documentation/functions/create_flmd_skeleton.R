@@ -37,8 +37,8 @@ create_flmd_skeleton <- function(relative_file_paths) {
   log_info("Checking for presence of dd and flmd files.")
   
   # check for presence of dd and flmd files
-  dd_file_present <- "dd.csv" %in% current_file_paths
-  flmd_file_present <- "flmd.csv" %in% current_file_paths
+  dd_file_present <- any(str_detect(current_file_paths, "dd.csv"))
+  flmd_file_present <- any(str_detect(current_file_paths, "flmd.csv"))
   
   if (dd_file_present == FALSE ) {
     user_input_add_dd_file <- readline(prompt = "The dd file is not present. Would you like to add a placeholder dd to the flmd? (Y/N) ")
