@@ -73,7 +73,7 @@ flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
 ### Export #####################################################################
 # Directions: 
   # Export out .csvs at your choosing. Only run the lines you want. 
-  # Remember to properly name the dd and flmd files and to update the flmd to reflect such changes.
+  # After exporting, remember to properly rename the dd and flmd files and to update the flmd to reflect such changes.
 
 # write out data package data
 save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))

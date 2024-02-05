@@ -128,7 +128,7 @@ query_dd_database <- function(dd_skeleton) {
   # 2 = pull database definition.
   # 3 = write your own definition. both definitions are copied to clipboard for you to use to edit.
   
-  log_info("Comparing definitions pulled from ddd to original skeleton input")
+  log_info("Comparing definitions pulled from dd database to original skeleton input.")
   
   # initialize empty df for the edited responses
   edit_skeleton_dd <- data.frame()
@@ -157,7 +157,7 @@ query_dd_database <- function(dd_skeleton) {
     
     log_info(paste0("Comparing row ", i, " of ", nrow(populate_skeleton_dd), ": '", current_header, "'"))
     
-    # made adjustments if there are NA values 
+    # make adjustments if there are NA values 
     
     # if both values are NA, treat them as equal. This will eventually return NA in the final output
     if (is.na(current_ddd_definition) & is.na(current_skeleton_definition)) {
