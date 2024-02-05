@@ -146,12 +146,105 @@ query_flmd_database <- function(flmd_skeleton) {
   
   log_info("Querying complete.")
   
-  ### Compare 
+  ### Compare descriptions pulled from flmdd to original skeleton input ########
+  # This chunk compares the file descriptions from the skeleton flmd with those pulled from the database.
+  # It asks the user to select which description to use.
+  # 1 = pull original description.
+  # 2 = pull database description.
+  # 3 = write your own description. both descrptions are copied to the clipboard for you to use to edit.
+  # assumptions: 
+    # if both values are NA, return NA in the final output
+    # if one value is NA, automatically pull the single description
+
+
+  log_info("Comparing descriptions pulled from the flmd database to orignal skeleton input.")  
+  
+  # initialize empty df for edited response
+  edit_flmd_skeleton <- data.frame()
+  
+  for (i in 1:nrow(populate_flmd_skeleton)) {
+    
+    # get current row
+    current_row <- populate_flmd_skeleton %>% 
+      slice(i)
+    
+    # get current file name
+    current_file_name <- current_row %>% 
+      select(File_Name) %>% 
+      pull()
+    
+    # get flmdd description
+    current_flmdd_description <- current_row %>% 
+      select(File_Description) %>% 
+      pull()
+    
+    # get skeleton description
+    current_skeleton_description <- current_flmd_skeleton %>% 
+      filter(File_Name == current_file_name) %>% 
+      select(File_Description) %>% 
+      pull()
+    
+    log_info(paste0("Comparing row ", i, " of ", nrow(populate_flmd_skeleton), ": '", current_file_name, "'"))
+    
+    # make adjustments if there are NA values
+    
+    # if both values are NA, treat them as equal. This will eventually return NA in the final output
+    if(is.na(current_flmdd_description) & is.na(current_skeleton_description)) {
+      current_flmdd_description <- "N/A"
+      current_skeleton_description <- "N/A"
+    } else if (is.na(current_skeleton_description)) { # else if only one description is NA, carry over other description. This will pull over the non NA description
+      current_skeleton_description <- current_flmdd_description
+    } else if(is.na(current_flmdd_description)) {
+      current_flmdd_description <- current_skeleton_description
+    }
+    
+    # if the descriptions are not equal...
+    if (current_flmdd_description != current_skeleton_description) {
+      
+      # ... ask user which description to take
+      
+      # copy descriptions to clipboard
+      current_clipboard <- paste0(current_flmdd_description, " /// ", current_skeleton_description)
+      write_clip(current_clipboard)
+      
+      # show options
+      cat(" 0. Leave description empty to fill in manually later.", "\n",
+          "1. Database Description: ", "\n", "     ", current_flmdd_description, "\n", 
+          "2. Skeleton Description: ", "\n", "     ", current_skeleton_description, "\n", "\n",
+          "The above Description have been copied to your clipboard for your editing convenience.")
+      
+      user_input <- readline("What description would you like to keep? Enter 0, 1, or 2. Or write in your own: ")
+      
+      # update current description based on user input
+      if (user_input == 0) {
+        current_description = NA
+      } else if (user_input == 1) {
+        current_description <- current_flmdd_description
+      } else if (user_input == 2) {
+        current_description <- current_skeleton_description
+      } else {
+        current_description <- user_input
+      }
+      
+      # edit current row to append
+      current_row <- current_row %>% 
+        mutate(File_Description = current_description) %>% 
+        mutate(File_Description = case_when(File_Description == "N/A" ~ NA_character_, TRUE ~ File_Description))
+    
+    }
+    
+    # add current row to the edited df
+    edit_flmd_skeleton <- edit_flmd_skeleton %>% 
+      rbind(., current_row)
+    
+  }
   
   
   ### Clean up #################################################################
   
-  return(populate_flmd_skeleton)
+  log_info("query_flmd_database complete")
+  
+  return(edit_flmd_skeleton)
   
 }
 
