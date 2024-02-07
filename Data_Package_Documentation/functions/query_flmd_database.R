@@ -189,12 +189,12 @@ query_flmd_database <- function(flmd_skeleton) {
     # make adjustments if there are NA values
     
     # if both values are NA, treat them as equal. This will eventually return NA in the final output
-    if(is.na(current_flmdd_description) & is.na(current_skeleton_description)) {
+    if(all(is.na(current_flmdd_description)) & all(is.na(current_skeleton_description))) {
       current_flmdd_description <- "N/A"
       current_skeleton_description <- "N/A"
-    } else if (is.na(current_skeleton_description)) { # else if only one description is NA, carry over other description. This will pull over the non NA description
+    } else if (all(is.na(current_skeleton_description))) { # else if only one description is NA, carry over other description. This will pull over the non NA description
       current_skeleton_description <- current_flmdd_description
-    } else if(is.na(current_flmdd_description)) {
+    } else if(all(is.na(current_flmdd_description))) {
       current_flmdd_description <- current_skeleton_description
     }
     
