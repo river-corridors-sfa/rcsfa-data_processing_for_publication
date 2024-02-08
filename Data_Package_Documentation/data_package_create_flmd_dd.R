@@ -1,6 +1,4 @@
 ### data_package_create_flmd_dd.R ##############################################
-# Date Created: 2024-02-01
-# Author: Bibi Powers-McCormack
 
 # Objective: 
   # Run this script to generate dd and flmds.
@@ -12,8 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v3/v3_CM_SSS_Data_Package"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Zheng_2024_Bioenergetic_Modeling_Manuscript_Data_Package/MM_bioenergetic_modeling"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
