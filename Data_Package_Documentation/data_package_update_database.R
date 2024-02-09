@@ -12,11 +12,12 @@ directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-
 
 
 ### Prep Script ################################################################
-# Directions: 
-# 1. Set working directory to the `rcsfa-data-processing` repo.
-# 2. Then run this chunk without modification.
+# Directions: Run this chunk without modification.
 
-# confirm that the working directory is set to this GitHub repo (rcsfa-data-processing-for-publication), otherwise setwd() in the console
+# set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
+current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
+setwd(dirname(current_path)) # set wd to current path
+setwd("../...") # move wd back to the repo directory
 getwd()
 
 # load libraries
