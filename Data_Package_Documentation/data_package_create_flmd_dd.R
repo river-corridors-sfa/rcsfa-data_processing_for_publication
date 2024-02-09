@@ -20,18 +20,20 @@ out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX"
 ### Prep Script ################################################################
 # Directions: Run this chunk without modification.
 
-# set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
-current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
-setwd(dirname(current_path)) # set wd to current path
-setwd("../...") # move wd back to the repo directory
-getwd()
-
 # load libraries
+library(rstudioapi)
 library(tidyverse)
 library(rlog)
 library(fs)
 library(clipr)
 library(tools)
+
+# set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
+current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
+setwd(dirname(current_path)) # set wd to current path
+rm(current_path)
+setwd("../...") # move wd back to the repo directory
+getwd()
 
 # load functions
 source("./Data_Transformation/functions/load_tabular_data.R")
