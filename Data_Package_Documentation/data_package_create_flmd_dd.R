@@ -10,7 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Zheng_2024_Bioenergetic_Modeling_Manuscript_Data_Package/MM_bioenergetic_modeling"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
