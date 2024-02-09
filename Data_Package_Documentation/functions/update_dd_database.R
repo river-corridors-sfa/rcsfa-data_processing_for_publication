@@ -11,7 +11,7 @@
   # data_dictionary_database.csv
 
 # Assumptions: 
-  # assumes all data dictionaries (and no other files) end in this pattern: "*dd.csv" and that all file names are unique.
+  # assumes all data dictionaries (and no other files) end in this pattern: "*_dd.csv" and that all file names are unique.
 
 
 ### FUNCTION ###################################################################
@@ -41,7 +41,7 @@ update_dd_database <- function(directory) {
     mutate(status = "currently in dd")
   
   # get list of dds to add
-  dd_filenames <- list.files((current_directory), pattern = "dd.csv", recursive = T)
+  dd_filenames <- list.files((current_directory), pattern = "_dd.csv", recursive = T)
   
   log_info("All inputs loaded in.")
   
