@@ -43,13 +43,13 @@ load_tabular_data <- function(directory) {
   current_parent_directory <- sub(".*/", "/", current_directory)
   
   # get all file paths
-  file_paths_all <- list.files(current_directory, recursive = T, full.names = T)
+  file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = T)
   
   # get all csv file paths
-  file_paths_csv <- list.files(directory, pattern = "\\.csv$", full.names = T, recursive = T)
+  file_paths_csv <- list.files(directory, pattern = "\\.csv$", full.names = T, recursive = T, all.files = T)
   
   # get all tsv file paths
-  file_paths_tsv <- list.files(current_directory, pattern = "\\.tsv$", full.names = T, recursive = T)
+  file_paths_tsv <- list.files(current_directory, pattern = "\\.tsv$", full.names = T, recursive = T, all.files = T)
   
   # combine tabular files
   file_paths_tabular <- c(file_paths_csv, file_paths_tsv)
