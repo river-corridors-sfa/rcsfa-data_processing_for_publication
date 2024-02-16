@@ -84,7 +84,7 @@ load_tabular_data <- function(directory) {
     
     user_input <- readline("Are all column headers on the first row? (Y/N) ")
     
-    if (user_input == "y") {
+    if (tolower(user_input) == "y") {
       
       # read in each tabular file
       for (i in 1:length(file_paths_tabular)) {
