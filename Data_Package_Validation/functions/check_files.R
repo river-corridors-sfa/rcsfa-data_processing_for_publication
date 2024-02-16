@@ -184,7 +184,7 @@ check_files <- function(directory) {
     # update report with FAILED
     folder_report <- folder_report %>% 
       add_row(pass_check = "FAILED",
-              tyoe = "folder",
+              type = "folder",
               assessment = "no_special_chrs",
               summary = paste0("Found special characters in ", nrow(folder_no_special_chrs_check), " folders: ", toString(folder_no_special_chrs_check$item)))
     
@@ -340,9 +340,9 @@ check_files <- function(directory) {
     # update report with FAILED
     file_report <- file_report %>% 
       add_row(pass_check = "FAILED",
-              tyoe = "file",
+              type = "file",
               assessment = "no_special_chrs",
-              summary = paste0("Found special characters in ", nrow(file_no_special_chrs_check), " folders: ", toString(file_no_special_chrs_check$item)))
+              summary = paste0("Found special characters in ", nrow(file_no_special_chrs_check), " files: ", toString(file_no_special_chrs_check$item)))
     
     # add failed checks to master failed_checks df
     failed_checks <- failed_checks %>% 
@@ -367,7 +367,7 @@ check_files <- function(directory) {
     # update report with FAILED
     file_report <- file_report %>% 
       add_row(pass_check = "FAILED",
-              tyoe = "file",
+              type = "file",
               assessment = "non_proprietary",
               summary = paste0("Found non-proprietary extensions in ", nrow(file_no_special_chrs_check), " files: ", toString(file_non_proprietary_check$item)))
     
