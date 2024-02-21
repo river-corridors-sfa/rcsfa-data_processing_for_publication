@@ -7,7 +7,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/rc_sfa-rc-3-wenas-meta" # ran checks on commit 4285198a3edf6f47914f36894e22cee6665fd637
 
 
 ### Prep Script ################################################################
@@ -45,4 +45,5 @@ files_check <- check_files(directory)
 
 
 # 3. Check tabular data
-tabular_data_check <- check_tabular_data()
+tabular_data_check <- check_tabular_data(data_package_data)
+
