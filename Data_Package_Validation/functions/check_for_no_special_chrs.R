@@ -17,8 +17,11 @@
 
 check_for_no_special_chrs <- function(string) {
   
+  # remove all spaces from string - removes spaces because there's another function that checks for spaces
+  string_no_spaces <- gsub(" ", "", string)
+  
   # split out by character
-  split_chrs <- unlist(strsplit(string, ""))
+  split_chrs <- unlist(strsplit(string_no_spaces, ""))
   
   # check for special characters
   has_special_chrs <- length(grep("[^a-zA-Z0-9_/\\.-]", split_chrs)) > 0 # chrs allowed: lowercase letter, uppercase letter, digit, underscore, forward slash, backslash, period, or hyphen.
