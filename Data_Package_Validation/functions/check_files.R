@@ -108,8 +108,11 @@ check_files <- function(directory) {
     # check for spaces
     has_spaces <- grepl(" ", current_item)
     
+    # remove spaces
+    current_item_no_spaces <- gsub(" ", "", current_item)
+    
     # split out by character
-    split_chrs <- unlist(strsplit(current_item, ""))
+    split_chrs <- unlist(strsplit(current_item_no_spaces, ""))
     
     # check for special characters
     has_special_chrs <- length(grep("[^a-zA-Z0-9_/\\.-]", split_chrs)) > 0 # chrs allowed: lowercase letter, uppercase letter, digit, underscore, forward slash, backslash, period, or hyphen.
@@ -244,8 +247,11 @@ check_files <- function(directory) {
     # check for spaces
     has_spaces <- grepl(" ", current_item)
     
+    # remove spaces
+    current_item_no_spaces <- gsub(" ", "", current_item)
+    
     # split out by character
-    split_chrs <- unlist(strsplit(current_item, ""))
+    split_chrs <- unlist(strsplit(current_item_no_spaces, ""))
     
     # check for special characters
     has_special_chrs <- length(grep("[^a-zA-Z0-9_/\\.-]", split_chrs)) > 0 # chrs allowed: lowercase letter, uppercase letter, digit, underscore, forward slash, backslash, period, or hyphen.
@@ -369,7 +375,7 @@ check_files <- function(directory) {
       add_row(pass_check = "FAILED",
               type = "file",
               assessment = "non_proprietary",
-              summary = paste0("Found non-proprietary extensions in ", nrow(file_no_special_chrs_check), " files: ", toString(file_non_proprietary_check$item)))
+              summary = paste0("Found non-proprietary extensions in ", nrow(file_non_proprietary_check), " files: ", toString(file_non_proprietary_check$item)))
     
     # add failed checks to master failed_checks df
     failed_checks <- failed_checks %>% 
