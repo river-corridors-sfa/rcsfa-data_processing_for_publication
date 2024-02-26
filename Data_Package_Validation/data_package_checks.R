@@ -7,7 +7,8 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/rc_sfa-rc-3-wenas-meta" # ran checks on commit 4285198a3edf6f47914f36894e22cee6665fd637
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/rc_sfa-rc-3-wenas-meta" # ran checks on commit 9df5e802e51b227836bcb55174a0be56f031a6ba
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # ran checks on commit 186dc4888beba71995455e45cdc9bc7519fc7c6f
 
 
 ### Prep Script ################################################################
@@ -19,6 +20,7 @@ library(tidyverse)
 library(rlog)
 library(fs) # for tree diagram
 library(clipr) # for copying to clipboard
+library(knitr) # for kable
 
 # set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
 current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
