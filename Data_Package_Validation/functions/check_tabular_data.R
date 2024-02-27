@@ -16,10 +16,11 @@
 
 # Output: 
   # list that includes
-    # load_tabular_data() input list given
-    # report of checks
-    # list of data checks
-    # list of failed checks
+    # load_tabular_data() input
+    # df summary of headers
+    # df report of checks
+    # df of data checks
+    # df of failed checks
 
 # Assumptions: 
   # allowed chrs: lowercase letter, uppercase letter, digit, underscore, forward slash, backslash, period, or hyphen
@@ -39,6 +40,7 @@ check_tabular_data <- function(data_package_data) {
   # load user inputs
   current_data_package_data <- data_package_data
   current_data <- data_package_data$data
+  current_headers <- data_package_data$headers
   
   # load helper functions
   source("./Data_Package_Validation/functions/check_for_no_spaces.R")
@@ -50,6 +52,7 @@ check_tabular_data <- function(data_package_data) {
   # initialize an empty list to store the returned output
   data_checks <- list(
     data_package_data_from_load_tabular_data = current_data_package_data, # the input provided by the user
+    headers = data.frame(), # count and summary of the headers
     data_checks = data.frame(
         pass_check = as.logical(), # whether or not the check passed. TRUE = passed; FALSE = failed
         type = as.character(), # the level of hierarchy the check assessed (folder, file, header, column)
@@ -65,6 +68,18 @@ check_tabular_data <- function(data_package_data) {
       # files = a string of the applicable files that passed/failed the check
     report_failed = data.frame() # filtered report for pass_check == FAILED
   )
+  
+  # Summarize headers ##########################################################
+  
+  log_info("Summarizing headers.")
+  
+  data_checks$headers <- current_headers %>% 
+    mutate(file = basename(file)) %>% 
+    group_by(header) %>% 
+    summarise(header_count = n(), # collapse identical definitions
+              files = toString(file)) %>% 
+    ungroup() %>% 
+    arrange(header)
   
   # Run checks #################################################################
   
@@ -163,7 +178,7 @@ check_tabular_data <- function(data_package_data) {
     
   }
     
-    ### Assess checks ##########################################################
+    # Assess checks ############################################################
   
     log_info(paste0("Finished checking ", length(current_data), " files."))
   
@@ -200,7 +215,7 @@ check_tabular_data <- function(data_package_data) {
   
     log_info("Data check complete.")
     
-    ### Clean up output ########################################################
+    # Clean up output ##########################################################
     
     report_summary <- data_checks$summary %>% 
       select(pass_check, type, assessment, summary) %>% 
