@@ -15,17 +15,24 @@
 
 ### FUNCTION ###################################################################
 
-check_for_invalid_chr_in_string <- function(string, search_character) {
+check_for_invalid_chr_in_string <- function(string, search_invalid_chr, assessment = NA_character_, notes = NA_character_) {
   
   # check for chr in string
-  has_invalid_chr <- !str_detect(string, search_character)
+  has_invalid_chr <- str_detect(string, search_invalid_chr)
+  
+  # update assessment if user provided input
+  if (is.na(assessment)) {
+    assessment_updated <- paste0("no_invalid_chr: ", search_invalid_chr)
+  } else {
+    assessment_updated <- assessment
+  }
   
   # return table
   result <- data.frame(
-    pass_check = has_invalid_chr,
+    pass_check = !has_invalid_chr,
     item = string,
-    assessment = paste0("no_invalid_chr: ", search_character),
-    note = NA_character_)
+    assessment = assessment_updated,
+    notes = notes)
   
   return(result)
   
