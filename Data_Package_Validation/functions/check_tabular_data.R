@@ -113,20 +113,22 @@ check_tabular_data <- function(data_package_data) {
           # assumption: when R uses read_csv(), it replaces spaces with periods
         has_spaces <- check_for_invalid_chr_in_string(string = item, search_invalid_chr = "\\.", assessment = "no_spaces", notes = "If check fails, header might have spaces") %>% 
           mutate(type = "header",
-                 source = source) %>% 
+                 source = source,
+                 notes = paste0("'", item, "'")) %>% 
           select(pass_check, type, item, assessment, source, notes)
       
         # check for special chrs (T = passes check and does NOT have special chrs)
         has_special_chrs <- check_for_no_special_chrs(item) %>% 
           mutate(type = "header",
                  source = source,
-                 notes = NA_character_) %>% 
+                 notes = paste0("'", item, "' ", note)) %>% 
           select(pass_check, type, item, assessment, source, notes)
       
         # check for questionable (empty or duplicate) header names (T = passes check and does NOT have questionable headers)
         has_questionable_headers <- check_for_invalid_chr_in_string(item, "\\...", "no_questionable_headers", "If check fails, header is either missing or not unique") %>% 
           mutate(type = "header",
-                 source = source) %>% 
+                 source = source,
+                 notes = paste0("'", item, "'")) %>% 
           select(pass_check, type, item, assessment, source, notes)
       
       
@@ -146,7 +148,7 @@ check_tabular_data <- function(data_package_data) {
           item = item,
           assessment = "no_NAs",
           source = source,
-          notes = paste0("'", item, "' has ", check_NAs_filter, " rows with NA values."))
+          notes = paste0("'", item, "' has ", check_NAs_filter, " row(s) with NA values."))
         
         # check for commas
         check_commas_filter <- current_column %>% 
@@ -163,7 +165,7 @@ check_tabular_data <- function(data_package_data) {
           item = item,
           assessment = "no_commas",
           source = source,
-          notes = paste0("'", item, "' has ", check_commas_filter, " rows that contain commas."))
+          notes = paste0("'", item, "' has ", check_commas_filter, " row(s) that contain commas."))
         
 
         # add to data checks
@@ -200,16 +202,10 @@ check_tabular_data <- function(data_package_data) {
     
     # add a filtered view to generate summary
     data_checks$summary <- data_checks$report %>% 
-      mutate(base_file = basename(source)) %>% 
-      arrange(base_file) %>% 
-      select(-source) %>% 
-      distinct() %>% 
       group_by(pass_check, type, assessment) %>% 
       summarise(count = n(),
-                files = paste(base_file, collapse = ", ")) %>% 
-      mutate(summary = paste0(count, " file(s) ", tolower(pass_check), " the check for ", assessment, "."),
-             files = paste0("Files that ", tolower(pass_check), ": ", files)) %>% 
-      select(-c(count)) %>% 
+                files = paste(summary, collapse = "\n")) %>% 
+      mutate(summary = paste0(count, " file(s) ", tolower(pass_check), " the check for ", assessment, ".")) %>% 
       ungroup() %>% 
       select(pass_check, type, assessment, summary, files)
   
@@ -223,13 +219,23 @@ check_tabular_data <- function(data_package_data) {
       kable() %>% 
       print()
     
-    log_info("Copying report to clipboard.")
+    log_info("Copying summary of failed checks to clipboard.")
     
-    write_clip(data_checks$summary)
+    return_a <- data_checks$summary %>%
+      select(-files)
+    
+    return_b <- data_checks$summary %>% 
+      filter(pass_check == "FAILED") %>% 
+      select(files) %>% 
+      rename(pass_check = files)
+    
+    write_clip(
+      rbind(return_a, rep("", ncol(return_a))) %>% 
+        bind_rows(return_b))
+    
     
     log_info("check_data complete")
     
     return(data_checks)
-    
     
   }
