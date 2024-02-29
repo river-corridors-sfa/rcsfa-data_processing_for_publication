@@ -215,7 +215,7 @@ check_tabular_data <- function(data_package_data) {
     
     report_summary <- data_checks$summary %>% 
       select(pass_check, type, assessment, summary) %>% 
-      arrange(assessment) %>% 
+      arrange(pass_check) %>% 
       kable() %>% 
       print()
     
