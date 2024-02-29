@@ -10,10 +10,9 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit 6b527ea3acb1c4e0f9bf82d5557215bfc44152a9
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Muller_2023_Lambda_Pipeline_Manuscript_Data_Package/manuscript_files"
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX"
   
 
@@ -51,7 +50,19 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 # Directions: Run chunk without modification. Answer inline prompts as they appear. 
 
 # 1. Load data
-data_package_data <- load_tabular_data(directory)
+data_package_data_1 <- load_tabular_data(directory, include_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv")) # loads in files where col headers are NOT on line 0
+
+data_package_data_2 <- load_tabular_data(directory, exclude_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv")) # loads in files where col headers ARE on line 0
+
+data_package_data <- list(
+  directory = data_package_data_1$directory,
+  file_paths = c(data_package_data_1$file_paths, data_package_data_2$file_paths),
+  file_paths_relative = c(data_package_data_1$file_paths_relative, data_package_data_2$file_paths_relative),
+  data = c(data_package_data_1$data, data_package_data_2$data),
+  headers = rbind(data_package_data_1$headers, data_package_data_2$headers)
+)
 
 
 # 2a. create dd skeleton
