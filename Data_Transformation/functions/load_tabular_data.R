@@ -24,7 +24,7 @@
 
 ### FUNCTION ###################################################################
 
-load_tabular_data <- function(directory) {
+load_tabular_data <- function(directory, exclude_files = NA_character_, include_files = NA_character_) {
   
   ### Prep Script ##############################################################
   
@@ -45,11 +45,53 @@ load_tabular_data <- function(directory) {
   # get all file paths
   file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = T)
   
+    # remove excluded files
+    if (any(!is.na(exclude_files))) {
+      
+      file_paths_all <- file_paths_all[!file_paths_all %in% file.path(current_directory, exclude_files)]
+      
+    }
+    
+    # filter to only keep included files
+    if (any(!is.na(include_files))) {
+      
+      file_paths_all <- file_paths_all[file_paths_all %in% file.path(current_directory, include_files)]
+      
+    }
+  
   # get all csv file paths
-  file_paths_csv <- list.files(directory, pattern = "\\.csv$", full.names = T, recursive = T, all.files = T)
+  file_paths_csv <- list.files(current_directory, pattern = "\\.csv$", full.names = T, recursive = T, all.files = T)
+  
+    # remove excluded files
+    if (any(!is.na(exclude_files))) {
+      
+      file_paths_csv <- file_paths_csv[!file_paths_csv %in% file.path(current_directory, exclude_files)]
+      
+    }
+    
+    # filter to only keep included files
+    if (any(!is.na(include_files))) {
+      
+      file_paths_csv <- file_paths_csv[file_paths_csv %in% file.path(current_directory, include_files)]
+      
+    }
   
   # get all tsv file paths
   file_paths_tsv <- list.files(current_directory, pattern = "\\.tsv$", full.names = T, recursive = T, all.files = T)
+  
+    # remove excluded files
+    if (any(!is.na(exclude_files))) {
+      
+      file_paths_tsv <- file_paths_tsv[!file_paths_tsv %in% file.path(current_directory, exclude_files)]
+      
+    }
+    
+    # filter to only keep included files
+    if (any(!is.na(include_files))) {
+      
+      file_paths_tsv <- file_paths_tsv[file_paths_tsv %in% file.path(current_directory, include_files)]
+      
+    }
   
   # combine tabular files
   file_paths_tabular <- c(file_paths_csv, file_paths_tsv)
