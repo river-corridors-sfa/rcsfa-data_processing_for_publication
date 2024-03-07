@@ -7,7 +7,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/KassianovEvgueni_2023_AML_Plumes_Manuscript_Data_Package/KassianovEvgueni_2023_AML_Plumes"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2024_WRB_YRB_Scaling_Manuscript_Data_Package/rc_wrb_yrb_scaling" # commit 65ca2a817ca088383d8fe4faee0d69aa2b32bd3c
 
 
 ### Prep Script ################################################################
