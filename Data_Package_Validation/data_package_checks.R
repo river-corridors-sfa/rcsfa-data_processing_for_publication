@@ -7,7 +7,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2024_WRB_YRB_Scaling_Manuscript_Data_Package/rc_wrb_yrb_scaling" # commit 65ca2a817ca088383d8fe4faee0d69aa2b32bd3c
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Zheng_2024_Bioenergetic_Modeling_Manuscript_Data_Package/MM_bioenergetic_modeling" # commit 547e9c5bdadc96c5bb16d8fb44617466a2b3db58
 
 
 ### Prep Script ################################################################
