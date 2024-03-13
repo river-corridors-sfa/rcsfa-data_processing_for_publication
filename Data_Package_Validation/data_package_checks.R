@@ -7,7 +7,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Zheng_2024_Bioenergetic_Modeling_Manuscript_Data_Package/MM_bioenergetic_modeling" # commit 547e9c5bdadc96c5bb16d8fb44617466a2b3db58
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit 48807aec8b0596992dcf53e69f30e831e32e52d6
 
 
 ### Prep Script ################################################################
@@ -38,9 +38,25 @@ source("./Data_Package_Validation/functions/check_tabular_data.R")
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
 
 # 1. Load data
-data_package_data <- load_tabular_data(directory)
+data_package_data_1 <- load_tabular_data(directory, include_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers are NOT on line 0
+
+data_package_data_2 <- load_tabular_data(directory, exclude_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers ARE on line 0
 
 # combines 1 and 2
+data_package_data <- list(
+  directory = data_package_data_1$directory,
+  file_paths = c(data_package_data_1$file_paths, data_package_data_2$file_paths),
+  file_paths_relative = c(data_package_data_1$file_paths_relative, data_package_data_2$file_paths_relative),
+  data = c(data_package_data_1$data, data_package_data_2$data),
+  headers = rbind(data_package_data_1$headers, data_package_data_2$headers)
+)
+
 
 # 2. Check files
 files_check <- check_files(directory)
