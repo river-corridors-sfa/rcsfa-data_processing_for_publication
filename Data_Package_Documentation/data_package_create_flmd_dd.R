@@ -10,7 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/KassianovEvgueni_2023_AML_Plumes_Manuscript_Data_Package/KassianovEvgueni_2023_AML_Plumes"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit cf3663f1ec79f39dad89401484d0a5efca059b5d
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
@@ -50,7 +50,16 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 # Directions: Run chunk without modification. Answer inline prompts as they appear. 
 
 # 1. Load data
-data_package_data <- load_tabular_data(directory)
+data_package_data_1 <- load_tabular_data(directory, include_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers are NOT on line 0
+
+
+data_package_data_2 <- load_tabular_data(directory, exclude_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers ARE on line 0
 
 
 # 2a. create dd skeleton
