@@ -10,7 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2024_WRB_YRB_Scaling_Manuscript_Data_Package/rc_wrb_yrb_scaling/" # commit d76386bfd8943324e9fb3d983f262a903d642c4a
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Stegen_2024_ECA_2020_Sed_Manuscript_Data_Package/ECA_2020_Sed"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
