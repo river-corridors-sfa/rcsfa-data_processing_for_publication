@@ -1,28 +1,29 @@
 ### update_dd_database.R #######################################################
 # Date Created: 2024-02-05
+# Date Updated: 2024-04-26
 # Author: Bibi Powers-McCormack
 
 # Objective: Add new entries to the data dictionary database.
 
 # Input: 
-  # directory of new dds to add
+  # file name of new dd to add
 
 # Output: 
   # data_dictionary_database.csv
+  # data_dictionary_database_version_log.csv
 
 # Assumptions: 
-  # assumes all data dictionaries (and no other files) end in this pattern: "*_dd.csv" and that all file names are unique.
+  # v2 update: uploads a single dd at a time.
 
 
 ### FUNCTION ###################################################################
 
-update_dd_database <- function(directory) {
+file_path = "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Roebuck_2023_S19S_XRF_ICR_Manuscript_Data_Package/XRF_FTICR_Manuscript_Data_Package/XRF_ICR_Manuscript_dd.csv"
+
+update_dd_database <- function(file_path) {
   
-  current_directory <- directory
-  
-  # ensure the base directory ends with "/"
-  current_directory <- ifelse(substr(current_directory, nchar(current_directory), nchar(current_directory)) == "/", 
-                              current_directory, paste0(current_directory, "/"))
+  current_file_path <- file_path
+  current_file_name <- basename(current_file_path)
   
   ### Prep Script ##############################################################
   
@@ -36,67 +37,108 @@ update_dd_database <- function(directory) {
   
   ### Read in files ############################################################
   
-  # read in dd database
-  ddd <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", comment = "#", show_col_types = F) %>% 
-    mutate(status = "currently in dd")
+  log_info("Reading in dd and dd files.")
   
-  # get list of dds to add
-  dd_filenames <- list.files((current_directory), pattern = "_dd.csv", recursive = T)
+  # read in dd database
+  ddd <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", show_col_types = F)
+  
+  # read in version log
+  ddd_version_log <- read_csv("./Data_Package_Documentation/database/data_dictionary_database_version_log.csv", show_col_types = F)
+  
+  # read in current file
+  current_dd <- read_csv(current_file_path, show_col_types = F)
+  
+  # run it through rename_column_headers function
+  current_dd <- rename_column_headers(current_dd, c("Column_or_Row_Name", "Unit", "Definition")) %>%
+    select(Column_or_Row_Name,
+           Unit,
+           Definition)
   
   log_info("All inputs loaded in.")
   
-  # initialize empty df
-  new_dd_to_add <- data.frame()
+  # print number of new entries
+  log_info(paste0("Found ", nrow(current_dd), " headers in '", current_file_name, "'."))
   
-  log_info("Reading in files.")
   
-  for (i in 1:length(dd_filenames)) {
+  ### Add current_dd to ddd ####################################################
+  
+  # searches the ddd for duplicate file names, asks if the user wants to continue
+  possible_duplicates <- ddd %>% 
+    filter(dd_filename == current_file_name) %>% 
+    select(Column_or_Row_Name, dd_filename, dd_source) %>% 
+    group_by(dd_filename, dd_source) %>% 
+    summarise(headers = toString(Column_or_Row_Name)) %>% 
+    ungroup() %>% 
+    distinct()
+  
+  if (nrow(possible_duplicates) > 0) {
     
-    # get current file name
-    current_file_name <- dd_filenames[i]
+    log_info("This file name is already in the database. Showing possible duplicates: ")
     
-    log_info(paste0("Reading in file ", i , " of ", length(dd_filenames), ": ", current_file_name))
+    # show user possible duplicates - this shows a df listing the duplicates with their source and a concatenated list of headers
+    View(possible_duplicates)
     
-    # read in current file
-    current_dd <- read_csv(paste0(current_directory, current_file_name), show_col_types = F)
+    user_input <- readline(prompt = "Do you want to add your dd to the database? (enter Y/N): ")
     
-    log_info("Checking and fixing column header discrepancies.")
-    
-    # run it through rename_column_headers function
-    current_dd <- rename_column_headers(current_dd, c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type")) %>%
-      select(Column_or_Row_Name,
-             Unit,
-             Definition,
-             Data_Type,
-             Term_Type)
-    
-    # add file name to df
-    current_dd <- current_dd %>% 
-      mutate(dd_filename = basename(current_file_name))
-    
-    # add to skeleton df
-    new_dd_to_add <- new_dd_to_add %>% 
-      rbind(current_dd)
   }
   
-  # add archive col to new_to_add
-  new_dd_to_add <- new_dd_to_add %>% 
-    mutate(dd_database_archive = NA_character_) %>% 
-    mutate(status = "new to add to ddd")
   
-  # print number of new entries per new dd file to add
-  count(new_dd_to_add, dd_filename, name = "count_of_new_headers_to_add")
+  # if the user wants to add the dd...
   
-  log_info(paste0("Planning to add ", count(new_dd_to_add), " headers from ", length(dd_filenames), " data dictionary files."))
+  if (user_input == tolower(user_input) == "y") {
+    
+    # add additional database columns
+    current_dd_updated <- current_dd %>% 
+      mutate(dd_filename = current_file_name,
+             dd_source = current_file_path,
+             dd_database_notes = NA_character_,
+             dd_database_archive = NA_real_)
+    
+    # add current dd to database
+    ddd_updated <- ddd %>% 
+      add_row(current_dd_updated) %>% 
+      arrange(Column_or_Row_Name, .locale = "en") # the .locale argument get it to sort alphabetically irrespective of capital/lowercase letters
+    
+    # add current dd to version log
+    current_version_log <- data.frame(
+      date = Sys.Date(),
+      dd_source = current_file_path,
+      number_headers_added = nrow(current_dd_updated))
+      
+      # update version log
+      ddd_version_log_updated <- ddd_version_log %>% 
+        add_row(current_version_log)
+    
+    
+  } else {
+    
+    user_input <- "N"
+    
+    log_info(paste0("'", current_file_name, "' is NOT being added to the database."))
+  
+  }
   
   
-  ### Add new_to_add to ddd ####################################################
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   # If the entry is not an identical duplicate, it adds the entry to the ddd
   
-  for (i in 1:nrow(new_dd_to_add)) {
-    # loops through each header in the new to add df
-    current_row <- new_dd_to_add[i, ]
-    current_header <- current_row[, "Column_or_Row_Name"]
+  for (i in 1:nrow(current_dd)) {
+    # loops through each header in the current_dd df
+    current_row <- current_dd[i, ]
+    current_header <- current_dd[, "Column_or_Row_Name"]
+    
     current_file <- current_row[, "dd_filename"]
     
     # checks to see if an identical duplicate exists in the database
