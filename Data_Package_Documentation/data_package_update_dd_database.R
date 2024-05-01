@@ -1,6 +1,6 @@
 ### data_package_update_dd_database.R ##########################################
 # Date Created: 2024-04-30
-# Date Updated: 2024-04-30
+# Date Updated: 2024-05-01
 # Author: Bibi Powers-McCormack
 
 # Objective: This script will generate a static list of all the times the ddd was updated. 
@@ -27,9 +27,17 @@ getwd()
 
 # load functions
 source("./Data_Package_Documentation/functions/update_dd_database.R")
+source("./Data_Package_Documentation/functions/get_DPs_not_in_dd_database.R")
 
 # load helper functions
 source("./Data_Transformation/functions/rename_column_headers.R")
+
+
+### Check what needs to be updated #############################################
+# Directions: Run this chunk without modification. 
+
+# this returns a list of the data packages that you need to add to the dd database
+get_DPs_not_in_dd_database()
 
 
 ### RECORD KEEPING #############################################################
