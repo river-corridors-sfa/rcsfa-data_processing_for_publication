@@ -39,6 +39,19 @@ update_dd_database <- function(upload_file_path, archive_file_path = upload_file
   source("./Data_Transformation/functions/rename_column_headers.R")
   
   
+  ### Check for when file path is too long #####################################
+  # the file path will include "//?/" at the beginning if the file path is too long
+  # this chunk looks for that string, and if it finds it returns a warning and stops the function
+  
+  if (str_detect(upload_file_path, "//?/")) {
+    
+    log_warn("File path too long. Put dd on desktop and use as upload_file_path. Include long path as archive_file_path")
+    
+    return()
+    
+  }
+  
+  
   ### Read in files ############################################################
   # Inputs: data_dictionary_database.csv, data_dictionary_database_version_log.csv, current file
   
@@ -63,6 +76,20 @@ update_dd_database <- function(upload_file_path, archive_file_path = upload_file
   
   # print number of new entries
   log_info(paste0("Found ", nrow(current_dd), " headers in '", current_file_name, "'."))
+  
+  
+  ### Clean up file path #######################################################
+  # the file path will include "//?/" at the beginning if the file path is too long
+  # if this string is detected, this removes that part from the archive_file_path name
+  # this is so the database includes a cleaned up file path
+  
+  if (str_detect(current_file_path, "//?/")) {
+    
+    log_info("Removing '//?/' from archive_file_path name.")
+    
+    current_file_path <- str_remove(current_file_path, "^//\\?/") # ^ means the pattern should be at the start of the string, \ escapes the ?
+  }
+  
   
   
   ### Check for possible duplicates ############################################
