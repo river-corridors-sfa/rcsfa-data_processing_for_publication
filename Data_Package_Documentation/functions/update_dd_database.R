@@ -81,6 +81,8 @@ update_dd_database <- function(file_path) {
     
     user_input <- readline(prompt = "Do you want to add your dd to the database? (enter Y/N): ")
     
+  } else {
+    user_input <- "y"
   }
   
   
@@ -90,12 +92,14 @@ update_dd_database <- function(file_path) {
   
   if (tolower(user_input) == "y") {
     
+    log_info("Adding your dd to the database.")
+    
     # add additional database columns
     current_dd_updated <- current_dd %>% 
       mutate(dd_filename = current_file_name,
              dd_source = current_file_path,
              dd_database_notes = NA_character_,
-             dd_database_archive = NA_real_)
+             dd_database_archive = NA)
     
     # add current dd to database
     ddd_updated <- ddd %>% 
@@ -126,7 +130,10 @@ update_dd_database <- function(file_path) {
       # export updated database
       write_csv(ddd_updated, "./Data_Package_Documentation/database/data_dictionary_database.csv", col_names = TRUE, na = "")
       
-      log_info(paste0("Updated version log and exported out data_dictionary_database.csv."))
+      log_info("Updated version log and exported out data_dictionary_database.csv.")
+      
+      # returns dd database
+      return(ddd_updated)
       
     }
     
@@ -136,11 +143,10 @@ update_dd_database <- function(file_path) {
     user_input <- "N"
     
     log_info(paste0("'", current_file_name, "' is NOT being added to the database."))
+    
+    return(ddd)
   
   }
-  
-  # returns dd database
-  return(ddd_updated)
   
   log_info("update_dd_database complete")
   
