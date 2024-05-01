@@ -39,13 +39,16 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Bao_2023_Residence_Time_Distribution_Manuscript_Data_Package/Bao_2024_Residence_Time_Distribution_Data_Package/Bao_2024_Residence_Time_Distribution_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Danczak_2023_48Hour_Manuscript_Data_Package/Danczak_2023_48Hour_Manuscript_Data_Package/48Hour_dd.csv")
-ddd <- update_dd_database("\\\\Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\03_Manuscript-Data-Package-Folders\\00_ARCHIVE-WHEN-PUBLISHED\\Fulton_2023_Water_Column_Manuscript_Data_Package\\Fulton_2024_Water_Column_Respiration_Data_Package\\Fulton_2024_Water_Column_Respiration_Data_Package_dd.csv")
+ddd <- update_dd_database(upload_file_path = "C:/Users/powe419/OneDrive - PNNL/Desktop/Fulton_2024_Water_Column_Respiration_Data_Package_dd.csv",
+                          archive_file_path = "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Fulton_2023_Water_Column_Manuscript_Data_Package/Fulton_2024_Water_Column_Respiration_Data_Package/Fulton_2024_Water_Column_Respiration_Data_Package_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Gary_2024_sl-archive-whondrs_Manuscript_Data_Package/sl_archive_whondrs_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Kassianov_2023_AML_Plumes_Manuscript_Data_Package/Kassianov_2023_AML_Plumes/Kassianov_2024_AML_Plumes_dd.csv")
-ddd <- update_dd_database("\\\\Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\03_Manuscript-Data-Package-Folders\\00_ARCHIVE-WHEN-PUBLISHED\\Muller_2024_Lambda_Pipeline_Manuscript_Data_Package\\Muller_2024_Lambda_PFLOTRAN_Manuscript_Data_Package\\Muller_2024_Lambda_PFLOTRAN_Manuscript_Data_Package_dd.csv")
+ddd <- update_dd_database(upload_file_path = "C:/Users/powe419/OneDrive - PNNL/Desktop/Muller_2024_Lambda_PFLOTRAN_Manuscript_Data_Package_dd.csv",
+                          archive_file_path = "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Muller_2024_Lambda_Pipeline_Manuscript_Data_Package/Muller_2024_Lambda_PFLOTRAN_Manuscript_Data_Package/Muller_2024_Lambda_PFLOTRAN_Manuscript_Data_Package_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Roebuck_2023_S19S_XRF_ICR_Manuscript_Data_Package/XRF_FTICR_Manuscript_Data_Package/XRF_ICR_Manuscript_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Zahura_2023_Postfire_Recovery_Manuscript_Data_Package/Postfire_recovery_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_bioenergetic_modeling_dd.csv")
+
 
 
 # STUDY DATA PACKAGES ----

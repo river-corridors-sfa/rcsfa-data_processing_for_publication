@@ -19,10 +19,14 @@
 
 
 ### FUNCTION ###################################################################
+# Inputs: 
+  # upload file path = location of where the file is currently saved 
+    # (this may differ from archive_file_path when the archive location makes the file path too long (beyond 256 chrs))
+  # archive file path, if different from upload = location of where the file is archived
 
-update_dd_database <- function(file_path) {
+update_dd_database <- function(upload_file_path, archive_file_path = upload_file_path) {
   
-  current_file_path <- file_path
+  current_file_path <- archive_file_path
   current_file_name <- basename(current_file_path)
   
   ### Prep Script ##############################################################
@@ -47,7 +51,7 @@ update_dd_database <- function(file_path) {
   ddd_version_log <- read_csv("./Data_Package_Documentation/database/data_dictionary_database_version_log.csv", show_col_types = F)
   
   # read in current file
-  current_dd <- read_csv(current_file_path, show_col_types = F)
+  current_dd <- read_csv(upload_file_path, show_col_types = F)
   
   # run it through rename_column_headers function to identify the 3 cols: Column_or_Row_Name, Unit, Definition
   current_dd <- rename_column_headers(current_dd, c("Column_or_Row_Name", "Unit", "Definition")) %>%
