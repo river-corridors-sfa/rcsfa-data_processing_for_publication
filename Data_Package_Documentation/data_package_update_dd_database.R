@@ -50,8 +50,30 @@ ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manusc
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_bioenergetic_modeling_dd.csv")
 
 
-
 # STUDY DATA PACKAGES ----
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/2023_04_Roebuck/SPS_Roebuck_Data_Package/SPS_Roebuck_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/BSLE_Data_Package/BSLE_Data_Package/BSLE_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/BSLE_Data_Package_v2/BSLE_Data_Package_v2/BSLE_dd_v2.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/BSLE_Data_Package_v3/v3_BSLE_Data_Package/v3_BSLE_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Chemogeography_2021/Chemogeography_Data_package_2021/Data_Dictionaries/BTRS19_Metadata_for_publishing_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Chemogeography_2021/Chemogeography_Data_package_2021/Data_Dictionaries/BTRS19_Report_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Chemogeography_2021/Chemogeography_Data_package_2021/Data_Dictionaries/FLMD_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Chemogeography_2021/Chemogeography_Data_package_2021/Data_Dictionaries/Processed_BTRS19_CONUS_1-27_newcode_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Chemogeography_2021/Chemogeography_Data_package_2021/Data_Dictionaries/Processed_S19S_Sediments_Water_2-2_newcode_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Chemogeography_2021/Chemogeography_Data_package_2021/Data_Dictionaries/WHONDRS_S19S_Metadata_v2_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v1/CM_SSS_Data_Package/CM_SSS_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v2/v2_CM_SSS_Data_Package/v2_CM_SSS_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v3/v3_CM_SSS_Data_Package/v3_CM_SSS_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Cross-RCSFA_Geospatial_Data_Package/RCSFA_Geospatial_Data_Package_v1/RCSFA_Geospatial_dd_v1.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Cross-RCSFA_Geospatial_Data_Package_v2/v2_RCSFA_Geospatial_Data_Package/v1_RCSFA_Geospatial_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Cross-RCSFA_Geospatial_Data_Package_v3/v3_RCSFA_Geospatial_Data_Package/v2_RCSFA_Geospatial_dd.csv")
 ddd <- update_dd_database()
+ddd <- update_dd_database()
+ddd <- update_dd_database()
+
+
+
+
+
 
 
