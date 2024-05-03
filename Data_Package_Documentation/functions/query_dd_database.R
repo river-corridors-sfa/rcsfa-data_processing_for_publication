@@ -29,7 +29,16 @@ query_dd_database <- function(dd_skeleton) {
     mutate(across(everything(), ~ ifelse(. == "", NA, .))) # replaces "" with NA
   
   # load dd database
-  ddd <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", comment = "#", show_col_types = F)
+  ddd <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", show_col_types = F)
+  
+  # convert archive col from logical to factor for sorting purposes later
+  archive_levels <- c("Use", "Unevaluated", "Do not use")
+  
+  ddd <- ddd %>% 
+    mutate(dd_database_archive = case_when(dd_database_archive == TRUE ~ "Do not use",
+                                           dd_database_archive == FALSE ~ "Use", 
+                                           is.na(dd_database_archive) ~ "Unevaluated")) %>% 
+    mutate(dd_database_archive = factor(dd_database_archive, levels = archive_levels))
   
   # load helper functions
   source("./Data_Transformation/functions/rename_column_headers.R")
@@ -38,7 +47,7 @@ query_dd_database <- function(dd_skeleton) {
   # Directions: Run this chunk without modification. Respond to inline prompts as they appear.
   # This confirms the provided skeleton has the correct column headers. 
   
-  current_dd_skeleton <- rename_column_headers(current_dd_skeleton, c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type"))
+  current_dd_skeleton <- rename_column_headers(current_dd_skeleton, c("Column_or_Row_Name", "Unit", "Definition"))
   
   ### Query for shared definitions #############################################
   # Directions: Run this chunk without modification. Respond to inline prompts as they appear.
@@ -76,12 +85,19 @@ query_dd_database <- function(dd_skeleton) {
       
     } else if (nrow(ddd_filter) > 0) {
       
-      # if the header is in the database, show definitions and ask user which one they want to use by imputing the index number
+      # if the header is in the database, show definitions and ask user which one they want to use by imputing the row number
       ddd_filter <- ddd_filter %>% 
-        group_by(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, dd_database_archive) %>% 
+        filter(dd_database_archive != "Do not use") %>% 
+        group_by(Column_or_Row_Name, Unit, Definition, dd_database_archive, dd_database_notes) %>% 
         summarise(dd_filenames_count = n(), # collapse identical definitions
                   dd_filenames = toString(dd_filename)) %>% 
-        arrange(desc(dd_filenames_count)) %>% 
+        arrange(
+          # sort archive col by FALSE, NA, TRUE
+          dd_database_archive,
+          # sort by count in descending order
+          desc(dd_filenames_count)
+        ) %>% 
+        # arrange(desc(dd_filenames_count)) %>% 
         ungroup()
       
       view(ddd_filter)
@@ -91,7 +107,7 @@ query_dd_database <- function(dd_skeleton) {
       # use row number to copy over correct definition
       ddd_filter <- ddd_filter %>% 
         slice(as.numeric(user_input)) %>% 
-        select(-c(dd_database_archive, dd_filenames_count, dd_filenames))
+        select(c(Column_or_Row_Name, Unit, Definition))
       
     } 
     
@@ -115,7 +131,7 @@ query_dd_database <- function(dd_skeleton) {
   
   # sort by Column_or_Row
   populate_skeleton_dd <- populate_skeleton_dd %>% 
-    arrange(Column_or_Row_Name)
+    arrange(Column_or_Row_Name, .locale = "en") # this sorts irrespective of caps
   
   log_info("Querying complete.")
   
