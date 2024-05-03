@@ -56,6 +56,7 @@ ddd <- update_dd_database(upload_file_path = "C:/Users/powe419/OneDrive - PNNL/D
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Roebuck_2023_S19S_XRF_ICR_Manuscript_Data_Package/XRF_FTICR_Manuscript_Data_Package/XRF_ICR_Manuscript_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Zahura_2023_Postfire_Recovery_Manuscript_Data_Package/Postfire_recovery_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_bioenergetic_modeling_dd.csv")
+ddd <- update_dd_database()
 
 
 # STUDY DATA PACKAGES ----
@@ -112,16 +113,27 @@ ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/SSS_Data_Package/SSS_Data_Package/SSS_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/SSS_Data_Package_v2/v2_SSS_Data_Package/v2_SSS_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/SSS_Ecosystem_Respiration_Data_Package/SSS_Ecosystem_Respiration_Data_Package/SSS_ER_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Transformations_2021/Transformations_Data_package_2021/dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Transformations_2021/Transformations_Data_package_2021_v2/dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Wenas_Data_Package/Wenas_Data_Package/YRBT_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_DBP_Data_Package/WHONDRS_DBP_Data_Package/DBP_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_Sediment_v4/WHONDRS_S19S_Sediment_v4/dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_Sediment_v5/WHONDRS_S19S_Sediment_v5/dd_v5.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_Sediment_v6/WHONDRS_S19S_Sediment_v6/dd_v4.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_Sediment_v7/WHONDRS_S19S_Sediment_v7/dd_v5.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_Sediment_v8/v8_WHONDRS_S19S_Sediment/v6_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_SW_v4/WHONDRS_S19S_SW_v4/dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_SW_v5/WHONDRS_S19S_SW_v5/dd_v2.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_S19S_SW_v6/v6_WHONDRS_S19S_SW/v3_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_STL_Data_Package/WHONDRS_STL_Data_Package/WHONDRS_STL_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_WROL2019_Data_Package/WHONDRS_WROL2019_Data_Package/WHONDRS_WROL_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_WROL2019_Data_Package_v2/WHONDRS_WROL2019_Data_Package_v2/WHONDRS_WROL_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_WROL2019_Data_Package_v3/v3_WHONDRS_WROL2019_Data_Package/v2_WHONDRS_WROL_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_YDE21_Data_Package/WHONDRS_YDE21_data_package/WHONDRS_YDE21_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_YDE21_Data_Package_v2/WHONDRS_YDE21_Data_Package_v2/WHONDRS_YDE21_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_YDE22_Data_Package/WHONDRS_YDE22_Data_Package/WHONDRS_YDE22_dd.csv")
+ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/YOLO_ESSDive/dd.csv")
 ddd <- update_dd_database()
-ddd <- update_dd_database()
-ddd <- update_dd_database()
-ddd <- update_dd_database()
-ddd <- update_dd_database()
-ddd <- update_dd_database()
-
-
-
-
 
 
 
