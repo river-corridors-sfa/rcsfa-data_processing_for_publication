@@ -28,6 +28,7 @@ getwd()
 # load functions
 source("./Data_Package_Documentation/functions/update_dd_database.R")
 source("./Data_Package_Documentation/functions/get_DPs_not_in_dd_database.R")
+source("./Data_Package_Documentation/functions/annotate_dd_database.R")
 
 # load helper functions
 source("./Data_Transformation/functions/rename_column_headers.R")
@@ -40,10 +41,10 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 get_DPs_not_in_dd_database()
 
 
-### RECORD KEEPING #############################################################
+### RECORD KEEPING: Add new DPs to ddd #########################################
 # Directions: Add new data package(s) to the growing list and only run the ones you add. 
 
-# MANUSCRIPT DATA PACKAGES ----
+# ~ manuscript data packages ----
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Bao_2023_Residence_Time_Distribution_Manuscript_Data_Package/Bao_2024_Residence_Time_Distribution_Data_Package/Bao_2024_Residence_Time_Distribution_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Danczak_2023_48Hour_Manuscript_Data_Package/Danczak_2023_48Hour_Manuscript_Data_Package/48Hour_dd.csv")
@@ -59,7 +60,7 @@ ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manusc
 ddd <- update_dd_database()
 
 
-# STUDY DATA PACKAGES ----
+# ~ study data packages ----
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/2023_04_Roebuck/SPS_Roebuck_Data_Package/SPS_Roebuck_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/BSLE_Data_Package/BSLE_Data_Package/BSLE_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/BSLE_Data_Package_v2/BSLE_Data_Package_v2/BSLE_dd_v2.csv")
@@ -136,4 +137,9 @@ ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-
 ddd <- update_dd_database()
 
 
+
+### Annotate dd database #######################################################
+# Directions: Run this function to annotate (mark as archive and add notes) the dd database
+
+annotate_dd_database(num_headers_to_assess = 10) # returns the top X header/unit/definitions used most often
 
