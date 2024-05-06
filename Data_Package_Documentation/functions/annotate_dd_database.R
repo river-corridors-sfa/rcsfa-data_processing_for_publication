@@ -53,6 +53,8 @@ annotate_dd_database <- function(num_headers_to_assess) {
     rownames_to_column(., "filter_id") %>% 
     ungroup()
   
+  log_info(paste0("Headers: ", filter_ddd %>% select(Column_or_Row_Name) %>% c()))
+  
   # initialize populate ddd to be later edited
   annotated_ddd <- source_ddd %>% 
     left_join(filter_ddd, by = c("Column_or_Row_Name", "Unit", "Definition")) # match up and add the filter_id to the ddd
