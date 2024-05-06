@@ -149,12 +149,24 @@ annotate_dd_database <- function(num_headers_to_assess) {
       } # closes user_input if
     } # closes for loop
   
- # clean up df
+  # clean up df
   annotated_ddd <- annotated_ddd %>% 
     select(-filter_id)
   
+  # ask if ready to export
+  user_prompt_export <- readline("Ready to export annotated dd database? (Y/N) ")
+  
+  if (tolower(user_prompt_export) == "y") {
+    
   # export annotated ddd
   write_csv(annotated_ddd, "./Data_Package_Documentation/database/data_dictionary_database.csv", na = "")
+    
+  } else{
+    
+    log_warn("Annotated dd database NOT exporting.")
+  }
+  
+  log_info("annotate_dd_database.R complete")
   
 }
 
