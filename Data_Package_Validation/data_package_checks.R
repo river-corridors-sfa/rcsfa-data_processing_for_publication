@@ -7,7 +7,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2024_WRB_YRB_Scaling_Manuscript_Data_Package/rc_wrb_yrb_scaling/" # commit d76386bfd8943324e9fb3d983f262a903d642c4a
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Myers-Pigg_2024_BSLE_Muffle_vs_Open_Manuscript_Data_Package/rcsfa_rc3_bsle_mufflevopen" # commit 0b27d09d83e132047bbd15cc87a443dc17cf8691
 
 
 ### Prep Script ################################################################
