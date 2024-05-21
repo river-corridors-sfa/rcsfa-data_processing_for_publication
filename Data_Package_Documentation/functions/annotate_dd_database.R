@@ -1,9 +1,13 @@
 ### annotate_dd_database.R #####################################################
 # Date Created: 2024-05-03
-# Date Updated: 2024-05-03
+# Date Updated: 2024-05-21
 # Author: Bibi Powers-McCormack
 
-# Objective: 
+# Objective for annotate_dd_database_status(): 
+  # return sorted list of results that shows which headers still need ddd annotations
+  # filters for unevaluated (archive = NA) headers and sorts based on how many times that column was used in a data package.
+
+# Objective for annotate_dd_database(): 
   # Read in dd database
   # Filter for dd_database_archive is NA
   # Group by header, unit, and definition
@@ -13,6 +17,49 @@
     # Ask user if archive should be T, F, or NA (0)
     # If T, prompt with dd_database_note to leave comment with reasoning
     # Add that result to all rows that match that ID
+
+
+### FUNCTION ###################################################################
+
+annotate_dd_database_status <- function(number_of_results) {
+  
+  # load libraries
+  library(tidyverse)
+  library(rlog)
+  library(knitr) # for kable()
+  
+  # load data
+  source_ddd <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", show_col_types = F)
+  
+  # filter ddd
+  filter_ddd <- source_ddd %>% 
+    
+    # filter for rows where dd_database_archive is NA
+    filter(is.na(dd_database_archive)) %>% 
+    
+    # select only dd cols
+    select(Column_or_Row_Name, Unit, Definition) %>% 
+    
+    # group by dd cols
+    group_by(Column_or_Row_Name, Unit, Definition) %>% 
+    
+    # sort cols by headers that are referenced most often at the top
+    summarise(count = n()) %>% # get count of how many times that header is in the database
+    ungroup() %>% 
+    distinct() %>% 
+    select(count, Column_or_Row_Name) %>% 
+    arrange(desc(count)) # sort by count with highest appearances at top
+    
+  # return table of results
+  top_results <- filter_ddd %>% 
+    head(number_of_results) %>% 
+    kable(.)
+  
+  log_info(paste0("Showing top ", number_of_results, " results."))
+  
+  return(top_results)
+  
+}
 
 
 ### FUNCTION ###################################################################
