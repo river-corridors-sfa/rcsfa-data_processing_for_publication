@@ -154,7 +154,7 @@ annotate_dd_database <- function(num_headers_to_assess) {
       View(current_decision)
       
       # ask user if they want to archive the current row
-      user_input <- readline(prompt = "Do you want to archive this header/unit/definition? (Y/N) ")
+      user_input <- readline(prompt = "Do you want to archive the header/unit/definition in ALL CAPS? (Y/N) ")
       
       # if yes...
       if (tolower(user_input) == "y") {
