@@ -56,7 +56,9 @@ query_dd_database <- function(dd_skeleton) {
   # The output is a populated skeleton. 
   
   # create empty df to slowly populate
-  populate_skeleton_dd <- data.frame()
+  populate_skeleton_dd <- current_dd_skeleton %>% 
+    select(everything()) %>% 
+    slice(0)
   
   
   for (i in 1:nrow(current_dd_skeleton)) {
@@ -116,13 +118,13 @@ query_dd_database <- function(dd_skeleton) {
       
       # fill in with whatever was already present in the skeleton (usually blanks)
       populate_skeleton_dd <- populate_skeleton_dd %>% 
-        rbind(., current_row)
+        bind_rows(., current_row)
       
     } else {
       
       # fill in with the selected definition from the database
       populate_skeleton_dd <- populate_skeleton_dd %>% 
-        rbind(., ddd_filter)
+        bind_rows(., ddd_filter)
       
     }
     
@@ -222,7 +224,7 @@ query_dd_database <- function(dd_skeleton) {
     
     # add current row to the edited df
     edit_skeleton_dd <- edit_skeleton_dd %>% 
-      rbind(., current_row)
+      bind_rows(., current_row)
     
   }
   
