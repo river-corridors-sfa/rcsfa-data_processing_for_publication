@@ -10,7 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Stegen_2024_ECA_2020_Sed_Manuscript_Data_Package/ECA_2020_Sed"
+directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/A/2024_BSLE_Processed_OM_Manuscripts_Data_Package" # note: parent folder "2024_BSLE_Processed_OM_Manuscripts_Data_Package" was temporarily renamed "A" because the file path was too long
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
