@@ -141,7 +141,9 @@ ddd <- update_dd_database()
 ### Annotate dd database #######################################################
 # Directions: Run this function to annotate (mark as archive and add notes) the dd database
 
-annotate_dd_database_status(number_of_results = 20) # checks status of annotations for X columns
+# checks status of annotations for X columns
+annotate_dd_database_status(number_of_results = 20) 
 
+# annotates dd database by iterating through each header and asking user for annotation
 annotate_dd_database(num_headers_to_assess = 10) # returns the top X header/unit/definitions used most often
 
