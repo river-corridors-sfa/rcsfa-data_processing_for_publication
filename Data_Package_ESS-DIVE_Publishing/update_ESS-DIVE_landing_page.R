@@ -160,7 +160,10 @@ if(!http_error(upload_via_api) ){
 
 
 ### Update ESS-DIVE landing page ###############################################
+# note that updates to each section replace what was previously there
 
+
+# update to v2 (change title)
 user_input_essdive_id <- "ess-dive-ee2f1c5173c98ca-20240522T182138080471"
 
 json_list_v2 <- list(
@@ -193,7 +196,7 @@ if(!http_error(update_via_api) ){
 }
 
 
-### update again
+### update again to v3 (add coords)
 user_input_essdive_id <- "ess-dive-8c7ce3eb9cb4250-20240522T185759146692"
 
 json_list_v3 <- list(
@@ -233,3 +236,96 @@ if(!http_error(update_via_api) ){
   print(http_status(update_via_api))
   message(put_package_text)
 }
+
+
+### update to v4 (add more coords)
+user_input_essdive_id <- "ess-dive-9b4c92d0c8aae96-20240522T194054118315"
+
+json_list_v4 <- list(
+  name = "BP Example Data Package v4", #title*
+  spatialCoverage = list(
+    list(description = "geographic location description change to Richland v4", #geographic description
+         geo = list(
+           list(name = "Northwest",
+                latitude = 46.34505149590734, # geographic coordinates
+                longitude = -119.27934782172696),
+           list(name = "Southeast",
+                latitude = 56.38609,
+                longitude = -121.45047))),
+    list(description = "geographic location description add Sequim v4",
+         geo = list(
+           list(name = "Northwest",
+                latitude = 48.07700161622627,
+                longitude = -123.04651782941667),
+           list(name = "Southeast",
+                latitude = 48.07700161622627,
+                longitude = -123.04651782941667))))
+)
+
+json_str_v4 <- toJSON(json_list_v4, auto_unbox = T, pretty = T)
+
+write_clip(json_str_v4)
+
+update_via_api <- PUT(url = paste0(static_inputs$call_post_package, "/", user_input_essdive_id),
+                      body = json_str_v4,
+                      add_headers(Authorization = static_inputs$header_authorization,
+                                  "Content-Type" = "application/json"))
+
+put_package_text <- content(update_via_api, "text")
+put_package_json <- fromJSON(put_package_text)
+
+# Check the status and review the results
+if(!http_error(update_via_api) ){
+  attributes(put_package_json)
+  cat("View URL: ")
+  cat(put_package_json$viewUrl)
+  cat("\n")
+  cat("Name: ")
+  cat(put_package_json$dataset$name)
+}else {
+  print(http_status(update_via_api))
+  message(put_package_text)
+}
+
+
+### update to v5 (fix coords)
+user_input_essdive_id <- "ess-dive-8bfeda9e12b4907-20240522T204804805253"
+
+json_list_v5 <- list(
+  name = "BP Example Data Package v5", #title*
+  spatialCoverage = list(
+    list(description = "geographic location description change to Richland v5", #geographic description
+         geo = list(
+           list(name = "Northwest",
+                latitude = 46.34505149590734, # geographic coordinates
+                longitude = -119.27934782172696),
+           list(name = "Southeast",
+                latitude = 46.34505149590734,
+                longitude = -119.27934782172696))))
+)
+
+json_str_v5 <- toJSON(json_list_v5, auto_unbox = T, pretty = T)
+
+write_clip(json_str_v5)
+
+update_via_api <- PUT(url = paste0(static_inputs$call_post_package, "/", user_input_essdive_id),
+                      body = json_str_v5,
+                      add_headers(Authorization = static_inputs$header_authorization,
+                                  "Content-Type" = "application/json"))
+
+put_package_text <- content(update_via_api, "text")
+put_package_json <- fromJSON(put_package_text)
+
+# Check the status and review the results
+if(!http_error(update_via_api) ){
+  attributes(put_package_json)
+  cat("View URL: ")
+  cat(put_package_json$viewUrl)
+  cat("\n")
+  cat("Name: ")
+  cat(put_package_json$dataset$name)
+}else {
+  print(http_status(update_via_api))
+  message(put_package_text)
+}
+
