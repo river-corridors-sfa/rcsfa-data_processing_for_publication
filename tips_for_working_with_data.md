@@ -19,3 +19,7 @@ missing_value_codes <- read_csv("example_dd.csv") %>%  # Read the dd file in
 # Use the missing_value_codes vector to convert to R's preferred NA when reading in files
 df <- read_csv("example_data_file.csv", na = missing_value_codes)
 ```
+Alternatively, if you wished to hard code in missing value codes, you can do it like this: 
+``` R
+df <- read_csv("example_data_file.csv", na = c("NA", "-9999", "", "N/A"))
+```
