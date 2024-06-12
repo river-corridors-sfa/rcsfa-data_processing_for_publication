@@ -388,7 +388,7 @@ check_files <- function(directory) {
       add_row(pass_check = "PASSED",
               type = "file",
               assessment = "non_proprietary",
-              summary = paste0("There are no non-proprietary extensions in ", length(current_files), " files."))
+              summary = paste0("There are no proprietary extensions in ", length(current_files), " files."))
   }
   
   # add file_checks to output list
