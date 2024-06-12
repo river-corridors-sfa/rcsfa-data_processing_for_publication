@@ -7,7 +7,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Myers-Pigg_2024_BSLE_Muffle_vs_Open_Manuscript_Data_Package/rcsfa_rc3_bsle_mufflevopen" # commit 0b27d09d83e132047bbd15cc87a443dc17cf8691
+directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/A/2024_BSLE_Processed_OM_Manuscripts_Data_Package" # note: parent folder "2024_BSLE_Processed_OM_Manuscripts_Data_Package" was temporarily renamed "A" because the file path was too long
 
 
 ### Prep Script ################################################################
