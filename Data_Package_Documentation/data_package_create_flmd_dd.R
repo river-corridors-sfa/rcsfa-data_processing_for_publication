@@ -286,3 +286,6 @@ flmd_skeleton_2 <- flmd_skeleton %>%
 write_csv(dd_skeleton_2, "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/CM_SSS_Data_Package_v4/v4_CM_SSS_Data_Package/CM_SSS_dd_20240610.csv", na = "")
 
 write_csv(flmd_skeleton_2, "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/CM_SSS_Data_Package_v4/v4_CM_SSS_Data_Package/CM_SSS_flmd_20240610.csv", na = "")
+
+# write out skeleton after it went through the database
+write_csv(edit_skeleton_dd, "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/CM_SSS_Data_Package_v4/v4_CM_SSS_Data_Package/CM_SSS_dd_20240611.csv", na = "")
