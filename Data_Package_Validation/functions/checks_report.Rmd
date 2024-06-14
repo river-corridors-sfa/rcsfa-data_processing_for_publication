@@ -1,0 +1,197 @@
+---
+title: "Data Package Checks Report"
+rmd_author: "Bibi Powers-McCormack"
+date_created: "2024-06-12"
+date_updated: "2024-06-12"
+output: 
+  html_document:
+    toc: TRUE
+    theme: simplex
+---
+
+This report was created on `r Sys.Date()` by `r report_author`.
+
+## Summary
+**`r basename(data_package_data$directory)`  **
+
+> **Your data package passed `X` of `Y` required tests.**  
+> **Your data package passed `X` of `Y` recommended tests.**  
+
+
+## Required Checks {.tabset}
+
+### Required Checks
+
+The following checks are required to pass before a data package will be published.  
+- **FOLDER** `no_special_chrs`: The only characters allowed in folder names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
+- **FILE** `no_special_chrs`: The only characters allowed in file names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
+
+### Special Chrs {.tabset}
+
+#### File Names
+> <p style='color:red;'><strong>FAILED</strong></p>
+
+```{r, echo=FALSE}
+file_names <- basename(list.files(data_package_data$directory, recursive = T))
+
+allowed_chars <- "a-zA-Z0-9_./\\-"
+
+# initialize empty df for special chrs
+special_characters <- data.frame(special_chrs = character(), 
+                               file_name = character())
+
+for (i in 1:length(file_names)) { 
+  
+  current_file_name <- file_names[i]
+  
+  # extract chrs not allowed
+  current_special_chrs <- str_extract_all(current_file_name, "[^a-zA-Z0-9_/\\.-]")[[1]]
+  
+  if (length(current_special_chrs > 0)) {
+    
+    # if file name has special chrs, loop through each special chr
+    for (special_chr in current_special_chrs) {
+      
+      # add it to the df
+      special_characters <- special_characters %>% 
+        add_row(special_chrs = special_chr,
+                file_name = current_file_name)
+    }
+  } else {
+    
+    # add it to df
+    special_characters <- special_characters %>% 
+      add_row(special_chrs = "none",
+              file_name = current_file_name)
+  }
+}
+
+# collapse by special chr
+special_characters_count <- special_characters %>% 
+  distinct() %>% 
+  group_by(special_chrs) %>% 
+  summarise(special_chrs_count = n(),
+            files = toString(basename(file_name))) %>% 
+  ungroup() %>% 
+  mutate(
+    # replace spaces with the word "[space]"
+    special_chrs = case_when(special_chrs == " " ~ "[space]", T ~ special_chrs), 
+    # create logical col for if special chr exists
+    has_special_chrs = case_when(special_chrs == "none" ~ F, T ~ T)) %>% 
+  # convert special_chrs into factor, ordered by most to least)
+  mutate(special_chrs = reorder(special_chrs, -special_chrs_count)) 
+  
+
+ggplot(special_characters_count, aes(x = special_chrs, y = special_chrs_count, fill = has_special_chrs)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = special_chrs_count), vjust = -0.5) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_manual(values = c("TRUE" = "red", "FALSE" = "grey")) +
+  theme_minimal() +
+  labs(x = "Special Character", y = "Count of Files", title = paste0("Evaluation of Special Characters in File Names"))
+
+has_special_characters_count <- special_characters_count%>% 
+  filter(has_special_chrs == TRUE)
+
+if (nrow(has_special_characters_count) > 0) {
+  
+  # if there are special chrs, show table of them
+  has_special_characters_count %>% 
+  select(-has_special_chrs) %>% 
+  datatable(rownames = F,
+          filter = "top",
+          class = "stripe")
+}
+
+```
+
+#### Folder Names
+> <p style='color:green;'><strong>PASSED</strong></p>
+
+## Recommended Checks {.tabset}
+
+### Recommended Checks
+The following checks are recommended to pass before a data package will be published.  
+- **FILE** `no_proprietary_exts`: Proprietary files are strongly discouraged.  
+- **TABULAR DATA HEADERS** `no_special_chrs`: The only characters recommended in tabular data header names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.
+
+### File Extensions {.tabset}
+> <p style='color:red;'><strong>FAILED</strong></p>
+``r sum(is_proprietary$extension_count)`` of ``r total_number_of_files`` file(s) in your data package are proprietary. Proprietary files are strongly discouraged and, if present, are highlighted in red below. Please replace these files with a non-proprietary file type or discuss alternative options with the Data Management Team. 
+
+```{r, echo = FALSE}
+proprietary_extensions <- c("docx", "doc", "xlsx", "pptx", "ppt", # microsoft extensions
+                    "m", "fig", "mat", "mlx", "p", "mdl" # matlab extensions
+)
+
+total_number_of_files <- length(list.files(data_package_data$directory, recursive = T))
+
+file_extensions <- list.files(data_package_data$directory, recursive = TRUE) %>% 
+  as_tibble() %>% 
+  rename(file_path = value) %>% 
+  mutate(file_path = basename(file_path),
+         extension = tools::file_ext(file_path)) %>% 
+  group_by(extension) %>% 
+  summarise(extension_count = n(),
+            files = toString(basename(file_path))) %>% 
+  ungroup() %>% 
+  arrange(desc(extension_count)) %>% 
+  mutate(is_proprietary = case_when(extension %in% proprietary_extensions ~ T, T ~ F))
+
+file_extensions$extension <- with(file_extensions, reorder(extension, -extension_count))
+
+ggplot(file_extensions, aes(x = extension, y = extension_count, fill = is_proprietary, text = paste("files:", files))) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = extension_count), vjust = -0.5) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_manual(values = c("TRUE" = "red", "FALSE" = "grey")) +
+  theme_minimal() +
+  labs(x = "File Extension", y = "Count of Files", title = paste0("Evaluation of File Extensions"))
+
+is_proprietary <- file_extensions %>% 
+  filter(is_proprietary == TRUE)
+
+
+if (nrow(is_proprietary) > 0) {
+  
+  # if there are proprietary extensions, show table of them
+  is_proprietary %>% 
+    select(-is_proprietary) %>% 
+    datatable(rownames = F,
+            filter = "top",
+            class = "stripe")
+}
+
+
+```
+
+  
+
+
+
+### File Names
+
+### Folder Names
+
+## About Your Data {.tabset}
+
+### Directory Tree
+
+Below is a list of all of your folders and files that were present when the report was generated.
+```{r, echo = FALSE}
+dir_tree(data_package_data$directory, recurse = T)
+```
+
+### Tabular Data {.tabset}
+
+#### chr
+
+#### num
+
+#### log
+
+#### date
+
+
+
+
