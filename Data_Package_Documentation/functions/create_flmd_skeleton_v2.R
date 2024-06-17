@@ -1,0 +1,210 @@
+### create_flmd_file_name_col.R ################################################
+# Date Created: 2024-06-14
+# Date Updated: 2024-06-14
+# Author: Bibi Powers-McCormack
+
+# Objective: 
+
+# Inputs: 
+  # directory = string of the absolute folder file path
+  # exclude_files = vector of files to exclude from within the dir
+  # include_files = vector of files to include from within the dir
+
+# Outputs: 
+  # df with the columns "File_Name" and "File_Path" that list out all the provided files
+
+# Assumptions: 
+
+# Status: In progress
+# get directory
+# get list of files from dir
+# exclude/include files
+# identify if flmd, readme, or dd are present; ask if want to add
+# identify if there are tabular data files; ask if want to get header row info
+# loop through each file
+  # add file name to flmd
+  # add file path to flmd
+  # if csv or tsv... 
+    # add csv reporting format standard
+    # if user said yes to header row info... read in file and ask for header position info
+  # if user said yes to flmd/dd/readme
+    # add filler text and standard
+  # add row to flmd
+# return flmd skeleton
+
+
+### TESTING SPACE ##############################################################
+
+directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
+
+
+### FUNCTION ###################################################################
+
+create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, include_files = NA_character_) {
+  
+  
+  ### Prep Script ##############################################################
+  
+  # load libaries
+  library(tidyverse)
+  library(rlog)
+  library(fs) # for getting file extension
+  
+  # load user inputs
+  current_directory <- directory
+  
+  
+  ### List Files ###############################################################
+  
+  # get parent directory
+  current_parent_directory <- sub(".*/", "/", current_directory)
+  
+  # get all file paths
+  file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = T)
+  current_file_paths <- file_paths_all
+  
+  # remove excluded files
+  if (any(!is.na(exclude_files))) {
+    
+    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(current_directory, exclude_files)]
+    
+  }
+  
+  # filter to only keep included files
+  if (any(!is.na(include_files))) {
+    
+    current_file_paths <- file_paths_all[file_paths_all %in% file.path(current_directory, include_files)]
+    
+  }
+  
+  # initialize empty df
+  current_flmd_skeleton <- tibble(
+    "status" = as.character(),
+    "File_Name" = as.character(),
+    "File_Description" = as.character(),
+    "Standard" = as.character(),
+    "Header_Rows" = as.numeric(),
+    "Column_or_Row_Name_Position" = as.numeric(),
+    "File_Path" = as.character()
+  )
+  
+  log_info(paste0("Adding ", length(current_file_paths), " files to the flmd."))
+  
+  
+  ### check and ask to add flmd, dd, readme files ##############################
+  log_info("Checking for presence of flmd, dd, and readme files.")
+  
+  # check for presence of dd and flmd files
+  flmd_file_present <- any(str_detect(current_file_paths, "flmd.csv"))
+  dd_file_present <- any(str_detect(current_file_paths, "dd.csv"))
+  pdf_file_present <- any(str_detect(current_file_paths, "readme"))
+  
+  if (flmd_file_present == FALSE) {
+    user_input_add_flmd_file <- readline(prompt = "The flmd file is not present. Would you like to add a placehold flmd to the flmd? (Y/N) ")
+  } else {
+    user_input_add_flmd_file <- "N"
+  }
+  
+  if (dd_file_present == FALSE ) {
+    user_input_add_dd_file <- readline(prompt = "The dd file is not present. Would you like to add a placeholder dd to the flmd? (Y/N) ")
+  } else {
+    user_input_add_dd_file <- "N"
+  }
+  
+  if (pdf_file_present == FALSE) {
+    user_input_add_readme_file <- readline(prompt = "The readme file is not present. Would you like to add a placehold readme to the flmd? (Y/N) ")
+  } else {
+    user_input_add_readme_file <- "N"
+  }
+  
+  
+  ### check and ask to include header position info ############################
+  count_csv_files <- sum(str_detect(current_file_paths, "\\.csv$"))
+  count_tsv_files <- sum(str_detect(current_file_paths, "\\.tsv$"))
+  
+  if (count_csv_files > 0 | count_tsv_files >0) {
+    
+    log_info(paste0("There are ", count_csv_files, " csv file(s) and ", count_tsv_files, " tsv file(s)."))
+    
+    user_input_add_header_info <- readline(prompt = "Do you want to add header_row and column_or_row_name_position info to the flmd? (Y/N) ")
+    
+  }
+  
+  
+  ### loop through files and add to df #########################################
+  
+  for (i in 1:length(current_file_paths)) {
+    
+    # gather flmd components
+    
+    # get current file
+    current_file_absolute <- current_file_paths[i]
+    
+    # get file name
+    current_file_name <- basename(current_file_paths[i])
+    
+    # get file path
+    current_file_path <- str_replace(string = current_parent_directory, pattern = paste0("/", current_file_name), replacement = "")
+    
+    # fill in empty standard
+    current_standard <- "N/A"
+    
+    # fill in header rows assuming data is not tabular
+    current_header_row <- -9999
+    
+    # fill in column or row name position assuming data is not tabular
+    current_column_or_row_name_position <- -9999
+    
+    # if the file is tabular (is .csv or .tsv)
+    if (str_detect(current_file_name, "\\.csv$|\\.tsv$")) {
+      current_standard <- "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021)"
+      
+      # if user said yes to adding header info...
+      if (tolower(user_input_add_header_info) == "y") {
+        
+        if (str_detect(current_file_name, "\\.csv$")) {
+          
+          # read in current file
+          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal")
+          
+        } else if (str_detect(current_file_name, "\\.tsv$")) {
+          
+          # read in current file
+          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal")
+          
+        }
+        
+        # show file
+        View(current_tabular_file)
+        
+        # ask location of column header
+        user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 1 if in the correct place) ")
+        current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
+        
+        # ask location of first data row
+        user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? (enter 0 if in the correct place) "))
+        
+        # calculate header_row
+        current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
+        #FIX CALCULATIONS HERE AND FIGURE OUT HOW TO ACCOUNT FOR NO HEADER ROWS AND ADD IN IGNORING ROWS THAT START WITH #
+        
+      }
+      
+    }
+    
+    # add to skeleton
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      add_row(
+        "File_Name" = current_file_name,
+        "File_Description" = NA_character_,
+        "Standard" = current_standard,
+        "Header_Rows" = current_header_row,
+        "Column_or_Row_Name_Position" = current_column_or_row_name_position,
+        "File_Path" = current_file_path
+      )
+    
+    
+  }
+  
+  
+}
