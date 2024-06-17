@@ -9,7 +9,7 @@ This document explains how to conduct a code review.
    - The title of the issue should include the name of the script and whether it's a formal or informal code review (e.g., "Formal code review of myscript.R").
    - The issue description should include a link to the script.
    - Use the "Assignees" section to assign the issue to your code reviwer.
-4. The code reviewer will either run (formal) or read (informal) the script line by line. They will leave comments in the issue listing the line number and their comment. The code reviewer assess for the following:
+4. The code reviewer will either run (formal) or read (informal) the script line by line. They will leave comments in the issue listing the line number and their comment (e.g., "L15: add more comments to explain the calculation"). The code reviewer assess for the following:
    - **Accessibility**: Are the comments and code sufficient enough to understand what is happening in each line? 
    - **Clarity**: Is there redudant code that can be written more efficiently or removed? 
    - **Accuracy**: Are calculations correct?
