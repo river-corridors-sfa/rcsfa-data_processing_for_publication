@@ -11,9 +11,15 @@
   # include_files = vector of files to include from within the dir
 
 # Outputs: 
-  # df with the columns "File_Name" and "File_Path" that list out all the provided files
+  # flmd df that lists out all the provided files
+    # columns include: "File_Name", "File_Description", "Standard", "Header_Rows", "Column_or_Row_Name_Position"
 
 # Assumptions: 
+  # Counts skip all rows that begin with a #
+  # If column_or_row_name_position in the correct place, the value is 1
+  # If there are no header_rows, the value is 0
+  # If there are tabular data and user decides to not populate header row info, then those cells populate with NA
+  # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
 
 # Status: In progress
 # get directory
@@ -32,15 +38,21 @@
   # add row to flmd
 # return flmd skeleton
 
+# TEST: what happens when reading in non-unique col headers, what happens with an empty col header
+
 
 ### TESTING SPACE ##############################################################
 
 directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
+exclude_files <- NA_character_
+include_files <- NA_character_
+
+create_flmd_skeleton(directory)
 
 
 ### FUNCTION ###################################################################
 
-create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, include_files = NA_character_) {
+create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_) {
   
   
   ### Prep Script ##############################################################
@@ -60,6 +72,7 @@ create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, 
   current_parent_directory <- sub(".*/", "/", current_directory)
   
   # get all file paths
+  log_info("Getting file paths from directory.")
   file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = T)
   current_file_paths <- file_paths_all
   
@@ -79,7 +92,6 @@ create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, 
   
   # initialize empty df
   current_flmd_skeleton <- tibble(
-    "status" = as.character(),
     "File_Name" = as.character(),
     "File_Description" = as.character(),
     "Standard" = as.character(),
@@ -88,7 +100,7 @@ create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, 
     "File_Path" = as.character()
   )
   
-  log_info(paste0("Adding ", length(current_file_paths), " files to the flmd."))
+  log_info(paste0("Adding ", length(current_file_paths), " of the ", length(file_paths_all), " files to the flmd."))
   
   
   ### check and ask to add flmd, dd, readme files ##############################
@@ -136,15 +148,16 @@ create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, 
   for (i in 1:length(current_file_paths)) {
     
     # gather flmd components
-    
     # get current file
     current_file_absolute <- current_file_paths[i]
     
     # get file name
-    current_file_name <- basename(current_file_paths[i])
+    current_file_name <- basename(current_file_absolute)
     
     # get file path
-    current_file_path <- str_replace(string = current_parent_directory, pattern = paste0("/", current_file_name), replacement = "")
+    current_file_path <- str_replace(string = current_file_absolute, pattern = current_directory, replacement = "") %>% # absolute file path - directory
+      paste0(current_parent_directory, .) %>% # parent directory + .
+      str_replace(string = ., pattern = paste0("/", current_file_name), replacement = "") # . - "/" - current file name
     
     # fill in empty standard
     current_standard <- "N/A"
@@ -157,7 +170,13 @@ create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, 
     
     # if the file is tabular (is .csv or .tsv)
     if (str_detect(current_file_name, "\\.csv$|\\.tsv$")) {
+      
+      # update the standard with the CSV reporting format
       current_standard <- "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021)"
+      
+      # update the header rows with NA
+      current_column_or_row_name_position <- NA_real_
+      current_header_row <- NA_real_
       
       # if user said yes to adding header info...
       if (tolower(user_input_add_header_info) == "y") {
@@ -165,28 +184,60 @@ create_flmd_file_name_col <- function(directory, exclude_files = NA_character_, 
         if (str_detect(current_file_name, "\\.csv$")) {
           
           # read in current file
-          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal")
+          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
           
         } else if (str_detect(current_file_name, "\\.tsv$")) {
           
           # read in current file
-          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal")
+          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
           
         }
+        
+        log_info(paste0("Viewing tabular file ", i, " of ", length(current_file_paths), ": ", current_file_name))
         
         # show file
         View(current_tabular_file)
         
-        # ask location of column header
-        user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 1 if in the correct place) ")
-        current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
+        # function to ask for header row info
+        ask_user_input <- function() {
+          # ask location of column header
+          user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
+          current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
+          
+          # ask location of first data row
+          user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? (Enter 0 if in the correct place) "))
+          
+          if (user_input_first_data_row == 0) {
+            # if the data row is in the correct place, user enters 0 because that's easiest; however value should actually be 1
+            user_input_first_data_row <- 1
+          }
+          
+          # calculate header_row
+          current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
+          
+          # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct positon (not 0)
+          current_column_or_row_name_position <- current_column_or_row_name_position + 1
+          
+          user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
+          
+          return(user_inputs)
+        }
         
-        # ask location of first data row
-        user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? (enter 0 if in the correct place) "))
+        # run function
+        user_inputs <- ask_user_input()
         
-        # calculate header_row
-        current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
-        #FIX CALCULATIONS HERE AND FIGURE OUT HOW TO ACCOUNT FOR NO HEADER ROWS AND ADD IN IGNORING ROWS THAT START WITH #
+        # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
+        while(user_inputs$current_column_or_row_name_position < 0 | user_inputs$current_header_row <0) {
+          
+          log_info("Asking for user input again because prevoius input included an invalid (negative) value. ")
+          
+          user_inputs <- ask_user_input()
+          
+        }
+        
+        # pull results out of list
+        current_column_or_row_name_position <- user_inputs$current_column_or_row_name_position
+        current_header_row <- user_inputs$current_header_row
         
       }
       
