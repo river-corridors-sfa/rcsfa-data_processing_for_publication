@@ -20,6 +20,10 @@
   # If there are no header_rows, the value is 0
   # If there are tabular data and user decides to not populate header row info, then those cells populate with NA
   # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
+  # Tabular data is only data where the file extension is .csv or .tsv
+  # Tabular data is a single data matrix
+  # Tabular data files are organized with column headers (not row headers)
+  # Tabular data can be header rows above and/or below the column headers
 
 # Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
 
