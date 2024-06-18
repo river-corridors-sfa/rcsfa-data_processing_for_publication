@@ -22,23 +22,8 @@
   # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
 
 # Status: In progress
-# get directory
-# get list of files from dir
-# exclude/include files
-# identify if flmd, readme, or dd are present; ask if want to add
-# identify if there are tabular data files; ask if want to get header row info
-# loop through each file
-  # add file name to flmd
-  # add file path to flmd
-  # if csv or tsv... 
-    # add csv reporting format standard
-    # if user said yes to header row info... read in file and ask for header position info
-  # if user said yes to flmd/dd/readme
-    # add filler text and standard
-  # add row to flmd
-# return flmd skeleton
-
-# TEST: what happens when reading in non-unique col headers, what happens with an empty col header
+  # Need to test: what happens when reading in non-unique col headers, what happens with an empty col header
+  # Need to update: fill in dd definition
 
 
 ### TESTING SPACE ##############################################################
@@ -47,7 +32,7 @@ directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-
 exclude_files <- NA_character_
 include_files <- NA_character_
 
-create_flmd_skeleton(directory)
+test_flmd <- create_flmd_skeleton(directory)
 
 
 ### FUNCTION ###################################################################
@@ -257,5 +242,62 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
     
   }
   
+  ### if user indicated, add readme, flmd, dd placeholders #####################
+  
+  # adding readme file to flmd is user indicated Y
+  if (tolower(user_input_add_readme_file) == "y"){
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      add_row(
+        "File_Name" = "readme_[INSERT README FILE NAME].pdf",
+        "File_Description" = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
+        "Standard" = "N/A",
+        "Header_Rows" = -9999,
+        "Column_or_Row_Name_Position" = -9999,
+        "File_Path" = current_parent_directory
+        )
+  }
+  
+  # adding flmd file to flmd if user indicated Y
+  if (tolower(user_input_add_flmd_file) == "y") {
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      add_row(
+        "File_Name" = "[INSERT FLMD FILE NAME]_flmd.csv",
+        "File_Description" = "File-level metadata that lists and describes all of the files contained in the data package.",
+        "Standard" = "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021); ESS-DIVE Reporting Format for File-level Metadata (Velliquette et al. 2021)",
+        "Header_Rows" = 0,
+        "Column_or_Row_Name_Position" = 1,
+        "File_Path" = current_parent_directory
+      )
+  }
+  
+  # adding dd file to flmd if user indicated Y
+  if (tolower(user_input_add_dd_file) == "y") {
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      add_row(
+        "File_Name" = "[INSERT DD FILE NAME]_dd.csv",
+        "File_Description" = "",
+        "Standard" = "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021).",
+        "Header_Rows" = 0,
+        "Column_or_Row_Name_Position" = 1,
+        "File_Path" = current_parent_directory
+      )
+  }
+  
+  ### sort flmd ################################################################
+  
+  # sort rows by readme, flmd, dd, and then by File_Path and File_Name
+  current_flmd_skeleton <- current_flmd_skeleton %>% 
+    mutate(sort_order = case_when(grepl("readme", File_Name, ignore.case = T) ~ 1,
+                                  grepl("flmd.csv", File_Name, ignore.case = T) ~ 2, 
+                                  grepl("dd.csv", File_Name, ignore.case = T) ~ 3,
+                                  T ~ 4)) %>% 
+    arrange(sort_order, File_Path, File_Name) %>% 
+    select(-sort_order)
+  
+  
+  ### return filled out skeleton ###############################################
+  
+  log_info("create_flmd_skeleton complete.")
+  return(current_flmd_skeleton)
   
 }
