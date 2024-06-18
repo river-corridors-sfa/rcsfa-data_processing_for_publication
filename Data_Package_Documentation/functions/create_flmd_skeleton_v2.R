@@ -1,9 +1,9 @@
-### create_flmd_file_name_col.R ################################################
+### create_flmd_skeleton.R ################################################
 # Date Created: 2024-06-14
-# Date Updated: 2024-06-14
+# Date Updated: 2024-06-18
 # Author: Bibi Powers-McCormack
 
-# Objective: 
+# Objective: Create an flmd with all the columns filled out, except for the File_Description
 
 # Inputs: 
   # directory = string of the absolute folder file path
@@ -21,18 +21,7 @@
   # If there are tabular data and user decides to not populate header row info, then those cells populate with NA
   # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
 
-# Status: In progress
-  # Need to test: what happens when reading in non-unique col headers, what happens with an empty col header
-  # Need to update: fill in dd definition
-
-
-### TESTING SPACE ##############################################################
-
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
-exclude_files <- NA_character_
-include_files <- NA_character_
-
-test_flmd <- create_flmd_skeleton(directory)
+# Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
 
 
 ### FUNCTION ###################################################################
@@ -275,7 +264,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
     current_flmd_skeleton <- current_flmd_skeleton %>% 
       add_row(
         "File_Name" = "[INSERT DD FILE NAME]_dd.csv",
-        "File_Description" = "",
+        "File_Description" = 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
         "Standard" = "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021).",
         "Header_Rows" = 0,
         "Column_or_Row_Name_Position" = 1,
