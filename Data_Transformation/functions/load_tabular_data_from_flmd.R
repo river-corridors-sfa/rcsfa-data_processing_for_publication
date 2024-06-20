@@ -25,9 +25,8 @@
   # data files can have header rows above and/or below the column headers
   # it skips all rows that begin with a #
 
-# Status: In progress
-  # actively writing function
-  # still need to figure out the implications of the # - is there a way around this?
+# Status: initial draft complete
+  # enhancement: optional argument to specify if data are there are no header rows (with or without #), then read in without asking for input
 
 
 ### TEST SPACE #################################################################
@@ -141,59 +140,64 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   current_df_metadata_missing_header_position <- current_df_metadata %>% 
     filter(is.na(.$Header_Position))
   
-  # function to ask for header row info
-  ask_user_input_header_position <- function() {
-    # ask location of column header
-    user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
-    current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
-    
-    # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct positon (not 0)
-    current_column_or_row_name_position <- current_column_or_row_name_position + 1
-    
-    return(current_column_or_row_name_position)
-  }
-    
-  # go through tabular data missing header position
-  for (i in 1:nrow(current_df_metadata_missing_header_position)) {
-    
-    current_df_metadata_file_path_absolute <- current_df_metadata_missing_header_position$File_Path_Absolute[i]
+  # if there are files that have missing header info...
+  if (nrow(current_df_metadata_missing_header_position) > 0) {
+  
+    # function to ask for header row info
+    ask_user_input_header_position <- function() {
+      # ask location of column header
+      user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
+      current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
       
-    if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+      # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct positon (not 0)
+      current_column_or_row_name_position <- current_column_or_row_name_position + 1
       
-      # read in current file
-      current_tabular_file <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
-      
-    } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
-      
-      # read in current file
-      current_tabular_file <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
-      
+      return(current_column_or_row_name_position)
     }
     
-    log_info(paste0("Viewing tabular file ", i, " of ", nrow(current_df_metadata_missing_header_position), ": ", basename(current_df_metadata_file_path_absolute)))
-    
-    # show file
-    View(current_tabular_file)
-    
-    # run function
-    current_header_position <- ask_user_input_header_position()
-    
-    # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
-    while(current_header_position < 0) {
+    # go through tabular data missing header position
+    for (i in 1:nrow(current_df_metadata_missing_header_position)) {
       
-      log_info("Asking for user input again because prevoius input included an invalid (negative) value. ")
+      current_df_metadata_file_path_absolute <- current_df_metadata_missing_header_position$File_Path_Absolute[i]
       
+      if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+        
+        # read in current file
+        current_tabular_file <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
+        
+      } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
+        
+        # read in current file
+        current_tabular_file <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
+        
+      }
+      
+      log_info(paste0("Viewing tabular file ", i, " of ", nrow(current_df_metadata_missing_header_position), ": ", basename(current_df_metadata_file_path_absolute)))
+      
+      # show file
+      View(current_tabular_file)
+      
+      # run function
       current_header_position <- ask_user_input_header_position()
       
-    }
+      # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
+      while(current_header_position < 0) {
+        
+        log_info("Asking for user input again because prevoius input included an invalid (negative) value. ")
+        
+        current_header_position <- ask_user_input_header_position()
+        
+      }
+      
+      # save header position into df metadata
+      current_df_metadata <- current_df_metadata %>% 
+        mutate(Header_Position = case_when(.$File_Path_Absolute == current_df_metadata_file_path_absolute ~ current_header_position, T ~ Header_Position))
+      
+    }  
     
-    # save header position into df metadata
-    current_df_metadata <- current_df_metadata %>% 
-      mutate(Header_Position = case_when(.$File_Path_Absolute == current_df_metadata_file_path_absolute ~ current_header_position, T ~ Header_Position))
-    
-    }
-  
+  }
   # you should now have Header_Position for all files
+  
   ### Ask for start data for each file #########################################
     
   log_info("Asking for the row the data start on for all files.")
