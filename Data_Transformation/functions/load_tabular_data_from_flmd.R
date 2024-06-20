@@ -26,7 +26,7 @@
   # it skips all rows that begin with a #
 
 # Status: initial draft complete
-  # enhancement: optional argument to specify if data are there are no header rows (with or without #), then read in without asking for input
+  # possible enhancement: optional argument to specify if data are there are no header rows (with or without #), then read in without asking for input
 
 
 ### TEST SPACE #################################################################
@@ -60,6 +60,9 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   
   # load user inputs
   current_directory <- directory
+  current_flmd_df <- flmd_df
+  current_exclude_files <- exclude_files
+  current_include_files <- include_files
   
   ### List Files ###############################################################
   
@@ -308,8 +311,14 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   }
   
   # return all data
+  output <- list(inputs = list(directory = current_directory,
+                               flmd_df = current_flmd_df,
+                               exclude_files = current_exclude_files,
+                               include_files = current_include_files),
+                 tabular_data = all_loaded_data)
+  
   log_info("load_tabular_data_from_flmd complete.")
-  return(all_loaded_data)
+  return(output)
     
 }
 
