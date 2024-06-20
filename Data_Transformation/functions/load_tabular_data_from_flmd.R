@@ -36,17 +36,16 @@ exclude_files = NA
 include_files = NA
 flmd_df = test_flmd
 
-directory <- "C:/Users/powe419/Downloads/Sandbox_Data"
-exclude_files = NA
-include_files = c("good_data.csv", "sad_data/bad_data_comments_2.csv", "sad_data/bad_data_comments_3.csv"
-)
-flmd_df <- tribble(
+test_directory <- "C:/Users/powe419/Downloads/Sandbox_Data"
+test_exclude_files = NA
+test_include_files = c("good_data.csv", "sad_data/bad_data_comments_2.csv", "sad_data/bad_data_comments_3.csv")
+test_flmd_df <- tribble(
   ~File_Name, ~Column_or_Row_Name_Position,  ~File_Path,
   "good_data.csv", 1,  "/Sandbox_Data",
   # "bad_data_comments_2.csv", 1,  "/Sandbox_Data/sad_data",
   "bad_data_comments_3.csv", 1,  "/Sandbox_Data/sad_data",
 )
-TEST <- load_tabular_data_from_flmd(directory, include_files)
+TEST <- load_tabular_data_from_flmd(directory = test_directory, include_files = test_include_files, flmd_df = test_flmd_df)
 
 
 ### load_tabular_data_file function ############################################
@@ -104,15 +103,16 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   
   # if the flmd is present... 
   
-  if (exists("flmd_df")) {
+  if (is.data.frame(flmd_df)) {
     
     log_info("Matching up flmd with files in directory.")
     
     # clean up flmd by fixing file path and selecting only certain cols
-    current_flmd_df <- flmd_df %>% 
-      mutate(File_Path_Absolute = paste0(current_directory, paste0(str_remove(.$File_Path, current_parent_directory), "/", .$File_Name))) %>%  # remove parent dir, add absolute dir, add file name
+    current_flmd_df <- flmd_df %>%
+      mutate(File_Path_Absolute = paste0(str_replace(File_Path, current_parent_directory, ""), "/", File_Name)) %>%  # removes parent dir and adds file name
+      mutate(File_Path_Absolute = paste0(current_directory, File_Path_Absolute)) %>% # makes it absolute
       select(File_Name, Header_Position = Column_or_Row_Name_Position, File_Path_Absolute) %>% 
-      filter(str_detect(.$File_Name, "\\.tsv$|\\.csv$")) # filter for only .csv and .tsv files
+      filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) # filter for only .csv and .tsv files
   
     # check for difference between the dir and flmd
     files_not_in_flmd <- setdiff(current_file_paths, current_flmd_df$File_Path_Absolute)
