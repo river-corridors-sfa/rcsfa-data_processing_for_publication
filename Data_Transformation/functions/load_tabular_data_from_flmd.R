@@ -14,7 +14,7 @@
 # Outputs: 
   # a list that has
     # directory
-    # vector of relative file paths
+    # vector of absolute file paths, filtered down based on exclude/include inputs
     # list of each tabular data file
 
 # Assumptions: 
@@ -315,6 +315,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
                                flmd_df = current_flmd_df,
                                exclude_files = current_exclude_files,
                                include_files = current_include_files),
+                 filtered_file_paths = current_file_paths,
                  tabular_data = all_loaded_data)
   
   log_info("load_tabular_data_from_flmd complete.")
