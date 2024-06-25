@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/SFA_SpatialStudy_2021_SensorData_v3/v3_SFA_SpatialStudy_2021_SensorData"
+directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/SFA_SpatialStudy_2021_SensorData_v3/"
+out_directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
   
 
 ### Prep Script ################################################################
@@ -58,7 +58,7 @@ dd_skeleton <- create_dd_skeleton(data_package_data$headers)
 
 
 # 2b. populate dd
-dd_skeleton_populated <- query_dd_database(dd_skeleton)
+# dd_skeleton_populated <- query_dd_database(dd_skeleton)
 
 
 # 3a. create flmd skeleton
@@ -66,7 +66,27 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 
 # 3b. populate flmd
-flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
+# flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
+
+### DP Specific Edits ##########################################################
+
+# left join prelim dd to this dd
+
+prelim_dd <- read_csv('Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_dd_prelim.csv') 
+
+dd_skeleton <- dd_skeleton %>% 
+  select(Column_or_Row_Name) %>% 
+  left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
+  arrange(Column_or_Row_Name)
+
+# left join prelim flmd to this flmd
+
+prelim_flmd <- read_csv('Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_flmd_prelim.csv') %>%
+  select(-File_Path)
+
+flmd_skeleton <- flmd_skeleton %>% 
+  select(File_Name, File_Path) %>% 
+  left_join(prelim_flmd, by = c("File_Name")) 
 
 
 ### Export #####################################################################
@@ -75,23 +95,22 @@ flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
   # After exporting, remember to properly rename the dd and flmd files and to update the flmd to reflect such changes.
 
 # write out data package data
-save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
+# save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
 
 # write out skeleton dd
-write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"), na = "")
+write_csv(dd_skeleton, paste0(out_directory, "/EC_dd.csv"), na = "")
 
 # write out populated dd
-write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
+# write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
 
 # write out skeleton flmd
-write_csv(flmd_skeleton, paste0(out_directory, "/skeleton_flmd.csv"), na = "")
+write_csv(flmd_skeleton, paste0(out_directory, "/EC_flmd.csv"), na = "")
 
-# writ eout populated flmd
-write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_flmd.csv"), na = "")
+# write out populated flmd
+# write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_flmd.csv"), na = "")
 
 
 # open the directory the files were saved to
 shell.exec(out_directory)
-
 
 
