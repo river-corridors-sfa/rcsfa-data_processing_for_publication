@@ -178,25 +178,34 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
         
         # function to ask for header row info
         ask_user_input <- function() {
-          # ask location of column header
-          user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
-          current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
           
-          # ask location of first data row
-          user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? (Enter 0 if in the correct place) "))
+          # ask if there is more than just the data matrix present
+          user_input_has_header_rows <- readline(prompt = "Are header rows present (either above or below the column headers)? (Y/N) ")
           
-          if (user_input_first_data_row == 0) {
-            # if the data row is in the correct place, user enters 0 because that's easiest; however value should actually be 1
-            user_input_first_data_row <- 1
+          if (tolower(user_input_has_header_rows) == "y") {
+            
+            # ask location of column header
+            user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
+            current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
+            
+            # ask location of first data row
+            user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? "))
+            
+            # calculate header_row
+            current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
+            
+            # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct position (not 0)
+            current_column_or_row_name_position <- current_column_or_row_name_position + 1
+            
+            user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
+            
+            
+          } else {
+            
+            # if there is only a single data matrix/data doesn't have header rows, then col header is in row 1 and data headers = 0
+            user_inputs <- list(current_column_or_row_name_position = 1, current_header_row = 0)
+            
           }
-          
-          # calculate header_row
-          current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
-          
-          # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct positon (not 0)
-          current_column_or_row_name_position <- current_column_or_row_name_position + 1
-          
-          user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
           
           return(user_inputs)
         }
@@ -207,7 +216,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
         # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
         while(user_inputs$current_column_or_row_name_position < 0 | user_inputs$current_header_row <0) {
           
-          log_info("Asking for user input again because prevoius input included an invalid (negative) value. ")
+          log_info("Asking for user input again because previous input included an invalid (negative) value. ")
           
           user_inputs <- ask_user_input()
           
