@@ -137,15 +137,6 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
       paste0(current_parent_directory, .) %>% # parent directory + .
       str_replace(string = ., pattern = paste0("/", current_file_name), replacement = "") # . - "/" - current file name
     
-    # fill in empty standard
-    current_standard <- "N/A"
-    
-    # fill in header rows assuming data is not tabular
-    current_header_row <- -9999
-    
-    # fill in column or row name position assuming data is not tabular
-    current_column_or_row_name_position <- -9999
-    
     # if the file is tabular (is .csv or .tsv)
     if (str_detect(current_file_name, "\\.csv$|\\.tsv$")) {
       
@@ -227,6 +218,17 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
         current_header_row <- user_inputs$current_header_row
         
       }
+      
+    } else {
+      
+      # fill in empty standard
+      current_standard <- "N/A"
+      
+      # fill in header rows assuming data is not tabular
+      current_header_row <- -9999
+      
+      # fill in column or row name position assuming data is not tabular
+      current_column_or_row_name_position <- -9999
       
     }
     
