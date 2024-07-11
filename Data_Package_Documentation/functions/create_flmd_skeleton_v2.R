@@ -6,9 +6,10 @@
 # Objective: Create an flmd with all the columns filled out, except for the File_Description
 
 # Inputs: 
-  # directory = string of the absolute folder file path
-  # exclude_files = vector of files to exclude from within the dir
-  # include_files = vector of files to include from within the dir
+  # directory = string of the absolute folder file path. Required argument. 
+  # exclude_files = vector of files to exclude from within the dir. Optional argument; default is NA. 
+  # include_files = vector of files to include from within the dir. Optional argument; default is NA. 
+  # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. 
 
 # Outputs: 
   # flmd df that lists out all the provided files
@@ -30,7 +31,7 @@
 
 ### FUNCTION ###################################################################
 
-create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_) {
+create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100) {
   
   
   ### Prep Script ##############################################################
@@ -158,12 +159,12 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
         if (str_detect(current_file_name, "\\.csv$")) {
           
           # read in current file
-          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
+          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
           
         } else if (str_detect(current_file_name, "\\.tsv$")) {
           
           # read in current file
-          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
+          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
           
         }
         
