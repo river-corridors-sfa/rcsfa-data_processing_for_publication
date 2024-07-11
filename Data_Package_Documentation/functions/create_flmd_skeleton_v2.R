@@ -128,6 +128,9 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   
   ### loop through files and add to df #########################################
   
+  # create progress bar
+  pb <- txtProgressBar(min = 0, max = length(current_file_paths), style = 3)
+  
   for (i in 1:length(current_file_paths)) {
     
     # gather flmd components
@@ -248,8 +251,13 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
         "File_Path" = current_file_path
       )
     
+    # update progress bar
+    setTxtProgressBar(pb, i)
     
   }
+  
+  # close progress bar
+  close(pb)
   
   ### if user indicated, add readme, flmd, dd placeholders #####################
   
