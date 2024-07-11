@@ -35,10 +35,10 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   
   ### Prep Script ##############################################################
   
-  # load libaries
-  library(tidyverse)
-  library(rlog)
-  library(fs) # for getting file extension
+  # load libraries
+  pacman::p_load(tidyverse, # cuz duh
+                 rlog, # for logging documentation
+                 fs) # for getting file extension
   
   
   ### List Files ###############################################################
