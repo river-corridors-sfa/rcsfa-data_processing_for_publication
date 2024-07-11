@@ -1,6 +1,6 @@
 ### create_flmd_skeleton.R ################################################
 # Date Created: 2024-06-14
-# Date Updated: 2024-06-18
+# Date Updated: 2024-07-11
 # Author: Bibi Powers-McCormack
 
 # Objective: Create an flmd with all the columns filled out, except for the File_Description
@@ -25,8 +25,44 @@
   # Tabular data is a single data matrix
   # Tabular data files are organized with column headers (not row headers)
   # Tabular data can be header rows above and/or below the column headers
+  # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
 
 # Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
+  # Brie informally reviewed on 2024-06-24 (see issue #17)
+
+# Examples
+
+  # # 1) example where you want to include all files in a given directory in your flmd
+  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
+  # 
+  # # 2) example where you don't want to include a file in an archive folder
+  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                 exclude_files = "archive/archived_file.csv")
+  # 
+  # # 3) example where you don't want to include all files in an archive folder
+  # archived_files <- list.files(path = paste0(directory, "/archive"), recursive = T, full.names = T) %>% # use list.files() to gather the (relative) names of all archived files
+  #                   str_remove(., paste0(directory, "/")) 
+  # 
+  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                 exclude_files = archived_files)
+  # 
+  # # 4) example where you have 2 files with header rows and 98 without
+  # # you can split the data and import it separately; this allows the user to not have to enter row header info on the 98 files that are regularly structured
+  # files_with_headers <- c("folder/of/data/with/header/rows/file_1.csv", # first create a vector of all relative file paths that have header rows
+  #                         "folder/of/data/with/header/rows/file_2.csv")
+  # 
+  # flmd_df_with_headers <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                             include_files = files_with_headers) # this loads in only the 2 files with headers. Select "A" when asked for `user_input_add_header_info`
+  # 
+  # flmd_df_without_headers <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                                 exclude_files = files_with_headers) # this loads all the remaining files. Select "F" when asked for `user_input_add_header_info`
+  # 
+  # flmd_df <- bind_rows(flmd_df_with_headers, # now combine the two dfs to create your complete flmd.
+  #                      flmd_df_without_headers) 
+  # 
+  # # After exporting, manually replace all NAs with column_or_row_name_position = 1 and header_rows = 0 for the remaining 98 files without header rows
+  # # You may also need to reorder the files
+
 
 
 ### FUNCTION ###################################################################
@@ -35,6 +71,13 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   
   
   ### Prep Script ##############################################################
+  
+  log_info("This function takes 4 arguments: 
+            - directory (required)
+            - exclude_files (optional; default = NA)
+            - include_files (optional; default = NA)
+            - file_n_max (optional; default = 100)
+  Open the function script to see argument definitions, function assumptions, and examples.")
   
   # load libraries
   pacman::p_load(tidyverse, # cuz duh
