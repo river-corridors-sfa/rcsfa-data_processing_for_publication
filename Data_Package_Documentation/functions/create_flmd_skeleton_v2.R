@@ -40,31 +40,28 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   library(rlog)
   library(fs) # for getting file extension
   
-  # load user inputs
-  current_directory <- directory
-  
   
   ### List Files ###############################################################
   
   # get parent directory
-  current_parent_directory <- sub(".*/", "/", current_directory)
+  current_parent_directory <- sub(".*/", "/", directory)
   
   # get all file paths
   log_info("Getting file paths from directory.")
-  file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = T)
+  file_paths_all <- list.files(directory, recursive = T, full.names = T, all.files = T)
   current_file_paths <- file_paths_all
   
   # remove excluded files
   if (any(!is.na(exclude_files))) {
     
-    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(current_directory, exclude_files)]
+    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(directory, exclude_files)]
     
   }
   
   # filter to only keep included files
   if (any(!is.na(include_files))) {
     
-    current_file_paths <- file_paths_all[file_paths_all %in% file.path(current_directory, include_files)]
+    current_file_paths <- file_paths_all[file_paths_all %in% file.path(directory, include_files)]
     
   }
   
@@ -141,7 +138,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
     current_file_name <- basename(current_file_absolute)
     
     # get file path
-    current_file_path <- str_replace(string = current_file_absolute, pattern = current_directory, replacement = "") %>% # absolute file path - directory: this removes the absolute file path to get the relative path for the given file
+    current_file_path <- str_replace(string = current_file_absolute, pattern = directory, replacement = "") %>% # absolute file path - directory: this removes the absolute file path to get the relative path for the given file
       paste0(current_parent_directory, .) %>% # parent directory + .: this adds the parent directory to the front of the file path
       str_replace(string = ., pattern = paste0("/", current_file_name), replacement = "") # . - "/" - current file name: this removes the file name from the relative directory so the end product is the file path with the parent directory and without the file name
     
