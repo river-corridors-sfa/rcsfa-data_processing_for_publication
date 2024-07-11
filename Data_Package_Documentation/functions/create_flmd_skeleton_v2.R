@@ -131,7 +131,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   pdf_file_present <- any(str_detect(current_file_paths, "readme"))
   
   if (flmd_file_present == FALSE) {
-    user_input_add_flmd_file <- readline(prompt = "The flmd file is not present. Would you like to add a placehold flmd to the flmd? (Y/N) ")
+    user_input_add_flmd_file <- readline(prompt = "The flmd file is not present. Would you like to add a placeholder flmd to the flmd? (Y/N) ")
   } else {
     user_input_add_flmd_file <- "N"
   }
@@ -143,7 +143,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   }
   
   if (pdf_file_present == FALSE) {
-    user_input_add_readme_file <- readline(prompt = "The readme file is not present. Would you like to add a placehold readme to the flmd? (Y/N) ")
+    user_input_add_readme_file <- readline(prompt = "The readme file is not present. Would you like to add a placeholder readme to the flmd? (Y/N) ")
   } else {
     user_input_add_readme_file <- "N"
   }
