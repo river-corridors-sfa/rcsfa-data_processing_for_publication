@@ -112,11 +112,16 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   count_csv_files <- sum(str_detect(current_file_paths, "\\.csv$"))
   count_tsv_files <- sum(str_detect(current_file_paths, "\\.tsv$"))
   
-  if (count_csv_files > 0 | count_tsv_files >0) {
+  if (count_csv_files > 0 | count_tsv_files > 0) {
     
     log_info(paste0("There are ", count_csv_files, " csv file(s) and ", count_tsv_files, " tsv file(s)."))
     
-    user_input_add_header_info <- readline(prompt = "Do you want to add header_row and column_or_row_name_position info to the flmd? (Y/N) ")
+    cat("What flmd columns do you want to fill out? If unsure, enter 'A':",
+        "   - Enter 'A' if you want to fill in ALL columns",
+        "   - Enter 'F' if you only wish to fill in the 'File_Name' column",
+        sep = "\n")
+    
+    user_input_add_header_info <- readline(prompt = "Enter A/F ")
     
   }
   
@@ -133,9 +138,9 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
     current_file_name <- basename(current_file_absolute)
     
     # get file path
-    current_file_path <- str_replace(string = current_file_absolute, pattern = current_directory, replacement = "") %>% # absolute file path - directory
-      paste0(current_parent_directory, .) %>% # parent directory + .
-      str_replace(string = ., pattern = paste0("/", current_file_name), replacement = "") # . - "/" - current file name
+    current_file_path <- str_replace(string = current_file_absolute, pattern = current_directory, replacement = "") %>% # absolute file path - directory: this removes the absolute file path to get the relative path for the given file
+      paste0(current_parent_directory, .) %>% # parent directory + .: this adds the parent directory to the front of the file path
+      str_replace(string = ., pattern = paste0("/", current_file_name), replacement = "") # . - "/" - current file name: this removes the file name from the relative directory so the end product is the file path with the parent directory and without the file name
     
     # if the file is tabular (is .csv or .tsv)
     if (str_detect(current_file_name, "\\.csv$|\\.tsv$")) {
@@ -148,7 +153,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
       current_header_row <- NA_real_
       
       # if user said yes to adding header info...
-      if (tolower(user_input_add_header_info) == "y") {
+      if (tolower(user_input_add_header_info) == "a") {
         
         if (str_detect(current_file_name, "\\.csv$")) {
           
