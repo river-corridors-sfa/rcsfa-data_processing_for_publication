@@ -13,11 +13,11 @@
     # The coordinates .csv requires the columns: "Description", "Latitude", and "Longitude"
   
   # Inputs: 
-    # ESS-DIVE identifer (can be located on landing page under "General" section (e.g., "ess-dive-e51251ad488b35f-20240522T205038891721))
-    # Absoulte file path of geospatial coordinates saved as a .csv with the columns: "Description", "Latitude", and "Longitude"
+    # ESS-DIVE identifier (can be located on landing page under "General" section (e.g., "ess-dive-e51251ad488b35f-20240522T205038891721))
+    # Absolute file path of geospatial coordinates saved as a .csv with the columns: "Description", "Latitude", and "Longitude"
   
   # Outputs: 
-    # The function returns a written message that the data package has been updated
+    # Returns a written message that the data package has been updated
     # It will include the URL and name of the data package
 
 
@@ -52,7 +52,7 @@ api_token <- "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJodHRwOlwvXC9vcmNpZC5vcmdcLzAwMDktM
 # this is the identifier number from the data package you want to update - you can get it from the ess-dive landing page
 essdive_id <- "ess-dive-bb3760054337704-20240522T230449359525"
 
-# this is the .csv file path of the coordinates
+# this is the .csv absolute file path of the coordinates
 coordinates_file_path <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-data_proceesing_for_publication/Data_Package_ESS-DIVE_Publishing/update_ESS-DIVE_landing_page/update_coordinates/update_coordinates_template.csv"
 
 # indicate if you want to update a data package on the sandbox vs main site - options include c("main", "sandbox")
