@@ -1,6 +1,6 @@
 ### update_landing_page_coordinates.R ##########################################
 # Date Created: 2024-05-22
-# Date Updated: 2024-05-22
+# Date Updated: 2024-07-12
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -10,10 +10,15 @@
   # The working directory is set to the `rcsfa-data_processing_for_publication` repo
   # Any update will overwrite all existing coordinates.
   # The coordinates .csv requires the columns: "Description", "Latitude", and "Longitude"
+  # Requires the following dependencies
+    # packages: tidyverse, rlog, glue, jsonlite, httr
+    # functions: rename_column_headers()
   
 # Inputs: 
-  # ESS-DIVE identifer (can be located on landing page under "General" section (e.g., "ess-dive-e51251ad488b35f-20240522T205038891721))
-  # Absoulte file path of geospatial coordinates saved as a .csv with the columns: "Description", "Latitude", and "Longitude"
+  # Personal API token from ESS-DIVE
+  # ESS-DIVE identifier (can be located on landing page under "General" section (e.g., "ess-dive-e51251ad488b35f-20240522T205038891721))
+  # Absolute file path of geospatial coordinates saved as a .csv with the columns: "Description", "Latitude", and "Longitude"
+  # Upload site (either "main" or "sandbox)
 
 # Outputs: 
   # The function returns a written message that the data package has been updated
