@@ -1,0 +1,26 @@
+{
+
+    "Token": ["eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJodHRwOlwvXC9vcmNpZC5vcmdcLzAwMDAtMDAwMS01MTU3LTExODYiLCJmdWxsTmFtZSI6Ilhpbm1pbmcgTGluIiwiaXNzdWVkQXQiOiIyMDIyLTA2LTA3VDE3OjAwOjQ0LjY5MSswMDowMCIsImNvbnN1bWVyS2V5IjoidGhlY29uc3VtZXJrZXkiLCJleHAiOjE2NTQ2ODYwNDQsInVzZXJJZCI6Imh0dHA6XC9cL29yY2lkLm9yZ1wvMDAwMC0wMDAxLTUxNTctMTE4NiIsInR0bCI6NjQ4MDAsImlhdCI6MTY1NDYyMTI0NH0.M49vCit_qebLV-M-02nchaPu4uxvSLFDPZdId3UHHKM_QFUobN2TgDb3nsA27VDk9SQBSc686yAmLoyKnpodk266ipQj_SG6DUygxr1DeelROnww2LSoPGZi4rcYMDCLHQF1fF1w63j1qaxAfM1cbTxoTxUsDFLXdIHcolWnXAlg26Ebn_4PfTz3HuvCH-SYpylSp-L0YM_JMG1xzeP3RKAclUe_FqR9TY8KiiVgmSBzKtcLMCy06xlYV0VEecj3lGuqoXPzxaATmzuHxJnFgndmSW5Fqw4WQ3c4unnvI1cX_CKnJIsuMWzK_PxLEh2ZQtrUHhfuM-5gjcs7AwIpnw"],
+    
+    "Upload_website": ["https://api-sandbox.ess-dive.lbl.gov"],
+    
+    "Data_package_path": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/SFA_SpatialStudy_2021_SensorData/SFA_SpatialStudy_2021_SensorDataPackage"],
+    
+    "Data_package_docx": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/SFA_SpatialStudy_2021_SensorData/ESSDIVE_Metadata_Spatial_Sensor.docx"],
+        
+    "Data_package_spatial_csv": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/SpatialStudy_Geospatial_Info.csv"],
+    
+    "Data_package_spatial_loc_column_header_ID": ["ID","Basin","State","Country"],
+
+    "Data_package_spatial_loc_column_header_Latitude": ["Latitude"],
+    
+    "Data_package_spatial_loc_column_header_Longitude": ["Longitude"],
+
+    "Script_folder": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/02_Data-Package_Rscript/"],
+    
+    "Author_file":  ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/00_Instructions/RC_SFA_author_information.xlsx"],
+    
+    "JSONLD_file": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/02_Data-Package_Rscript/SFA_Default.jsonld"],
+    
+    "Zip_data_folder": ["yes"]
+}
