@@ -1,0 +1,178 @@
+---
+title: "ESS-DIVE Auto-Uploading Data Packages Through API"
+author: "Huifen Zhou, Huiying Ren, Amy Goldman"
+date: "April 28, 2021"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = TRUE,
+	warning = FALSE
+)
+```
+
+## Get ready for uploading data package through API
+
+This script is used to upload data packages to ESS-DIVE automatically via their API instead of manually through their web interface. The current version of the Package Service API used in ESS-DIVE is 1.3.3 and it can upload individual data files up to 100GB. Prior to using this script, the user must prepare the data and metadata for the data package and fill out a docx template with ESS-DIVE data package metadata.
+
+## Configuration file 
+
+The configuration file to contain the information needed to auto API. 
+The configuration file is structured to specify inputs for the  auto API script. The configuration file template is below:
+    
+    {
+    
+    "Token": ["You must find your unique authentication token ID on the ESS-DIVE website or the ESS-DIVE sandbox website. It changes daily. Sign in to the website using your ORCiD, select ‘My Settings’ in the upper right corner, and go to ‘Authentication Token.” We recommend first uploading your package to the sandbox test environment before uploading to the real ESS-DIVE site. Paste the token here."], 
+  
+    "Upload_website": ["Upload website. Choose either the official ESS-DIVE website (https://api.ess-dive.lbl.gov) or the test environment (https://api-sandbox.ess-dive.lbl.gov)"], 
+
+    "Data_package_path": ["Data package path. Insert the path to the folder containing your data package files  that are ready to upload to ESS-DIVE."],
+  
+    "Data_package_docx": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/EXAMPLE_DataPackage/ESSDIVE_Metadata_EXAMPLE_DataPackage_testHR.docx"], Data package metadata template. Prior to running this script, the user must populate the docx template containing the ESS-DIVE data package metadata. The script will read the metadata from the template document. It lists the title, abstract,  key words, data variables, publish date, data usage rights, details of the project, the funding organization, DOE contracts, the related reference of the published data, contact information, the data package's creators, the data collecting time periods--start date and end date, and geospatial information for the data package. Some of this information is pre-populated for you in the template if it is identical across the RC SFA. 
+    
+    "Data_package_spatial_csv": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/EXAMPLE_DataPackage/EXAMPLE_Geospatial.csv"],  Data package spatial csv file. The user can list geospatial information directly in the data package metadata docx template or in a separate csv. If using a csv, insert the path to the geospatial file csv here. The file may contain information including site ID, site name, city, state, country, latitude, longitude, and more. The next three fields allow the user to specify information if a csv is used. If not using a csv, insert "no" for this field and update the location information in the word template document following the instruction.  
+
+
+    "Data_package_spatial_loc_column_header_ID":["Sample_ID","Stream_Name","City","State_or_Province"], List the column headers from the geospatial csv that you would like to be stitched together to create the text description associated with each coordinate pair.  
+
+    "Data_package_spatial_loc_column_header_Latitude: ["US_Latitude_dec.deg"], List the column header from the geospatial csv for latitude.
+
+    "Data_package_spatial_loc_column_header_Longitude:  ["US_Longitude_dec.deg"], List the column header from the geospatial csv for longitude.
+
+    "Script_folder": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/02_Data_Package_Rscipt/"], Script folder. The folder contains the main script, the upload package function, the jsonld file which is the jsonld-format metadata, and a spreadsheet of compiled author information for the RC SFA. 
+
+    "Author_file":  ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/00_Instructions/RC_SFA_author_information.xlsx"],  Authors' information. The Author's information is a database of RC SFA authors. It includes first name, middle initial, last name, email address, ORCID, and institution. When the user lists authors in the data package metadata docx template, the user should verify they are listed in the author database. This allows the R script to use the database as an input to the data package metadata and removes the need for the user to list out all the contact information for each author. 
+
+
+    "JSONLD_file": ["//pnl/projects/sbr_sfa/00_Cross-SFA_ESSDIVE-Data-Package-Upload/02_Data_Package_Rscipt_Test/SFA_Default.jsonld"] JSONLD file. The JSONLD file is an ESS-DIVE data package JSONLD demo template. The script converts the variables from the data package metadata template docx file and spatial information csv into the JSONLD format.
+    
+    "Zip_data_folder": ["no"], "yes" is that author will let the script to zip the files and uploaded the zipped file to ESS-DIVE. "no" is the author let the sciprt upload the original files under given path.
+}
+
+
+## Main script
+
+In the main script, the script reads the configuration file, checks the important files, and pushes the data and metadata to ESS-DIVE/test environment. The user does not need to modify anything in the main script. They only need to modify the configuration file.
+
+
+```{r echo=T, warning=F,message=F}
+ rm(list=ls(all=T))
+ list.of.packages <- c( "readxl", "qdapTools","purrr","readr","stringr","jsonlite",
+                         "httr","curl","rdflib","emld","rlang","rlist","tcltk","rjson","RJSONIO")
+   
+ new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+ if(length(new.packages)) install.packages(new.packages)
+  
+  library(readxl)
+  library(qdapTools)
+  library(purrr)
+  library(dplyr)
+  library(stringr)
+  library(jsonlite) #  https://codemeta.github.io/codemetar/articles/JSON-LD-framing.html
+  library(httr)
+  library(curl) 
+  library(emld)
+  library(rlist)
+  library(utf8)
+  library(tcltk)
+  library(RJSONIO)
+  library(gsheet)
+
+```
+
+### Select the configuration file prepared by the user
+
+
+```{r echo=T, warning=F,message=F}
+json.file= choose.files(default = "", caption = "Select Uploading Information File",
+                        multi = TRUE, filters = Filters,
+                        index = nrow(Filters))
+
+jd = RJSONIO::fromJSON(json.file,flatten=TRUE)
+
+token = jd$Token	
+API_website_main = jd$Upload_website
+package_path_main= jd$Data_package_path
+script_path_main = jd$Script_folder
+setwd(script_path_main)
+docx_file_main = jd$Data_package_docx
+spatial_csv_main = jd$Data_package_spatial_csv
+json_file_main =  jd$JSONLD_file
+author_file_main = jd$Author_file
+spatial_header_main=jd$Data_package_spatial_loc_column_header_ID
+spatial_coor_lat_main=jd$Data_package_spatial_loc_column_header_Latitude
+spatial_coor_long_main=jd$Data_package_spatial_loc_column_header_Longitude
+zip_file_main=jd$Zip_data_folder
+ print(token)
+ print(API_website_main)
+ print(package_path_main)
+
+```
+
+
+
+### The uploading function
+
+This is the uploading function, **The main script** sources it. In the uploading function, we read in the docx file, spatial file, and the user needs to check the authors' information, spatial information, and the list of the data. 
+
+```{r echo=T, warning=F, message=T}
+fun_file_main = paste(script_path_main,'funs.R',sep='')
+```
+
+### Checking list
+The docx file, spatial file, jsonld template file, author information spreadsheet and the uploading function from configuration file ared listed. If any of them are not detected, then the user will get a warning message. 
+
+```{r echo=T, warning=F}
+if(toupper(spatial_csv_main)=='NO'){
+  checkid = file.exists( docx_file_main, json_file_main,author_file_main,fun_file_main);
+  checkstr =c(paste("Data package docx file:",docx_file_main),
+              paste("WHONDRS JSON-LD file:",json_file_main),
+              paste("Author list file:", author_file_main ),
+              paste("Rscript funs.R:", fun_file_main ))
+
+}else{
+  checkid = file.exists(docx_file_main,spatial_csv_main, json_file_main,author_file_main,fun_file_main);
+  checkstr = c(paste("Data package docx file:",docx_file_main),
+               paste("Data package spatial file:",spatial_csv_main),
+               paste("WHONDRS JSON-LD file:",json_file_main),
+               paste("Author list file:", author_file_main ),
+               paste("Rscript funs.R:", fun_file_main ))
+}
+
+if(all(checkid)){
+  source(fun_file_main)
+  Author_Info_main<-data.frame(read_excel(author_file_main,sheet=1,col_names = T))
+  
+  script_path = script_path_main
+  json_input = json_file_main
+  Author_Info = Author_Info_main
+  package_path = package_path_main
+  docx_file = docx_file_main
+  API_website = API_website_main
+  author_file = author_file_main
+  zip_file = zip_file_main
+  spatial_csv = spatial_csv_main
+  spatial_header = spatial_header_main
+  spatial_coor_lat = spatial_coor_lat_main
+  spatial_coor_long = spatial_coor_long_main
+
+  post =uploading_script(script_path_main,json_file_main,Author_Info_main,package_path_main,docx_file_main,API_website_main,author_file_main,zip_file_main,spatial_csv_main,spatial_header_main,spatial_coor_lat_main,spatial_coor_long_main)
+  print(post)
+  print(content(post)$viewUrl)
+  print(content(post)$errors)
+
+ }else{
+  tkmessageBox(title = "Error",
+               message = paste("File is not valid!", checkstr[!checkid],
+                               "Please check the info provided in JSON file", json.file, sep='\n'), 
+               icon = "error", type = "ok")
+}
+
+```
+
+

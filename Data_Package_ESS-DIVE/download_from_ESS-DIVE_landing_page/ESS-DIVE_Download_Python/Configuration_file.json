@@ -1,0 +1,9 @@
+{
+    "Data_package_Out": ["//pnl/Projects/SFA_300A/ESSDIVE_Download_Test/"],
+    
+    "Out_Folder": ["Test0427"],
+	
+	"Chrome_Driver_Path": ["C:\\Work\\Chrome_Drive\\chromedriver.exe"],
+        
+    "Input_DOI": ["https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1888571"]
+}

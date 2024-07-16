@@ -1,0 +1,13 @@
+28 April 2023
+Brieanne Forbes (brieanne.forbes@pnnl.gov)
+Instructions for using Download_from_ESS-DIVE.py script created by Huifen Zhou (huifen.zhou@pnnl.gov)
+
+
+1. Keep the configuration file and script in the same folder. 
+2. Update the configuration file as needed. 
+	"Data_package_Out" refers to the directory in which you would like the data package to be downloaded to. 
+	"Out_Folder" refers to the folder name that will be created within the "Data_package_Out" director where the files will be downloaded.
+	"Chrome_Driver_Path" refers to the location of your chrome driver. 
+	"Input_DOI" refers to the URL of the data package you would like to be downloaded. 
+3. Open the cmd (command prompt) or anaconda to run the Download_from_ESS-DIVE.py script.
+ 
