@@ -1,5 +1,5 @@
 ---
-name: issue_template_code_review
+name: Requesting Code Review
 about: GitHub Issue template for requesting a code review
 title: "[formal/informal] code review for [script_name]"
 labels: code review
