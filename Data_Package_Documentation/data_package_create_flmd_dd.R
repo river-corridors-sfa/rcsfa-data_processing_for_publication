@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit 9e8ce07912e2dcfa49c5d502f34cda36de84e0ac
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
+out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
   
 
 ### Prep Script ################################################################
@@ -50,8 +50,24 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 # Directions: Run chunk without modification. Answer inline prompts as they appear. 
 
 # 1. Load data
-data_package_data <- load_tabular_data(directory)
+data_package_data_1 <- load_tabular_data(directory, include_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers are NOT on line 0
 
+
+data_package_data_2 <- load_tabular_data(directory, exclude_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers ARE on line 0
+
+data_package_data <- list(
+  directory = data_package_data_1$directory,
+  file_paths = c(data_package_data_1$file_paths, data_package_data_2$file_paths),
+  file_paths_relative = c(data_package_data_1$file_paths_relative, data_package_data_2$file_paths_relative),
+  data = c(data_package_data_1$data, data_package_data_2$data),
+  headers = rbind(data_package_data_1$headers, data_package_data_2$headers)
+)
 
 # 2a. create dd skeleton
 dd_skeleton <- create_dd_skeleton(data_package_data$headers)
@@ -72,7 +88,7 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 # left join prelim dd to this dd
 
-prelim_dd <- read_csv('Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_dd_prelim.csv') 
+prelim_dd <- read_csv("C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity/data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv", skip = 1)
 
 dd_skeleton <- dd_skeleton %>% 
   select(Column_or_Row_Name) %>% 
@@ -81,12 +97,29 @@ dd_skeleton <- dd_skeleton %>%
 
 # left join prelim flmd to this flmd
 
-prelim_flmd <- read_csv('Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_flmd_prelim.csv') %>%
+prelim_flmd <- read_csv("C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity/data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv", skip = 1) %>%
   select(-File_Path)
 
 flmd_skeleton <- flmd_skeleton %>% 
   select(File_Name, File_Path) %>% 
-  left_join(prelim_flmd, by = c("File_Name")) 
+  left_join(prelim_flmd, by = c("File_Name")) %>% 
+  select(-File_Path, File_Path)
+
+# add status column to list the cols that need to be filled in
+find_na_columns <- function(row) {
+  na_cols <- names(row)[is.na(row)]
+  if (length(na_cols) == 0) {
+    return("None")
+  } else {
+    return(paste(na_cols, collapse = ", "))
+  }
+}
+
+# Using mutate and across to apply find_na_columns
+flmd_skeleton_with_status <- flmd_skeleton %>%
+  rowwise() %>%
+  mutate(status = find_na_columns(cur_data())) %>% 
+  select(status, everything())
 
 
 ### Export #####################################################################
@@ -95,20 +128,19 @@ flmd_skeleton <- flmd_skeleton %>%
   # After exporting, remember to properly rename the dd and flmd files and to update the flmd to reflect such changes.
 
 # write out data package data
-# save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
+save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
 
 # write out skeleton dd
-write_csv(dd_skeleton, paste0(out_directory, "/EC_dd.csv"), na = "")
+write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"), na = "")
 
 # write out populated dd
-# write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
+write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
 
 # write out skeleton flmd
-write_csv(flmd_skeleton, paste0(out_directory, "/EC_flmd.csv"), na = "")
+write_csv(flmd_skeleton, paste0(out_directory, "/skeleton_flmd.csv"), na = "")
 
-# write out populated flmd
-# write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_flmd.csv"), na = "")
-
+# writ eout populated flmd
+write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_flmd.csv"), na = "")
 
 # open the directory the files were saved to
 shell.exec(out_directory)
