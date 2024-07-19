@@ -10,7 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit 9e8ce07912e2dcfa49c5d502f34cda36de84e0ac
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit ce3179a4c176e0d469939e338416e706631dd4e2
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
@@ -120,6 +120,15 @@ flmd_skeleton_with_status <- flmd_skeleton %>%
   rowwise() %>%
   mutate(status = find_na_columns(cur_data())) %>% 
   select(status, everything())
+
+# get headers
+headers <- data_package_data$headers %>%
+  mutate(file = basename(file)) %>% 
+  group_by(header) %>% 
+  summarise(header_count = n(),
+            files = toString(file)) %>% 
+  ungroup() %>% 
+  arrange(header, .locale = "en")
 
 
 ### Export #####################################################################
