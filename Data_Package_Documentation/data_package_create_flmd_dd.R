@@ -10,7 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit ce3179a4c176e0d469939e338416e706631dd4e2
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package/rcsfa-RC3-BSLE_P" # commit 0038170cccf47d4bd56fadb5da114ddf810e4f2d
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
@@ -49,25 +49,123 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 ### Run Functions ##############################################################
 # Directions: Run chunk without modification. Answer inline prompts as they appear. 
 
-# 1. Load data
-data_package_data_1 <- load_tabular_data(directory, include_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
-                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
-                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
-                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers are NOT on line 0
-
-
-data_package_data_2 <- load_tabular_data(directory, exclude_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
-                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
-                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
-                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers ARE on line 0
-
-data_package_data <- list(
-  directory = data_package_data_1$directory,
-  file_paths = c(data_package_data_1$file_paths, data_package_data_2$file_paths),
-  file_paths_relative = c(data_package_data_1$file_paths_relative, data_package_data_2$file_paths_relative),
-  data = c(data_package_data_1$data, data_package_data_2$data),
-  headers = rbind(data_package_data_1$headers, data_package_data_2$headers)
+exclude_patterns <- c(
+  "data/Archive/", 
+  "data/BSLE_Data_Package_v3", 
+  "data/summary_leachate_conc.csv", 
+  "data/summary_NMR_spike.csv", 
+  "data/summary_solids_conc.csv", 
+  "data/summary_solids_nmr.csv", 
+  "data/solids_nmrEE.csv", 
+  "data/summary_stoich.csv", 
+  "figures/Archive", 
+  "figures/leach.Pnorm.conc.mbd.pdf", 
+  "figures/leachPnorm.conc.pdf", 
+  "figures/pH_BS.pdf", 
+  "figures/aq_pH.pdf", 
+  "figures/LCF72.pdf", 
+  "figures/LCF11.pdf", 
+  "figures/LCF14.pdf", 
+  "figures/LCF50.pdf", 
+  "figures/LCF2.pdf", 
+  "figures/LCF7.pdf", 
+  "figures/LCF13.pdf", 
+  "figures/XANES_stacked_spectra_rc.pdf", 
+  "figures/SB.mod.xanes.pdf", 
+  "figures/SB.low.xanes.pdf", 
+  "figures/SB.raw.xanes.pdf", 
+  "figures/DF.high.xanes.pdf", 
+  "figures/DF.mod.xanes.pdf", 
+  "figures/DF.low.xanes.pdf", 
+  "figures/DF.raw.xanes.pdf", 
+  "figures/xanes.legend.pdf", 
+  "figures/XANES_stacked_spectra_sb.pdf", 
+  "figures/XANES_stacked_spectra_df.pdf", 
+  "figures/mono_die_loss.pdf", 
+  "figures/SB.mod.nmr.pdf", 
+  "figures/SB.low.nmr.pdf", 
+  "figures/SB.raw.nmr.pdf", 
+  "figures/DF.high.nmr.pdf", 
+  "figures/DF.mod.nmr.pdf", 
+  "figures/DF.low.nmr.pdf", 
+  "figures/DF.raw.nmr.pdf", 
+  "figures/nmr.legend.pdf", 
+  "figures/NMR_stacked_spectra_sb.pdf", 
+  "figures/NMR_stacked_spectra_df.pdf", 
+  "figures/solid.P.BS.fig.pdf", 
+  "figures/leach.Pnorm.conc.mbd2.pdf", 
+  "figures/Char_Photos_Figure.pdf", 
+  "figures/Char_Photos_Figure.pptx", 
+  "figures/XANES_LCF_individual_sample_table", 
+  "figures/XANES_LCF_individual_sample_table", 
+  "figures/pH_fig.pdf", 
+  "figures/pH_fig.pptx", 
+  "figures/Path_Analysis_Conceptual_Model.pdf", 
+  "figures/Path_Analysis_Conceptual_Model.pptx", 
+  "figures/Path_Analysis.pdf", 
+  "figures/Path_Analysis.pptx", 
+  "figures/XANES_Spectra_Pie.pdf", 
+  "figures/XANES_Spectra_Pie.pptx", 
+  "figures/NMR_Spectra_Pie.pdf", 
+  "figures/NMR_Spectra_Pie.pptx", 
+  "figures/LCF_Eample_Samples_Tall.pdf", 
+  "figures/LCF_Eample_Samples_Tall.pptx", 
+  "figures/NMR_Methods.pdf", 
+  "figures/NMR_Methods.pptx", 
+  "figures/NMR_spiking.pdf", 
+  "figures/NMR_spiking.pptx", 
+  "figures/NMR_regions.pdf", 
+  "figures/NMR_regions.pptx", 
+  "figures/NMR region example sample.pdf", 
+  "figures/spike example figure_solid 11.pdf", 
+  "figures/spike example figure_solid 11.mnova", 
+  "figures/LCF_Example_Samples.pptx", 
+  "figures/Graphical_Abstract_final.pptx", 
+  "figures/Graphical_Abstract_final.pdf", 
+  "figures/leach.Pnorm.conc copy.pdf", 
+  "figures/Leachate_P_Conc.pdf", 
+  "figures/Leachate_P_Conc.pptx", 
+  "figures/Solid_P_Conc.pdf", 
+  "figures/Solid_P_Conc.pptx", 
+  "figures/conceptual_model.pdf", 
+  "figures/conceptual_model.pptx", 
+  "figures/Graphical_Abstract.pdf", 
+  "figures/Graphical_Abstract.pptx", 
+  "figures/burn_conditions_pca.pdf", 
+  "figures/Mono_Di_Percent_Loss.pdf", 
+  "figures/Mono_Di_perc_loss_fig.pdf", 
+  "figures/Mono_Di_Percent_Loss.png", 
+  "figures/XANES_RefCompd_Table_SubsetforLCF.xlsx", 
+  "figures/SEM3.pdf", 
+  "figures/Stoichiometry_table.xlsx", 
+  "figures/LCF_Example_Samples.pdf", 
+  "figures/each.charnorm.conc.pdf", 
+  "figures/p_pa.pdf", 
+  "figures/SEM1.pdf", 
+  "figures/p_pa2.pdf", 
+  "figures/corr_element_char_sage.pdf", 
+  "figures/corr_element_char_doug.pdf", 
+  "figures/corr_element_char_allecosystem.pdf", 
+  "figures/solid.element.corr.all.pdf", 
+  "figures/leach.conc.pdf", 
+  "figures/Leachate_stacked_bar.pdf", 
+  "figures/Leachate.unfilt.total.P.BS.boxplot.pdf", 
+  "figures/Leachate.filt0.7.total.P.BS.boxplot.pdf", 
+  "figures/Leachate.total.P.BS.boxplot.pdf", 
+  "figures/MBD.BS.fig.pdf", 
+  "figures/Solid_Conc_Table.xlsx", 
+  "figures/leachate_conc.pptx", 
+  "scripts/Archive"
 )
+
+exclude_regex <- paste0("(", paste(exclude_patterns, collapse = "|"), ")")
+all_files <- list.files(directory, recursive = T)
+filtered_files <- all_files[!grepl(exclude_regex, all_files)]
+
+# 1. Load data
+data_package_data <- load_tabular_data(directory, exclude_files = filtered_files)
+
+
 
 # 2a. create dd skeleton
 dd_skeleton <- create_dd_skeleton(data_package_data$headers)
