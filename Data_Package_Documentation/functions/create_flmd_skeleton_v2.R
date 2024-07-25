@@ -3,19 +3,26 @@
 # Date Updated: 2024-07-11
 # Author: Bibi Powers-McCormack
 
-# Objective: Create an flmd with all the columns filled out, except for the File_Description
 
-# Inputs: 
+### FUNCTION ###################################################################
+
+create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F) {
+  
+  
+  ### About the function #######################################################
+  # Objective: Create an flmd with all the columns filled out, except for the File_Description
+  
+  # Inputs: 
   # directory = string of the absolute folder file path. Required argument. 
   # exclude_files = vector of files to exclude from within the dir. Optional argument; default is NA. 
   # include_files = vector of files to include from within the dir. Optional argument; default is NA. 
   # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. 
-
-# Outputs: 
+  
+  # Outputs: 
   # flmd df that lists out all the provided files
-    # columns include: "File_Name", "File_Description", "Standard", "Header_Rows", "Column_or_Row_Name_Position"
-
-# Assumptions: 
+  # columns include: "File_Name", "File_Description", "Standard", "Header_Rows", "Column_or_Row_Name_Position"
+  
+  # Assumptions: 
   # Counts skip all rows that begin with a #
   # If column_or_row_name_position in the correct place, the value is 1
   # If there are no header_rows, the value is 0
@@ -26,12 +33,12 @@
   # Tabular data files are organized with column headers (not row headers)
   # Tabular data can be header rows above and/or below the column headers
   # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
-
-# Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
+  
+  # Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
   # Brie informally reviewed on 2024-06-24 (see issue #17)
-
-# Examples
-
+  
+  # Examples
+  
   # # 1) example where you want to include all files in a given directory in your flmd
   # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
   # 
@@ -62,28 +69,23 @@
   # 
   # # After exporting, manually replace all NAs with column_or_row_name_position = 1 and header_rows = 0 for the remaining 98 files without header rows
   # # You may also need to reorder the files
-
-
-
-### FUNCTION ###################################################################
-
-create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100) {
   
   
   ### Prep Script ##############################################################
   
-  log_info("This function takes 4 arguments: 
-            - directory (required)
-            - exclude_files (optional; default = NA)
-            - include_files (optional; default = NA)
-            - file_n_max (optional; default = 100)
-  Open the function script to see argument definitions, function assumptions, and examples.")
   
   # load libraries
   pacman::p_load(tidyverse, # cuz duh
                  rlog, # for logging documentation
                  fs) # for getting file extension
   
+  log_info("This function takes 5 arguments: 
+            - directory (required)
+            - exclude_files (optional; default = NA)
+            - include_files (optional; default = NA)
+            - file_n_max (optional; default = 100)
+            - include_dot_files (optional; default = F)
+  Open the function script to see argument definitions, function assumptions, and examples.")
   
   ### List Files ###############################################################
   
