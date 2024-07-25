@@ -3,53 +3,36 @@
 # Date Updated: 2024-06-20
 # Author: Bibi Powers-McCormack
 
-# Objective: Read in tabular data using the flmd to get file paths and header row info
 
-# Inputs: 
+### load_tabular_data_file function ############################################
+
+load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files = NA_character_, include_files = NA_character_){
+  
+  ### About the function #######################################################
+  # Objective: Read in tabular data using the flmd to get file paths and header row info
+  
+  # Inputs: 
   # directory (the absolute directory up until the path provided in the flmd)
   # flmd df (the return of the create_flmd_skeleton.R function)
   # exclude files (relative file paths to not include)
   # include files (relative file paths of files to include)
-
-# Outputs: 
+  
+  # Outputs: 
   # a list that has
-    # directory
-    # vector of absolute file paths, filtered down based on exclude/include inputs
-    # list of each tabular data file
-
-# Assumptions: 
+  # directory
+  # vector of absolute file paths, filtered down based on exclude/include inputs
+  # list of each tabular data file
+  
+  # Assumptions: 
   # data will be pulled based on directory (including any files not listed in flmd)
   # only data with .csv or .tsv file extensions will be read in
   # the tabular data is a single data matrix
   # the data are organized with column headers (not row headers)
   # data files can have header rows above and/or below the column headers
   # it skips all rows that begin with a #
-
-# Status: initial draft complete
+  
+  # Status: initial draft complete
   # possible enhancement: optional argument to specify if data are there are no header rows (with or without #), then read in without asking for input
-
-
-### TEST SPACE #################################################################
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
-exclude_files = NA
-include_files = NA
-flmd_df = test_flmd
-
-test_directory <- "C:/Users/powe419/Downloads/Sandbox_Data"
-test_exclude_files = NA
-test_include_files = c("good_data.csv", "sad_data/bad_data_comments_2.csv", "sad_data/bad_data_comments_3.csv")
-test_flmd_df <- tribble(
-  ~File_Name, ~Column_or_Row_Name_Position,  ~File_Path,
-  "good_data.csv", 1,  "/Sandbox_Data",
-  # "bad_data_comments_2.csv", 1,  "/Sandbox_Data/sad_data",
-  "bad_data_comments_3.csv", 1,  "/Sandbox_Data/sad_data",
-)
-TEST <- load_tabular_data_from_flmd(directory = test_directory, include_files = test_include_files, flmd_df = test_flmd_df)
-
-
-### load_tabular_data_file function ############################################
-
-load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files = NA_character_, include_files = NA_character_){
   
   ### Prep script ##############################################################
   
