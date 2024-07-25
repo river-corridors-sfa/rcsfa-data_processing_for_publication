@@ -94,7 +94,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   
   # get all file paths
   log_info("Getting file paths from directory.")
-  file_paths_all <- list.files(directory, recursive = T, full.names = T, all.files = T)
+  file_paths_all <- list.files(directory, recursive = T, full.names = T, all.files = include_dot_files)
   current_file_paths <- file_paths_all
   
   # remove excluded files
