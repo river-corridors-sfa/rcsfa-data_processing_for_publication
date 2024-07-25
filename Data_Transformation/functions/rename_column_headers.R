@@ -62,7 +62,7 @@ rename_column_headers <- function(dataframe, correct_headers) {
   
   # arrange columns with corrects cols first, followed by all other columns
   current_df <- current_df %>% 
-    select(all_of(current_correct_headers, everything()))
+    select(all_of(current_correct_headers))
   
   return(current_df)
   
