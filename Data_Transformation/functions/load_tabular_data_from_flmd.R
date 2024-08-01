@@ -56,24 +56,25 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   # get all file paths
   log_info("Getting file paths from directory.")
   file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = T)
-  
-  # filter for only .csv and .tsv files
-  file_paths_all_tabular <- file_paths_all[str_detect(file_paths_all, "\\.tsv$|\\.csv$")]
-  current_file_paths <- file_paths_all_tabular
+  current_file_paths <- file_paths_all
   
   # remove excluded files
-  if (any(!is.na(exclude_files))) {
+  if (any(!is.na(current_exclude_files))) {
     
-    current_file_paths <- file_paths_all_tabular[!file_paths_all_tabular %in% file.path(current_directory, exclude_files)]
+    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(current_directory, current_exclude_files)]
     
   }
   
   # filter to only keep included files
-  if (any(!is.na(include_files))) {
+  if (any(!is.na(current_include_files))) {
     
-    current_file_paths <- file_paths_all_tabular[file_paths_all_tabular %in% file.path(current_directory, include_files)]
+    current_file_paths <- file_paths_all[file_paths_all %in% file.path(current_directory, current_include_files)]
     
   }
+  
+  # filter for only .csv and .tsv files
+  file_paths_tabular <- current_file_paths[str_detect(file_paths_all, "\\.tsv$|\\.csv$")]
+  
   
   # initialize df with file names
   current_df_metadata <- tibble(
@@ -82,7 +83,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     mutate("Header_Position" = NA_real_,
            "Data_Start_Row" = NA_real_)
   
-  log_info(paste0("Planning to load ", length(current_file_paths), " of the ", length(file_paths_all_tabular), " tabular files."))
+  log_info(paste0("Planning to load ", length(file_paths_tabular), " tabular files."))
   
   
   ### FLMD present? ############################################################
@@ -187,7 +188,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   
   ### Ask for start data for each file #########################################
     
-  log_info("Asking for the row the data start on for all files.")
+  log_info("Asking for the row the data start on for all files. Note: If a file has no header rows, then the value should be 2.")
   
   # function to ask for start data row info
   ask_user_input_data_start_row <- function() {
@@ -295,10 +296,10 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   }
   
   # return all data
-  output <- list(inputs = list(directory = current_directory,
-                               flmd_df = current_flmd_df,
-                               exclude_files = current_exclude_files,
-                               include_files = current_include_files),
+  output <- list(inputs = list(directory = directory,
+                               flmd_df = flmd_df,
+                               exclude_files = exclude_files,
+                               include_files = include_files),
                  filtered_file_paths = current_file_paths,
                  tabular_data = all_loaded_data)
   
