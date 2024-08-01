@@ -32,7 +32,6 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     # it skips all rows that begin with a #
   
   # Status: initial draft complete
-    # bug: output flmd and vector list of absolute file paths only includes tabular files - it should include all files
     # possible enhancement: optional argument to specify if data are there are no header rows (with or without #), then read in without asking for input
   
   ### Prep script ##############################################################
@@ -98,8 +97,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     current_flmd_df <- flmd_df %>%
       mutate(File_Path_Absolute = paste0(str_replace(File_Path, current_parent_directory, ""), "/", File_Name)) %>%  # removes parent dir and adds file name
       mutate(File_Path_Absolute = paste0(current_directory, File_Path_Absolute)) %>% # makes it absolute
-      select(File_Name, Header_Position = Column_or_Row_Name_Position, File_Path_Absolute) %>% 
-      filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) # filter for only .csv and .tsv files
+      select(File_Name, Header_Position = Column_or_Row_Name_Position, File_Path_Absolute)
   
     # check for difference between the dir and flmd
     files_not_in_flmd <- setdiff(current_file_paths, current_flmd_df$File_Path_Absolute)
@@ -126,6 +124,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   
   # getting files that don't have a header_position
   current_df_metadata_missing_header_position <- current_df_metadata %>% 
+    filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) %>% # filter for only .csv and .tsv files
     filter(is.na(.$Header_Position))
   
   # if there are files that have missing header info...
@@ -200,10 +199,14 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     return(user_input_data_start_row)
   }
   
-  for (j in 1:nrow(current_df_metadata)) {
+  # get only tabular data
+  current_tabular_only_metadata <- current_df_metadata %>% 
+    filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) # filter for only .csv and .tsv files
+  
+  for (j in 1:nrow(current_tabular_only_metadata)) {
     
     # get current file path
-    current_df_metadata_file_path_absolute <- current_df_metadata$File_Path_Absolute[j]
+    current_df_metadata_file_path_absolute <- current_tabular_only_metadata$File_Path_Absolute[j]
     
     if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
       
@@ -217,7 +220,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
       
     }
     
-    log_info(paste0("Viewing tabular file ", j, " of ", nrow(current_df_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
+    log_info(paste0("Viewing tabular file ", j, " of ", nrow(current_tabular_only_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
     
     # show file
     View(current_tabular_file)
@@ -248,14 +251,18 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   # initialize empty list to store the data
   all_loaded_data <- list()
   
+  # update tabular_only_metadata
+  current_tabular_only_metadata <- current_df_metadata %>% 
+    filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) # filter for only .csv and .tsv files
+  
   # for each row in the df_metadata...
-  for (k in 1:nrow(current_df_metadata)) {
+  for (k in 1:nrow(current_tabular_only_metadata)) {
     
     # get k row
-    current_df_k_row <- current_df_metadata[k, ]
+    current_df_k_row <- current_tabular_only_metadata[k, ]
   
     # name the df the absolute file path
-    current_df_metadata_file_path_absolute <- current_df_metadata$File_Path_Absolute[k]
+    current_df_metadata_file_path_absolute <- current_tabular_only_metadata$File_Path_Absolute[k]
   
     # use the df_metadata to get the column headers
     if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
@@ -300,7 +307,8 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
                                flmd_df = flmd_df,
                                exclude_files = exclude_files,
                                include_files = include_files),
-                 filtered_file_paths = current_file_paths,
+                 outputs = list(header_row_info = current_df_metadata,
+                                filtered_file_paths = current_file_paths),
                  tabular_data = all_loaded_data)
   
   log_info("load_tabular_data_from_flmd complete.")
