@@ -68,6 +68,71 @@ input_parameters <- list(
 ### Checks Functions ###########################################################
 # this chunk contains all of the checks functions
 
+initialize_checks_df <- function() {
+  # initialize empty df checks outputs
+  current_data_checks <- tibble(
+    requirement = factor(), 
+    pass_check = logical(), 
+    assessment = factor(), 
+    value = character(), 
+    source = character(), 
+    file = character()
+  )
+  
+  return(current_data_checks)
+}
+
+check_for_required_file_strings <- function(source_to_check = all_file_names, 
+                                            required_file_strings = input_parameters$required_file_strings){
+  
+  # checks to see if each required file string exists in all_files vector
+  # inputs: 
+    #  source_to_check = a vector of strings to check
+    # required_file_strings = a list of regex strings to check for
+  # output: standard check df
+  # assumptions: 
+    # uses the strings provided in required_file_strings to check against all_file_names
+    # returns TRUE when only a single file fits the regex provided in the input list;
+    # returns FALSE otherwise (e.g., if no files match or if more than one file matches)
+  
+  # initialize empty df
+  current_data_checks <- initialize_checks_df()
+  
+  # for each required string...
+  for (i in seq_along(required_file_strings)) {
+    
+    # get current file string
+    current_required_file_string <- required_file_strings[[i]]
+    
+    # check file name against regex string
+    matches <- grepl(current_required_file_string, source_to_check, ignore.case = TRUE)
+    
+    if (any(matches)) {
+      current_check <- TRUE
+      
+      file_name <- source_to_check[matches]
+    } else {
+      current_check <- FALSE
+      
+      file_name <- NA_character_
+    }
+    
+    # update output
+    current_data_checks <- current_data_checks %>% 
+      add_row(
+        requirement = "required", 
+        pass_check = current_check, 
+        assessment = "includes required files", 
+        value = current_required_file_string, 
+        source = "all_file_names", 
+        file = file_name
+    )
+    
+  }
+  
+  return(current_data_checks)
+  
+}
 
 
 
@@ -96,10 +161,20 @@ current_data_checks <- tibble(
 )
 
 
+### Check all files ############################################################
+# this chunk first checks the entire DP for any checks
+
+
+
 ### Loop through and check each file ###########################################
 # this chunk loops through every file and conducts the checks
 
-for (i in 1:length(data_package_data$filtered_file_paths)) {
+all_files_absolute = data_package_data$outputs$filtered_file_paths
+
+all_file_names = basename(all_files_absolute)
+  
+
+for (i in 1:length(all_files_absolute)) {
   
   #### get inputs ##############################################################
   
