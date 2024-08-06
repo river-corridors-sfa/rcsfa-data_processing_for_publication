@@ -121,7 +121,7 @@ zip_file_main=jd$Zip_data_folder
 This is the uploading function, **The main script** sources it. In the uploading function, we read in the docx file, spatial file, and the user needs to check the authors' information, spatial information, and the list of the data. 
 
 ```{r echo=T, warning=F, message=T}
-fun_file_main = paste(script_path_main,'funs.R',sep='')
+fun_file_main = paste(dirname(rstudioapi::getActiveDocumentContext()$path),'/funs.R',sep='')
 ```
 
 ### Checking list
