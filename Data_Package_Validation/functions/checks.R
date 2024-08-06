@@ -7,7 +7,7 @@
   # functions to run checks on a given data package
 
 # Inputs: 
-  # all scripts require the output from the load_tabular_data_from_flmd.R script
+  # all functions require the output from the load_tabular_data_from_flmd.R script
 
 # Outputs: 
 
@@ -49,8 +49,20 @@ tribble(
 ### Checks Inputs ##############################################################
 # this chunk provides all the modular, although generally consistent parameters for the checks
 
-# no special chrs
-allowed_chrs = "[a-zA-Z0-9_\\.\\-]" # alphanumeric character (uppercase and lowercase), underscore, dot, or hyphen.
+input_parameters <- list(
+
+  # required file strings
+  required_file_strings = list(flmd = ".*flmd\\.csv$", # file that ends with flmd.csv
+                                dd = ".*dd\\.csv$", # file that ends with dd.csv
+                                readme = "^readme.*\\.pdf$"), # .pdf file that begins with readme
+  
+  # no special chrs
+  allowed_chrs = "[a-zA-Z0-9_\\.\\-]", # alphanumeric character (uppercase and lowercase), underscore, dot, or hyphen.
+  
+  # non proprietary file extensions (a list of the extensions that will be flagged)
+  non_proprietary_extensions = c()
+  
+)
 
 
 ### Checks Functions ###########################################################
@@ -91,17 +103,19 @@ for (i in 1:length(data_package_data$filtered_file_paths)) {
   
   #### get inputs ##############################################################
   
-  # get current absolute file
-  current_file_absoulte <- data_package_data$filtered_file_paths[i]
+  # get current absolute file path
+  current_file_name_absoulte <- data_package_data$outputs$filtered_file_paths[i]
   
-  # get file name
-  current_file_name <- basename(current_file_absoulte)
-  
-  # get relative folder name
-  current_folder_path_relative <- dirname(current_file_absoulte) %>% 
+  # get current relative file path
+  current_file_name_relative <- current_file_name_absoulte %>% 
     str_remove(pattern = data_package_data$inputs$directory) # get relative file path by stripping absolute file path off
   
-  current_is_tabular <- FALSE
+  # get file name
+  current_file_name <- basename(current_file_name_absoulte)
+  
+  # get relative folder name
+  current_folder_path_relative <- dirname(current_file_name_absoulte) %>% 
+    str_remove(pattern = data_package_data$inputs$directory) # get relative file path by stripping absolute file path off
 
   # if tabular data, get col headers and df
   if (str_detect(current_file_name, "\\.csv$|\\.tsv$")){
@@ -109,13 +123,15 @@ for (i in 1:length(data_package_data$filtered_file_paths)) {
     current_is_tabular <- TRUE
 
     # get dataframe
-    current_df <- data_package_data$tabular_data[[current_file_absoulte]]
+    current_df <- data_package_data$tabular_data[[current_file_name_absoulte]]
     
     # get col headers
     current_headers <- colnames(current_df)
+  } else {
+    current_is_tabular <- FALSE
   }
   
-  log_info(paste0("Running data checks on file ", i, " of ", length(data_package_data$filtered_file_paths), ": ", current_file_name))
+  log_info(paste0("Running data checks on file ", i, " of ", length(data_package_data$outputs$filtered_file_paths), ": ", current_file_name))
   
   #### prepare checks for current file #########################################
   
