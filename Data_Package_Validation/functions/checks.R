@@ -70,6 +70,21 @@ input_parameters <- list(
 ### Checks Functions ###########################################################
 # this chunk contains all of the checks functions
 
+initialize_tabular_report <- function() {
+  # initialize empty df for tabular report
+  current_tabular_report <- tibble(
+    file_name = character(),
+    file_name_absolute = character(),
+    row = numeric(),
+    column_header = character(),
+    column_structure = factor(levels = c("character", "factor", "numeric", "logical", "Date", "POSIXct")),
+    value = character()
+  )
+  
+  return(current_tabular_report)
+  
+}
+
 initialize_checks_df <- function() {
   # initialize empty df checks outputs
   current_data_checks <- tibble(
