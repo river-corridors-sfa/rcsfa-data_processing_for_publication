@@ -10,7 +10,7 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Cavaiani_2024_Metaanalysis/rc_sfa-rc-3-wenas-meta" # commit 16b0b0791251571dd1cc1f0a68aa49d1f420d55e
+directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/Danczak_2024_GROW_Manuscript_Data_Package/Danczak_2024_GROW_Manuscript_Data_Package"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
@@ -60,7 +60,7 @@ dd_skeleton <- create_dd_skeleton(data_package_data$headers)
 
 
 # 2b. populate dd
-# dd_skeleton_populated <- query_dd_database(dd_skeleton)
+dd_skeleton_populated <- query_dd_database(dd_skeleton)
 
 
 # 3a. create flmd skeleton
@@ -124,8 +124,9 @@ headers <- data_package_data$headers %>%
   arrange(header, .locale = "en")
 
 
-dd_skeleton_with_header_source <- dd_skeleton %>% 
-  left_join(headers, by = c("Column_or_Row_Name" = "header"))
+dd_skeleton_with_header_source <- dd_skeleton_populated %>% 
+  left_join(headers, by = c("Column_or_Row_Name" = "header")) %>% 
+  select(-file_path)
 
 
 
@@ -145,7 +146,7 @@ write_csv(dd_skeleton_with_header_source, paste0(out_directory, "/skeleton_dd.cs
 write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
 
 # write out skeleton flmd
-write_csv(flmd_skeleton_with_status, paste0(out_directory, "/skeleton_flmd.csv"), na = "")
+write_csv(flmd_skeleton, paste0(out_directory, "/skeleton_flmd.csv"), na = "")
 
 # writ eout populated flmd
 write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_flmd.csv"), na = "")
