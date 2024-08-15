@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/Danczak_2024_GROW_Manuscript_Data_Package/Danczak_2024_GROW_Manuscript_Data_Package"
+directory <- "C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package/v4_BSLE_Data"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
+out_directory <- "C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package"
   
 
 ### Prep Script ################################################################
@@ -74,7 +74,7 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 # left join prelim dd to this dd
 
-prelim_dd <- read_csv("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_dd.csv")
+prelim_dd <- read_csv("C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package/v4_BSLE_dd_prelim.csv")
 
 dd_skeleton <- dd_skeleton %>%
   select(Column_or_Row_Name) %>%
@@ -83,7 +83,7 @@ dd_skeleton <- dd_skeleton %>%
 
 # left join prelim flmd to this flmd
 
-prelim_flmd <- read_csv("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_Manuscript_Data_Package/Cavaiani_2024_Metaanalysis_flmd.csv")
+prelim_flmd <- read_csv("C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package/v4_BSLE_flmd_prelim.csv")
 
 flmd_skeleton <- flmd_skeleton %>%
   select(File_Name, File_Path) %>%
@@ -140,7 +140,7 @@ dd_skeleton_with_header_source <- dd_skeleton_populated %>%
 save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
 
 # write out skeleton dd
-write_csv(dd_skeleton_with_header_source, paste0(out_directory, "/skeleton_dd.csv"), na = "")
+write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"), na = "")
 
 # write out populated dd
 write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
