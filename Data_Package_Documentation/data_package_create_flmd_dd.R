@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package/v4_BSLE_Data"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity" # commit 87c068a2eb21cc4bce0a9c0ea0c7a81d38f222fa
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package"
+out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/INBOX/data_package_skeletons"
   
 
 ### Prep Script ################################################################
@@ -52,7 +52,23 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 
 
 # 1. Load data
-data_package_data <- load_tabular_data(directory)
+data_package_data_1 <- load_tabular_data(directory, include_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers are NOT on line 0
+
+
+data_package_data_2 <- load_tabular_data(directory, exclude_files = c("data/ancillary_chemistry/RC2_NPOC_TN_DIC_TSS_Ions_Summary_2021-2022.csv",
+                                                                      "data/waterTemp/RC2_Ultrameter_WaterChem_Summary.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv",
+                                                                      "data_package_preparation/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")) # loads in files where col headers ARE on line 0
+data_package_data <- list(
+  directory = data_package_data_1$directory,
+  file_paths = c(data_package_data_1$file_paths, data_package_data_2$file_paths),
+  file_paths_relative = c(data_package_data_1$file_paths_relative, data_package_data_2$file_paths_relative),
+  data = c(data_package_data_1$data, data_package_data_2$data),
+  headers = rbind(data_package_data_1$headers, data_package_data_2$headers)
+)
 
 
 # 2a. create dd skeleton
@@ -74,7 +90,7 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 # left join prelim dd to this dd
 
-prelim_dd <- read_csv("C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package/v4_BSLE_dd_prelim.csv")
+prelim_dd <- read_csv("C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity/Ryan_2024_WROL_YRB_DOM_Diversity_dd.csv")
 
 dd_skeleton <- dd_skeleton %>%
   select(Column_or_Row_Name) %>%
@@ -83,16 +99,13 @@ dd_skeleton <- dd_skeleton %>%
 
 # left join prelim flmd to this flmd
 
-prelim_flmd <- read_csv("C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/BSLE_Data_Package_v4/v4_BSLE_Data_Package/v4_BSLE_flmd_prelim.csv")
+prelim_flmd <- read_csv("C:/Users/powe419/Desktop/bpowers_github_repos/rcsfa-RC4-WROL-YRB_DOM_Diversity/Ryan_2024_WROL_YRB_DOM_Diversity_flmd.csv") %>%
+  select(-File_Path)
 
 flmd_skeleton <- flmd_skeleton %>%
   select(File_Name, File_Path) %>%
-  mutate(File_Path = str_replace(File_Path, "rc_sfa-rc-3-wenas-meta", "Cavaiani_2024_Metaanalysis")) %>% # fix parent folder
-  left_join(prelim_flmd, by = c("File_Name", "File_Path")) %>% 
-  mutate(Standard = case_when((is.na(Standard) & str_detect(File_Name, "\\.csv$") ~ "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021)."), T ~ Standard)) %>% # add ess-dive csv reporting format standard to all csv files
-  mutate(Standard = case_when(is.na(Standard) ~ "N/A", T ~ Standard)) %>% # fill in all remaining Standards with N/A
-  mutate(Missing_Value_Codes = case_when(!str_detect(File_Name, "\\.csv$") ~ "N/A", T ~ Missing_Value_Codes)) %>% # any files that are NOT csvs, fill in missing value code with N/A
-  relocate(File_Path, .after = "Missing_Value_Codes")
+  left_join(prelim_flmd, by = c("File_Name")) %>%
+  select(-File_Path, File_Path)
 
 # add status column to list the cols that need to be filled in
 find_na_columns <- function(row) {
@@ -155,14 +168,3 @@ write_csv(flmd_skeleton_populated, paste0(out_directory, "/skeleton_populated_fl
 shell.exec(out_directory)
 
 
-
-### Additional notes for Jake ##################################################
-
-# An additional note for you for all the shape files. It's okay if you only want
-# to fill out one row for each file (I will clean the rest up later). 
-
-# You can use the text: 
-# The shape file consists of multiple file extensions. The file ending in ".shp"
-# stores the spatial geometry of the features. The file ending in ".shx" indexes
-# the geometry. The file ending in ".dbf" contains the tabular attribute
-# information. The file ending in ".prj" defines the spatial reference system.
