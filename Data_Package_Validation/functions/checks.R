@@ -60,9 +60,10 @@ input_parameters <- list(
   # no special chrs
   special_chrs = "[^a-zA-Z0-9_\\.\\-]", # anything that is NOT alphanumeric character (uppercase and lowercase), underscore, dot, or hyphen is a special chr
   
-  # non proprietary file extensions (a list of the extensions that will be flagged)
-  non_proprietary_extensions = c()
-  
+  # non proprietary file extensions (a list of the extensions that will be flagged - do not include ".")
+  non_proprietary_extensions = c("docx", "doc", "xlsx", "pptx", "ppt", # microsoft extensions
+                                 "m", "fig", "mat", "mlx", "p", "mdl" # matlab extensions
+                                )
 )
 
 
@@ -218,6 +219,46 @@ check_for_no_special_chrs <- function(input,
   
 }
 
+check_for_no_proprietary_files <- function(input,
+                                           invalid_extensions = input_parameters$non_proprietary_extensions,
+                                           data_checks_table = initialize_checks_df(),
+                                           source = "file_name",
+                                           file) {
+  # checks to see if there are any proprietary file extensions
+  # inputs: 
+    # input = a single vectored value to check
+    # invalid_extensions = a vector of extensions that aren't allowed
+    # data_checks_table = the table you want to add to
+    # file = the name of the file that's being evaluated
+  # outputs: 
+    # standard checks df
+  # assumptions: 
+    # this check will only be run on files
+  
+  # check if input contains one of the invalid file extensions
+  has_proprietary_file_ext <- str_detect(input, paste0("\\.", invalid_extensions, "$", collapse = "|")) # the $ ensures the ext is at the end of the file name, the | combines the extensions into a single pattern that matches any of the extensions
+  
+  if (has_proprietary_file_ext == FALSE) {
+    file_extension <- "none"
+  } else {
+    file_extension <- paste0(".", tools::file_ext(input))
+  }
+  
+  # update output
+  data_checks_table <- data_checks_table %>% 
+    add_row(
+      requirement = "recommended*", 
+      pass_check = !has_proprietary_file_ext, 
+      assessment = "no proprietary files", 
+      input = input,
+      value = file_extension, 
+      source = source, 
+      file = file
+    )
+  
+  return(data_checks_table)
+}
+
 
 ### Run Checks #################################################################
 # this chunk prepares the data to be checked
@@ -308,7 +349,12 @@ for (i in 1:length(all_files_absolute)) {
                                                  source = "file_name",
                                                  file = current_file_name)
   
-  # current_data_checks <- check_for_no_proprietary_files()
+  # check for non-proprietary file extensions
+  data_checks_output <- check_for_no_proprietary_files(input = current_file_name,
+                                                        invalid_extensions = input_parameters$non_proprietary_extensions,
+                                                        data_checks_table = data_checks_output,
+                                                        source = "file_name",
+                                                        file = current_file_name)
   
   
   ### run checks on tabular data ###############################################
@@ -375,7 +421,7 @@ data_checks_summary <- data_checks_output %>%
 
 output <- list(input = data_package_data, # this is the data package provided as input
                parameters = list(), # this is the list of parameters the functions used
-               data_checks_summary,  # this is the summarized results, ready for graphing
+               data_checks_summary = data_checks_summary,  # this is the summarized results, ready for graphing
                data_checks = data_checks_output) # this is the complete raw list of all checks
 
 return(output)
