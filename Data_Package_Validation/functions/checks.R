@@ -17,12 +17,15 @@
 
 
 ### TEST SPACE #################################################################
-test_directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/ECA_Data_Package/EC_Data_Package"
+test_directory <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/ECA_Data_Package/EC_Data_Package"
   
-test_flmd <- 
+test_flmd <- paste0(test_directory, "/EC_flmd.csv")
 
 test_data <- load_tabular_data_from_flmd(directory = test_directory,
                                          flmd_df = test_flmd)
+
+data_package_data <- test_data
+
 # column headers
 
 test_dd <- map(test_data, colnames) %>% 
