@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2024-08-07
+# Date Updated: 2024-09-06
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -198,15 +198,6 @@ check_for_no_special_chrs <- function(input,
     special_characters[special_characters == " "] <- "space"
   }
   
-  # update output
-  
-  # update "file" parameter based on source input
-  if (source == "file_name"){
-    file <- input
-  } else if (source == "directory_name") {
-    file <- NA_character_
-  } 
-  
   data_checks_table <- data_checks_table %>% 
     add_row(
       requirement = "recommended*", 
@@ -341,7 +332,7 @@ for (i in 1:length(all_files_absolute)) {
                                                   invalid_chrs = input_parameters$special_chrs,
                                                   data_checks_table = data_checks_output,
                                                   source = "directory_name",
-                                                  file = NA_character_)
+                                                  file = current_folder_path_relative)
   
   ### run checks on files ######################################################
   
@@ -414,8 +405,7 @@ data_checks_summary <- data_checks_output %>%
             files = str_c(unique(file), collapse = ", ")) %>% 
   ungroup() %>% 
   mutate(requirement = factor(requirement, levels = c("required", "recommended*", "recommended", "optional"), ordered = TRUE),
-         source = factor(source, levels = c("all_file_names", "directory_name", "file_name", "column_header"), ordered = TRUE)) %>% 
-  mutate(file_count = case_when(source == "directory_name" ~ NA_integer_, T ~ file_count)) %>% 
+         source = factor(source, levels = c("all_file_names", "directory_name", "file_name", "column_header"), ordered = TRUE)) %>%
   arrange(requirement, pass_check, source, .locale = "en")
 
 
