@@ -50,6 +50,27 @@ tribble(
   skimr::skim()
 
 
+# working through an example of a tabular data summary info
+current_df %>%
+  # convert "NA", "-9999", "", "N/A" to NA
+  mutate(across(everything(), ~ replace(., . %in% c("NA", "-9999", "", "N/A"), NA))) %>% 
+  view() %>% 
+  
+  # generate summary results of df
+  map_df(~ tibble(
+    column_name = deparse(substitute(.x)),
+    column_structure = class(.x)[1],
+    num_rows = nrow(current_df),
+    num_unique_rows = n_distinct(.x),
+    num_missing = sum(is.na(.x)),
+    numeric_range_min = if (is.numeric(.x)) min(.x, na.rm = TRUE) else NA,
+    numeric_range_max = if (is.numeric(.x)) max(.x, na.rm = TRUE) else NA
+  ), .id = "column_name")
+
+
+
+
+
 ### Checks Inputs ##############################################################
 # this chunk provides all the modular, although generally consistent parameters for the checks
 
@@ -272,6 +293,18 @@ data_checks_summary <- tibble(
 # initialize empty df for full list of all checks
 data_checks_output <- initialize_checks_df()
 
+# initialize empty df for tabular data report
+data_tabular_report = tibble(
+  column_name = character(),
+  file_name = character(),
+  column_structure = character(),
+  num_rows = numeric(),
+  num_unique_rows = numeric(),
+  num_missing = numeric(),
+  numeric_range_min = numeric(),
+  numeric_range_max = numeric()
+)
+
 # get all file paths and file names
 all_files_absolute = data_package_data$outputs$filtered_file_paths
 
@@ -374,9 +407,6 @@ for (i in 1:length(all_files_absolute)) {
     
   # current_data_checks <- check_for_unique_headers()
     
-    
-  } # end of loop through all tabular files
-  
   ### run range reports ########################################################
   
   # character cols
@@ -388,6 +418,8 @@ for (i in 1:length(all_files_absolute)) {
   # date cols
   
   # time cols
+    
+  } # end of loop through all tabular files
   
 } # end of loop through all files
 
