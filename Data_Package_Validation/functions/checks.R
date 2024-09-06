@@ -67,7 +67,7 @@ input_parameters <- list(
   non_proprietary_extensions = c("docx", "doc", "xlsx", "pptx", "ppt", # microsoft extensions
                                  "m", "fig", "mat", "mlx", "p", "mdl" # matlab extensions
                                 )
-)
+) # end of input_parameters list
 
 
 
@@ -154,7 +154,7 @@ check_for_required_file_strings <- function(input = all_file_names,
   
   return(data_checks_table)
   
-}
+} # end of check_for_required_file_strings
 
 check_for_no_special_chrs <- function(input,
                                       invalid_chrs = input_parameters$special_chrs,
@@ -211,7 +211,7 @@ check_for_no_special_chrs <- function(input,
   
   return(data_checks_table)
   
-}
+} # end of check_for_no_special_chrs
 
 check_for_no_proprietary_files <- function(input,
                                            invalid_extensions = input_parameters$non_proprietary_extensions,
@@ -251,7 +251,8 @@ check_for_no_proprietary_files <- function(input,
     )
   
   return(data_checks_table)
-}
+
+} # end of check_for_no_proprietary_files
 
 
 ### Run Checks #################################################################
@@ -374,7 +375,7 @@ for (i in 1:length(all_files_absolute)) {
   # current_data_checks <- check_for_unique_headers()
     
     
-  }
+  } # end of loop through all tabular files
   
   ### run range reports ########################################################
   
@@ -388,7 +389,7 @@ for (i in 1:length(all_files_absolute)) {
   
   # time cols
   
-}
+} # end of loop through all files
 
 ### Summarize Checks ###########################################################
 # this chunk generates a summary file of all the checks
