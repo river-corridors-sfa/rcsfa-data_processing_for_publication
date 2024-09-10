@@ -51,24 +51,151 @@ tribble(
 
 
 # working through an example of a tabular data summary info
-current_df %>%
-  # convert "NA", "-9999", "", "N/A" to NA
-  mutate(across(everything(), ~ replace(., . %in% c("NA", "-9999", "", "N/A"), NA))) %>% 
-  view() %>% 
+
+# current_df %>%
+#   # convert "NA", "-9999", "", "N/A" to NA
+#   mutate(across(everything(), ~ replace(., . %in% c("NA", "-9999", "", "N/A"), NA))) %>% 
+#   view() %>% 
+#   
+#   # generate summary results of df
+#   map_df(~ tibble(
+#     column_name = deparse(substitute(.x)),
+#     column_type = class(.x)[1],
+#     num_rows = nrow(current_df),
+#     num_unique_rows = n_distinct(.x),
+#     num_missing = sum(is.na(.x)),
+#     numeric_range_min = if (is.numeric(.x)) min(.x, na.rm = TRUE) else NA,
+#     numeric_range_max = if (is.numeric(.x)) max(.x, na.rm = TRUE) else NA
+#   ), .id = "column_name")
+
+# initialize empty df
+data_report <- tibble(
+  column_name = as.character(),
+  column_type = as.character(),
+  num_rows = as.numeric(),
+  num_unique_rows = as.numeric(),
+  num_missing = as.numeric(),
+  top_counts = as.character(),
+  numeric_range_min = as.numeric(),
+  numeric_range_max = as.numeric()
+)
+
+
+for (i in 1:length(current_df)) {
   
-  # generate summary results of df
-  map_df(~ tibble(
-    column_name = deparse(substitute(.x)),
-    column_structure = class(.x)[1],
-    num_rows = nrow(current_df),
-    num_unique_rows = n_distinct(.x),
-    num_missing = sum(is.na(.x)),
-    numeric_range_min = if (is.numeric(.x)) min(.x, na.rm = TRUE) else NA,
-    numeric_range_max = if (is.numeric(.x)) max(.x, na.rm = TRUE) else NA
-  ), .id = "column_name")
+  # get current column
+  current_column <- current_df[i]
+  
+  # get current column name
+  current_column_name <- colnames(current_column)
+  
+  # convert to NA
+  current_column <- current_column %>% 
+    mutate(across(everything(), ~ replace(., . %in% c("NA", "-9999", "", "N/A"), NA)))
+  
+  # calculate number of total rows
+  current_nrow <- current_column %>% 
+    nrow()
+  
+  # calculate number of missing rows
+  current_n_misisng <- current_column %>% 
+    filter(is.na(current_column)) %>% 
+    nrow()
+    
+  # calculate number of unique rows
+  current_unique_rows <- current_column %>% 
+    n_distinct()
+  
+  # calculate top counts
+  current_top_counts <- current_column %>% 
+    count(current_column[1], sort = T) %>% 
+    drop_na() %>% 
+    mutate(top_counts = paste0(!!sym(names(current_column)[1]), " (n=", n, ")")) %>% 
+    head(5) %>%
+    summarise(top_counts = str_c(top_counts, collapse = "  ---  ")) %>% 
+    pull()
+  
+  # get column type
+  current_column_type <- current_column %>% 
+    pull(1) %>% 
+    class()
+  
+  # if chr
+  if (current_column_type == "character") {
+    
+    # check if col is mixed - separate out numeric vs chr rows
+    current_mixed <- current_column %>% 
+      mutate(
+        numeric_col = case_when(grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.numeric(current_column[[1]]),
+                                TRUE ~ NA_real_),
+        character_col = case_when(!grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ current_column[[1]],
+                                  TRUE ~ NA_character_))
+    
+    # if there are numeric values, return TRUE
+    is_mixed <- current_mixed %>% 
+      filter(!is.na(numeric_col)) %>% 
+      nrow(.) > 0
+    
+    if (is_mixed == TRUE) {
+      current_column_type <- "mixed"
+    } else {
+      
+      current_min <- NA_real_
+      current_max = NA_real_
+      
+    }
+    
+  } # end of if chr
+    
+  
+  # if mixed
+  if (current_column_type == "mixed") { 
+    
+    # calculate min
+    current_min <- current_mixed$numeric_col %>% 
+      min(na.rm = T)
+    
+    # calculate max
+    current_max <- current_mixed$numeric_col %>% 
+      max(na.rm = T)
+    
+    } # end of if mixed
+  
+  # if numeric
+  if (current_column_type == "numeric") {
+    
+    # calculate min
+    current_min <- current_column %>% 
+      min(na.rm = T)
+    
+    # calculate max
+    current_max <- current_column %>% 
+      max(na.rm = T)
+    
+  } # end of if numeric
+  
+  
+  # create summary tibble
+  current_data_report <- tibble(
+    column_name = current_column_name,
+    column_type = current_column_type,
+    num_rows = current_nrow,
+    num_unique_rows = current_unique_rows,
+    num_missing = current_n_misisng,
+    top_counts = current_top_counts,
+    numeric_range_min = current_min,
+    numeric_range_max = current_max
+  )
+  
+  # add current row to existing summary
+  data_report <- data_report %>% 
+    add_row(current_data_report)
+  
+  
+} # end of loop through curernt_df columns
 
-
-
+skimr::skim(current_df)
+skimr::skim(as.factor(current_df$Methods_Deviation))
 
 
 ### Checks Inputs ##############################################################
