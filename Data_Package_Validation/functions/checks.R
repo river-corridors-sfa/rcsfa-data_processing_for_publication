@@ -14,6 +14,10 @@
 # Assumptions: 
 
 # Status: in progress
+  # next step: 
+    # plan out if I want any graphics with each df - see if i have to add more to the TEST SPACE code
+    # add column for num_negative since I had to make the minimum col chr? or maybe I can later filter type == numeric and then is.numeric(range_min)
+    # incorporate the code from the TEST SPACE into the main script
 
 
 ### TEST SPACE #################################################################
@@ -38,7 +42,7 @@ test_dd <- map(test_data, colnames) %>%
   ungroup() %>% 
   arrange(header, .locale = "en")
 
-View(test_dd)  
+View(test_dd)
 
 
 tribble(
@@ -76,9 +80,12 @@ data_report <- tibble(
   num_unique_rows = as.numeric(),
   num_missing = as.numeric(),
   top_counts = as.character(),
-  numeric_range_min = as.numeric(),
-  numeric_range_max = as.numeric()
+  range_min = as.character(),
+  range_max = as.character()
 )
+
+str(current_df)
+class(current_df)
 
 
 for (i in 1:length(current_df)) {
@@ -88,6 +95,8 @@ for (i in 1:length(current_df)) {
   
   # get current column name
   current_column_name <- colnames(current_column)
+  
+  log_info(paste0("Column ", i, " of ", length(current_df), ": ", current_column_name))
   
   # convert to NA
   current_column <- current_column %>% 
@@ -118,7 +127,8 @@ for (i in 1:length(current_df)) {
   # get column type
   current_column_type <- current_column %>% 
     pull(1) %>% 
-    class()
+    class() %>% 
+    head(1)
   
   # if chr
   if (current_column_type == "character") {
@@ -128,7 +138,7 @@ for (i in 1:length(current_df)) {
       mutate(
         numeric_col = case_when(grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.numeric(current_column[[1]]),
                                 TRUE ~ NA_real_),
-        character_col = case_when(!grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ current_column[[1]],
+        character_col = case_when(!grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.character(current_column[[1]]),
                                   TRUE ~ NA_character_))
     
     # if there are numeric values, return TRUE
@@ -139,40 +149,100 @@ for (i in 1:length(current_df)) {
     if (is_mixed == TRUE) {
       current_column_type <- "mixed"
     } else {
-      
+      # if not mixed, then it will be only chrs, thus no min/max needed
       current_min <- NA_real_
       current_max = NA_real_
-      
     }
     
   } # end of if chr
     
   
   # if mixed
-  if (current_column_type == "mixed") { 
+  else if (current_column_type == "mixed") { 
     
     # calculate min
     current_min <- current_mixed$numeric_col %>% 
+      pull(1) %>% 
       min(na.rm = T)
     
     # calculate max
     current_max <- current_mixed$numeric_col %>% 
+      pull(1) %>% 
       max(na.rm = T)
     
     } # end of if mixed
   
   # if numeric
-  if (current_column_type == "numeric") {
+  else if (current_column_type == "numeric") {
     
     # calculate min
     current_min <- current_column %>% 
+      pull(1) %>% 
       min(na.rm = T)
     
     # calculate max
     current_max <- current_column %>% 
+      pull(1) %>% 
       max(na.rm = T)
     
   } # end of if numeric
+  
+  # if date
+  else if (current_column_type == "Date") {
+    
+    current_min <- current_column %>% 
+      pull(1) %>% 
+      min(na.rm = T)
+    
+    current_max <- current_column %>% 
+      pull(1) %>% 
+      max(na.rm = T)
+    
+  } # end of if date
+  
+  # if time
+  else if (current_column_type == "hms") {
+    
+    current_min <- current_column %>% 
+      pull(1) %>% 
+      as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC") %>% 
+      min(na.rm = T) %>% 
+      as_hms()
+    
+    current_max <- current_column %>% 
+      pull(1) %>% 
+      as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC") %>% 
+      max(na.rm = T) %>% 
+      as_hms()
+    
+  } # end of if time
+  
+  # if datetime
+  else if (current_column_type == "POSIXct") {
+    
+    current_min <- current_column %>% 
+      pull(1) %>% 
+      min(na.rm = T)
+    
+    current_max <- current_column %>% 
+      pull(1) %>% 
+      max(na.rm = T)
+    
+  } # end of if datetime
+  
+  else if (current_column_type == "logical") {
+    
+    current_min <- NA_real_
+    current_max <- NA_real_
+    
+  }
+  
+  else {
+    
+    current_min <- NA_real_
+    current_max <- NA_real_
+    
+  }
   
   
   # create summary tibble
@@ -183,8 +253,8 @@ for (i in 1:length(current_df)) {
     num_unique_rows = current_unique_rows,
     num_missing = current_n_misisng,
     top_counts = current_top_counts,
-    numeric_range_min = current_min,
-    numeric_range_max = current_max
+    range_min = as.character(current_min),
+    range_max = as.character(current_max)
   )
   
   # add current row to existing summary
@@ -194,8 +264,43 @@ for (i in 1:length(current_df)) {
   
 } # end of loop through curernt_df columns
 
-skimr::skim(current_df)
+skim_current_df <- skimr::skim(current_df)
 skimr::skim(as.factor(current_df$Methods_Deviation))
+
+
+# trying something else ----
+
+library(tidyverse)
+library(lubridate)
+
+# Create a sample data frame
+df <- data.frame(
+  Name = c("Alice", "Bob", "Charlie"),
+  Age = c(25, 30, 22),
+  Grade = c("A", "B", "C"),
+  Passed = c(TRUE, FALSE, TRUE),
+  Date_mixed = parse_date_time(c("Jan 18, 2024", "2024-09-04", "5/6/98"), orders = c("ymd", "mdy")),
+  Date = as_date(c("2024-09-23", "2023-03-04", "2020-01-02")),
+  Time = hms::as_hms(parse_date_time(c("10:34", "13:23", "12:22"), orders = "HM"))
+)
+
+# Create a new data frame to store column names and class structures
+col_info_df <- data.frame(
+  Column_Name = character(0),  # Initialize an empty character vector
+  Class_Structure = character(0)  # Initialize an empty character vector
+)
+
+# Iterate through the columns of the original data frame
+for (col_name in names(df)) {
+  col_class <- class(df[[col_name]])
+  
+  # Add information to the new data frame
+  col_info_df <- rbind(col_info_df, data.frame(Column_Name = col_name, Class_Structure = toString(col_class)))
+}
+
+# Print the resulting data frame
+print(col_info_df)
+
 
 
 ### Checks Inputs ##############################################################
