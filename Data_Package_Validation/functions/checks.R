@@ -15,9 +15,9 @@
 
 # Status: in progress
   # next step: 
-    # change if statements to have a default at the beginning and then edit with if statements
+    # change if statements to have a default at the beginning and then edit with if statements - DONE
+    # add column for num_negative since I had to make the minimum col chr? or maybe I can later filter type == numeric and then is.numeric(range_min) - DONE
     # plan out if I want any graphics with each df - see if i have to add more to the TEST SPACE code
-    # add column for num_negative since I had to make the minimum col chr? or maybe I can later filter type == numeric and then is.numeric(range_min)
     # incorporate the code from the TEST SPACE into the main script
 
 
@@ -56,22 +56,6 @@ tribble(
 
 
 # working through an example of a tabular data summary info
-
-# current_df %>%
-#   # convert "NA", "-9999", "", "N/A" to NA
-#   mutate(across(everything(), ~ replace(., . %in% c("NA", "-9999", "", "N/A"), NA))) %>% 
-#   view() %>% 
-#   
-#   # generate summary results of df
-#   map_df(~ tibble(
-#     column_name = deparse(substitute(.x)),
-#     column_type = class(.x)[1],
-#     num_rows = nrow(current_df),
-#     num_unique_rows = n_distinct(.x),
-#     num_missing = sum(is.na(.x)),
-#     numeric_range_min = if (is.numeric(.x)) min(.x, na.rm = TRUE) else NA,
-#     numeric_range_max = if (is.numeric(.x)) max(.x, na.rm = TRUE) else NA
-#   ), .id = "column_name")
 
 # initialize empty df
 data_report <- tibble(
@@ -165,13 +149,23 @@ for (i in 1:length(current_df)) {
     
     # calculate min
     current_min <- current_mixed$numeric_col %>% 
-      pull(1) %>% 
       min(na.rm = T)
     
     # calculate max
     current_max <- current_mixed$numeric_col %>% 
-      pull(1) %>% 
       max(na.rm = T)
+    
+    # if there are negative values, see how many rows
+    if (current_min < 0) {
+      
+      # calculate number of rows with a negative value
+      current_n_negative <- current_mixed %>% 
+        select(numeric_col) %>% 
+        filter(numeric_col < 0) %>% 
+        count()
+    } else {
+      current_n_negative <- 0
+    }
     
     } # end of if mixed
   
@@ -187,6 +181,18 @@ for (i in 1:length(current_df)) {
     current_max <- current_column %>% 
       pull(1) %>% 
       max(na.rm = T)
+    
+    # if there are negative values, see how many rows
+    if (current_min < 0) {
+      
+      # calculate number of rows with a negative value
+      current_n_negative <- current_column %>% 
+        pull(1) %>% 
+        {sum(. < 0)}
+      
+    } else {
+      current_n_negative <- 0
+    }
     
   } # end of if numeric
   
