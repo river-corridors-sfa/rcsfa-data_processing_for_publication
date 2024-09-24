@@ -15,6 +15,7 @@
 
 # Status: in progress
   # next step: 
+    # change if statements to have a default at the beginning and then edit with if statements
     # plan out if I want any graphics with each df - see if i have to add more to the TEST SPACE code
     # add column for num_negative since I had to make the minimum col chr? or maybe I can later filter type == numeric and then is.numeric(range_min)
     # incorporate the code from the TEST SPACE into the main script
@@ -78,10 +79,11 @@ data_report <- tibble(
   column_type = as.character(),
   num_rows = as.numeric(),
   num_unique_rows = as.numeric(),
-  num_missing = as.numeric(),
+  num_missing_rows = as.numeric(),
   top_counts = as.character(),
-  range_min = as.character(),
-  range_max = as.character()
+  range_min = NA_character_,
+  range_max = NA_character_,
+  num_negative_rows = NA_real_
 )
 
 str(current_df)
@@ -130,6 +132,11 @@ for (i in 1:length(current_df)) {
     class() %>% 
     head(1)
   
+  # set defaults
+  current_min <- NA_character_
+  current_max <- NA_character_
+  current_n_negative <- NA_real_
+  
   # if chr
   if (current_column_type == "character") {
     
@@ -141,24 +148,20 @@ for (i in 1:length(current_df)) {
         character_col = case_when(!grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.character(current_column[[1]]),
                                   TRUE ~ NA_character_))
     
-    # if there are numeric values, return TRUE
+    # if there are numeric values, return TRUE and change column type to be "mixed"
     is_mixed <- current_mixed %>% 
       filter(!is.na(numeric_col)) %>% 
       nrow(.) > 0
     
     if (is_mixed == TRUE) {
       current_column_type <- "mixed"
-    } else {
-      # if not mixed, then it will be only chrs, thus no min/max needed
-      current_min <- NA_real_
-      current_max = NA_real_
     }
     
   } # end of if chr
     
   
   # if mixed
-  else if (current_column_type == "mixed") { 
+  if (current_column_type == "mixed") { 
     
     # calculate min
     current_min <- current_mixed$numeric_col %>% 
@@ -173,7 +176,7 @@ for (i in 1:length(current_df)) {
     } # end of if mixed
   
   # if numeric
-  else if (current_column_type == "numeric") {
+  if (current_column_type == "numeric") {
     
     # calculate min
     current_min <- current_column %>% 
@@ -188,7 +191,7 @@ for (i in 1:length(current_df)) {
   } # end of if numeric
   
   # if date
-  else if (current_column_type == "Date") {
+  if (current_column_type == "Date") {
     
     current_min <- current_column %>% 
       pull(1) %>% 
@@ -201,7 +204,7 @@ for (i in 1:length(current_df)) {
   } # end of if date
   
   # if time
-  else if (current_column_type == "hms") {
+  if (current_column_type == "hms") {
     
     current_min <- current_column %>% 
       pull(1) %>% 
@@ -218,7 +221,7 @@ for (i in 1:length(current_df)) {
   } # end of if time
   
   # if datetime
-  else if (current_column_type == "POSIXct") {
+  if (current_column_type == "POSIXct") {
     
     current_min <- current_column %>% 
       pull(1) %>% 
@@ -230,17 +233,9 @@ for (i in 1:length(current_df)) {
     
   } # end of if datetime
   
-  else if (current_column_type == "logical") {
+  if (current_column_type == "logical") {
     
-    current_min <- NA_real_
-    current_max <- NA_real_
-    
-  }
-  
-  else {
-    
-    current_min <- NA_real_
-    current_max <- NA_real_
+    # if logical, currently do nothing
     
   }
   
@@ -251,10 +246,11 @@ for (i in 1:length(current_df)) {
     column_type = current_column_type,
     num_rows = current_nrow,
     num_unique_rows = current_unique_rows,
-    num_missing = current_n_misisng,
+    num_missing_rows = current_n_misisng,
     top_counts = current_top_counts,
     range_min = as.character(current_min),
-    range_max = as.character(current_max)
+    range_max = as.character(current_max),
+    num_negative_rows = current_n_negative
   )
   
   # add current row to existing summary
