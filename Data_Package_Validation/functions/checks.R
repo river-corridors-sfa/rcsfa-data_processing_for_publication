@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2024-09-06
+# Date Updated: 2024-10-07
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -19,8 +19,8 @@
     # add column for num_negative since I had to make the minimum col chr? or maybe I can later filter type == numeric and then is.numeric(range_min) - DONE
     # plan out if I want any graphics with each df - see if i have to add more to the TEST SPACE code - DONE
     # incorporate the code from the TEST SPACE into the main script - DONE
-    # see if this df is actually being used later in the script: initialize_tabular_report
-    # figure out why it's only sometimes returning the number of negative rows
+    # see if this df is actually being used later in the script: initialize_tabular_report - DONE
+    # figure out why it's only sometimes returning the number of negative rows - DONE
 
 
 ### TEST SPACE #################################################################
@@ -126,21 +126,6 @@ input_parameters <- list(
 
 ### Checks Functions ###########################################################
 # this chunk contains all of the checks functions
-
-initialize_tabular_report <- function() {
-  # initialize empty df for tabular report
-  current_tabular_report <- tibble(
-    file_name = character(),
-    file_name_absolute = character(),
-    row = numeric(),
-    column_header = character(),
-    column_structure = factor(levels = c("character", "factor", "numeric", "logical", "Date", "POSIXct")),
-    value = character()
-  )
-  
-  return(current_tabular_report)
-  
-}
 
 initialize_checks_df <- function() {
   # initialize empty df checks outputs
@@ -340,9 +325,9 @@ data_tabular_report <- tibble(
 )
 
 # get all file paths and file names
-all_files_absolute = data_package_data$outputs$filtered_file_paths
+all_files_absolute <- data_package_data$outputs$filtered_file_paths
 
-all_file_names = basename(all_files_absolute)
+all_file_names <- basename(all_files_absolute)
 
 ### Run checks on all files ####################################################
 # this chunk first checks the entire DP for any checks
@@ -361,7 +346,6 @@ data_checks_output <- check_for_required_file_strings(input = all_file_names,
 for (i in 1:length(all_files_absolute)) {
   
   #### get inputs ##############################################################
-  
   # get current absolute file path
   current_file_name_absoulte <- data_package_data$outputs$filtered_file_paths[i]
   
@@ -444,15 +428,15 @@ for (i in 1:length(all_files_absolute)) {
   ### run range reports ########################################################
     
     # loop through each column in the df
-    for (i in 1:length(current_df)) {
+    for (k in 1:length(current_df)) {
       
       # get current column
-      current_column <- current_df[i]
+      current_column <- current_df[k]
       
       # get current column name
       current_column_name <- colnames(current_column)
       
-      log_info(paste0("Column ", i, " of ", length(current_df), ": ", current_column_name))
+      log_info(paste0("Column ", k, " of ", length(current_df), ": ", current_column_name))
       
       # convert to NA
       current_column <- current_column %>% 
@@ -558,7 +542,7 @@ for (i in 1:length(all_files_absolute)) {
           # calculate number of rows with a negative value
           current_n_negative <- current_column %>% 
             pull(1) %>% 
-            {sum(. < 0)}
+            {sum(. < 0, na.rm = T)}
           
         } else {
           current_n_negative <- 0
