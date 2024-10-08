@@ -15,17 +15,15 @@
 
 # Status: in progress
   # next step: 
+    # bad column headers aren't still passing - go back to check that column header assessments are being done correctly
     # test this script with a couple other data package examples
     # if all looks good, start on html output - may have to come back here to edit outputs/inputs for html report
 
 
 ### TEST SPACE #################################################################
-test_directory <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/ECA_Data_Package/EC_Data_Package"
-  
-test_flmd <- paste0(test_directory, "/EC_flmd.csv")
+test_directory <- "C:/Users/powe419/Downloads/Sandbox_Data"
 
-test_data <- load_tabular_data_from_flmd(directory = test_directory,
-                                         flmd_df = test_flmd)
+test_data <- load_tabular_data_from_flmd(directory = test_directory)
 
 data_package_data <- test_data
 
@@ -577,7 +575,7 @@ data_checks_summary <- data_checks_output %>%
 # this chunk cleans up the script and prepares the list to return
 
 output <- list(input = data_package_data, # this is the data package provided as input
-               parameters = list(), # this is the list of parameters the functions used
+               parameters = input_parameters, # this is the list of parameters the functions used
                data_checks_summary = data_checks_summary,  # this is the summarized results, ready for graphing
                data_checks = data_checks_output, # this is the complete raw list of all checks
                tabular_report = data_tabular_report) # this is the tabular range reports
