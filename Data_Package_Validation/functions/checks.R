@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2024-10-07
+# Date Updated: 2024-10-08
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -16,6 +16,8 @@
 # Status: in progress
   # next step: 
     # bad column headers aren't still passing - go back to check that column header assessments are being done correctly
+      # add for check to fail if it's empty for file_name or column_header
+      # for column headers, add check for column name is duplicated
     # test this script with a couple other data package examples
     # if all looks good, start on html output - may have to come back here to edit outputs/inputs for html report
 
