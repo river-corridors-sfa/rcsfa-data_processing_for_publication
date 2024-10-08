@@ -15,12 +15,8 @@
 
 # Status: in progress
   # next step: 
-    # change if statements to have a default at the beginning and then edit with if statements - DONE
-    # add column for num_negative since I had to make the minimum col chr? or maybe I can later filter type == numeric and then is.numeric(range_min) - DONE
-    # plan out if I want any graphics with each df - see if i have to add more to the TEST SPACE code - DONE
-    # incorporate the code from the TEST SPACE into the main script - DONE
-    # see if this df is actually being used later in the script: initialize_tabular_report - DONE
-    # figure out why it's only sometimes returning the number of negative rows - DONE
+    # test this script with a couple other data package examples
+    # if all looks good, start on html output - may have to come back here to edit outputs/inputs for html report
 
 
 ### TEST SPACE #################################################################
@@ -32,72 +28,6 @@ test_data <- load_tabular_data_from_flmd(directory = test_directory,
                                          flmd_df = test_flmd)
 
 data_package_data <- test_data
-
-# column headers
-
-test_dd <- map(test_data, colnames) %>% 
-  enframe(name = "file_path", value = "header") %>% 
-  unnest(header) %>% 
-  mutate(file = basename(file_path)) %>% 
-  group_by(header) %>% 
-  summarise(header_count = n(),
-            files = toString(file)) %>% 
-  ungroup() %>% 
-  arrange(header, .locale = "en")
-
-View(test_dd)
-
-
-tribble(
-  ~requirement, ~pass_check, ~assessment, ~value, ~source, ~file_count, ~files,
-  "required", "PASSED", "no_special_chr", NA, "file_name", 3, "file1.csv, file2.csv, file3.csv",
-  "required", "FAILED", "no_special_chr", "$", "file_name", 1, "file4.csv",
-  "recommended", "FAILED", "no_proprietary_ext", ".docx", "file_name", 1, "file5.docx  "
-) %>% 
-  skimr::skim()
-
-
-# working through an example of a tabular data summary info
-str(current_df)
-class(current_df)
-
-skim_current_df <- skimr::skim(current_df)
-skimr::skim(as.factor(current_df$Methods_Deviation))
-
-
-# trying something else ----
-
-library(tidyverse)
-library(lubridate)
-
-# Create a sample data frame
-df <- data.frame(
-  Name = c("Alice", "Bob", "Charlie"),
-  Age = c(25, 30, 22),
-  Grade = c("A", "B", "C"),
-  Passed = c(TRUE, FALSE, TRUE),
-  Date_mixed = parse_date_time(c("Jan 18, 2024", "2024-09-04", "5/6/98"), orders = c("ymd", "mdy")),
-  Date = as_date(c("2024-09-23", "2023-03-04", "2020-01-02")),
-  Time = hms::as_hms(parse_date_time(c("10:34", "13:23", "12:22"), orders = "HM"))
-)
-
-# Create a new data frame to store column names and class structures
-col_info_df <- data.frame(
-  Column_Name = character(0),  # Initialize an empty character vector
-  Class_Structure = character(0)  # Initialize an empty character vector
-)
-
-# Iterate through the columns of the original data frame
-for (col_name in names(df)) {
-  col_class <- class(df[[col_name]])[1]
-  
-  # Add information to the new data frame
-  col_info_df <- rbind(col_info_df, data.frame(Column_Name = col_name, Class_Structure = toString(col_class)))
-}
-
-# Print the resulting data frame
-print(col_info_df)
-
 
 
 ### Checks Inputs ##############################################################
@@ -649,6 +579,7 @@ data_checks_summary <- data_checks_output %>%
 output <- list(input = data_package_data, # this is the data package provided as input
                parameters = list(), # this is the list of parameters the functions used
                data_checks_summary = data_checks_summary,  # this is the summarized results, ready for graphing
-               data_checks = data_checks_output) # this is the complete raw list of all checks
+               data_checks = data_checks_output, # this is the complete raw list of all checks
+               tabular_report = data_tabular_report) # this is the tabular range reports
 
 return(output)
