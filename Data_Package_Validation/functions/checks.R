@@ -17,7 +17,7 @@
   # next step: 
     # bad column headers aren't still passing - go back to check that column header assessments are being done correctly
       # add for check to fail if it's empty for file_name or column_header - DONE
-      # not able to finish loop. fails with error in mutate() bc can't transform a df with NA or "" names
+      # not able to finish loop. fails with error in mutate() bc can't transform a df with NA or "" names - DONE
       # for column headers, add check for column name is duplicated
       # the summary counts aren't working - if one header fails, it still reports that whole file as "passing" when I don't want it to
     # test this script with a couple other data package examples
@@ -400,7 +400,20 @@ for (i in 1:length(all_files_absolute)) {
     
   # current_data_checks <- check_for_unique_headers()
     
+    
   ### run range reports ########################################################
+    
+    # update empty col names so the range reports can run
+    if (any(is.na(colnames(current_df)))) {
+      
+      # find indices of unnamed cols
+      empty_col_indices <- which(is.na(colnames(current_df)))
+      
+      # Rename the unnamed columns dynamically
+      # colnames(current_df)[empty_col_indices] <- paste0("unnamed_col_", seq_along(empty_col_indices))
+      colnames(current_df)[empty_col_indices] <- "EMPTY_COLUMN_HEADER"
+  
+    }
     
     # loop through each column in the df
     for (k in 1:length(current_df)) {
@@ -411,7 +424,7 @@ for (i in 1:length(all_files_absolute)) {
       # get current column name
       current_column_name <- colnames(current_column)
       
-      log_info(paste0("Column ", k, " of ", length(current_df), ": ", current_column_name))
+      log_info(paste0("Creating range report for column ", k, " of ", length(current_df), ": ", current_column_name))
       
       # convert to NA
       current_column <- current_column %>% 
