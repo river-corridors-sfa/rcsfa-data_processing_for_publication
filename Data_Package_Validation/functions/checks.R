@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2024-10-08
+# Date Updated: 2024-10-10
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -16,8 +16,9 @@
 # Status: in progress
   # next step: 
     # bad column headers aren't still passing - go back to check that column header assessments are being done correctly
-      # add for check to fail if it's empty for file_name or column_header
+      # add for check to fail if it's empty for file_name or column_header - DONE
       # for column headers, add check for column name is duplicated
+      # the summary counts aren't working - if one header fails, it still reports that whole file as "passing" when I don't want it to
     # test this script with a couple other data package examples
     # if all looks good, start on html output - may have to come back here to edit outputs/inputs for html report
 
@@ -139,7 +140,8 @@ check_for_no_special_chrs <- function(input,
     # file = the name of the file that's being evaluated
   # outputs: standard checks df
   # assumptions: 
-    # if a directory, also allows "/"
+    # if source is a directory, also allows "/"
+    # if source is a file_name or column_header, check fails if the input is ""
   
   # if source is a directory, then include "/" into allowed chrs
   if (source == "directory_name") {
@@ -155,8 +157,16 @@ check_for_no_special_chrs <- function(input,
   # check for special characters
   has_special_chrs <- length(grep(invalid_chrs, split_chrs)) > 0 # the ^ turns the allowed chrs into a negated chr which matches any chr not listed within allowed_chrs
   
-  if (has_special_chrs == FALSE) {
+  # if the source is a file_name or column_name, an empty input will also fail
+  if ((source %in% c("file_name", "column_header")) && (input == "" | is.na(input))) {
+    
+    has_special_chrs <- TRUE
+    
+    special_characters <- paste0(source, " is empty") 
+  } else  if (has_special_chrs == FALSE) {
+    
     special_characters <- "none"
+    
   } else {
     
     # get the special character values
