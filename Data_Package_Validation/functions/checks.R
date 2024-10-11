@@ -14,14 +14,18 @@
 # Assumptions: 
 
 # Status: in progress
-  # next step: 
-    # bad column headers aren't still passing - go back to check that column header assessments are being done correctly
+  # next step: iteratively test and resolve bugs
+    # resolve bugs
       # add for check to fail if it's empty for file_name or column_header - DONE
       # not able to finish loop. fails with error in mutate() bc can't transform a df with NA or "" names - DONE
       # for column headers, add check for column name is duplicated
+      # for file names, add check for duplicate file names
+      # bad column headers are still passing - go back to check that column header assessments are being done correctly
       # the summary counts aren't working - if one header fails, it still reports that whole file as "passing" when I don't want it to
+      # data checks output collapses to show distinct rows; this means that when there are duplicate headers there is only one row entry
     # test this script with a couple other data package examples
     # if all looks good, start on html output - may have to come back here to edit outputs/inputs for html report
+    # update commented readme text at the top of the script
 
 
 ### TEST SPACE #################################################################
@@ -267,6 +271,57 @@ check_for_no_proprietary_files <- function(input,
 
 } # end of check_for_no_proprietary_files
 
+check_for_duplicate_names <- function(input, 
+                                      all_names, 
+                                      data_checks_table = initialize_checks_df(),
+                                      source = c("file_name", "column_header"),
+                                      file) {
+  # checks to see if the input occurs more than once in the "all_names" object
+  # inputs: 
+    # input = a single vectored value to check
+    # all_names = a character string of the values for the input to be checked against
+    # data_checks_table = the table you want to add to
+    # file = the name of the file that's being evaluated
+  # outputs: 
+    # standard checks df
+  # assumptions: 
+    # this check will only be run on file_names or column_headers because you can't have duplicate directories
+    # if the input isn't included in all_files the pass_check will result in NA
+  
+  # count how many times the input exists in the string
+  name_count <- sum(str_count(all_names, input))
+  
+  name <- paste0("x", name_count)
+  
+  if (name_count > 1) {
+    # if input is listed more than once, duplicates exist
+    has_duplicate_name <- TRUE
+    
+  } else if (name_count <= 0) {
+    # if input is not included in the all_names, then check is not applicable
+    has_duplicate_name <- NA_real_
+    
+  } else {
+    # otherwise, duplicates do NOT exist
+    has_duplicate_name <- FALSE
+    
+  }
+  
+  # update output
+  data_checks_table <- data_checks_table %>% 
+    add_row(
+      requirement = "recommended*", 
+      pass_check = !has_duplicate_name, 
+      assessment = "no duplicate names", 
+      input = input,
+      value = name, 
+      source = source, 
+      file = file
+    )
+  
+  return(data_checks_table)
+  
+} # end of check_for_duplicate_names
 
 ### Run Checks #################################################################
 # this chunk prepares the data to be checked
