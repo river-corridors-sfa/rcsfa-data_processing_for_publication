@@ -21,6 +21,7 @@ library(rstudioapi)
 library(tidyverse)
 library(rlog)
 library(devtools) # for sourcing from github
+library(hms) # for handling times
 library(fs) # for tree diagram
 library(clipr) # for copying to clipboard
 library(knitr) # for kable
@@ -39,6 +40,7 @@ getwd()
 # load functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R")
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Validation/functions/checks.R")
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
