@@ -197,7 +197,7 @@ check_for_no_special_chrs <- function(input,
   has_special_chrs <- length(grep(invalid_chrs, split_chrs)) > 0 # the ^ turns the allowed chrs into a negated chr which matches any chr not listed within allowed_chrs
   
   # if the source is a file_name or column_name, an empty input will also fail
-  if ((source %in% c("file_name", "column_header")) && (input == "" | is.na(input))) {
+  if ((source %in% c("file_name", "column_header")) && (input == "" | is.na(input)) | input == "EMPTY COLUMN HEADER") {
     
     has_special_chrs <- TRUE
     
@@ -398,8 +398,21 @@ for (i in 1:length(all_files_absolute)) {
     # get dataframe
     current_df <- data_package_data$tabular_data[[current_file_name_absoulte]]
     
+    # update empty col names so the checks and range reports can run
+    if (any(is.na(colnames(current_df)))) {
+      
+      # find indices of unnamed cols
+      empty_col_indices <- which(is.na(colnames(current_df)))
+      
+      # Rename the unnamed columns
+      # colnames(current_df)[empty_col_indices] <- paste0("unnamed_col_", seq_along(empty_col_indices))
+      colnames(current_df)[empty_col_indices] <- "EMPTY COLUMN HEADER"
+      
+    }
+    
     # get col headers
     current_headers <- colnames(current_df)
+    
   } else {
     current_is_tabular <- FALSE
   }
@@ -437,6 +450,7 @@ for (i in 1:length(all_files_absolute)) {
   
   if (current_is_tabular == TRUE) {
     
+    
     for (j in 1:length(current_headers)) {
       
       # get current header
@@ -463,17 +477,6 @@ for (i in 1:length(all_files_absolute)) {
     
   ### run range reports ########################################################
     
-    # update empty col names so the range reports can run
-    if (any(is.na(colnames(current_df)))) {
-      
-      # find indices of unnamed cols
-      empty_col_indices <- which(is.na(colnames(current_df)))
-      
-      # Rename the unnamed columns dynamically
-      # colnames(current_df)[empty_col_indices] <- paste0("unnamed_col_", seq_along(empty_col_indices))
-      colnames(current_df)[empty_col_indices] <- "EMPTY_COLUMN_HEADER"
-  
-    }
     
     # loop through each column in the df
     for (k in 1:length(current_df)) {
