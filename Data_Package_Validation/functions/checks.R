@@ -16,9 +16,9 @@
 # Status: in progress
   # next step: iteratively test and resolve bugs
     # resolve bugs
-      # add for check to fail if it's empty for file_name or column_header - DONE
+      # add for check to fail if it's empty for file_name or column_header still broken
       # not able to finish loop. fails with error in mutate() bc can't transform a df with NA or "" names - DONE
-      # for column headers, add check for column name is duplicated
+      # for column headers, add check for column name is duplicated - DONE
       # for file names, add check for duplicate file names
       # bad column headers are still passing - go back to check that column header assessments are being done correctly
       # the summary counts aren't working - if one header fails, it still reports that whole file as "passing" when I don't want it to
@@ -271,7 +271,7 @@ check_for_no_proprietary_files <- function(input,
 
 } # end of check_for_no_proprietary_files
 
-check_for_duplicate_names <- function(input, 
+check_for_unique_names <- function(input, 
                                       all_names, 
                                       data_checks_table = initialize_checks_df(),
                                       source = c("file_name", "column_header"),
@@ -291,7 +291,7 @@ check_for_duplicate_names <- function(input,
   # count how many times the input exists in the string
   name_count <- sum(str_count(all_names, input))
   
-  name <- paste0("x", name_count)
+  name <- paste0(input, " x", name_count)
   
   if (name_count > 1) {
     # if input is listed more than once, duplicates exist
@@ -451,9 +451,14 @@ for (i in 1:length(all_files_absolute)) {
                                                       source = "column_header",
                                                       file = current_file_name)
       
+      # check for unique headers - this check will flag is a header is included more than once
+      data_checks_output <- check_for_unique_names(input = current_header, 
+                                                   all_names = current_headers, 
+                                                   data_checks_table = data_checks_output, 
+                                                   source = "column_header", 
+                                                   file = current_file_name)
+      
     }
-    
-  # current_data_checks <- check_for_unique_headers()
     
     
   ### run range reports ########################################################
