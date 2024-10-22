@@ -23,8 +23,9 @@ update_landing_page_coordinates <- function(api_token, # this is your personal A
       # functions: rename_column_headers()
     
   # v2 updates: 
-    # moved all readme text into the function so viewers can see if when they load the function
+    # moved all readme text into the function so viewers can see it when they load the function
     # re-factored sourced data now that the repo is public 
+    # updated the readme documentation to match
   
   # Inputs: 
     # Personal API token from ESS-DIVE
