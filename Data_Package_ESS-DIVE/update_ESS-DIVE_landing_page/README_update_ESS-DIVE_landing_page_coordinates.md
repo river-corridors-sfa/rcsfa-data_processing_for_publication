@@ -17,7 +17,7 @@ If the coordinates are successfully updated, the function will return the URL an
 ## Run the function
 The function has the following package and function dependencies. 
 - library packages: `tidyverse`, `rlog`, `glue`, `jsonlite`, `devtools`, and `httr`
-- functions: [rename_column_headers()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Transformation/functions/rename_column_headers.R), [update_landing_page_coordinates()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/update_coordinates/update_landing_page_coordinates.R)
+- functions: [rename_column_headers()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Transformation/functions/rename_column_headers.R), [update_landing_page_coordinates()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/update_landing_page_coordinates.R)
 
 You can either load these independently or use the below script to prepare the function. 
 ``` R
