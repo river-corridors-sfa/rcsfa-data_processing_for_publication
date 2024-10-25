@@ -76,24 +76,6 @@ if (parent_igsn_present == T) {
 # If you are unsure how to, contact the Data Management Team
 
 
-# ---- EWEB Year 2 specific code ----
-
-# read in data from Year 1
-parent_Year1 <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/RC3_EWEB_Nov2020_DataPackage_May_2022_AR/RC3_EWEB_Nov2020_DataPackage_May_2022/1_Metadata/Metadata.csv") %>% 
-  select(SiteID, Parent_IGSN) %>% 
-  distinct() %>% 
-  rename(`Sample Name` = SiteID,
-         IGSN = Parent_IGSN) %>% 
-  mutate(IGSN = paste0("10.58052/", IGSN))
-
-# add old parent IGSNs to `parent`
-parent <- parent %>% 
-  add_row(parent_Year1)
-
-
-# ----
-
-
 # print col names to use as a reference for filling out the variables below
 print(colnames(metadata))
 

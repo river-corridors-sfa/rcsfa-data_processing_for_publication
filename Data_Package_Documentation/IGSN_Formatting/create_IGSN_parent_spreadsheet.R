@@ -24,10 +24,6 @@ user_code <- 'IEPRS' # this is NOT for WHONDRS
 outdir <- 'Z:/IGSN/EWEB_Year2_IGSN_Site_ToBeRegistered.csv'
 
 
-# EWEB specific data filtering
-metadata <- metadata %>% 
-  filter(is.na(Parent_IGSN))
-
 # ======================== input column names ============================
 
 colnames(metadata)
