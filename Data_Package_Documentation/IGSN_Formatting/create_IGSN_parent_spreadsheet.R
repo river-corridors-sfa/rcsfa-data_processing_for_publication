@@ -18,16 +18,22 @@ metadata_filepath <- file.choose()
 metadata <- read_csv(metadata_filepath)
 metadata <- read_csv('Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/WHONDRS_CM_Data_Package/WHONDRS_CM_Data_Package/WHONDRS_CM_Field_Metadata.csv')
 
-user_code <- 'IEWDR' # this if for WHONDRS
-# user_code <- 'IEPRS' # this is NOT for WHONDRS
+# user_code <- 'IEWDR' # this if for WHONDRS
+user_code <- 'IEPRS' # this is NOT for WHONDRS
 
-outdir <- 'Z:/IGSN/CM_IGSN_Site_ToBeRegistered4.csv'
+outdir <- 'Z:/IGSN/EWEB_Year2_IGSN_Site_ToBeRegistered.csv'
+
+
+# EWEB specific data filtering
+metadata <- metadata %>% 
+  filter(is.na(Parent_IGSN))
 
 # ======================== input column names ============================
 
+colnames(metadata)
 
 # Sample Name: Some site identifier 
-a <- metadata$Site_ID
+a <- metadata$SiteID
 
 # IGSN: leave blank 
 b <- ''
@@ -40,25 +46,25 @@ d <- ''
  
 # Other name(s)
 # use second line if not needed; used for the "extra names" for RC2 temporal plots
-e <- as.character(metadata$Site_Name)
-# e <- ''
+# e <- as.character(metadata$Site_Name)
+e <- ''
 
 # Latitude 
-f <- as.character(metadata$Sample_Latitude)
+f <- as.character(metadata$Latitude_WGS1984)
 
 # Longitude 
-g <- as.character(metadata$Sample_Longitude)
+g <- as.character(metadata$Longitude_WGS1984)
 
 # Primary physiographic feature: Stream 
 h <- 'stream'
  
 # Name of physiographic feature: Insert stream name 
-i <- as.character(metadata$Stream_Name)
+i <- as.character(metadata$Locality)
 # i <- 'St. Lawrence River'
  
 # Field program/Cruise
-# j <- 'US Department of Energy River Corridor Science Focus Area' 
-j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
+j <- 'US Department of Energy River Corridor Science Focus Area'
+# j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
  
 # Country  
 k <- 'United States'
@@ -66,16 +72,16 @@ k <- 'United States'
 
 State/Province
 # Use second line if not needed
-# l <- 'Quebec'
-l <- as.character(metadata$State)
+l <- 'Oregon'
+# l <- as.character(metadata$State)
 
 # (optional) City/Township 
 # Use second line if not needed
-# m <- ''
-m <- as.character(metadata$City)
+m <- ''
+# m <- as.character(metadata$City)
 
 #name of study
-n <- 'WHONDRS ICON-ModEx Campaign'
+n <- 'EWEB Year 2'
 
 # =========================== create dataframe and add the data =================
 
@@ -121,3 +127,5 @@ header <- tibble('Object Type:'= as.character(),
 write_csv(header, outdir)
 
 write_csv(output, outdir, append = T, col_names = T)
+
+shell.exec(outdir)

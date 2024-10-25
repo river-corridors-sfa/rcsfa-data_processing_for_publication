@@ -38,24 +38,24 @@ metadata_filepath <- file.choose()
 metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/CM_IGSN_Samples_ToBeRegistered5.csv' 
+outdir <- 'Z:/IGSN/EWEB_Year2_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
-user_code <- 'IEWDR' # this is for WHONDRS
+# user_code <- 'IEWDR' # this is for WHONDRS
 user_code <- 'IEPRS'  # this is not for WHONDRS
 
 # indicate if parent IGSNs exist
 parent_igsn_present <- T
-parent_igsn_present <- F
+# parent_igsn_present <- F
 
 # if parent_igsn_presnt == T, select the registered sites (parent IGSN) .xls file (either use file.choose to select file or change filepath manually); skip if not applicable
 parent_filepath <- file.choose()
 parent_filepath <- "Z:\\IGSN\\CM_IGSN_Site_Registered.xls"
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
-materials_list <- c("water", "sediment", "filter")
-
+# materials_list <- c("water", "sediment", "filter")
+materials_list <- c("water")
 
 
 ### Load data ##################################################################
@@ -75,54 +75,77 @@ if (parent_igsn_present == T) {
   # reference the metadata sheet by filling in the corresponding column header "metadata$[column header]". 
 # If you are unsure how to, contact the Data Management Team
 
+
+# ---- EWEB Year 2 specific code ----
+
+# read in data from Year 1
+parent_Year1 <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/RC3_EWEB_Nov2020_DataPackage_May_2022_AR/RC3_EWEB_Nov2020_DataPackage_May_2022/1_Metadata/Metadata.csv") %>% 
+  select(SiteID, Parent_IGSN) %>% 
+  distinct() %>% 
+  rename(`Sample Name` = SiteID,
+         IGSN = Parent_IGSN) %>% 
+  mutate(IGSN = paste0("10.58052/", IGSN))
+
+# add old parent IGSNs to `parent`
+parent <- parent %>% 
+  add_row(parent_Year1)
+
+
+# ----
+
+
 # print col names to use as a reference for filling out the variables below
 print(colnames(metadata))
 
 # `Sample Name`
-a <- metadata$Parent_ID
+a <- metadata$Sample_Name
 
 # (name of sampling campaign) 'Comment'
-i <- 'WHONDRS CONUS-Scale Model-Sample Study'
+i <- 'EWEB Year 2'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Sample_Latitude
+j <- metadata$Latitude_WGS1984
 
 # 'Longitude (WGS 84)'
-k <- metadata$Sample_Longitude
+k <- metadata$Longitude_WGS1984
 
 # 'Primary physiographic feature'
 l <- 'stream'
 
 # 'Name of physiographic feature'
-m <- as.character(metadata$Stream_Name)
+m <- as.character(metadata$Locality)
 
 # (site ID) 'Locality'
-n <- as.character(metadata$Site_ID)
+n <- as.character(metadata$SiteID)
 
 # 'Locality description'
 o <- 'In stream site'
+o <- as.character(metadata$Location_Description)
 
 # 'Country'
 p <- 'United States'
 
 # 'State/Province'
 q <- metadata$State
+q <- "Oregon"
 
 # 'City/Township'
 r <- metadata$City
+r <- ""
 
 # 'Field program/cruise'
-s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
+# s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
 s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
 t <- paste(metadata$Contact_First_Name, metadata$Contact_Last_Name)
+t <- metadata$Current_Archive_Contact
 
 # 'Collection date'
-u <- as.character(metadata$Sample_Date)
+u <- as.character(metadata$Collection_Date)
 
 # 'Related URL'
-v <- 'https://whondrs.pnnl.gov'
+# v <- 'https://whondrs.pnnl.gov'
 v <- 'https://www.pnnl.gov/projects/river-corridor'
 
 # Related URL Type
@@ -143,6 +166,7 @@ g_water <- 'grab'
 
 # `Collection method description`
 h_water <- 'Surface water was either (1) pulled into syringe from 50% water column depth and expelled through 0.22 micron filter into sample vials or (2) was not filtered and collected into a bottle.'
+h_water <- metadata$Collection_Method_Description
 
 
 ### User Inputs 4: material - sediment #########################################
@@ -332,3 +356,4 @@ write_csv(header, outdir)
 
 write_csv(output, outdir, append = TRUE, col_names = TRUE)
 
+shell.exec(outdir)
