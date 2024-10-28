@@ -1,0 +1,115 @@
+{
+            "@context": "http://schema.org/",
+            "@type": "Dataset",
+            "@id": "https://doi.org/10.1128/mSystems.00151-18",
+            "name": "SBR SFA data package for ESS-DIVE",
+            "description": [
+ "This is the default json-ld file for uploading data package"
+            ],
+            "creator": [
+                {
+                    "@id": "https://orcid.org/0000-0003-0490-6451",
+                    "givenName": "Amy E",
+                    "familyName": "Goldman",
+                    "affiliation": "Pacific Northwest National Laboratory"
+                },
+                {
+                    "givenName": "Huiying",
+                    "familyName": "Ren",
+                    "affiliation": "Pacific Northwest National Laboratory"
+                },
+				{
+                    "givenName": "Huifen",
+                    "familyName": "Zhou",
+                    "affiliation": "Pacific Northwest National Laboratory"
+                }
+            ],
+            "datePublished": "2018",
+			"citation":[
+            "Buser-Young, J. et al., Hidden processes during seasonal isolation of a high-altitude watershed. Submitted to Frontiers in Earth Sciences, Feb 2021"
+        ],
+
+            "keywords": [
+                     "WHONDRS",
+                     "Watershed",
+                     "River corridor",
+                     "Hydrology",
+                     "Hydrologic exchange",
+                     "River"
+            ],
+            "variableMeasured": [
+                "FTICR-MS",
+                "pH",
+                "Specific Conductivity"
+            ],
+            "spatialCoverage": [
+                {
+                    "description": "S19S_0001, Fraser River, Hope, British Columbia, Canada",
+                    "geo": [
+                        {
+                            "name": "Northwest",
+                            "latitude": 49.38609,
+                            "longitude": -121.45047
+                        },
+                        {
+                            "name": "Southeast",
+                            "latitude": 49.38609,
+                            "longitude": -121.45047
+                        }
+						
+                    ]
+                },
+			 {
+                    "description": "yakama river, richland, United States",
+                    "geo": [
+                        {
+                            "name": "Northwest",
+                            "latitude": 56.38609,
+                            "longitude": -121.45047
+                        },
+                        {
+                            "name": "Southeast",
+                            "latitude": 56.38609,
+                            "longitude": -121.45047
+                        }
+						
+                    ]
+                }
+            ],
+			"license": "http://creativecommons.org/licenses/by/4.0/",
+			
+			"award": ["DEAC0205CH11231"],
+            "funder": {
+                "@id": "http://dx.doi.org/10.13039/100006206",
+                "name": "U.S. DOE > Office of Science > Biological and Environmental Research (BER)"
+            },
+            "temporalCoverage": {
+                "startDate": "2019-07-29",
+                "endDate": "2019-09-19"
+            },
+            "editor": {
+               "@id": "https://orcid.org/0000-0003-0490-6451",
+               "givenName": "Huiying",
+               "familyName": "Ren",
+               "email": "huiying.ren@pnnl.gov"
+            },
+            "provider": {
+			     "identifier": {
+                         "@type": "PropertyValue",
+                          "propertyID": "ess-dive",
+                          "value": "d12f558e-bcc7-44ca-8f16-6a37b0dae7f4"
+                          },
+                 "name": "River Corridor and Watershed Biogeochemistry SFA",
+                 "member": {
+                    "@id": "https://orcid.org/0000-0003-0490-6451",
+                    "givenName": "Timothy D.",
+                    "familyName": "Scheibe",
+			        "email": "tim.scheibe@pnnl.gov",
+			        "jobTitle": "Principal Investigator",
+                    "affiliation": "Pacific Northwest National Laboratory"
+                }
+            },
+            "measurementTechnique": [
+                " Details about the data package"
+            ]
+ }

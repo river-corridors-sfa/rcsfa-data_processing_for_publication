@@ -16,8 +16,8 @@ The `update_landing_page_coordinates()` function has 4 (required) arguments:
 If the coordinates are successfully updated, the function will return the URL and name of the data package. 
 ## Run the function
 The function has the following package and function dependencies. 
-- library packages: `tidyverse`, `rlog`, `glue`, `jsonlite`, and `httr`
-- functions: [rename_column_headers()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Transformation/functions/rename_column_headers.R), [update_landing_page_coordinates()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/update_coordinates/update_landing_page_coordinates.R)
+- library packages: `tidyverse`, `rlog`, `glue`, `jsonlite`, `devtools`, and `httr`
+- functions: [rename_column_headers()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Transformation/functions/rename_column_headers.R), [update_landing_page_coordinates()](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/update_landing_page_coordinates.R)
 
 You can either load these independently or use the below script to prepare the function. 
 ``` R
@@ -25,19 +25,13 @@ You can either load these independently or use the below script to prepare the f
 library(tidyverse)
 library(rlog)
 library(glue)
+library(devtools) # for sourcing in script
 library(jsonlite) # for converting to json-ld file
 library(httr) # for uploading to the API
-
-# set working directory to this GitHub repo (rcsfa-data-processing-for-publication) to be able to source in functions
-current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
-setwd(dirname(current_path)) # set wd to current path
-rm(current_path)
-setwd("../../..") # move wd back to the repo directory
-getwd()
-
+  
 # load functions
-source("./Data_Package_ESS-DIVE_Publishing/update_ESS-DIVE_landing_page/update_coordinates/update_landing_page_coordinates.R")
-source("./Data_Transformation/functions/rename_column_headers.R")
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Transformation/functions/rename_column_headers.R")
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/update_landing_page_coordinates.R")
 ```
 
 Run the function. 
