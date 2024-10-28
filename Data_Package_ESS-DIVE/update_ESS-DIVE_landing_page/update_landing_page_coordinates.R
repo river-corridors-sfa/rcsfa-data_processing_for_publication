@@ -1,49 +1,54 @@
-### update_landing_page_coordinates.R ##########################################
-# Date Created: 2024-05-22
-# Date Updated: 2024-07-12
-# Author: Bibi Powers-McCormack
-
-# Objective: 
-  # Update a landing page with new coordinates
-
-# Assumptions: 
-  # The working directory is set to the `rcsfa-data_processing_for_publication` repo
-  # Any update will overwrite all existing coordinates.
-  # The coordinates .csv requires the columns: "Description", "Latitude", and "Longitude"
-  # Requires the following dependencies
-    # packages: tidyverse, rlog, glue, jsonlite, httr
-    # functions: rename_column_headers()
-  
-# Inputs: 
-  # Personal API token from ESS-DIVE
-  # ESS-DIVE identifier (can be located on landing page under "General" section (e.g., "ess-dive-e51251ad488b35f-20240522T205038891721))
-  # Absolute file path of geospatial coordinates saved as a .csv with the columns: "Description", "Latitude", and "Longitude"
-  # Upload site (either "main" or "sandbox)
-
-# Outputs: 
-  # The function returns a written message that the data package has been updated
-  # It will include the URL and name of the data package
-
 
 ### FUNCTION ###################################################################
 
 update_landing_page_coordinates <- function(api_token, # this is your personal API token that you can get after signing into ess-dive
                                             essdive_id, # this is the identifier number from the data package you want to update
-                                            coordinates_file_path, # this is the .csv file path of the coordinates
+                                            coordinates_file_path, # this is the .csv absolute file path of the coordinates
                                             upload_site = c("main", "sandbox")) { # indicate if you want to update a data package on the sandbox vs main site
   
-  ### Prep script ##############################################################
+  ### update_landing_page_coordinates.R ########################################
+  # Date Created: 2024-05-22
+  # Date Updated: 2024-10-22
+  # Author: Bibi Powers-McCormack
   
-  # load helper functions
-  source("./Data_Transformation/functions/rename_column_headers.R")
+  # Objective: 
+    # Update a landing page with new coordinates
+  
+  # Assumptions: 
+    # The working directory is set to the `rcsfa-data_processing_for_publication` repo
+    # Any update will overwrite all existing coordinates.
+    # The coordinates .csv requires the columns: "Description", "Latitude", and "Longitude"
+    # Requires the following dependencies
+      # packages: tidyverse, rlog, glue, jsonlite, httr, devtools
+      # functions: rename_column_headers()
+    
+  # v2 updates: 
+    # moved all readme text into the function so viewers can see it when they load the function
+    # re-factored sourced data now that the repo is public 
+    # updated the readme documentation to match
+  
+  # Inputs: 
+    # Personal API token from ESS-DIVE
+    # ESS-DIVE identifier (can be located on landing page under "General" section (e.g., "ess-dive-e51251ad488b35f-20240522T205038891721))
+    # Absolute file path of geospatial coordinates saved as a .csv with the columns: "Description", "Latitude", and "Longitude"
+    # Upload site (either "main" or "sandbox)
+  
+  # Outputs: 
+    # The function returns a written message that the data package has been updated
+    # It will include the URL and name of the data package
+  
+  ### Prep script ##############################################################
   
   # load libraries
   library(tidyverse)
   library(rlog)
   library(glue)
+  library(devtools) # for sourcing in script
   library(jsonlite) # for converting to json-ld file
   library(httr) # for uploading to the API
   
+  # load helper functions
+  source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Transformation/functions/rename_column_headers.R")
   
   # clean up user inputs
   
