@@ -61,32 +61,6 @@ dir.create(paste0(temp_source_folder, "/Sample123456"))
 file.create(paste0(temp_source_folder, "/Sample123/SampleE.md"))
 
 
-
-# create "correct" files in a temp destination folder
-temp_destination_folder <- paste0(temp_directory, "/destination")
-dir.create(temp_destination_folder)
-
-# create sample files in a nested format
-temp_sample_names <- c("A", "B", "C")
-
-# create destination sample files in a nested format
-for (i in seq_along(temp_sample_names)) {
-  
-  # create folder for each sample
-  current_temp_folder <- paste0(temp_destination_folder,"/Sample", i)
-  dir.create(file.path(current_temp_folder))
-  
-  # create files for each sample
-  for (rep in 1:3) {
-    
-    current_temp_file_path <- paste0(current_temp_folder, "/sample", temp_sample_names[i], "-", rep, ".csv")
-    file.create(current_temp_file_path)
-  }
-}
-
-
-
-
 ### Run tests ##################################################################
 
 test_that("files in the destination folder match the names of the files in the lookup df", {
@@ -106,17 +80,46 @@ test_that("files in the destination folder match the names of the files in the l
   
   
   # run function
-  rename_and_copy_folders(test_lookup)
+  function_output <- rename_and_copy_folders(test_lookup)
   
   # get output of function
-  function_output <- list.dirs(paste0(temp_directory, "/destination"), full.names = T, recursive = T)[-1] # gets dirs and removes the first one (which is the parent dir)
+  output <- list.dirs(paste0(temp_directory, "/destination"), full.names = T, recursive = T)[-1] # gets dirs and removes the first one (which is the parent dir)
+  
+  # test that function ran
+  expect_equal(function_output, "`rename_and_copy_folders()` complete")
   
   # test that the sub folders in the destination directory match the folder names listed in the lookup df
-  expect_equal(function_output, test_lookup$destination)
+  expect_equal(output, test_lookup$destination)
   
   # test that destination file names still equal the source file names (making sure that the file names weren't renamed)
   expect_equal(sort(basename(list.files(paste0(temp_directory, "/destination"), recursive = T))), 
                sort(basename(list.files(paste0(temp_directory, "/source"), recursive = T))))
+  
+})
+
+
+test_that("function errors when lookup df col headers are incorrect", {
+  
+  # create input
+  test_lookup <- tibble(input = c(paste0(temp_directory, "/source/SampleA"),
+                                   paste0(temp_directory, "/source/SampleB"),
+                                   paste0(temp_directory, "/source/SampleC"),
+                                   paste0(temp_directory, "/source/SampleD"),
+                                   paste0(temp_directory, "/source/Sample123")),
+                        output = c(paste0(temp_directory, "/destination/Sample1"),
+                                        paste0(temp_directory, "/destination/Sample2"),
+                                        paste0(temp_directory, "/destination/Sample3"),
+                                        paste0(temp_directory, "/destination/Sample4"),
+                                        paste0(temp_directory, "/destination/SampleABC")))
+  
+  # run function
+  function_output <- rename_and_copy_folders(test_lookup)
+  
+  # this is what the function should return
+  expected_output <- "ERROR. Your lookup df does not include the correct column names. The input requires c(`source`, `destination`)."
+  
+  # test that the sub folders in the destination directory match the folder names listed in the lookup df
+  expect_equal(function_output, expected_output)
   
 })
 
