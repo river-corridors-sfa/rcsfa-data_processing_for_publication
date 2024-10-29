@@ -24,6 +24,22 @@ rename_and_copy_folders <- function(lookup_df) {
   
   library(tidyverse)
   library(fs)
+  library(rlog)
+  
+  ### Check input ##############################################################
+  
+  # confirm required col headers are present
+  if (all(c("source", "destination") %in% colnames(lookup_df))) {
+    
+    lookup_df <- lookup_df %>% 
+      select(source, destination)
+    
+  } else {
+    
+    log_error("Function stopping.")
+    stop("ERROR. Your lookup df does not include the correct column names. The input requires c(`source`, `destination`).")
+    
+  }
   
   
   ### Copy and rename folders ##################################################
@@ -31,9 +47,11 @@ rename_and_copy_folders <- function(lookup_df) {
     rowwise() %>% 
     mutate(success = dir_copy(source, destination, overwrite = TRUE))
   
-  print(paste0("Opening parent directory: ", path_common(lookup_df$destination)))
+  log_info(paste0("Opening parent directory: ", path_common(lookup_df$destination)))
   shell.exec(path_common(lookup_df$destination))
   
-  print("`rename_and_copy_folders()` complete")
+  log_info("`rename_and_copy_folders()` complete")
+  
+  return()
   
 }

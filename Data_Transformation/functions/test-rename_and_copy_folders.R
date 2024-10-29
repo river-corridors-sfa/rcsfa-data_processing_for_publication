@@ -86,7 +86,7 @@ test_that("files in the destination folder match the names of the files in the l
   output <- list.dirs(paste0(temp_directory, "/destination"), full.names = T, recursive = T)[-1] # gets dirs and removes the first one (which is the parent dir)
   
   # test that function ran
-  expect_equal(function_output, "`rename_and_copy_folders()` complete")
+  expect_equal(function_output, NULL)
   
   # test that the sub folders in the destination directory match the folder names listed in the lookup df
   expect_equal(output, test_lookup$destination)
@@ -101,7 +101,7 @@ test_that("files in the destination folder match the names of the files in the l
 test_that("function errors when lookup df col headers are incorrect", {
   
   # create input
-  test_lookup <- tibble(input = c(paste0(temp_directory, "/source/SampleA"),
+  test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SampleA"),
                                    paste0(temp_directory, "/source/SampleB"),
                                    paste0(temp_directory, "/source/SampleC"),
                                    paste0(temp_directory, "/source/SampleD"),
@@ -112,17 +112,34 @@ test_that("function errors when lookup df col headers are incorrect", {
                                         paste0(temp_directory, "/destination/Sample4"),
                                         paste0(temp_directory, "/destination/SampleABC")))
   
-  # run function
-  function_output <- rename_and_copy_folders(test_lookup)
-  
   # this is what the function should return
   expected_output <- "ERROR. Your lookup df does not include the correct column names. The input requires c(`source`, `destination`)."
   
-  # test that the sub folders in the destination directory match the folder names listed in the lookup df
-  expect_equal(function_output, expected_output)
+  # run function and test that the sub folders in the destination directory match the folder names listed in the lookup df
+  expect_error(rename_and_copy_folders(test_lookup), expected_output, fixed = T)
   
 })
 
 
-
-
+test_that("function handles extra columns in the input", {
+  
+  # create input
+  test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SampleA"),
+                                   paste0(temp_directory, "/source/SampleB"),
+                                   paste0(temp_directory, "/source/SampleC"),
+                                   paste0(temp_directory, "/source/SampleD"),
+                                   paste0(temp_directory, "/source/Sample123")),
+                        destination = c(paste0(temp_directory, "/destination/Sample1"),
+                                        paste0(temp_directory, "/destination/Sample2"),
+                                        paste0(temp_directory, "/destination/Sample3"),
+                                        paste0(temp_directory, "/destination/Sample4"),
+                                        paste0(temp_directory, "/destination/SampleABC")),
+                        notes = c("note1", "note2", "note3", "note4", "note5"))
+  
+  # this is what the function should return
+  expected_output <- NULL
+  
+  # run function and test that the sub folders in the destination directory match the folder names listed in the lookup df
+  expect_equal(rename_and_copy_folders(test_lookup), expected_output)
+  
+})
