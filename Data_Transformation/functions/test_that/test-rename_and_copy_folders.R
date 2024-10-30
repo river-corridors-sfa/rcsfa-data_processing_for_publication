@@ -15,6 +15,9 @@ library(devtools)
 library(testthat)
 library(rlog)
 
+# source in function
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/create_rename_and_copy_folders_v1/Data_Transformation/functions/rename_and_copy_folders.R")
+
 ### Create testing data ########################################################
 
 # create testing source data
