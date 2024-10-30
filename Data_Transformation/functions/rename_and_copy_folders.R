@@ -1,6 +1,6 @@
 ### rename_and_copy_folders.R ##################################################
 # Date Created: 2024-10-29
-# Date Updated: 2024-10-29
+# Date Updated: 2024-10-30
 # Author: Bibi Powers-McCormack
 
 rename_and_copy_folders <- function(lookup_df) {

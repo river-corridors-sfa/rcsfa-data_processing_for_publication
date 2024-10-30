@@ -1,6 +1,6 @@
 ### test-rename_and_copy_folders.R #############################################
 # Date Created: 2024-10-29
-# Date Updated: 2024-10-29
+# Date Updated: 2024-10-30
 # Author: Bibi Powers-McCormack
 
 # this script generates test data and then uses it to check the functionality of
@@ -17,6 +17,7 @@ library(rlog)
 
 # source in function
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/create_rename_and_copy_folders_v1/Data_Transformation/functions/rename_and_copy_folders.R")
+
 
 ### Create testing data ########################################################
 
@@ -63,7 +64,6 @@ create_testing_data <- function() {
   
   
 } # end of function
-
 
 
 ### Run tests ##################################################################
