@@ -20,53 +20,62 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 ### Create testing data ########################################################
 
-# create testing source data
-temp_directory <- tempdir()
-log_info(paste0("Opening temp directory: ", temp_directory))
-shell.exec(temp_directory)
-
-# create source sub folders
-temp_source_folder <- paste0(temp_directory, "/source")
-temp_destination_folder <- paste0(temp_directory, "/destination")
-
-if (dir.exists(temp_source_folder)) {
-  # if source folder exists, remove it
-  unlink(temp_source_folder, recursive = T)
-}
-
-if (dir.exists(temp_destination_folder)) {
-  # if destination folder exists, remove it
-  unlink(temp_destination_folder, recursive = T)
-}
-
-dir.create(temp_source_folder)
-
-# create source sample files in a nested format
-temp_sample_names <- c("A", "B", "C", "D")
-
-for (sample in temp_sample_names) {
+create_testing_data <- function() {
   
-  # create folder for each sample
-  current_temp_folder <- paste0(temp_source_folder,"/Sample", sample)
-  dir.create(file.path(current_temp_folder))
+  # create testing source data
+  temp_directory <- tempdir()
+  log_info(paste0("Opening temp directory: ", temp_directory))
+  shell.exec(temp_directory)
   
-  # create files for each sample
-  for (rep in 1:3) {
+  # create source sub folders
+  temp_source_folder <- paste0(temp_directory, "/source")
+  temp_destination_folder <- paste0(temp_directory, "/destination")
+  
+  if (dir.exists(temp_source_folder)) {
+    # if source folder exists, remove it
+    unlink(temp_source_folder, recursive = T)
+  }
+  
+  if (dir.exists(temp_destination_folder)) {
+    # if destination folder exists, remove it
+    unlink(temp_destination_folder, recursive = T)
+  }
+  
+  dir.create(temp_source_folder)
+  
+  # create source sample files in a nested format
+  temp_sample_names <- c("A", "B", "C", "D")
+  
+  for (sample in temp_sample_names) {
     
-    current_temp_file_path <- paste0(current_temp_folder, "/sample", sample, "-", rep, ".csv")
-    file.create(current_temp_file_path)
-  } # end of loop to create files for each sample
-} # end of loop to create sample folders
+    # create folder for each sample
+    current_temp_folder <- paste0(temp_source_folder,"/Sample", sample)
+    dir.create(file.path(current_temp_folder))
+    
+    # create files for each sample
+    for (rep in 1:3) {
+      
+      current_temp_file_path <- paste0(current_temp_folder, "/sample", sample, "-", rep, ".csv")
+      file.create(current_temp_file_path)
+    } # end of loop to create files for each sample
+  } # end of loop to create sample folders
+  
+  
+} # end of function
 
-# create additional source files and folders
-dir.create(paste0(temp_source_folder, "/Sample123"))
-dir.create(paste0(temp_source_folder, "/Sample123456"))
-file.create(paste0(temp_source_folder, "/Sample123/SampleE.md"))
 
 
 ### Run tests ##################################################################
 
-test_that("files in the destination folder match the names of the files in the lookup df", {
+test_that("1. files in the destination folder match the names of the files in the lookup df", {
+  
+  # create testing data
+  create_testing_data()
+  
+  # create additional source files and folders
+  dir.create(paste0(temp_source_folder, "/Sample123"))
+  dir.create(paste0(temp_source_folder, "/Sample123456"))
+  file.create(paste0(temp_source_folder, "/Sample123/SampleE.md"))
   
   # create testing input lookup df
   test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SampleA"),
@@ -101,19 +110,20 @@ test_that("files in the destination folder match the names of the files in the l
 })
 
 
-test_that("function errors when lookup df col headers are incorrect", {
+test_that("2. function errors when lookup df col headers are incorrect", {
+  
+  # create testing data
+  create_testing_data()
   
   # create input
   test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SampleA"),
                                    paste0(temp_directory, "/source/SampleB"),
                                    paste0(temp_directory, "/source/SampleC"),
-                                   paste0(temp_directory, "/source/SampleD"),
-                                   paste0(temp_directory, "/source/Sample123")),
+                                   paste0(temp_directory, "/source/SampleD")),
                         output = c(paste0(temp_directory, "/destination/Sample1"),
                                         paste0(temp_directory, "/destination/Sample2"),
                                         paste0(temp_directory, "/destination/Sample3"),
-                                        paste0(temp_directory, "/destination/Sample4"),
-                                        paste0(temp_directory, "/destination/SampleABC")))
+                                        paste0(temp_directory, "/destination/Sample4")))
   
   # this is what the function should return
   expected_output <- "ERROR. Your lookup df does not include the correct column names. The input requires c(`source`, `destination`)."
@@ -124,20 +134,21 @@ test_that("function errors when lookup df col headers are incorrect", {
 })
 
 
-test_that("function handles extra columns in the input", {
+test_that("3. function handles extra columns in the input", {
+  
+  # create testing data
+  create_testing_data()
   
   # create input
   test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SampleA"),
                                    paste0(temp_directory, "/source/SampleB"),
                                    paste0(temp_directory, "/source/SampleC"),
-                                   paste0(temp_directory, "/source/SampleD"),
-                                   paste0(temp_directory, "/source/Sample123")),
+                                   paste0(temp_directory, "/source/SampleD")),
                         destination = c(paste0(temp_directory, "/destination/Sample1"),
                                         paste0(temp_directory, "/destination/Sample2"),
                                         paste0(temp_directory, "/destination/Sample3"),
-                                        paste0(temp_directory, "/destination/Sample4"),
-                                        paste0(temp_directory, "/destination/SampleABC")),
-                        notes = c("note1", "note2", "note3", "note4", "note5"))
+                                        paste0(temp_directory, "/destination/Sample4")),
+                        notes = c("note1", "note2", "note3", "note4"))
   
   # this is what the function should return
   expected_output <- NULL
@@ -146,3 +157,34 @@ test_that("function handles extra columns in the input", {
   expect_equal(rename_and_copy_folders(test_lookup), expected_output)
   
 })
+
+
+test_that("4. function copies only desired sub-folders when there are additional folders in the source", {
+  
+  # create testing data
+  create_testing_data()
+  
+  # create additional source files and folders - mirror format of ICR files
+  dir.create(paste0(temp_source_folder, "/SHIPDATE"))
+  dir.create(paste0(temp_source_folder, "/CM_SSS_Renamed_Raw_Data"))
+  dir.create(paste0(temp_source_folder, "/SHIPDATE/CM_001.d"))
+  dir.create(paste0(temp_source_folder, "/SHIPDATE/PE_001.d"))
+  file.create(paste0(temp_source_folder, "/SHIPDATE/CM_001.d/SampleE.md"))
+  file.create(paste0(temp_source_folder, "/SHIPDATE/CM_001.d/SampleF.md"))
+  file.create(paste0(temp_source_folder, "/SHIPDATE/PE_001.d/SampleG.md"))
+  
+  # create input
+  test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SHIPDATE/CM_001.d")),
+                        destination = c(paste0(temp_directory, "/source/CM_SSS_Renamed_Raw_Data/Sample1.d")))
+  
+  # this is what the function should return
+  expected_output <- NULL
+  
+  # run function and test that the sub folders in the destination directory match the folder names listed in the lookup df
+  expect_equal(rename_and_copy_folders(test_lookup), expected_output)
+  
+  
+})
+
+
+test_that("5. ")
