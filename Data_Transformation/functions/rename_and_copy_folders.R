@@ -8,16 +8,22 @@ rename_and_copy_folders <- function(lookup_df) {
   
   # Input:
     # the lookup df requires 2 cols: 
-      # source_folder = the absolute folder path of the original location
-      # destination_folder = the absolute folder path of the renamed folder and its new location
+      # source = the absolute folder paths of the original locations
+      # destination = the absolute folder paths that include the renamed folder and its new location
   
   # Output: 
     # folders and their sub-folders renamed and copied to the new location
   
-  # Assumptions: 
+  # Assumptions:
+    # moves all files within the folders provided in the lookup_df
   
   
   # Example: 
+    # example_lookup <- tibble(
+    #   source = c("C:/Users/username/Downloads/FolderA", "C:/Users/username/Downloads/FolderB", "C:/Users/username/Downloads/FolderC"),
+    #   destination = c("C:/Users/username/Documents/Folder1", "C:/Users/username/Documents/Folder2", "C:/Users/username/Documents/Folder3"),
+    # )
+    # rename_and_copy_folders(example_lookup)
   
   
   ### Prep script ##############################################################
