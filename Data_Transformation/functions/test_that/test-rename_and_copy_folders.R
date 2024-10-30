@@ -20,16 +20,17 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 ### Create testing data ########################################################
 
+# create testing source data
+temp_directory <- tempdir()
+log_info(paste0("Opening temp directory: ", temp_directory))
+shell.exec(temp_directory)
+
+# create source sub folders
+temp_source_folder <- paste0(temp_directory, "/source")
+temp_destination_folder <- paste0(temp_directory, "/destination")
+
+
 create_testing_data <- function() {
-  
-  # create testing source data
-  temp_directory <- tempdir()
-  log_info(paste0("Opening temp directory: ", temp_directory))
-  shell.exec(temp_directory)
-  
-  # create source sub folders
-  temp_source_folder <- paste0(temp_directory, "/source")
-  temp_destination_folder <- paste0(temp_directory, "/destination")
   
   if (dir.exists(temp_source_folder)) {
     # if source folder exists, remove it
@@ -180,11 +181,70 @@ test_that("4. function copies only desired sub-folders when there are additional
   # this is what the function should return
   expected_output <- NULL
   
-  # run function and test that the sub folders in the destination directory match the folder names listed in the lookup df
+  # run function and test that the only the folders in the lookup are copied over
   expect_equal(rename_and_copy_folders(test_lookup), expected_output)
   
   
 })
 
 
-test_that("5. ")
+test_that("5. function creates all destination directories, even if they don't already exist", {
+  
+  # create testing data
+  create_testing_data()
+  
+  # create additional source data - (you have to create each dir and sub dir separately)
+  dir.create(paste0(temp_source_folder, "/SHIPDATE"))
+  dir.create(paste0(temp_source_folder, "/SHIPDATE/CM_00A.d"))
+  file.create(paste0(temp_source_folder, "/SHIPDATE/CM_00A.d/SampleG.md"))
+  dir.create(paste0(temp_source_folder, "/SHIPDATE/CM_00B.d"))
+  file.create(paste0(temp_source_folder, "/SHIPDATE/CM_00B.d/SampleH.md"))
+  
+  # create destination folders
+  # dir.create(paste0(temp_source_folder, "/CM_SSS_notcreated")) # not creating a dir where CM_001.d will be copied
+  dir.create(paste0(temp_source_folder, "/CM_SSS_created")) # this creates a dir where CM_002.d will be copied
+  
+  # create input
+  test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SHIPDATE/CM_00A.d"),
+                                   paste0(temp_directory, "/source/SHIPDATE/CM_00B.d")),
+                        destination = c(paste0(temp_directory, "/source/CM_SSS_notcreated/Sample1.d"),
+                                        paste0(temp_directory, "/source/CM_SSS_created/Sample2.d")))
+  
+  # this is what the function should return
+  expected_output <- NULL
+  
+  # run function and test that directories are created if they don't already exist
+  expect_equal(rename_and_copy_folders(test_lookup), expected_output)
+  
+  
+})
+
+test_that("6. function won't overwrite existing data in a destination folder if stuff already lives there", {
+  
+  # create testing data
+  create_testing_data()
+  
+  # create destination folders
+    # this example has A already in the destination and the function copies B
+  dir.create(paste0(temp_destination_folder)) # this creates the destination folder
+  dir.create(paste0(temp_destination_folder, "/CM_SSS")) # this creates a dir where SampleB will be copied
+  dir.create(paste0(temp_destination_folder, "/CM_SSS/Sample1")) # this creates dir where A will already exist
+  file.create(paste0(temp_destination_folder, "/CM_SSS/Sample1/sampleA-1.csv"),
+              paste0(temp_destination_folder, "/CM_SSS/Sample1/sampleA-2.csv"),
+              paste0(temp_destination_folder, "/CM_SSS/Sample1/sampleA-3.csv"))
+  
+  # create input
+  test_lookup <- tibble(source = c(paste0(temp_directory, "/source/SampleB"),
+                                   paste0(temp_directory, "/source/SampleD")),
+                        destination = c(paste0(temp_directory, "/destination/CM_SSS/Sample2.d"),
+                                        paste0(temp_directory, "/destination/CM_SSS/Sample4.d")))
+  
+  # this is what the function should return
+  expected_output <- NULL
+  
+  # run function and test that if a destination already has files in it, this function won't delete them
+  expect_equal(rename_and_copy_folders(test_lookup), expected_output)
+  expect_equal(sort(basename(list.files(temp_destination_folder, recursive = T))), c("sampleA-1.csv", "sampleA-2.csv", "sampleA-3.csv", 
+                                                                                     "sampleB-1.csv", "sampleB-2.csv", "sampleB-3.csv", 
+                                                                                     "sampleD-1.csv", "sampleD-2.csv", "sampleD-3.csv"))
+})

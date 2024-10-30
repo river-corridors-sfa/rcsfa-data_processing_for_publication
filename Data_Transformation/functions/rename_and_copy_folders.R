@@ -16,6 +16,8 @@ rename_and_copy_folders <- function(lookup_df) {
   
   # Assumptions:
     # moves all files within the folders provided in the lookup_df
+    # destination dirs don't necessarily need to be created in advance (the function will create them)
+    # function won't overwrite anything already existing in destination dirs
   
   
   # Example: 
