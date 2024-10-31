@@ -124,13 +124,13 @@ combine_remove_outliers <- combine %>%
 # calculate average for every parent_id for each data_type
 calculate_summary <- combine_remove_outliers %>% 
   select(-extract_lookup_text) %>% 
-  group_by(parent_id, file_name) %>% 
+  group_by(parent_id, file_name, data_type) %>% 
   mutate(average = round(mean(data_value, na.rm = T), digits = 3)) %>%  # calcualte mean and round to 3 decimal points
   mutate(average = case_when(average == "NaN" ~ NA_real_, T ~ average)) %>% 
   ungroup() %>% 
 
   # prepare new column headers
-  mutate(summary_header_name = case_when(number_of_reps > 1 ~ paste0("mean_", data_type), T ~ data_type)) %>% # if there are more than 1 reps for each sample, then add "mean_" to front of header
+  mutate(summary_header_name = case_when(number_of_reps > 1 ~ paste0("Mean_", data_type), T ~ data_type)) %>% # if there are more than 1 reps for each sample, then add "mean_" to front of header
   mutate(Sample_Name = paste0(parent_id, "_", user_provided_material)) %>% # rename sample name
   
   # deal with missing reps
@@ -205,6 +205,7 @@ identical(names(combine_headers), names(summary)) # Should return TRUE
 
 
 # =================================== Write File ===============================
+# this exports exports the combine_headers and summary dfs
 
 columns <- length(summary)-1
   
