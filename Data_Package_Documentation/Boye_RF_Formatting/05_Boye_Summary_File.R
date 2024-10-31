@@ -1,10 +1,14 @@
 # ==============================================================================
 #
 # Make a summary file of means for each analyte file going into a data package
+# 
+# ==============================================================================
+# Script Updates
 #
 # Status: In progress
-#
+# this version can be used when outlier deviations haven't been added - it uses a QAQC file to determine outliers
 # known issue: putting NA in detection limit and precision row 
+#
 # 
 # ==============================================================================
 #
