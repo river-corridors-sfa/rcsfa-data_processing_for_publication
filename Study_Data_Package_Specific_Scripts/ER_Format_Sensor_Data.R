@@ -8,7 +8,7 @@
 # ==============================================================================
 #
 # Author: Brieanne Forbes 
-# 8 February 2024
+# 30 October 2024
 #
 # ==============================================================================
 
@@ -72,6 +72,27 @@ for (file in files) {
       filter(InstallationMethod_ID != 'Minidot_04')
     
   }
+  
+  # ============== filter for different depth methods ========================
+  
+  if(unique(data$Site_ID) %in% c('W20')){
+    
+    headers_filter <- headers_filter %>%
+      filter(InstallationMethod_ID != 'Depth_01'|InstallationMethod_ID != 'Depth_03')
+    
+  }else if(unique(data$Site_ID) %in% c('T07')){
+    
+    headers_filter <- headers_filter %>%
+      filter(InstallationMethod_ID != 'Depth_01'|InstallationMethod_ID != 'Depth_02')
+    
+  }else {
+    
+    headers_filter <- headers_filter %>%
+      filter(InstallationMethod_ID != 'Depth_02'|InstallationMethod_ID != 'Depth_03')
+    
+  }
+  
+  # ============== add header rows ========================
   
   data_cols <- data %>%
     select(-DateTime, -Parent_ID, -Site_ID) %>%
