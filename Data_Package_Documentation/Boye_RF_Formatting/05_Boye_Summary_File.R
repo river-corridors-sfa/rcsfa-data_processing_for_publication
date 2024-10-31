@@ -33,18 +33,15 @@ study_code <- 'SPS' # this is used to rename the output file
 
 material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
-# rep_type <- "variable" # indicate the number of reps; options include c("variable, static")
-#   # if variable, the rep number must be included at the end of the sample name in the format [samplename]-[rep] (e.g., Sample1-2)
-#   # variable = the number of reps for each sample varies; e.g., some have 1 rep, others have 3
-#   # static = all samples the same number of reps
-# 
-# rep_number <- 1 # if all samples have the same number of reps (i.e., rep_type == "static"), then indicate the number of reps
-#   # this is the number each sample average will be divided by
-
 # ====================== read in data files ====================================
 # assumptions: 
-  # sample names look like this: [Parent_ID]_[analyte code]-[rep] (e.g., SPS_0001_TSS-1)
+  # each boye file has 2 top rows that are skipped
+  # each boye file has 11 header row
+  # sample names can look like any of these options: 
+    # [Parent_ID]_[analyte code]-[rep] (e.g., SPS_001_TSS-1)
+    # [ParentID]_[analyte code]-[rep] (e.g., SPS001_TSS-1)
   # fake boye files have text in their data column that starts with "See_"
+  # if an igsn column is present in the boye file, it will drop it
 
 analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
 analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
@@ -60,10 +57,15 @@ for (i in 1:length(analyte_files)) {
   print(paste0("Reading in file ", i, " of ", length(analyte_files), ": ", current_file_name))
   
   # read in current file
-  current_file <- read_csv(analyte_files[i], skip = 2, na = c("-9999", "NA", "", "N/A"), show_col_types = F) %>% 
+  current_source <- read_csv(analyte_files[i], skip = 2, na = c("-9999", "NA", "", "N/A"), show_col_types = F) %>% 
     filter(!is.na(Sample_Name)) %>% 
     select(-Field_Name) %>% 
-    mutate(file_name = current_file_name) %>% 
+    mutate(file_name = current_file_name)
+  
+  current_file <- current_source %>% 
+    
+  # remove IGSN column if it exists
+    select(-any_of("IGSN")) %>% 
     
   # add user input material
     mutate(user_provided_material = material) %>% 
