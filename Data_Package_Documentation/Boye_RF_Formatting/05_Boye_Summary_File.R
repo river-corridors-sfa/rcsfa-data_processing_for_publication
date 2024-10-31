@@ -27,11 +27,19 @@ rm(list=ls(all=T))
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 dir <- "Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v4/v4_CM_SSS_Data_Package/Sample_Data"
 
 study_code <- 'SPS' # this is used to rename the output file
 
 material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
+# rep_type <- "variable" # indicate the number of reps; options include c("variable, static")
+#   # if variable, the rep number must be included at the end of the sample name in the format [samplename]-[rep] (e.g., Sample1-2)
+#   # variable = the number of reps for each sample varies; e.g., some have 1 rep, others have 3
+#   # static = all samples the same number of reps
+# 
+# rep_number <- 1 # if all samples have the same number of reps (i.e., rep_type == "static"), then indicate the number of reps
+#   # this is the number each sample average will be divided by
 
 # ====================== read in data files ====================================
 # assumptions: 
@@ -61,9 +69,8 @@ for (i in 1:length(analyte_files)) {
     mutate(user_provided_material = material) %>% 
     
   # split out sample name
-    separate(Sample_Name, into = c("parent_id_1", "parent_id_2", "analyte_rep"), sep = "_", fill = "left", remove = F) %>%
-    unite(parent_id, parent_id_1, parent_id_2, sep = "_", remove = T) %>% 
-    separate(analyte_rep, into = c("analyte", "rep"), sep = "-", remove = T) %>% 
+    separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
+    separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
     
   # count number of reps
     group_by(parent_id) %>% 
