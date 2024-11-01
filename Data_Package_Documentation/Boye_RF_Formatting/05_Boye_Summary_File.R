@@ -27,7 +27,6 @@ rm(list=ls(all=T))
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 dir <- "Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v4/v4_CM_SSS_Data_Package/Sample_Data"
 
 study_code <- 'SPS' # this is used to rename the output file
 
@@ -111,6 +110,10 @@ combine <- bind_rows(data_files) %>%
 
 
 # ====================== remove outliers =======================================
+# assumptions
+  # outliers are indicated with "_OUTLIER" in the Methods_Deviation column
+  # if the text before "_OUTLIER" is matched to any text in the data column header, then that data value is converted to NA 
+    # (e.g, "NPOC_OUTLIER_001" in the Methods_Deviation will convert the value in the column "00681_NPOC_mg_per_L_as_C" to NA)
 
 # calc max number of deviations per sample based on number of semicolons
 max_deviations <- combine %>%
@@ -131,9 +134,11 @@ combine_remove_outliers <- combine %>%
   ungroup()
 
 
-
-
 # ====================== calculate summary =====================================
+# assumptions
+  # average is calculated with mean() with NA values removed and rounded to 3 decimal points
+  # if any samples have more than 1 rep, then that data's column header includes "Mean_" prefixed to the column header in the summary output
+  # if any sample had a rep dropped, marks the entire row Mean_Missing_Reps == TRUE
 
 # calculate average for every parent_id for each data_type
 calculate_summary <- combine_remove_outliers %>% 
@@ -143,7 +148,7 @@ calculate_summary <- combine_remove_outliers %>%
   ungroup() %>% 
 
   # prepare new column headers
-  mutate(summary_header_name = case_when(number_of_reps > 1 ~ paste0("Mean_", data_type), T ~ data_type)) %>% # if there are more than 1 reps for each sample, then add "mean_" to front of header
+  mutate(summary_header_name = case_when(number_of_reps > 1 ~ paste0("Mean_", data_type), T ~ data_type)) %>% # if there are more than 1 reps for each sample, then add "Mean_" to front of header
   mutate(Sample_Name = paste0(parent_id, "_", user_provided_material)) %>% # rename sample name
   
   # deal with missing reps
@@ -158,7 +163,10 @@ calculate_summary <- combine_remove_outliers %>%
 summary <- calculate_summary %>% 
   # pivot wider
   pivot_wider(id_cols = c(Sample_Name, Material, Mean_Missing_Reps), names_from = summary_header_name, values_from = average) %>% 
-  relocate(Mean_Missing_Reps, .after = last_col())
+  relocate(Mean_Missing_Reps, .after = last_col()) %>% 
+  
+  # sort by sample name
+  arrange(Sample_Name)
 
 
 # ==================================== Format ==================================
@@ -233,6 +241,7 @@ top <- tibble('one' = as.character(),
 
 
 summary_out_file <- paste0(dir, "/", study_code, "_", material,'_Sample_Data_Summary_', Sys.Date(), '.csv') # this is one is for when you have files in the Share Drive
+summary_out_file
 
 write_csv(top, summary_out_file, col_names = F)
 
