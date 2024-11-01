@@ -93,6 +93,8 @@ mapping_files <- list.files(mapping_file_dir, pattern = 'Mapping', recursive = T
 
 mapping_files <- mapping_files[ !grepl('Archive',mapping_files)] #for RC2 NPOC_TN, also need to remove .txt and SPE
 
+mapping_files <- mapping_files[ !grepl('txt',mapping_files)] # skipping txt files
+
 combine_mapping <- tibble('Study_Code' = as.character(), 
                    'Sample_ID' = as.character(), 
                    'Randomized_ID' = as.character(), 
@@ -134,8 +136,6 @@ for (mapping_file in mapping_files) {
     
   }
   
-  mapping_data <- mapping_data %>%
-    mutate(Study_Code = as.character(Study_Code))
   
   combine_mapping <- combine_mapping %>%
     bind_rows(mapping_data)
