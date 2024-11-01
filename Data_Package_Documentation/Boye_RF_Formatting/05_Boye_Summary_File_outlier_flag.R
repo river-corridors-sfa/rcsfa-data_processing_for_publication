@@ -35,7 +35,8 @@ material <- 'Water' # the material entered here is how the data files are locate
 # ====================== read in data files ====================================
 # assumptions: 
   # each boye file has 2 top rows that are skipped
-  # each boye file has 11 header row
+  # each boye file has 11 header rows
+  # boye files requrie the following headers: Sample_Name, Material, Methods_Deviation (+ any data columns)
   # sample names can look like any of these options: 
     # [Parent_ID]_[analyte code]-[rep] (e.g., SPS_001_TSS-1)
     # [ParentID]_[analyte code]-[rep] (e.g., SPS001_TSS-1)
@@ -49,7 +50,7 @@ print(basename(analyte_files))
 data_files <- list()
 data_headers <- list()
 
-for (i in 1:length(analyte_files)) {
+for (i in 1:length(analyte_files)) { # this loops through each analyte file, reads the headers and data, cleans data (splits out sample name and rep counts) and converts to long, and saves to lists
   
   # get file name
   current_file_name <- basename(tools::file_path_sans_ext(analyte_files[i]))
@@ -111,6 +112,7 @@ combine <- bind_rows(data_files) %>%
 
 # ====================== remove outliers =======================================
 # assumptions
+  # methods deviations are separated by semi-colons
   # outliers are indicated with "_OUTLIER" in the Methods_Deviation column
   # if the text before "_OUTLIER" is matched to any text in the data column header, then that data value is converted to NA 
     # (e.g, "NPOC_OUTLIER_001" in the Methods_Deviation will convert the value in the column "00681_NPOC_mg_per_L_as_C" to NA)
@@ -126,7 +128,7 @@ combine_remove_outliers <- combine %>%
   mutate(has_outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ TRUE)) %>% # add true if the words "OUTLIER" are present in methods deviation col
   separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
   mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ ., TRUE ~ NA_character_))) %>% # removes any deviations that aren't outliers
-  mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ str_extract(., "^[^_]+"), TRUE ~ NA_character_))) %>% # extract loop up text (the text that's before "_OUTLIER")
+  mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ str_extract(., "^[^_]+"), TRUE ~ NA_character_))) %>% # extract look up text (the text that's before "_OUTLIER")
   mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
   rowwise() %>% 
   mutate(data_value = case_when(any(across(starts_with("Methods_Deviation"), ~ str_detect(data_type, .))) ~ NA_real_,
