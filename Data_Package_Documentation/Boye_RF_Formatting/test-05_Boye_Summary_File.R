@@ -6,6 +6,13 @@
 # Objective: 
   # create testing environment for Boye Summary file
 
+# Directions: 
+  # 1. Run prep script chunk
+  # 2. Run create testing data Chunk
+  # 3. Go to `05_Boye_Summary_File.R` and add temp_directory as dir
+  # 4. Run `05_Boye_Summary_File.R` and stop before you write anything out
+  # 5. Return to this script and run the run tests chunk
+
 
 ### Prep script ################################################################
 
