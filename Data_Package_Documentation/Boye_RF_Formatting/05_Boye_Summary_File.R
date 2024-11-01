@@ -112,18 +112,31 @@ combine <- bind_rows(data_files) %>%
 
 # ====================== remove outliers =======================================
 
+# calc max number of deviations per sample based on number of semicolons
+max_deviations <- combine %>%
+  select(Methods_Deviation) %>% 
+  mutate(num_deviations = str_count(Methods_Deviation, ";") + 1) %>% 
+  summarise(max = max(num_deviations, na.rm = T)) %>% 
+  pull()
+
 combine_remove_outliers <- combine %>% 
-  mutate(has_outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ TRUE),
-         extract_lookup_text = case_when(has_outlier == TRUE ~ # if it's an outlier, extract the text before "_OUTLIER"
-                                         str_extract(Methods_Deviation, "^[^_]+")),
-         data_value = case_when(str_detect(data_type, extract_lookup_text) ~ NA_real_, T ~ data_value)) # if that extracted text matches anything in the data_type col, then convert value to NA
+  mutate(has_outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ TRUE)) %>% # add true if the words "OUTLIER" are present in methods deviation col
+  separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
+  mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ ., TRUE ~ NA_character_))) %>% # removes any deviations that aren't outliers
+  mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ str_extract(., "^[^_]+"), TRUE ~ NA_character_))) %>% # extract loop up text (the text that's before "_OUTLIER")
+  mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
+  rowwise() %>% 
+  mutate(data_value = case_when(any(across(starts_with("Methods_Deviation"), ~ str_detect(data_type, .))) ~ NA_real_,
+                                T ~ data_value)) %>%  # if the lookup text in any methods deviation column is present in the data_type col, it converts the data value to NA
+  ungroup()
+
+
 
 
 # ====================== calculate summary =====================================
 
 # calculate average for every parent_id for each data_type
 calculate_summary <- combine_remove_outliers %>% 
-  select(-extract_lookup_text) %>% 
   group_by(parent_id, file_name, data_type) %>% 
   mutate(average = round(mean(data_value, na.rm = T), digits = 3)) %>%  # calcualte mean and round to 3 decimal points
   mutate(average = case_when(average == "NaN" ~ NA_real_, T ~ average)) %>% 
