@@ -45,9 +45,12 @@ query_dd_database <- function(dd_skeleton) {
   
   ### Check for correct column headers #########################################
   # Directions: Run this chunk without modification. Respond to inline prompts as they appear.
-  # This confirms the provided skeleton has the correct column headers. 
+  # This confirms the provided skeleton has the correct column headers and makes sure all are chr cols
   
-  current_dd_skeleton <- rename_column_headers(current_dd_skeleton, c("Column_or_Row_Name", "Unit", "Definition"))
+  current_dd_skeleton <- rename_column_headers(current_dd_skeleton, c("Column_or_Row_Name", "Unit", "Definition")) %>% 
+    mutate(Column_or_Row_Name = as.character(Column_or_Row_Name),
+           Unit = as.character(Unit), 
+           Definition = as.character(Definition))
   
   ### Query for shared definitions #############################################
   # Directions: Run this chunk without modification. Respond to inline prompts as they appear.
