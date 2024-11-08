@@ -23,11 +23,15 @@
 # Assumptions: 
   # Requires input IGSN file to have 2 columns: `IGSN` that has the sample IGSNs and `Parent_IGSN` that has the site IGSNs.
   # The input file IGSNs should not have the full DOI URL. They can look like "10.58052/IEPRS007S" or "IEPRS007S".
-  
 
-# Directions: Go through this script line by line for directions on how to
-# navigate downloading info from the SESAR database and creating the psuedo
-# template files
+# Directions: 
+  # Go through this script line by line for directions on how to navigate
+  # downloading info from the SESAR database and creating the psuedo template
+  # files
+
+# Status: 
+  # complete. 
+  # possible future enhancements: splitting the samples in groupings of 100 and copying each for the user
 
 
 ### Prep Script ################################################################
@@ -49,6 +53,7 @@ ess_dive_infrastructure_only_dir <- "Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy
 # create and open your temp directory - this folder and files in it will automatically delete when your R session ends
 temp_dir <- tempdir()
 shell.exec(temp_dir)
+
 
 ### Download from SESAR ########################################################
 # first pull the IGSNs from the data package
@@ -128,22 +133,6 @@ output_site_columns <- c("Sample Name", "IGSN", "Parent IGSN",
                          "Primary physiographic feature", "Name of physiographic feature", 
                          "Location description", "Locality", "Locality description", "Country", "State/Province", "County", "City/Township", 
                          "Field program/cruise", "Collector/Chief Scientist", "Collector/Chief Scientist Address") 
-# note: these are the fields we included in the ICON ModEx data package:
-  # Sample Name
-  # IGSN
-  # Parent IGSN
-  # Release Date
-  # Other name(s)
-  # Latitude
-  # Longitude
-  # Primary physiographic feature
-  # Name of physiographic feature
-  # Field program/Cruise
-  # Country
-  # State/Province
-  # City/Township
-  # Comment
-  # Field Program/Cruise
 
 output_sample_header <- tibble('Object Type:'= as.character(),
                             'Individual Sample'= as.character(),
@@ -157,36 +146,13 @@ output_sample_columns <- c("Sample Name", "IGSN", "Parent IGSN", "Release Date",
                            "Primary physiographic feature", "Name of physiographic feature", 
                            "Field program/cruise", "Collector/Chief Scientist", "Collection date", 
                            "Collection date precision", "Current archive", "Current archive contact")
-# note: these are the fields we included in the ICON ModEx data package:
-  # Sample Name
-  # IGSN
-  # Parent IGSN
-  # Release Date
-  # Material
-  # Field name (informal classification)
-  # Collection method
-  # Collection method description
-  # Comment
-  # Latitude
-  # Longitude
-  # Primary physiographic feature
-  # Name of physiographic feature
-  # Locality
-  # Locality description
-  # Country
-  # State/Province
-  # City/Township
-  # Field program/cruise
-  # Collector/Chief Scientist
-  # Collection date
-  # Related URL
-  # Related URL Type
 
 
 ### Create SITES SESAR template ################################################
 
 # read in site file(s)
 site_files <- list.files(paste0(temp_dir, "/sites"), pattern = ".xlsx$", full.names = T) # gets all xlsx files from the temp dir
+basename(site_files)
 
 # initialize empty df
 sites_template <- tibble()
@@ -223,6 +189,7 @@ output_sites_template <- sites_template %>%
 
 # read in site file(s)
 sample_files <- list.files(paste0(temp_dir, "/samples"), pattern = ".xlsx$", full.names = T) # gets all xlsx files from the temp dir
+basename(sample_files)
 
 # initialize empty df
 samples_template <- tibble()
@@ -276,6 +243,8 @@ readme <- c(
   "",
   'If you have looked at the data in this folder and are interested in the contents, you can find the same information within the main data package folder in a machine-readable file ending in "IGSN-Mapping.csv."'
 )
+
+readme
 
 
 ### Write out files ############################################################
