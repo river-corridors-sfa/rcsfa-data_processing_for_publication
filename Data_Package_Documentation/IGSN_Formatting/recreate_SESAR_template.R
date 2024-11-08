@@ -23,6 +23,7 @@
 # Assumptions: 
   # Requires input IGSN file to have 2 columns: `IGSN` that has the sample IGSNs and `Parent_IGSN` that has the site IGSNs.
   # The input file IGSNs should not have the full DOI URL. They can look like "10.58052/IEPRS007S" or "IEPRS007S".
+  # If there are more than 100 samples or sites, you will have to repeat the downloading process (but this script will walk you through that).
 
 # Directions: 
   # Go through this script line by line for directions on how to navigate
@@ -31,7 +32,7 @@
 
 # Status: 
   # complete. 
-  # possible future enhancements: splitting the samples in groupings of 100 and copying each for the user
+  # script has not yet been tested when there are more than 100 sites or samples
 
 
 ### Prep Script ################################################################
@@ -67,27 +68,59 @@ site_igsns <- data_package_igsns %>%
   mutate(Parent_IGSN = str_replace_all(Parent_IGSN, "\\s+", "")) %>% 
   select(Parent_IGSN) %>%
   distinct() %>% 
-  {print(paste0("There are ", nrow(.), " sites.")); .} %>% 
-  pull(.) %>% 
-  str_c(collapse = ", ")
+  mutate(step = (row_number() - 1) %/% 100 + 1) # this assigns a value for every 100
 
-# copy IGSNs to clipboard
-write_clip(site_igsns)
+log_info(paste0("There are ", count(site_igsns), " sites."))
 
-# go to website
-browseURL("https://www.geosamples.org/search-options/catalog-search")
-
-# in the "search by multiple IGSNs" box, paste in your site IGSNs
-# scroll down and click the blue "search" button
-
-# copy this temp directory to your clipboard
+# create temp site dir
 dir.create(paste0(temp_dir, "/sites"))
-write_clip(paste0(temp_dir, "/sites"))
 
-# go back to website and click the grey "Download" button
-# when the dialog box to save the file comes up, paste the temp_dir URL into the folder path
-# no need to rename the file, click save
-
+# if there are more than 100 sites, then need to break it up for downloading from SESAR
+# this loop grabs 100 sites at a time and walks you through how to download them from SESAR
+for (i in 1:max(site_igsns$step)){
+  
+  current_step <- site_igsns %>% 
+    filter(step == i) %>% 
+    select(-step) %>% 
+    {print(paste0("There are ", nrow(.), " sites.")); .} %>% 
+    pull(.) %>% 
+    str_c(collapse = ", ")
+    
+  # copy IGSNs to clipboard
+  write_clip(current_step)
+  
+  # go to website
+  browseURL("https://www.geosamples.org/search-options/catalog-search")
+  
+  cat("Your IGSNs have been copied to your clipboard.")
+  cat("\n")
+  cat("In the 'search by multiple IGSNs' box, paste in your site IGSNs. ")
+  cat("\n")
+  cat("Scroll down and click the blue 'search' button.")
+  
+  readline(prompt = "Ready for the next step? After you clicked 'search', enter 'Y' into the console: ")
+  
+  # copies temp directory to your clipboard
+  write_clip(paste0(temp_dir, "/sites"))
+  
+  cat('Click the grey "Download" button.')
+  cat("\n")
+  cat("When the dialog box to save the file comes up, paste the temp_dir URL (it's been saved to your clipboard) into the folder path.")
+  cat("\n")
+  cat("No need to rename the file, click save. ")
+  cat("\n")
+  
+  if (i == max(site_igsns$step)) {
+    
+    cat("You have downloaded all sites. Return to R and run the next line. ")
+    
+  } else {
+    
+    readline(prompt = "Ready for the next step? You have more to download. This loop will start over and copy the next 100 sites to your clipboard. 
+             Enter 'Y' into the console when ready to continue: ")
+    
+  }
+}
 
 # now we're gonna do the same thing but for samples
 
@@ -96,27 +129,59 @@ sample_igsns <- data_package_igsns %>%
   mutate(IGSN = str_replace_all(IGSN,  "\\s+", "")) %>% 
   select(IGSN) %>% 
   distinct() %>% 
-  {print(paste0("There are ", nrow(.), " samples.")); .} %>% 
-  pull() %>% 
-  str_c(collapse = ", ")
+  mutate(step = (row_number() - 1) %/% 100 + 1) # this assigns a value for every 100
 
-# copy IGSNs to clipboard
-write_clip(sample_igsns)
+log_info(paste0("There are ", count(sample_igsns), " samples."))
 
-# go to website
-browseURL("https://www.geosamples.org/search-options/catalog-search")
-
-# in the "search by multiple IGSNs" box, paste in your sample IGSNs
-# scroll down and click the blue "search" button
-
-# copy this temp directory to your clipboard
+# create temp site dir
 dir.create(paste0(temp_dir, "/samples"))
-write_clip(paste0(temp_dir, "/samples"))
 
-# go back to website and click the grey "Download" button
-# when the dialog box to save the file comes up, paste the temp_dir URL into the folder path
-# no need to rename the file, click save
-# if it doesn't let you download all of them at the same time, you can download in batches of 100 and save each file to that same `/samples` sub directory
+# if there are more than 100 samples, then need to break it up for downloading from SESAR
+# this loop grabs 100 samples at a time and walks you through how to download them from SESAR
+for (i in 1:max(sample_igsns$step)){
+  
+  current_step <- sample_igsns %>% 
+    filter(step == i) %>% 
+    select(-step) %>% 
+    {print(paste0("There are ", nrow(.), " samples.")); .} %>% 
+    pull(.) %>% 
+    str_c(collapse = ", ")
+  
+  # copy IGSNs to clipboard
+  write_clip(current_step)
+  
+  # go to website
+  browseURL("https://www.geosamples.org/search-options/catalog-search")
+  
+  cat("Your IGSNs have been copied to your clipboard.")
+  cat("\n")
+  cat("In the 'search by multiple IGSNs' box, paste in your sample IGSNs. ")
+  cat("\n")
+  cat("Scroll down and click the blue 'search' button.")
+  
+  readline(prompt = "Ready for the next step? After you clicked 'search', enter 'Y' into the console: ")
+  
+  # copies temp directory to your clipboard
+  write_clip(paste0(temp_dir, "/samples"))
+  
+  cat('Click the grey "Download" button.')
+  cat("\n")
+  cat("When the dialog box to save the file comes up, paste the temp_dir URL (it's been saved to your clipboard) into the folder path.")
+  cat("\n")
+  cat("No need to rename the file, click save. ")
+  cat("\n")
+  
+  if (i == max(sample_igsns$step)) {
+    
+    cat("You have downloaded all samples. Return to R and run the next line. ")
+    
+  } else {
+    
+    readline(prompt = "Ready for the next step? You have more to download. This loop will start over and copy the next 100 samples to your clipboard. 
+             Enter 'Y' into the console when ready to continue: ")
+    
+  }
+}
 
 
 ### Identify format of desired output ##########################################
@@ -325,3 +390,4 @@ write_csv(output_sample_header, paste0(ess_dive_infrastructure_only_dir, "/igsn_
 
 write_csv(output_samples_template, paste0(ess_dive_infrastructure_only_dir, "/igsn_metadata_samples.csv"), append = TRUE, col_names = TRUE, na = "")
 
+shell.exec(ess_dive_infrastructure_only_dir)
