@@ -27,6 +27,7 @@ rm(list=ls(all=T))
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 dir <- "Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
+dir <- temp_directory
 
 study_code <- 'SPS' # this is used to rename the output file
 
