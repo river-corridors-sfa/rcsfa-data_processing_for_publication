@@ -51,6 +51,9 @@ rename_and_copy_folders <- function(lookup_df) {
   
   
   ### Copy and rename folders ##################################################
+  
+  log_info("Copying is about to begin...")
+  
   lookup_df %>% 
     rowwise() %>% 
     mutate(success = dir_copy(source, destination, overwrite = TRUE))
