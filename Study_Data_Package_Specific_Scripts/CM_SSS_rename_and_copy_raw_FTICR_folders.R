@@ -1,6 +1,6 @@
 ### CM_SSS_rename_and_copy_raw_FTICR_folders.R #################################
 # Date Created: 2024-10-29
-# Date Updated: 2024-11-18
+# Date Updated: 2024-11-19
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -9,6 +9,12 @@
 # Assumptions: 
   # this only copies CM and SSS files
   # original files are left unaltered
+  # removes samples where `Accumulation_Time` is NA
+  # removes samples where "OMIT" is included in the Notes column
+  # convert ion accumulation time to have "p" replace the decimal point
+  # uses the analyte code to determine the sub folder (ICR = water; SED = sediment)
+  # use the combined mapping file as the base for the lookup df
+  # confirms that all samples that will be moved match the boye file in the data packages
 
 
 ### Prep Script ################################################################
@@ -42,7 +48,7 @@ print(filtered_xml_file_names) # all files look good and ready for next step
 # removes samples where `Accumulation_Time` is NA
 # removes samples where "OMIT" is included in the Notes column
 # convert ion accumulation time to have "p" replace the decimal point
-# use the analyte code to determine the sub folder (ICR = water; SED = sediment)
+# uses the analyte code to determine the sub folder (ICR = water; SED = sediment)
 
 # function to rename ion accumulation times
 convert_IAT <- function(IAT) {
@@ -200,6 +206,7 @@ CM_SSS_lookup_df <- mapping_file %>% # uses mapping file as source of truth for 
   select(-parent_id_id)
 
 
+# confirms that all samples that will be moved match the boye file in the data packages
 test_that("All sediment samples are present", {
   
   # read in boye sediment file - this is the source of truth for which samples we should have
