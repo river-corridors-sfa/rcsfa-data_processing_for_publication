@@ -99,9 +99,10 @@ source_mapping_file_sss <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents 
 
 # clean mapping files
 mapping_file_cm <- source_mapping_file_cm %>% 
-# drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time
+# drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time and those that have "Blk" in their sample name
   filter(!is.na(Accumulation_Time)) %>% 
   filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b")) %>% 
+  filter(!str_detect(Sample_ID, "Blk")) %>% 
   
   # convert IAT to IAT_p
   rowwise() %>% 
@@ -114,12 +115,18 @@ mapping_file_cm <- source_mapping_file_cm %>%
   
   # select needed cols
   select(Randomized_ID, Sample_ID, iat_p, analyte_subdir)
+
+# print the files that were removed
+source_mapping_file_cm %>% 
+  filter(is.na(Accumulation_Time)) %>% 
+  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b"))
   
 
 mapping_file_sss <- source_mapping_file_sss %>%
-  # drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time
+  # drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time and those that have "Blk" in their sample name
   filter(!is.na(Accumulation_Time)) %>% 
   filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b")) %>% 
+  filter(!str_detect(Sample_ID, "Blk")) %>% 
   
   # convert IAT to IAT_p
   rowwise() %>% 
@@ -132,6 +139,11 @@ mapping_file_sss <- source_mapping_file_sss %>%
   
   # select needed cols
   select(Randomized_ID, Sample_ID, iat_p, analyte_subdir)
+
+# print the files that were removed
+source_mapping_file_sss %>% 
+  filter(is.na(Accumulation_Time)) %>% 
+  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b"))
 
 
 # combine into single file
@@ -162,9 +174,9 @@ source_dirs_df <- tibble(source = source_dirs) %>%
 
 # show the files that we have a .d folder for but is not included in the filtered mapping files
 source_dirs_df %>% 
-  anti_join(mapping_file, by = join_by(source_folder == randomized_id_dot_d)) # I checked these against the original mapping file. CM_R54, CM_R82, CM_S120, CM_S123, and CM_S_136 are all okay to be omitted.
+  anti_join(mapping_file, by = join_by(source_folder == randomized_id_dot_d)) # I checked these against the original mapping file. CM_R54, CM_R82, CM_S120, CM_S123, and CM_S136 are all okay to be omitted.
 
-# show the files that are in the mapping file but we don't have a folder
+# show the files that are in the filtered mapping file but we don't have a folder
 mapping_file %>% 
   anti_join(source_dirs_df, by = join_by(randomized_id_dot_d == source_folder)) # none
   
@@ -177,54 +189,63 @@ CM_SSS_lookup_df <- mapping_file %>% # uses mapping file as source of truth for 
 
   # create destination col
   rowwise() %>% 
-  mutate(destination = paste0(out_dir, "/", out_dir_relative)) 
+  mutate(destination = paste0(out_dir, "/", out_dir_relative)) %>% 
   
+  # pull out sample_id info
+  separate(., Sample_ID, into = c("sample", "rep"), sep = "-", remove = F) %>% 
+  separate(., sample, into = c("parent_id", "analyte"), sep = 6, remove = T) %>% 
+  mutate(analyte = str_replace(analyte, "_", "")) %>% 
+  separate(., parent_id, into = c("study_code", "parent_id_id"), sep = 3, remove = F) %>% 
+  mutate(study_code = str_replace(study_code, "_", "")) %>% 
+  select(-parent_id_id)
 
-# check counts
-test_that("CM has 113 samples (3 reps each for water and for sediment)", {
- 
-  # filter lookup to only include CM samples
-  cm_filter <- CM_SSS_lookup_df %>% 
-    filter(str_detect(Sample_ID, "CM_"))
+
+test_that("All sediment samples are present", {
   
-  expect_equal((113*3*2), nrow(cm_filter) + 9) 
+  # read in boye sediment file - this is the source of truth for which samples we should have
+  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/CM_SSS_Sediment_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
+    filter(!is.na(Sample_Name)) %>%
+    filter(Sample_Name != "") %>% 
+    filter(!is.na(`FTICR-MS`)) %>% 
+    arrange(Sample_Name)
   
-  # 9 (parent ids) known missing: 
-    # CM_025_SED-1
-    # CM_025_SED-2
-    # CM_025_SED-3
-    # CM_026_SED-1
-    # CM_026_SED-2
-    # CM_026_SED-3
-    # CM_029_SED-1
-    # CM_029_SED-2
-    # CM_029_SED-3
-    # CM_030_SED-1
-    # CM_030_SED-2
-    # CM_030_SED-3
-    # CM_070_SED-3
-    # CM_006_ICR-1
-    # CM_033_ICR-3
-    # CM_080_ICR-3
-    # CM_085_ICR-1
-    # CM_085_ICR-2
-    # CM_085_ICR-3
+  # filter lookup to only include sediment samples
+  sed_filter <- CM_SSS_lookup_df %>%
+    filter(str_detect(Sample_ID, "SED")) %>% 
+    arrange(Sample_ID)
   
+  # compares the boye sample names with those in the lookup 
+  expect_equal(boye$Sample_Name, sed_filter$Sample_ID)
+  
+  # join look up to boye to look if there are issues
+  boye_lookup_join <- boye %>% 
+    left_join(CM_SSS_lookup_df, by = join_by(Sample_Name == Sample_ID))
+
 })
 
-test_that("SSS has 48 samples (3 reps each for water and for sediment)", {
+test_that("All water samples are present", {
   
-  # filter lookup to only include SSS samples
-  sss_filter <- CM_SSS_lookup_df %>% 
-    filter(str_detect(Sample_ID, "SSS"))
+  # read in boye water file - this is the source of truth for which samples we should have
+  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/CM_SSS_Water_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
+    filter(!is.na(Sample_Name)) %>%
+    filter(Sample_Name != "") %>% 
+    filter(!is.na(`FTICR-MS`)) %>% 
+    arrange(Sample_Name)
   
-  expect_equal((48*3*2), nrow(sss_filter) + 1) 
+  # filter lookup to only include sediment samples
+  water_filter <- CM_SSS_lookup_df %>%
+    filter(str_detect(Sample_ID, "ICR")) %>% 
+    arrange(Sample_ID)
   
-  # 1 known missing: SSS038_SED-1
+  # compares the boye sample names with those in the lookup
+  expect_equal(boye$Sample_Name, water_filter$Sample_ID)
   
+  # join look up to boye to look if there are issues
+  boye_lookup_join <- boye %>% 
+    left_join(CM_SSS_lookup_df, by = join_by(Sample_Name == Sample_ID))
   
 })
-
+  
 
 # clean up 
 CM_SSS_lookup_df <- CM_SSS_lookup_df %>% 
