@@ -180,7 +180,22 @@ source_dirs_df <- tibble(source = source_dirs) %>%
 
 # show the files that we have a .d folder for but is not included in the filtered mapping files
 source_dirs_df %>% 
-  anti_join(mapping_file, by = join_by(source_folder == randomized_id_dot_d)) # I checked these against the original mapping file. CM_R54, CM_R82, CM_S120, CM_S123, and CM_S136 are all okay to be omitted.
+  anti_join(mapping_file, by = join_by(source_folder == randomized_id_dot_d)) 
+# I checked these against the original mapping files. The following are okay to be omitted: 
+  # CM_O1 - BLK
+  # CM_O98 - BLK
+  # CM_P1 - BLK
+  # CM_P98 - BLK
+  # CM_Q01 - BLK
+  # CM_Q98 - BLK
+  # CM_R54 - omit
+  # CM_R82 - omit
+  # CM_R98 - BLK
+  # CM_S120_RR - omit
+  # CM_S123_RR - omit
+  # CM_S135_RR - BLK
+  # CM_S136_RR - omit
+  # CM_S138_RR - BLK
 
 # show the files that are in the filtered mapping file but we don't have a folder
 mapping_file %>% 
@@ -262,3 +277,43 @@ CM_SSS_lookup_df <- CM_SSS_lookup_df %>%
 ### Run function ###############################################################
 
 rename_and_copy_folders(CM_SSS_lookup_df)
+
+
+### Test that it ran correctly #################################################
+
+test_that("folders were correctly copied and renamed", {
+  
+  # uses the FTICR file names as the source of truth for checking
+  
+  raw_water_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/CM_SSS_FTICR_Raw_Data/Water_FTICR_Raw_Data') %>%
+    tibble() %>%
+    mutate(across(where(is.character), ~ gsub("\\.d", "", .))) %>% 
+    pull(.) %>% 
+    sort()
+  
+  raw_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/CM_SSS_FTICR_Raw_Data/Sediment_FTICR_Raw_Data') %>%
+    tibble() %>%
+    mutate(across(where(is.character), ~ gsub("\\.d", "", .))) %>% 
+    pull(.) %>% 
+    sort()
+  
+  xml_water_files <-  list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/FTICR/Water_FTICR_Data') %>%
+    tibble()%>%
+    mutate(across(where(is.character), ~ gsub("\\.xml", "", .))) %>% 
+    pull(.) %>% 
+    sort()
+  
+  xml_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/FTICR/Sediment_FTICR_Data') %>%
+    tibble() %>%
+    mutate(across(where(is.character), ~ gsub("\\.xml", "", .))) %>% 
+    pull(.) %>% 
+    sort()
+  
+  expect_equal(xml_water_files, raw_water_files)
+  expect_equal(xml_sed_files, raw_sed_files)
+
+  # if they don't return zero, then you can use this to see what's different  
+  water_diff <- setdiff(xml_water_files, raw_water_files) # should return 0 if passes check
+  sed_diff <- setdiff(xml_sed_files, raw_sed_files) # should return 0 if passes check
+  
+})
