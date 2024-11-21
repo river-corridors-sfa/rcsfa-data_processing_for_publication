@@ -115,8 +115,10 @@ combine <- bind_rows(data_files) %>%
 # assumptions
   # methods deviations are separated by semi-colons
   # outliers are indicated with "_OUTLIER" in the Methods_Deviation column
-  # if the text before "_OUTLIER" is matched to any text in the data column header, then that data value is converted to NA 
-    # (e.g, "NPOC_OUTLIER_001" in the Methods_Deviation will convert the value in the column "00681_NPOC_mg_per_L_as_C" to NA)
+  # if the text before "_OUTLIER is matched to any text in the data column header, after the text is padded with underscores on either side, then that data value is converted to NA 
+    # (e.g, "NPOC_OUTLIER_001" in the Methods_Deviation will look up "_NPOC_" in the column name and then convert the value in the column "00681_NPOC_mg_per_L_as_C" to NA)
+  # the script temporarily adds an underscore to the front of all column headers to account for possible columns that begin with the text lookup (e.g., "NPOC_mg_per_L_as_C" becomes "_NPOC_mg_per_L_as_C" so the "_NPOC_" look up matches)
+  # the case sensitivity of the look up text must match the column. This ensures that Mg won't strip any mention of milligrams (mg)
 
 # calc max number of deviations per sample based on number of semicolons
 max_deviations <- combine %>%
@@ -131,10 +133,13 @@ combine_remove_outliers <- combine %>%
   mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ ., TRUE ~ NA_character_))) %>% # removes any deviations that aren't outliers
   mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ str_extract(., "^[^_]+"), TRUE ~ NA_character_))) %>% # extract look up text (the text that's before "_OUTLIER")
   mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
+  mutate(across(starts_with("Methods_Deviation"), ~ paste0("_", ., "_"))) %>% # add underscores to pad both sides of look up text (e.g., TN becomes _TN_)
+  mutate(`_data_type` = paste0("_", data_type)) %>% # add underscore to front of col name so the padding works for columns that don't begin with a number (e.g., NPOC_mg_per_L_as_C becomes _NPOC_mg_per_L_as_C)
   rowwise() %>% 
-  mutate(data_value = case_when(any(across(starts_with("Methods_Deviation"), ~ str_detect(data_type, .))) ~ NA_real_,
+  mutate(data_value = case_when(any(across(starts_with("Methods_Deviation"), ~ str_detect(`_data_type`, .))) ~ NA_real_,
                                 T ~ data_value)) %>%  # if the lookup text in any methods deviation column is present in the data_type col, it converts the data value to NA
-  ungroup()
+  ungroup() %>% 
+  select(-`_data_type`) # drop column
 
 
 # ====================== calculate summary =====================================
