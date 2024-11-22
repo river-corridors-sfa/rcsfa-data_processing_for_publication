@@ -28,8 +28,13 @@ temp_directory <- tempdir()
 log_info(paste0("Opening temp directory: ", temp_directory))
 shell.exec(temp_directory)
 
-# create 2 Water sample files
+# the outlier values are manually pulled from Methods_Deviation_Codes (MethodsID_DataProcessing tab): https://pnnl.sharepoint.com/:x:/r/teams/Lab-FieldTeam/Shared%20Documents/Data%20Generation%20and%20Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Method_Deviation_Codes.xlsx?d=wfca78e071aa849c89a155dcd6501f37e&csf=1&web=1&e=UFWlwO&nav=MTVfezc2QUM2MTg0LUQ2QzUtNDE0My1BRTY2LTAzOEZBQzA5MDlCM30
+Methods_Deviation_outlier_options <- c("Br_OUTLIER_000", "C_OUTLIER_000", "Ca_OUTLIER_000", "Cl_OUTLIER_000", "DIC_OUTLIER_000", "F_OUTLIER_000", "K_OUTLIER_000", "Li_OUTLIER_000", "Mg_OUTLIER_000", "N_OUTLIER_000", "Na_OUTLIER_000", "NH4_OUTLIER_000", "NO2_OUTLIER_000", "NO3_OUTLIER_000", "NPOC_OUTLIER_000", "PO4_OUTLIER_000", "Rate_OUTLIER_000", "SFE_OUTLIER_000", "SO4_OUTLIER_000", "TN_OUTLIER_000")
+
+set.seed(637)
+
 testing_data <- list(
+  # create 2 Water sample files
   ABC_Water_Ions = list(
     data = tribble(~Field_Name, ~Sample_Name, ~Material,                    ~NH4_mg_per_L_as_NH4, ~`00915_Ca_mg_per_L`, ~Methods_Deviation,  # has only 1 rep
                     "#Start_Data",        "ABC_001_WIN-1", "Liquid>aqueous",   ".123",               ".192",   "Ca_OUTLIER",
@@ -84,164 +89,138 @@ testing_data <- list(
   
   ABC_Water_all_columns = list(
     
-    # these cols are pulled manually from RC-SFA_ColumnHeader_Lookup.csv: https://pnnl.sharepoint.com/:x:/r/teams/Lab-FieldTeam/Shared%20Documents/Data%20Generation%20and%20Files/Protocols-Guidance-Workflows-Methods/RC-SFA_ColumnHeader_Lookup.csv?d=w2d7744ec283a49b7922b6a31dabb1437&csf=1&web=1&e=owSrSk
-    # the outlier values are manually pulled from Methods_Deviation_Codes (MethodsID_DataProcessing tab): https://pnnl.sharepoint.com/:x:/r/teams/Lab-FieldTeam/Shared%20Documents/Data%20Generation%20and%20Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Method_Deviation_Codes.xlsx?d=wfca78e071aa849c89a155dcd6501f37e&csf=1&web=1&e=UFWlwO&nav=MTVfezc2QUM2MTg0LUQ2QzUtNDE0My1BRTY2LTAzOEZBQzA5MDlCM30
-       # note: need to finish creating this example df and add outliers
-    Br_OUTLIER_000
-    C_OUTLIER_000
-    Ca_OUTLIER_000
-    Cl_OUTLIER_000
-    DIC_OUTLIER_000
-    F_OUTLIER_000
-    K_OUTLIER_000
-    Li_OUTLIER_000
-    Mg_OUTLIER_000
-    N_OUTLIER_000
-    Na_OUTLIER_000
-    NH4_OUTLIER_000
-    NO2_OUTLIER_000
-    NO3_OUTLIER_000
-    NPOC_OUTLIER_000
-    PO4_OUTLIER_000
-    RATE_OUTLIER_000
-    SFE_OUTLIER_000
-    SO4_OUTLIER_000
-    TN_OUTLIER_000
-    
-    
-    data = tibble(Field_Name, 
-                  Sample_Name, 
-                  Material, 
-                  Methods_Deviation, 
-                  X00681_NPOC_mg_per_L_as_C,
-                  X00602_TN_mg_per_L_as_N,
-                  X00691_DIC_mg_per_L_as_C,
-                  X00530_TSS_mg_per_L,
-                  NH4_mg_per_L_as_NH4,
-                  X71870_Br_mg_per_L,
-                  X00915_Ca_mg_per_L,
-                  X00940_Cl_mg_per_L,
-                  X00950_F_mg_per_L,
-                  X01130_Li_mg_per_L,
-                  X00925_Mg_mg_per_L,
-                  X71851_NO3_mg_per_L_as_NO3,
-                  X71856_NO2_mg_per_L_as_NO2,
-                  X00653_PO4_mg_per_L_as_PO4,
-                  X00935_K_mg_per_L,
-                  X00930_Na_mg_per_L,
-                  X00945_SO4_mg_per_L_as_SO4,
-                  X01472_N_percent_per_mg,
-                  X01463_C_percent_per_mg,
-                  pH,
-                  Mean_pH,
-                  StDev_pH,
-                  Specific_Conductance_microsiemens_per_centimeter,
-                  Mean_Specific_Conductance_microsiemens_per_centimeter,
-                  StDev_Mean_Specific_Conductance_microsiemens_per_centimeter,
-                  Temperature_degrees_Celsius,
-                  Mean_Temperature_degrees_Celsius,
-                  StDev_Temperature_degrees_Celsius,
-                  Fe_mg_per_L,
-                  Mean_Fe_mg_per_L,
-                  StDev_Fe_mg_per_L,
-                  Fe_mg_per_kg,
-                  Mean_Fe_mg_per_kg,
-                  StDev_Fe_mg_per_mg,
-                  Wet_Sediment_Mass_g,
-                  Dry_Sediment_Mass_g,
-                  Water_Mass_g,
-                  Wet_Sediment_mL,
-                  MBD_P_mg_per_L,
-                  Total_Ca_mg_per_L,
-                  Total_Mg_mg_per_L,
-                  Total_P_mg_per_L,
-                  Total_K_mg_per_L,
-                  Total_Na_mg_per_L,
-                  Total_S_mg_per_L,
-                  Total_Al_mg_per_L,
-                  Total_Fe_mg_per_L,
-                  `52718_Total_Ca_mg_per_kg`,
-                  `52719_Total_Mg_mg_per_kg`,
-                  `52720_Total_K_mg_per_kg`,
-                  `52721_Total_Na_mg_per_kg`,
-                  `01466_Total_S_mg_per_kg`,
-                  `01462_Total_Al_mg_per_kg`,
-                  `01464_Total_Fe_mg_per_kg`,
-                  Total_P_mg_per_L,
-                  Total_P_mg_per_kg,
-                  Total_Ca_mg_per_kg,
-                  Total_Mg_mg_per_kg,
-                  Total_P_mg_per_kg,
-                  Total_K_mg_per_kg,
-                  Total_Na_mg_per_kg,
-                  Total_S_mg_per_kg,
-                  Total_Al_mg_per_kg,
-                  Total_Fe_mg_per_kg,
-                  Dissolved_Oxygen_mg_per_L,
-                  Quartz_percent,
-                  Albite_percent,
-                  Microcline_percent,
-                  Muscovite_percent,
-                  Chlorite_percent,
-                  Amphibole_percent,
-                  Pyroxene_percent,
-                  Calcite_percent,
-                  Apatite_percent,
-                  Crystallinity,
-                  Dolomite_percent,
-                  Smectite_percent,
-                  `01397_N_percent_per_mg`,
-                  `01395_C_percent_per_mg`,
-                  Specific_Surface_Area_m2_per_g,
-                  Wet_Sediment_Mass_Added_Water_g,
-                  Added_Water_Mass_g,
-                  Total_Water_Mass_g,
-                  Initial_Water_Mass_g,
-                  Final_Water_Mass_g,
-                  Incubation_Water_Mass_g,
-                  Wet_Sediment_Mass_MOI_g,
-                  Dry_Sediment_Mass_MOI_g,
-                  `62948_Gravimetric_Moisture_g_per_g`,
-                  `62948_Initial_Gravimetric_Moisture_g_per_g`,
-                  `62948_Final_Gravimetric_Moisture_g_per_g`,
-                  Water_Mass_MOI_g,
-                  Elapsed_Minute,
-                  Date,
-                  Respiration_Rate_mg_DO_per_L_per_H,
-                  Mean_WithOutliers_Respiration_Rate_mg_DO_per_L_per_H,
-                  StDev_WithOutliers_Respiration_Rate_mg_DO_per_L_per_H,
-                  Mean_OutliersRemoved_Respiration_Rate_mg_DO_per_L_per_H,
-                  StDev_OutliersRemoved_Respiration_Rate_mg_DO_per_L_per_H,
-                  Respiration_Rate_mg_DO_per_kg_per_H,
-                  Mean_WithOutliers_Respiration_Rate_mg_DO_per_kg_per_H,
-                  StDev_WithOutliers_Respiration_Rate_mg_DO_per_kg_per_H,
-                  Mean_OutliersRemoved_Respiration_Rate_mg_DO_per_kg_per_H,
-                  StDev_OutliersRemoved_Respiration_Rate_mg_DO_per_kg_per_H,
-                  Respiration_R_Squared,
-                  Respiration_R_Squared_Adj,
-                  Respiration_p_value,
-                  Total_Incubation_Time_Min,
-                  Number_Points_In_Respiration_Regression,
-                  Number_Points_Removed_Respiration_Regression,
-                  DO_Concentration_At_Incubation_Time_Zero,
-                  ATP_nanomoles_per_L,
-                  Mean_ATP_nanomol_per_L,
-                  StDev_ATP_nanomol_per_L,
-                  ATP_picomoles_per_g,
-                  Mean_ATP_picomol_per_g,
-                  StDev_ATP_picomol_per_g,
-                  Extractable_NPOC_mg_per_kg,
-                  Extractable_TN_mg_per_kg,
-                  Extractable_NPOC_mg_per_L,
-                  Extractable_TN_mg_per_L,
-                  B6CA_uM,
-                  B5CA_uM,
-                  Percent_Fine_Sand,
-                  Percent_Med_Sand,
-                  Percent_Coarse_Sand,
-                  Percent_Tot_Sand,
-                  Percent_Silt,
-                  Percent_Clay)
+    # these cols are pulled manually from RC-SFA_ColumnHeader_Lookup.csv: https://pnnl.sharepoint.com/:x:/r/teams/Lab-FieldTeam/Shared%20Documents/Data%20Generation%20and%20Files/Protocols-Guidance-Workflows-Methods/RC-SFA_ColumnHeader_Lookup.csv?d=w2d7744ec283a49b7922b6a31dabb1437&csf=1&web=1&e=owSrS
+    data = tibble(Field_Name = NA_character_, 
+                  Sample_Name = paste0("ABC_", sprintf("%03d", seq_along(Methods_Deviation_outlier_options)), "_OCN-1"), 
+                  Material = "Liquid>aqueous", 
+                  Methods_Deviation = Methods_Deviation_outlier_options, 
+                  X00681_NPOC_mg_per_L_as_C = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00602_TN_mg_per_L_as_N = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00691_DIC_mg_per_L_as_C = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00530_TSS_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  NH4_mg_per_L_as_NH4 = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X71870_Br_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00915_Ca_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00940_Cl_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00950_F_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X01130_Li_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00925_Mg_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X71851_NO3_mg_per_L_as_NO3 = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X71856_NO2_mg_per_L_as_NO2 = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00653_PO4_mg_per_L_as_PO4 = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00935_K_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00930_Na_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X00945_SO4_mg_per_L_as_SO4 = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X01472_N_percent_per_mg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  X01463_C_percent_per_mg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  pH = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_pH = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_pH = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Specific_Conductance_microsiemens_per_centimeter = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_Specific_Conductance_microsiemens_per_centimeter = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_Mean_Specific_Conductance_microsiemens_per_centimeter = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Temperature_degrees_Celsius = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_Temperature_degrees_Celsius = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_Temperature_degrees_Celsius = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Fe_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_Fe_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_Fe_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Fe_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_Fe_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_Fe_mg_per_mg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Wet_Sediment_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Dry_Sediment_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Water_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Wet_Sediment_mL = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  MBD_P_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Ca_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Mg_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_P_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_K_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Na_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_S_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Al_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Fe_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `52718_Total_Ca_mg_per_kg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `52719_Total_Mg_mg_per_kg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `52720_Total_K_mg_per_kg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `52721_Total_Na_mg_per_kg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `01466_Total_S_mg_per_kg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `01462_Total_Al_mg_per_kg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `01464_Total_Fe_mg_per_kg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Ca_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Mg_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_P_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_K_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Na_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_S_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Al_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Fe_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Dissolved_Oxygen_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Quartz_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Albite_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Microcline_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Muscovite_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Chlorite_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Amphibole_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Pyroxene_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Calcite_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Apatite_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Crystallinity = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Dolomite_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Smectite_percent = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `01397_N_percent_per_mg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `01395_C_percent_per_mg` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Specific_Surface_Area_m2_per_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Wet_Sediment_Mass_Added_Water_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Added_Water_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Water_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Initial_Water_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Final_Water_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Incubation_Water_Mass_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Wet_Sediment_Mass_MOI_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Dry_Sediment_Mass_MOI_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `62948_Gravimetric_Moisture_g_per_g` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `62948_Initial_Gravimetric_Moisture_g_per_g` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  `62948_Final_Gravimetric_Moisture_g_per_g` = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Water_Mass_MOI_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Elapsed_Minute = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Date = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Respiration_Rate_mg_DO_per_L_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_WithOutliers_Respiration_Rate_mg_DO_per_L_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_WithOutliers_Respiration_Rate_mg_DO_per_L_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_OutliersRemoved_Respiration_Rate_mg_DO_per_L_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_OutliersRemoved_Respiration_Rate_mg_DO_per_L_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Respiration_Rate_mg_DO_per_kg_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_WithOutliers_Respiration_Rate_mg_DO_per_kg_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_WithOutliers_Respiration_Rate_mg_DO_per_kg_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_OutliersRemoved_Respiration_Rate_mg_DO_per_kg_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_OutliersRemoved_Respiration_Rate_mg_DO_per_kg_per_H = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Respiration_R_Squared = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Respiration_R_Squared_Adj = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Respiration_p_value = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Total_Incubation_Time_Min = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Number_Points_In_Respiration_Regression = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Number_Points_Removed_Respiration_Regression = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  DO_Concentration_At_Incubation_Time_Zero = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  ATP_nanomoles_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_ATP_nanomol_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_ATP_nanomol_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  ATP_picomoles_per_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Mean_ATP_picomol_per_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  StDev_ATP_picomol_per_g = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Extractable_NPOC_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Extractable_TN_mg_per_kg = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Extractable_NPOC_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Extractable_TN_mg_per_L = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  B6CA_uM = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  B5CA_uM = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Percent_Fine_Sand = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Percent_Med_Sand = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Percent_Coarse_Sand = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Percent_Tot_Sand = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Percent_Silt = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1),
+                  Percent_Clay = runif(length(Methods_Deviation_outlier_options), min = 0, max = 1))
     
   )
   
@@ -275,45 +254,45 @@ for (i in seq_along(testing_data)) {
 shell.exec(temp_directory)
 
 
-# create expected summary file
-ABC_Water_Summary <- list(
-  data = tribble(
-    ~Field_Name,              ~Sample_Name, ~Material,          ~NH4_mg_per_L_as_NH4,  ~`00915_Ca_mg_per_L`,      ~`Mean_00681_NPOC_mg_per_L_as_C`,  ~`Mean_00602_TN_mg_per_L_as_N`, ~Mean_Missing_Reps,
-    "#Start_Data",          "ABC_001_Water", "Liquid>aqueous",   .123,                   -9999,                       .550,                             .15,                              TRUE, 
-    "N/A",                  "ABC_002_Water", "Liquid>aqueous",   .456,                   .021,                        .777,                             .788,                             FALSE,  
-    "N/A",                  "ABC_003_Water", "Liquid>aqueous",   .789,                   .222,                        -9999,                            .234,                             TRUE,  
-    "N/A",                  "ABC_004_Water", "Liquid>aqueous",   .101,                   .324,                        -9999,                            -9999,                            FALSE,  
-    "N/A",                  "ABC_005_Water", "Liquid>aqueous",   -9999,                  -9999,                       -9999,                            -9999,                            TRUE,  
-    "N/A",                  "ABC_006_Water", "Liquid>aqueous",   .131,                   .627,                        -9999,                            -9999,                            FALSE,    
-    "N/A",                  "ABC_007_Water", "Liquid>aqueous",   -9999,                  .282,                        -9999,                            -9999,                            TRUE,  
-    "N/A",                  "ABC_008_Water", "Liquid>aqueous",   .161,                   .930,                        -9999,                            -9999,                            FALSE,  
-    "N/A",                  "ABC_009_Water", "Liquid>aqueous",   .718,                   .313,                        -9999,                            -9999,                            FALSE,  
-    "#End_Data",             NA,             NA,                 NA,                     NA,                          NA,                               NA,                               NA 
-    ),
-  
-  headers = tribble(
-    ~Field_Name,              ~Sample_Name, ~Material,          ~NH4_mg_per_L_as_NH4,      ~`00915_Ca_mg_per_L`,      ~`Mean_00681_NPOC_mg_per_L_as_C`,  ~`Mean_00602_TN_mg_per_L_as_N`, ~Mean_Missing_Reps,
-    "Unit",                   "N/A",        "N/A",              "milligrams_per_liter",    "milligrams_per_liter",    "milligrams_per_liter",      "milligrams_per_liter",       "N/A",                             
-    "Unit_Basis",            "N/A",        "N/A",              "as_Ammonium",             "as_Calcium",             "as_dissolvable_Carbon",    "as_dissolvable_Nitrogen",       "N/A",                          
-    "MethodID_Analysis",     "N/A",        "N/A",              "ION_T_AN_005",            "ION_T_AN_005",          "NPOC_T_AN_000",            "TN_T_AN_000",                    "N/A",             
-    "MethodID_Inspection",   "N/A",        "N/A",              "ION_T_IN_005",            "ION_T_IN_005",          "NPOC_T_IN_000",            "TN_T_IN_000",                    "N/A",             
-    "MethodID_Storage",      "N/A",        "N/A",              "ION_T_ST_005",            "ION_T_ST_005",          "NPOC_T_ST_000",            "TN_T_ST_000",                    "N/A",             
-    "MethodID_Preservation",  "N/A",        "N/A",              "ION_T_PRES_005",          "ION_T_PRES_005",        "NPOC_T_PRES_000",          "TN_T_PRES_000",                 "N/A",                
-    "MethodID_Preparation",   "N/A",        "N/A",              "ION_T_PREP_005",          "ION_T_PREP_005",        "NPOC_T_PREP_000",          "TN_T_PREP_000",                 "N/A",                
-    "MethodID_DataProcessing","N/A",        "N/A",              "ION_T_DP_005",            "ION_T_DP_005",          "NPOC_T_DP_000",            "TN_T_DP_000",                   "N/A",              
-    "Analysis_DetectionLimit","-9999",      "-9999",            "0.13",                    "0.77",                  "0.27",                     "0.07",                          "N/A",       
-    "Analysis_Precision",     "-9999",      "-9999",            "-9999",                   "-9999",                 "-9999",                    "-9999",                         "N/A",        
-    "Data_Status",            "N/A",        "N/A",              "ready_to_use",            "ready_to_use",          "ready_to_use",             "ready_to_use",                  "N/A"
-    )
-  
-)
-
-
 
 ### Run tests ##################################################################
 
 
 test_that("summary data output as expected", {
+  
+  
+  # create expected summary file
+  ABC_Water_Summary <- list(
+    data = tribble(
+      ~Field_Name,              ~Sample_Name, ~Material,          ~NH4_mg_per_L_as_NH4,  ~`00915_Ca_mg_per_L`,      ~`Mean_00681_NPOC_mg_per_L_as_C`,  ~`Mean_00602_TN_mg_per_L_as_N`, ~Mean_Missing_Reps,
+      "#Start_Data",          "ABC_001_Water", "Liquid>aqueous",   .123,                   -9999,                       .550,                             .15,                              TRUE, 
+      "N/A",                  "ABC_002_Water", "Liquid>aqueous",   .456,                   .021,                        .777,                             .788,                             FALSE,  
+      "N/A",                  "ABC_003_Water", "Liquid>aqueous",   .789,                   .222,                        -9999,                            .234,                             TRUE,  
+      "N/A",                  "ABC_004_Water", "Liquid>aqueous",   .101,                   .324,                        -9999,                            -9999,                            FALSE,  
+      "N/A",                  "ABC_005_Water", "Liquid>aqueous",   -9999,                  -9999,                       -9999,                            -9999,                            TRUE,  
+      "N/A",                  "ABC_006_Water", "Liquid>aqueous",   .131,                   .627,                        -9999,                            -9999,                            FALSE,    
+      "N/A",                  "ABC_007_Water", "Liquid>aqueous",   -9999,                  .282,                        -9999,                            -9999,                            TRUE,  
+      "N/A",                  "ABC_008_Water", "Liquid>aqueous",   .161,                   .930,                        -9999,                            -9999,                            FALSE,  
+      "N/A",                  "ABC_009_Water", "Liquid>aqueous",   .718,                   .313,                        -9999,                            -9999,                            FALSE,  
+      "#End_Data",             NA,             NA,                 NA,                     NA,                          NA,                               NA,                               NA 
+    ),
+    
+    headers = tribble(
+      ~Field_Name,              ~Sample_Name, ~Material,          ~NH4_mg_per_L_as_NH4,      ~`00915_Ca_mg_per_L`,      ~`Mean_00681_NPOC_mg_per_L_as_C`,  ~`Mean_00602_TN_mg_per_L_as_N`, ~Mean_Missing_Reps,
+      "Unit",                   "N/A",        "N/A",              "milligrams_per_liter",    "milligrams_per_liter",    "milligrams_per_liter",      "milligrams_per_liter",       "N/A",                             
+      "Unit_Basis",            "N/A",        "N/A",              "as_Ammonium",             "as_Calcium",             "as_dissolvable_Carbon",    "as_dissolvable_Nitrogen",       "N/A",                          
+      "MethodID_Analysis",     "N/A",        "N/A",              "ION_T_AN_005",            "ION_T_AN_005",          "NPOC_T_AN_000",            "TN_T_AN_000",                    "N/A",             
+      "MethodID_Inspection",   "N/A",        "N/A",              "ION_T_IN_005",            "ION_T_IN_005",          "NPOC_T_IN_000",            "TN_T_IN_000",                    "N/A",             
+      "MethodID_Storage",      "N/A",        "N/A",              "ION_T_ST_005",            "ION_T_ST_005",          "NPOC_T_ST_000",            "TN_T_ST_000",                    "N/A",             
+      "MethodID_Preservation",  "N/A",        "N/A",              "ION_T_PRES_005",          "ION_T_PRES_005",        "NPOC_T_PRES_000",          "TN_T_PRES_000",                 "N/A",                
+      "MethodID_Preparation",   "N/A",        "N/A",              "ION_T_PREP_005",          "ION_T_PREP_005",        "NPOC_T_PREP_000",          "TN_T_PREP_000",                 "N/A",                
+      "MethodID_DataProcessing","N/A",        "N/A",              "ION_T_DP_005",            "ION_T_DP_005",          "NPOC_T_DP_000",            "TN_T_DP_000",                   "N/A",              
+      "Analysis_DetectionLimit","-9999",      "-9999",            "0.13",                    "0.77",                  "0.27",                     "0.07",                          "N/A",       
+      "Analysis_Precision",     "-9999",      "-9999",            "-9999",                   "-9999",                 "-9999",                    "-9999",                         "N/A",        
+      "Data_Status",            "N/A",        "N/A",              "ready_to_use",            "ready_to_use",          "ready_to_use",             "ready_to_use",                  "N/A"
+    )
+    
+  )
   
   expect_equal(summary, ABC_Water_Summary$data)
   
@@ -326,3 +305,31 @@ test_that("summary headers output as expected", {
   expect_equal(combine_headers, ABC_Water_Summary$headers)
   
 })
+
+
+
+ABC_Water_all_columns_Summary <- testing_data$ABC_Water_all_columns$data %>%
+  mutate(across(where(is.numeric),
+                      ~ case_when(str_detect(Methods_Deviation, "Br_OUTLIER_000") & str_detect(cur_column(), "_Br_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "C_OUTLIER_000") & str_detect(cur_column(), "_C_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "Ca_OUTLIER_000") & str_detect(cur_column(), "_Ca_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "Cl_OUTLIER_000") & str_detect(cur_column(), "_Cl_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "DIC_OUTLIER_000") & str_detect(cur_column(), "_DIC_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "F_OUTLIER_000") & str_detect(cur_column(), "_F_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "K_OUTLIER_000") & str_detect(cur_column(), "_K_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "Li_OUTLIER_000") & str_detect(cur_column(), "_Li_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "Mg_OUTLIER_000") & str_detect(cur_column(), "_Mg_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "N_OUTLIER_000") & str_detect(cur_column(), "_N_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "Na_OUTLIER_000") & str_detect(cur_column(), "_Na_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "NH4_OUTLIER_000") & str_detect(cur_column(), "_NH4_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "NO2_OUTLIER_000") & str_detect(cur_column(), "_NO2_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "NO3_OUTLIER_000") & str_detect(cur_column(), "_NO3_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "NPOC_OUTLIER_000") & str_detect(cur_column(), "_NPOC_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "PO4_OUTLIER_000") & str_detect(cur_column(), "_PO4_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "Rate_OUTLIER_000") & str_detect(cur_column(), "_Rate_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "SFE_OUTLIER_000") & str_detect(cur_column(), "_SFE_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "SO4_OUTLIER_000") & str_detect(cur_column(), "_SO4_") ~ NA_real_,
+                                  str_detect(Methods_Deviation, "TN_OUTLIER_000") & str_detect(cur_column(), "_TN_") ~ NA_real_,
+                                  T ~ .)),
+         across(where(is.numeric), ~ replace_na(., -9999)))
+  
