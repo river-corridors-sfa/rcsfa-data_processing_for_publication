@@ -1,22 +1,24 @@
 # ==============================================================================
 #
 # Make a summary file of means for each analyte file going into a data package
-# 
+#
 # ==============================================================================
 # Script Updates
 #
-# Status: In progress
-# this version uses the methods deviation information to identify and remove outliers before summarizing
-# known issue: putting NA in detection limit and precision row 
+# Status: In progress this version uses the methods deviation information to
+# identify and remove outliers before summarizing known issue: putting NA in
+# detection limit and precision row
 #
-# 
+#
 # ==============================================================================
 #
-# Author: Brieanne Forbes, brieanne.forbes@pnnl.gov
-# 30 Sept 2022
+# Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-10-30: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2024-11-21: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
+# Status: in progress 
+# next steps: create and run tests to make sure calculations are correct
+
 # ==============================================================================
 
 library(tidyverse)
@@ -27,7 +29,6 @@ rm(list=ls(all=T))
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 dir <- "Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
-dir <- temp_directory
 
 study_code <- 'SPS' # this is used to rename the output file
 
@@ -127,19 +128,51 @@ max_deviations <- combine %>%
   summarise(max = max(num_deviations, na.rm = T)) %>% 
   pull()
 
-combine_remove_outliers <- combine %>% 
-  mutate(has_outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ TRUE)) %>% # add true if the words "OUTLIER" are present in methods deviation col
+# separate out outlier methods deviations
+combine_prepare_outliers <- combine %>% 
+  # split outlier methods deviations into separate columns
   separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
-  mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ ., TRUE ~ NA_character_))) %>% # removes any deviations that aren't outliers
-  mutate(across(starts_with("Methods_Deviation"), ~ case_when(str_detect(., "OUTLIER") ~ str_extract(., "^[^_]+"), TRUE ~ NA_character_))) %>% # extract look up text (the text that's before "_OUTLIER")
+  pivot_longer(cols = starts_with("Methods_Deviation"), names_to = "Methods_Deviation_type", values_to = "Methods_Deviation") %>% # pivots the multiple methods cols longer
+  select(-Methods_Deviation_type) %>% 
+  
+  # clean up Methods_Deviation column
   mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
-  mutate(across(starts_with("Methods_Deviation"), ~ paste0("_", ., "_"))) %>% # add underscores to pad both sides of look up text (e.g., TN becomes _TN_)
+  
+  # create outlier column
+  mutate(Outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ Methods_Deviation, TRUE ~ NA_character_)) %>%  # pulls over methods deviations that say "_OUTLIER" in them
+  mutate(Outlier = case_when(str_detect(Outlier, "OUTLIER") ~ str_extract(Outlier, "^[^_]+"), TRUE ~ NA_character_)) %>%  # extract lookup text (the text that's before "_OUTLIER")
+  mutate(Outlier = case_when(!is.na(Outlier) ~ paste0("_", Outlier, "_"))) %>% # pad both sides of lookup text with underscores (e.g., TN becomes _TN_)
+  
+  # create temporary new column name that includes an extra underscore
   mutate(`_data_type` = paste0("_", data_type)) %>% # add underscore to front of col name so the padding works for columns that don't begin with a number (e.g., NPOC_mg_per_L_as_C becomes _NPOC_mg_per_L_as_C)
-  rowwise() %>% 
-  mutate(data_value = case_when(any(across(starts_with("Methods_Deviation"), ~ str_detect(`_data_type`, .))) ~ NA_real_,
-                                T ~ data_value)) %>%  # if the lookup text in any methods deviation column is present in the data_type col, it converts the data value to NA
-  ungroup() %>% 
-  select(-`_data_type`) # drop column
+  
+  # remove Outlier if it doesn't match with _data_type column
+  mutate(Outlier = case_when(str_detect(`_data_type`, Outlier) ~ Outlier, T ~ NA_character_))
+  
+# show user how the outlier flags match to the columns
+combine_prepare_outliers %>% 
+  select(Outlier, data_type, `_data_type`) %>% 
+  filter(!is.na(Outlier)) %>% 
+  distinct() %>% 
+  group_by(Outlier) %>% 
+  summarise(column_look_up_match = toString(data_type))
+print("The above outlier flags have been identified and match with these corresponding columns.")
+  
+
+# remove outlier values  
+combine_remove_outliers <- combine_prepare_outliers %>% 
+  
+  group_by(Sample_Name) %>% 
+  
+  # if the lookup text in the Outlier col is present in the _data_type col, it converts the data_value to NA
+  mutate(data_value = case_when(str_detect(`_data_type`, Outlier) ~ NA_real_, T ~ data_value)) %>% 
+  
+  # clean up df
+  select(-`_data_type`, -Methods_Deviation, -Outlier) %>% # drop Methods Deviation col
+  
+  # group by Sample_Name and make distinct to remove any duplicates created when we pivoted longer
+  distinct() %>% 
+  ungroup()
 
 
 # ====================== calculate summary =====================================
@@ -151,7 +184,7 @@ combine_remove_outliers <- combine %>%
 # calculate average for every parent_id for each data_type
 calculate_summary <- combine_remove_outliers %>% 
   group_by(parent_id, file_name, data_type) %>% 
-  mutate(average = round(mean(data_value, na.rm = T), digits = 3)) %>%  # calcualte mean and round to 3 decimal points
+  mutate(average = round(mean(data_value, na.rm = T), digits = 3)) %>%  # calculate mean and round to 3 decimal points
   mutate(average = case_when(average == "NaN" ~ NA_real_, T ~ average)) %>% 
   ungroup() %>% 
 
