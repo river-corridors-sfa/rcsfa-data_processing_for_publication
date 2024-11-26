@@ -275,7 +275,7 @@ output_samples_template <- samples_template %>%
 ### Check for ESS-DIVE required columns ########################################
 # checks that the required columns (according to https://ess-dive.gitbook.io/sample-id-and-metadata/guide) are present
 
-# 2024-11-26 note: commenting these tests out for now - waiting to receive more clarificaiton on what ESS-DIVE needs
+# 2024-11-26 note: commenting these tests out for now - waiting to receive more clarification on what ESS-DIVE needs
 # test_that("Header rows are correct", {
 #   
 #   # check samples
