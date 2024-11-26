@@ -1,6 +1,6 @@
 ### recreate_SESAR_template.R ##################################################
 # Date Created: 2024-11-07
-# Date Updated: 2024-11-08
+# Date Updated: 2024-11-25
 # Author: Bibi Powers-McCormack
 
 # Background: 
@@ -22,13 +22,12 @@
 
 # Assumptions: 
   # Requires input IGSN file to have 2 columns: `IGSN` that has the sample IGSNs and `Parent_IGSN` that has the site IGSNs.
-  # The input file IGSNs should not have the full DOI URL. They can look like "10.58052/IEPRS007S" or "IEPRS007S".
+  # The input file IGSNs should not have the full DOI URL. It is okay if they look like "10.58052/IEPRS007S" or "IEPRS007S".
   # If there are more than 100 samples or sites, you will have to repeat the downloading process (but this script will walk you through that).
 
 # Directions: 
   # Go through this script line by line for directions on how to navigate
-  # downloading info from the SESAR database and creating the psuedo template
-  # files
+  # downloading info from the SESAR database and creating the pseudo template.
 
 # Status: 
   # complete. 
@@ -49,12 +48,61 @@ library(testthat)
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Transformation/functions/rename_column_headers.R")
 
 # user inputs - update these each time you run the script
-data_package_igsns <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_IGSN-Mapping.csv", skip = 1) # read in the file from your data package that has IGSN and Parent_IGSN cols
-ess_dive_infrastructure_only_dir <- "Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy_2021_SampleData_v3/ESS_DIVE_Infrastructure_ONLY"
+data_package_igsns <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_IGSN-Mapping.csv", skip = 1) # read in the file from your data package that has IGSN and Parent_IGSN cols
+ess_dive_infrastructure_only_dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/ESS_DIVE_Infrastructure_ONLY"
 
 # create and open your temp directory - this folder and files in it will automatically delete when your R session ends
 temp_dir <- tempdir()
 shell.exec(temp_dir)
+
+# function to download from SESAR
+download_from_SESAR <- function(type = c("sites", "samples"), max) {
+  
+  # go to website
+  browseURL("https://www.geosamples.org/search-options/catalog-search")
+  
+  cat("Your IGSNs have been copied to your clipboard.")
+  cat("\n")
+  cat("In the 'search by multiple IGSNs' box, paste in your site IGSNs. ")
+  cat("\n")
+  cat("Scroll down and click the blue 'search' button.")
+  
+  readline(prompt = "Ready for the next step? After you clicked 'search', enter 'Y' into the console: ")
+  
+  # copies temp directory to your clipboard
+  write_clip(paste0(temp_dir, "/", type))
+  
+  cat('Click the grey "Download" button.')
+  cat("\n")
+  cat("When the dialog box to save the file comes up, paste the temp_dir URL (it's been saved to your clipboard) into the folder path. No need to rename the file, click save.")
+  cat("\n")
+  
+  # check the number of files in the sites dir
+  while(list.files(paste0(temp_dir, "/", type)) %>% length() != i) {
+    
+    cat("If you did not get this dialog box, your file was likely saved to your default download directory. If this happens, manually move the file from your Downloads to the temp directory.")
+    cat("\n")
+    shell.exec(file.path(paste0(Sys.getenv("USERPROFILE"), "/Downloads")))
+    readline(prompt = "Enter 'Y' to continue. ")
+    
+  }
+  
+  cat("There are", i, "files saved to your", type, "temp dir: ", list.files(paste0(temp_dir, "/", type)))
+  cat("\n")
+  
+  
+  if (i == max) {
+    
+    cat("You have finished downloading. Return to R and run the next line. ")
+    
+  } else {
+    
+    readline(prompt = "Ready for the next step? You have more to download. This loop will start over and copy the next 100 to your clipboard. 
+             Enter 'Y' into the console when ready to continue: ")
+    
+  }
+  
+}
 
 
 ### Download from SESAR ########################################################
@@ -85,41 +133,15 @@ for (i in 1:max(site_igsns$step)){
     {print(paste0("There are ", nrow(.), " sites.")); .} %>% 
     pull(.) %>% 
     str_c(collapse = ", ")
+  
+  current_max <- max(site_igsns$step)
     
   # copy IGSNs to clipboard
   write_clip(current_step)
   
-  # go to website
-  browseURL("https://www.geosamples.org/search-options/catalog-search")
+  # download sites
+  download_from_SESAR(type = "sites", max = current_max)
   
-  cat("Your IGSNs have been copied to your clipboard.")
-  cat("\n")
-  cat("In the 'search by multiple IGSNs' box, paste in your site IGSNs. ")
-  cat("\n")
-  cat("Scroll down and click the blue 'search' button.")
-  
-  readline(prompt = "Ready for the next step? After you clicked 'search', enter 'Y' into the console: ")
-  
-  # copies temp directory to your clipboard
-  write_clip(paste0(temp_dir, "/sites"))
-  
-  cat('Click the grey "Download" button.')
-  cat("\n")
-  cat("When the dialog box to save the file comes up, paste the temp_dir URL (it's been saved to your clipboard) into the folder path.")
-  cat("\n")
-  cat("No need to rename the file, click save. ")
-  cat("\n")
-  
-  if (i == max(site_igsns$step)) {
-    
-    cat("You have downloaded all sites. Return to R and run the next line. ")
-    
-  } else {
-    
-    readline(prompt = "Ready for the next step? You have more to download. This loop will start over and copy the next 100 sites to your clipboard. 
-             Enter 'Y' into the console when ready to continue: ")
-    
-  }
 }
 
 # now we're gonna do the same thing but for samples
@@ -147,40 +169,13 @@ for (i in 1:max(sample_igsns$step)){
     pull(.) %>% 
     str_c(collapse = ", ")
   
+  current_max = max(sample_igsns$step)
+  
   # copy IGSNs to clipboard
   write_clip(current_step)
   
-  # go to website
-  browseURL("https://www.geosamples.org/search-options/catalog-search")
-  
-  cat("Your IGSNs have been copied to your clipboard.")
-  cat("\n")
-  cat("In the 'search by multiple IGSNs' box, paste in your sample IGSNs. ")
-  cat("\n")
-  cat("Scroll down and click the blue 'search' button.")
-  
-  readline(prompt = "Ready for the next step? After you clicked 'search', enter 'Y' into the console: ")
-  
-  # copies temp directory to your clipboard
-  write_clip(paste0(temp_dir, "/samples"))
-  
-  cat('Click the grey "Download" button.')
-  cat("\n")
-  cat("When the dialog box to save the file comes up, paste the temp_dir URL (it's been saved to your clipboard) into the folder path.")
-  cat("\n")
-  cat("No need to rename the file, click save. ")
-  cat("\n")
-  
-  if (i == max(sample_igsns$step)) {
-    
-    cat("You have downloaded all samples. Return to R and run the next line. ")
-    
-  } else {
-    
-    readline(prompt = "Ready for the next step? You have more to download. This loop will start over and copy the next 100 samples to your clipboard. 
-             Enter 'Y' into the console when ready to continue: ")
-    
-  }
+  # download samples
+  download_from_SESAR(type = "samples", max = current_max)
 }
 
 
@@ -220,19 +215,9 @@ output_sample_columns <- c("Sample Name", "IGSN", "Parent IGSN", "Release Date",
 site_files <- list.files(paste0(temp_dir, "/sites"), pattern = ".xlsx$", full.names = T) # gets all xlsx files from the temp dir
 basename(site_files)
 
-# initialize empty df
-sites_template <- tibble()
-
-for (i in 1:length(site_files)) {
-  
-  log_info(paste0("Reading in ", i, " of ", length(site_files), ": ", basename(site_files[i])))
-  
-  current_file <- read_excel(site_files[i])
-  
-  sites_template <- sites_template %>% 
-    rbind(., current_file)
-  
-}
+sites_template <- site_files %>% 
+  map(~ read_excel(.x)) %>% 
+  bind_rows()
 
 # rename columns
 sites_template <- rename_column_headers(sites_template, output_site_columns)
@@ -257,19 +242,9 @@ output_sites_template <- sites_template %>%
 sample_files <- list.files(paste0(temp_dir, "/samples"), pattern = ".xlsx$", full.names = T) # gets all xlsx files from the temp dir
 basename(sample_files)
 
-# initialize empty df
-samples_template <- tibble()
-
-# loop through each file and add it to source_sample
-for (i in 1:length(sample_files)) {
-  
-  log_info(paste0("Reading in ", i, " of ", length(sample_files), ": ", basename(sample_files[i])))
-  
-  current_file <- read_excel(sample_files[i])
-  
-  samples_template <- samples_template %>% 
-    rbind(., current_file)
-}
+samples_template <- sample_files %>% 
+  map(~ read_excel(.x)) %>% 
+  bind_rows()
 
 # rename columns
 samples_template <- rename_column_headers(samples_template, output_sample_columns)
@@ -378,7 +353,7 @@ readme
 ### Write out files ############################################################
 
 # write out readme
-write_lines(readme, paste0(ess_dive_infrastructure_only_dir, "/readme_ESS-DIVE_Insfrastructure_ONLY.md"))
+write_lines(readme, paste0(ess_dive_infrastructure_only_dir, "/readme_ESS-DIVE_Insfrastructure_ONLY.txt"))
 
 # write out sites
 write_csv(output_site_header, paste0(ess_dive_infrastructure_only_dir, "/igsn_metadata_sites_for_samples.csv"))
