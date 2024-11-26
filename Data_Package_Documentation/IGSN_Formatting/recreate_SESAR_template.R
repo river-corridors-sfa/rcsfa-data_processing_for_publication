@@ -275,63 +275,64 @@ output_samples_template <- samples_template %>%
 ### Check for ESS-DIVE required columns ########################################
 # checks that the required columns (according to https://ess-dive.gitbook.io/sample-id-and-metadata/guide) are present
 
-test_that("Header rows are correct", {
-  
-  # check samples
-  # first 3 cols are Object Type:, Individual Sample, User Code:
-  # 4th col is either IEWDR or IEPRS
-  expect_equal(colnames(output_sample_header)[1:3], c("Object Type:", "Individual Sample", "User Code:"))
-  expect_true(colnames(output_sample_header[4]) %in% c("IEWDR", "IEPRS")) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
-  
-  # check sites
-  # first 3 cols are Object Type:, Site, User Code:
-  # 4th col is either IEWDR or IEPRS
-  expect_equal(colnames(output_site_header)[1:3], c("Object Type:", "Site", "User Code:"))
-  expect_true(colnames(output_site_header[4]) %in% c("IEWDR", "IEPRS")) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
-  
-})
-
-
-test_that("Required SITES columns are present", {
-  
-  required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist", 
-                     "Collection date", "Collection method description", "Field program/cruise",
-                     "Latitude", "Longitude", "Primary physiographic feature", "Release Date")
-  
-  expect_true(all(required_cols %in% colnames(output_samples_template)))
-  
-  cat("Required cols NOT in your template: ")
-  cat("\n")
-  print(setdiff(required_cols, colnames(output_samples_template)))
-  cat("\n")
-  cat("Non-required cols in your template: ")
-  cat("\n")
-  print(setdiff(colnames(output_samples_template), required_cols))
-  cat("\n")
-  cat("\n")
-
-})
-
-
-test_that("Required SAMPLES columns are present", {
-  
-  required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist", 
-                     "Collection date", "Collection method description", "Field program/cruise",
-                     "Latitude", "Longitude", "Primary physiographic feature", "Release Date")
-  
-  expect_true(all(required_cols %in% colnames(output_sites_template)))
-  
-  cat("Required cols NOT in your template: ")
-  cat("\n")
-  print(setdiff(required_cols, colnames(output_sites_template)))
-  cat("\n")
-  cat("Non-required cols in your template: ")
-  cat("\n")
-  print(setdiff(colnames(output_sites_template), required_cols))
-  cat("\n")
-  cat("\n")
-  
-})
+# 2024-11-26 note: commenting these tests out for now - waiting to receive more clarificaiton on what ESS-DIVE needs
+# test_that("Header rows are correct", {
+#   
+#   # check samples
+#   # first 3 cols are Object Type:, Individual Sample, User Code:
+#   # 4th col is either IEWDR or IEPRS
+#   expect_equal(colnames(output_sample_header)[1:3], c("Object Type:", "Individual Sample", "User Code:"))
+#   expect_true(colnames(output_sample_header[4]) %in% c("IEWDR", "IEPRS")) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
+#   
+#   # check sites
+#   # first 3 cols are Object Type:, Site, User Code:
+#   # 4th col is either IEWDR or IEPRS
+#   expect_equal(colnames(output_site_header)[1:3], c("Object Type:", "Site", "User Code:"))
+#   expect_true(colnames(output_site_header[4]) %in% c("IEWDR", "IEPRS")) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
+#   
+# })
+# 
+# 
+# test_that("Required SITES columns are present", {
+#   
+#   required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist", 
+#                      "Collection date", "Collection method description", "Field program/cruise",
+#                      "Latitude", "Longitude", "Primary physiographic feature", "Release Date")
+#   
+#   expect_true(all(required_cols %in% colnames(output_samples_template)))
+#   
+#   cat("Required cols NOT in your template: ")
+#   cat("\n")
+#   print(setdiff(required_cols, colnames(output_samples_template)))
+#   cat("\n")
+#   cat("Non-required cols in your template: ")
+#   cat("\n")
+#   print(setdiff(colnames(output_samples_template), required_cols))
+#   cat("\n")
+#   cat("\n")
+# 
+# })
+# 
+# 
+# test_that("Required SAMPLES columns are present", {
+#   
+#   required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist", 
+#                      "Collection date", "Collection method description", "Field program/cruise",
+#                      "Latitude", "Longitude", "Primary physiographic feature", "Release Date")
+#   
+#   expect_true(all(required_cols %in% colnames(output_sites_template)))
+#   
+#   cat("Required cols NOT in your template: ")
+#   cat("\n")
+#   print(setdiff(required_cols, colnames(output_sites_template)))
+#   cat("\n")
+#   cat("Non-required cols in your template: ")
+#   cat("\n")
+#   print(setdiff(colnames(output_sites_template), required_cols))
+#   cat("\n")
+#   cat("\n")
+#   
+# })
 
 
 ### Create readme for ESS_DIVE_Infrastructure_ONLY folder ######################
