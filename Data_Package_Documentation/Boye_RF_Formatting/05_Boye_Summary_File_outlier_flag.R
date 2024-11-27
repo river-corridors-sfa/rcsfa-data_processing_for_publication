@@ -28,7 +28,7 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
 
 study_code <- 'SPS' # this is used to rename the output file
 
@@ -89,7 +89,6 @@ for (i in 1:length(analyte_files)) { # this loops through each analyte file, rea
   
   # add to list
   data_files[[current_file_name]] <- current_file
-  
   
   # read in headers
   current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)

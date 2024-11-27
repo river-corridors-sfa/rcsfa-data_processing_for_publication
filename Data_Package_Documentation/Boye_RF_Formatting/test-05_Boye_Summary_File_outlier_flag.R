@@ -13,12 +13,235 @@
   # 4. Run `05_Boye_Summary_File.R` and stop before you write anything out
   # 5. Return to this script and run the run tests chunk
 
+# Tests: 
+  # test that average works when all reps are included
+  # test that average works when some reps are NA
+  # test that outlier flags drops the corresponding value to NA
+  # test that header rows are aligned
+  # test that column headers with multiple reps are renamed to have "Mean_" appended to title
 
 ### Prep script ################################################################
 
 library(tidyverse)
 library(testthat)
 library(rlog)
+
+
+### Create functions from script ###############################################
+
+identify_flags <- function(combine_df) {
+  
+  max_deviations <- combine_df %>%
+    select(Methods_Deviation) %>% 
+    mutate(num_deviations = str_count(Methods_Deviation, ";") + 1) %>% 
+    summarise(max = max(num_deviations, na.rm = T)) %>% 
+    pull()
+  
+  combine_prepare_outliers <- combine_df %>% 
+  # split outlier methods deviations into separate columns
+  separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
+    pivot_longer(cols = starts_with("Methods_Deviation"), names_to = "Methods_Deviation_type", values_to = "Methods_Deviation") %>% # pivots the multiple methods cols longer
+    select(-Methods_Deviation_type) %>% 
+    
+    # clean up Methods_Deviation column
+    mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
+    
+    # create outlier column
+    mutate(Outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ Methods_Deviation, TRUE ~ NA_character_)) %>%  # pulls over methods deviations that say "_OUTLIER" in them
+    mutate(Outlier = case_when(str_detect(Outlier, "OUTLIER") ~ str_extract(Outlier, "^[^_]+"), TRUE ~ NA_character_)) %>%  # extract lookup text (the text that's before "_OUTLIER")
+    mutate(Outlier = case_when(!is.na(Outlier) ~ paste0("_", Outlier, "_"))) %>% # pad both sides of lookup text with underscores (e.g., TN becomes _TN_)
+    
+    # create temporary new column name that includes an extra underscore
+    mutate(`_data_type` = paste0("_", data_type)) %>% # add underscore to front of col name so the padding works for columns that don't begin with a number (e.g., NPOC_mg_per_L_as_C becomes _NPOC_mg_per_L_as_C)
+    
+    # remove Outlier if it doesn't match with _data_type column
+    mutate(Outlier = case_when(str_detect(`_data_type`, Outlier) ~ Outlier, T ~ NA_character_))
+  
+  # show user how the outlier flags match to the columns
+  combine_prepare_outliers %>% 
+    select(Outlier, data_type, `_data_type`) %>% 
+    filter(!is.na(Outlier)) %>% 
+    distinct() %>% 
+    group_by(Outlier) %>% 
+    summarise(column_look_up_match = toString(data_type))
+  print("The above outlier flags have been identified and match with these corresponding columns.")
+  
+  return(combine_prepare_outliers)
+  
+}
+
+apply_flags <- function(combine_prepare_outliers_df) {
+  
+  combine_remove_outliers <- combine_prepare_outliers %>% 
+    
+    group_by(Sample_Name) %>% 
+    
+    # if the lookup text in the Outlier col is present in the _data_type col, it converts the data_value to NA
+    mutate(data_value = case_when(str_detect(`_data_type`, Outlier) ~ NA_real_, T ~ data_value)) %>% 
+    
+    # clean up df
+    select(-`_data_type`, -Methods_Deviation, -Outlier) %>% # drop Methods Deviation col
+    
+    # group by Sample_Name and make distinct to remove any duplicates created when we pivoted longer
+    distinct() %>% 
+    ungroup()
+  
+  return(combine_remove_outliers)
+  
+}
+
+calculate_summary <- function(combine_remove_outliers_df) {
+  
+  calculate_summary <- combine_remove_outliers_df %>% 
+    group_by(parent_id, file_name, data_type) %>% 
+    mutate(average = round(mean(data_value, na.rm = T), digits = 3)) %>%  # calculate mean and round to 3 decimal points
+    mutate(average = case_when(average == "NaN" ~ NA_real_, T ~ average)) %>% 
+    ungroup() %>% 
+    
+    # prepare new column headers
+    mutate(summary_header_name = case_when(number_of_reps > 1 ~ paste0("Mean_", data_type), T ~ data_type)) %>% # if there are more than 1 reps for each sample, then add "Mean_" to front of header
+    mutate(Sample_Name = paste0(parent_id, "_", user_provided_material)) %>% # rename sample name
+    
+    # deal with missing reps
+    group_by(Sample_Name) %>% 
+    mutate(Mean_Missing_Reps = any(is.na(data_value) == TRUE)) %>% # marks missing reps = T if any value for that given sample is NA
+    ungroup() %>% 
+    
+    # drop cols and rows we don't need
+    select(Sample_Name, Material, average, data_type, file_name, summary_header_name, Mean_Missing_Reps) %>%
+    distinct()
+  
+  return(calculate_summary)
+  
+}
+
+### Run tests ##################################################################
+
+test_that("flags are correctly identified", {
+  
+  
+  
+})
+
+test_that("flags are correctly applied", {
+  
+  
+})
+
+test_that("average works when all reps are included", {
+  
+  testing_data <- tribble(~Sample_Name,      ~parent_id, ~analyte, ~rep, ~Material, ~Methods_Deviation, ~file_name, ~user_provided_material, ~number_of_reps, ~data_type,                   ~data_value,
+                          "ABC_0001_GRA-1",  "ABC_0001", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.25,
+                          "ABC_0001_GRA-2",  "ABC_0001", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.75,
+                          "ABC_0001_GRA-3",  "ABC_0001", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.95,
+                          "ABC_0002_GRA-1",  "ABC_0002", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.45,
+                          "ABC_0002_GRA-2",  "ABC_0002", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.35,
+                          "ABC_0002_GRA-3",  "ABC_0002", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.75)
+  
+  result <- calculate_summary(testing_data)
+  
+  expected_result <- tribble(~Sample_Name,     ~Material,        ~average, ~data_type,                  ~file_name, ~summary_header_name,             ~Mean_Missing_Reps,
+                             "ABC_0001_Water", "Liquid>aqueous",  0.650     , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", FALSE,
+                             "ABC_0002_Water", "Liquid>aqueous",  0.517       , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", FALSE
+                             )
+  
+  expect_equal(object = result, 
+               expected = expected_result)
+  
+})
+
+
+test_that("average works when some reps are NA", {
+  
+  testing_data <- tribble(~Sample_Name,      ~parent_id, ~analyte, ~rep, ~Material, ~Methods_Deviation, ~file_name, ~user_provided_material, ~number_of_reps, ~data_type,                   ~data_value,
+                          "ABC_0001_GRA-1",  "ABC_0001", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.25,
+                          "ABC_0001_GRA-2",  "ABC_0001", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          "ABC_0001_GRA-3",  "ABC_0001", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          "ABC_0002_GRA-1",  "ABC_0002", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.45,
+                          "ABC_0002_GRA-2",  "ABC_0002", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.35,
+                          "ABC_0002_GRA-3",  "ABC_0002", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.75)
+  
+  result <- calculate_summary(testing_data)
+  
+  expected_result <- tribble(~Sample_Name,     ~Material,        ~average, ~data_type,                  ~file_name, ~summary_header_name,             ~Mean_Missing_Reps,
+                             "ABC_0001_Water", "Liquid>aqueous",  0.250     , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", TRUE,
+                             "ABC_0002_Water", "Liquid>aqueous",  0.517       , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", FALSE
+                             )
+  
+  expect_equal(object = result, 
+               expected = expected_result)
+  
+})
+
+test_that("outlier flag drops the value NA", {
+  
+  testing_data <- tribble(~Sample_Name,      ~parent_id, ~analyte, ~rep, ~Material, ~Methods_Deviation, ~file_name, ~user_provided_material, ~number_of_reps, ~data_type,                   ~data_value,
+                          "ABC_0001_GRA-1",  "ABC_0001", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.25,
+                          "ABC_0001_GRA-2",  "ABC_0001", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          "ABC_0001_GRA-3",  "ABC_0001", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          "ABC_0002_GRA-1",  "ABC_0002", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.45,
+                          "ABC_0002_GRA-2",  "ABC_0002", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.35,
+                          "ABC_0002_GRA-3",  "ABC_0002", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.75)
+  
+  result <- calculate_summary(testing_data)
+  
+  expected_result <- tribble(~Sample_Name,     ~Material,        ~average, ~data_type,                  ~file_name, ~summary_header_name,             ~Mean_Missing_Reps,
+                             "ABC_0001_Water", "Liquid>aqueous",  0.250     , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", TRUE,
+                             "ABC_0002_Water", "Liquid>aqueous",  0.517       , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", FALSE
+                             )
+  
+  expect_equal(object = result, 
+               expected = expected_result)
+  
+})
+
+
+
+
+
+################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### OLD TESTS ##################################################################
+
 
 
 ### Create testing data ########################################################
