@@ -1,6 +1,6 @@
 ### recreate_SESAR_template.R ##################################################
 # Date Created: 2024-11-07
-# Date Updated: 2024-11-25
+# Date Updated: 2024-12-04
 # Author: Bibi Powers-McCormack
 
 # Background: 
@@ -24,6 +24,7 @@
   # Requires input IGSN file to have 2 columns: `IGSN` that has the sample IGSNs and `Parent_IGSN` that has the site IGSNs.
   # The input file IGSNs should not have the full DOI URL. It is okay if they look like "10.58052/IEPRS007S" or "IEPRS007S".
   # If there are more than 100 samples or sites, you will have to repeat the downloading process (but this script will walk you through that).
+  # This script has functions that work only on Windows machines. 
 
 # Directions: 
   # Go through this script line by line for directions on how to navigate
@@ -53,7 +54,7 @@ ess_dive_infrastructure_only_dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-
 
 # create and open your temp directory - this folder and files in it will automatically delete when your R session ends
 temp_dir <- tempdir()
-shell.exec(temp_dir)
+shell.exec(temp_dir) # this only works on windows; use system(paste0("open '", temp_dir, "'")) for macs - you will have to change this in several places within this script
 
 # function to download from SESAR
 download_from_SESAR <- function(type = c("sites", "samples"), max) {
@@ -80,7 +81,7 @@ download_from_SESAR <- function(type = c("sites", "samples"), max) {
   # check the number of files in the sites dir
   while(list.files(paste0(temp_dir, "/", type)) %>% length() != i) {
     
-    cat("If you did not get this dialog box, your file was likely saved to your default download directory. If this happens, manually move the file from your Downloads to the temp directory.")
+    cat(paste0("If you did not get this dialog box, your file was likely saved to your default download directory. If this happens, manually move the file from your Downloads to the temp directory - '", temp_dir, "'. Save it to the '", type, "' sub directory."))
     cat("\n")
     shell.exec(file.path(paste0(Sys.getenv("USERPROFILE"), "/Downloads")))
     readline(prompt = "Enter 'Y' to continue. ")
