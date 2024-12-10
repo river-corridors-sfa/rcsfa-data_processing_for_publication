@@ -14,10 +14,38 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-11-21: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2024-12-10: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
 # Status: in progress 
 # next steps: create and run tests to make sure calculations are correct
+
+# INPUTS: 
+  # assumptions for the inputs files: 
+    # they have have the following required column names: c("Field_Name", Sample_Name", "Material", "Methods_Deviation")
+    # they are boye formatted (when reading in, it will skip 2 and then have 11 header rows)
+    # file names include the user indicated `material`
+    # files are .csv
+
+# HOW THIS SCRIPT SUMMARIZES: 
+  # This script identifies outliers by detecting any text in the
+  # `Methods_Deviation` column that says "_OUTLIER". It extracts the text before
+  # "_OUTLIER" and pads it with underscores (e.g., TN_ becomes _TN_) and then
+  # attempts to match it to an underscore padded column name (e.g., matches _TN_
+  # to _00602_TN_mg_per_L_as_N). If a match occurs, it will assign it as an
+  # outlier.
+
+  # Any assigned outliers will be dropped before calculating averages.
+
+  # If more than 1 rep exists, the column will be renamed to append "Mean_" to 
+  # the front the original column name.
+
+  # If any calculations include a NA value (either because it was an outlier or
+  # because of another flag), the column Mean_Missing_Rep will == T
+
+  # Values are rounded to 3 decimal points.
+
+# OUTPUTS: 
+  # a single summary file as a .csv to the user indicated `dir`
 
 # ==============================================================================
 
@@ -34,22 +62,10 @@ study_code <- 'SPS' # this is used to rename the output file
 
 material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
-# ====================== read in data files ====================================
-# assumptions: 
-  # each boye file has 2 top rows that are skipped
-  # each boye file has 11 header rows
-  # boye files requrie the following headers: Sample_Name, Material, Methods_Deviation (+ any data columns)
-  # sample names can look like any of these options: 
-    # [Parent_ID]_[analyte code]-[rep] (e.g., SPS_001_TSS-1)
-    # [ParentID]_[analyte code]-[rep] (e.g., SPS001_TSS-1)
-  # fake boye files have text in their data column that starts with "See_"
-  # if an igsn column is present in the boye file, it will drop it
 
-analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
-analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
-print(basename(analyte_files))
+# ====================== functions used in this script =========================
 
-# create function to read in files
+# function to read in files
 read_in_files <- function(analyte_files) {
   
   data_files <- list()
@@ -115,14 +131,122 @@ read_in_files <- function(analyte_files) {
   data_headers[[current_file_name]] <- current_headers
   return(data)
   
-}
+} # end of `read_in_files()` function
+
+# function to assign flags
+assign_flags <- function(combine_df) {
+  
+  max_deviations <- combine_df %>%
+    select(Methods_Deviation) %>% 
+    mutate(num_deviations = str_count(Methods_Deviation, ";") + 1) %>% 
+    summarise(max = max(num_deviations, na.rm = T)) %>% 
+    pull()
+  
+  combine_prepare_outliers <- combine_df %>% 
+    # split outlier methods deviations into separate columns
+    separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
+    pivot_longer(cols = starts_with("Methods_Deviation"), names_to = "Methods_Deviation_type", values_to = "Methods_Deviation") %>% # pivots the multiple methods cols longer
+    select(-Methods_Deviation_type) %>% 
+    
+    # clean up Methods_Deviation column
+    mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
+    
+    # create outlier column
+    mutate(Outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ Methods_Deviation, TRUE ~ NA_character_)) %>%  # pulls over methods deviations that say "_OUTLIER" in them
+    mutate(Outlier = case_when(str_detect(Outlier, "OUTLIER") ~ str_extract(Outlier, "^[^_]+"), TRUE ~ NA_character_)) %>%  # extract lookup text (the text that's before "_OUTLIER")
+    mutate(Outlier = case_when(!is.na(Outlier) ~ paste0("_", Outlier, "_"))) %>% # pad both sides of lookup text with underscores (e.g., TN becomes _TN_)
+    
+    # create temporary new column name that includes an extra underscore
+    mutate(`_data_type` = paste0("_", data_type)) %>% # add underscore to front of col name so the padding works for columns that don't begin with a number (e.g., NPOC_mg_per_L_as_C becomes _NPOC_mg_per_L_as_C)
+    
+    # remove Outlier if it doesn't match with _data_type column
+    mutate(Outlier = case_when(str_detect(`_data_type`, Outlier) ~ Outlier, T ~ NA_character_))
+  
+  # show user how the outlier flags match to the columns
+  combine_prepare_outliers %>% 
+    select(Outlier, data_type, `_data_type`) %>% 
+    filter(!is.na(Outlier)) %>% 
+    distinct() %>% 
+    group_by(Outlier) %>% 
+    summarise(column_look_up_match = toString(data_type))
+  print("The above outlier flags have been identified and match with these corresponding columns.")
+  
+  return(combine_prepare_outliers)
+  
+} # end of `assign_flags()` function
+
+# function to apply flags
+apply_flags <- function(combine_prepare_outliers_df) {
+  
+  combine_remove_outliers <- combine_prepare_outliers %>% 
+    
+    group_by(Sample_Name) %>% 
+    
+    # if the lookup text in the Outlier col is present in the _data_type col, it converts the data_value to NA
+    mutate(data_value = case_when(str_detect(`_data_type`, Outlier) ~ NA_real_, T ~ data_value)) %>% 
+    
+    # clean up df
+    select(-`_data_type`, -Methods_Deviation, -Outlier) %>% # drop Methods Deviation col
+    
+    # group by Sample_Name and make distinct to remove any duplicates created when we pivoted longer
+    distinct() %>% 
+    ungroup()
+  
+  return(combine_remove_outliers)
+  
+} # end of `apply_flags()` function
+
+# function to calculate summary
+calculate_summary <- function(combine_remove_outliers_df) {
+  
+  calculate_summary <- combine_remove_outliers_df %>% 
+    group_by(parent_id, file_name, data_type) %>% 
+    mutate(average = round(mean(data_value, na.rm = T), digits = 3)) %>%  # calculate mean and round to 3 decimal points
+    mutate(average = case_when(average == "NaN" ~ NA_real_, T ~ average)) %>% 
+    ungroup() %>% 
+    
+    # prepare new column headers
+    mutate(summary_header_name = case_when(number_of_reps > 1 ~ paste0("Mean_", data_type), T ~ data_type)) %>% # if there are more than 1 reps for each sample, then add "Mean_" to front of header
+    mutate(Sample_Name = paste0(parent_id, "_", user_provided_material)) %>% # rename sample name
+    
+    # deal with missing reps
+    group_by(Sample_Name) %>% 
+    mutate(Mean_Missing_Reps = any(is.na(data_value) == TRUE)) %>% # marks missing reps = T if any value for that given sample is NA
+    ungroup() %>% 
+    
+    # drop cols and rows we don't need
+    select(Sample_Name, Material, average, data_type, file_name, summary_header_name, Mean_Missing_Reps) %>%
+    distinct()
+  
+  return(calculate_summary)
+  
+} # end of `calculate_summary()` function
+
+
+# ====================== read in data files ====================================
+# assumptions: 
+  # each boye file has 2 top rows that are skipped
+  # each boye file has 11 header rows
+  # boye files requrie the following headers: Field_Name, Sample_Name, Material, Methods_Deviation (+ any data columns)
+  # sample names can look like any of these options: 
+    # [Parent_ID]_[analyte code]-[rep] (e.g., SPS_001_TSS-1)
+    # [ParentID]_[analyte code]-[rep] (e.g., SPS001_TSS-1)
+  # fake boye files have text in their data column that starts with "See_"
+  # if an igsn column is present in the boye file, it will drop it
+
+analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
+analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
+print(basename(analyte_files))
 
 # read in files
 data <- read_in_files(analyte_files)
 
 
-
 # ====================== combine into single df ================================
+# assumptions: 
+  # fake boye files, identified by the presence of "See_" in the data value column are filtered out (the entire row removed)
+  # all other text values (e.g., text flags) are converted to NA (the row is kept, but the value converted to NA)
+
 combine <- bind_rows(data$data) %>% 
   
   # identify fake boye files and then remove them
@@ -135,7 +259,7 @@ combine <- bind_rows(data$data) %>%
 
 
 # ====================== remove outliers =======================================
-# assumptions
+# assumptions: 
   # methods deviations are separated by semi-colons
   # outliers are indicated with "_OUTLIER" in the Methods_Deviation column
   # if the text before "_OUTLIER is matched to any text in the data column header, after the text is padded with underscores on either side, then that data value is converted to NA 
@@ -143,58 +267,12 @@ combine <- bind_rows(data$data) %>%
   # the script temporarily adds an underscore to the front of all column headers to account for possible columns that begin with the text lookup (e.g., "NPOC_mg_per_L_as_C" becomes "_NPOC_mg_per_L_as_C" so the "_NPOC_" look up matches)
   # the case sensitivity of the look up text must match the column. This ensures that Mg won't strip any mention of milligrams (mg)
 
-# calc max number of deviations per sample based on number of semicolons
-max_deviations <- combine %>%
-  select(Methods_Deviation) %>% 
-  mutate(num_deviations = str_count(Methods_Deviation, ";") + 1) %>% 
-  summarise(max = max(num_deviations, na.rm = T)) %>% 
-  pull()
-
-# separate out outlier methods deviations
-combine_prepare_outliers <- combine %>% 
-  # split outlier methods deviations into separate columns
-  separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
-  pivot_longer(cols = starts_with("Methods_Deviation"), names_to = "Methods_Deviation_type", values_to = "Methods_Deviation") %>% # pivots the multiple methods cols longer
-  select(-Methods_Deviation_type) %>% 
-  
-  # clean up Methods_Deviation column
-  mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
-  
-  # create outlier column
-  mutate(Outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ Methods_Deviation, TRUE ~ NA_character_)) %>%  # pulls over methods deviations that say "_OUTLIER" in them
-  mutate(Outlier = case_when(str_detect(Outlier, "OUTLIER") ~ str_extract(Outlier, "^[^_]+"), TRUE ~ NA_character_)) %>%  # extract lookup text (the text that's before "_OUTLIER")
-  mutate(Outlier = case_when(!is.na(Outlier) ~ paste0("_", Outlier, "_"))) %>% # pad both sides of lookup text with underscores (e.g., TN becomes _TN_)
-  
-  # create temporary new column name that includes an extra underscore
-  mutate(`_data_type` = paste0("_", data_type)) %>% # add underscore to front of col name so the padding works for columns that don't begin with a number (e.g., NPOC_mg_per_L_as_C becomes _NPOC_mg_per_L_as_C)
-  
-  # remove Outlier if it doesn't match with _data_type column
-  mutate(Outlier = case_when(str_detect(`_data_type`, Outlier) ~ Outlier, T ~ NA_character_))
-  
-# show user how the outlier flags match to the columns
-combine_prepare_outliers %>% 
-  select(Outlier, data_type, `_data_type`) %>% 
-  filter(!is.na(Outlier)) %>% 
-  distinct() %>% 
-  group_by(Outlier) %>% 
-  summarise(column_look_up_match = toString(data_type))
-print("The above outlier flags have been identified and match with these corresponding columns.")
+# identify outliers
+combine_prepare_outliers <- assign_flags(combine_df = combine)
   
 
 # remove outlier values  
-combine_remove_outliers <- combine_prepare_outliers %>% 
-  
-  group_by(Sample_Name) %>% 
-  
-  # if the lookup text in the Outlier col is present in the _data_type col, it converts the data_value to NA
-  mutate(data_value = case_when(str_detect(`_data_type`, Outlier) ~ NA_real_, T ~ data_value)) %>% 
-  
-  # clean up df
-  select(-`_data_type`, -Methods_Deviation, -Outlier) %>% # drop Methods Deviation col
-  
-  # group by Sample_Name and make distinct to remove any duplicates created when we pivoted longer
-  distinct() %>% 
-  ungroup()
+combine_remove_outliers <- apply_flags(combine_prepare_outliers_df = combine_prepare_outliers)
 
 
 # ====================== calculate summary =====================================
@@ -204,24 +282,7 @@ combine_remove_outliers <- combine_prepare_outliers %>%
   # if any sample had a rep dropped, marks the entire row Mean_Missing_Reps == TRUE
 
 # calculate average for every parent_id for each data_type
-calculate_summary <- combine_remove_outliers %>% 
-  group_by(parent_id, file_name, data_type) %>% 
-  mutate(average = round(mean(data_value, na.rm = T), digits = 3)) %>%  # calculate mean and round to 3 decimal points
-  mutate(average = case_when(average == "NaN" ~ NA_real_, T ~ average)) %>% 
-  ungroup() %>% 
-
-  # prepare new column headers
-  mutate(summary_header_name = case_when(number_of_reps > 1 ~ paste0("Mean_", data_type), T ~ data_type)) %>% # if there are more than 1 reps for each sample, then add "Mean_" to front of header
-  mutate(Sample_Name = paste0(parent_id, "_", user_provided_material)) %>% # rename sample name
-  
-  # deal with missing reps
-  group_by(Sample_Name) %>% 
-  mutate(Mean_Missing_Reps = any(is.na(data_value) == TRUE)) %>% # marks missing reps = T if any value for that given sample is NA
-  ungroup() %>% 
-  
-  # drop cols and rows we don't need
-  select(Sample_Name, Material, average, data_type, file_name, summary_header_name, Mean_Missing_Reps) %>%
-  distinct()
+calculate_summary <- calculate_summary(combine_remove_outliers_df = combine_remove_outliers)
 
 summary <- calculate_summary %>% 
   # pivot wider
@@ -233,6 +294,9 @@ summary <- calculate_summary %>%
 
 
 # ==================================== Format ==================================
+# assumptions
+  # numeric columns use -9999 as a missing value code
+  # character columns use N/A as a missing value code
 
 summary <- summary %>% 
   # add Field Name col
