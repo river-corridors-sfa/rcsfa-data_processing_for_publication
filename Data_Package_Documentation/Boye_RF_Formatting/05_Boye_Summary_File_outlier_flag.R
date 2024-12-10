@@ -49,43 +49,61 @@ analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.n
 analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
 print(basename(analyte_files))
 
-data_files <- list()
-data_headers <- list()
-
-for (i in 1:length(analyte_files)) { # this loops through each analyte file, reads the headers and data, cleans data (splits out sample name and rep counts) and converts to long, and saves to lists
+# create function to read in files
+read_in_files <- function(analyte_files) {
   
-  # get file name
-  current_file_name <- basename(tools::file_path_sans_ext(analyte_files[i]))
-  print(paste0("Reading in file ", i, " of ", length(analyte_files), ": ", current_file_name))
+  data_files <- list()
+  data_headers <- list()
   
-  # read in current file
-  current_source <- read_csv(analyte_files[i], skip = 2, na = c("-9999", "NA", "", "N/A"), show_col_types = F) %>% 
-    filter(!is.na(Sample_Name)) %>% 
-    select(-Field_Name) %>% 
-    mutate(file_name = current_file_name)
+  for (i in 1:length(analyte_files)) { # this loops through each analyte file, reads the headers and data, cleans data (splits out sample name and rep counts) and converts to long, and saves to lists
+    
+    # get file name
+    current_file_name <- basename(tools::file_path_sans_ext(analyte_files[i]))
+    print(paste0("Reading in file ", i, " of ", length(analyte_files), ": ", current_file_name))
+    
+    # read in current file
+    current_source <- read_csv(analyte_files[i], skip = 2, na = c("-9999", "NA", "", "N/A"), show_col_types = F) %>% 
+      filter(!is.na(Sample_Name)) %>% 
+      select(-Field_Name) %>% 
+      mutate(file_name = current_file_name)
+    
+    current_file <- current_source %>% 
+      
+      # remove IGSN column if it exists
+      select(-any_of("IGSN")) %>% 
+      
+      # add user input material
+      mutate(user_provided_material = material) %>% 
+      
+      # split out sample name
+      separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
+      separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
+      
+      # count number of reps
+      group_by(parent_id) %>% 
+      mutate(number_of_reps = n_distinct(rep)) %>% 
+      
+      # pivot longer
+      group_by(across(c(Sample_Name, parent_id, analyte, rep, Material, Methods_Deviation, file_name, user_provided_material, number_of_reps))) %>% 
+      pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
+                   names_to = "data_type", 
+                   values_to = "data_value") %>% 
+      ungroup()
+    
+    # add to list
+    data_files[[current_file_name]] <- current_file
+    
+    
+    # read in headers
+    current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)
+    
+    # add to list
+    data_headers[[current_file_name]] <- current_headers
+    
+  }
   
-  current_file <- current_source %>% 
-    
-  # remove IGSN column if it exists
-    select(-any_of("IGSN")) %>% 
-    
-  # add user input material
-    mutate(user_provided_material = material) %>% 
-    
-  # split out sample name
-    separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
-    separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
-    
-  # count number of reps
-    group_by(parent_id) %>% 
-    mutate(number_of_reps = n_distinct(rep)) %>% 
-  
-  # pivot longer
-    group_by(across(c(Sample_Name, parent_id, analyte, rep, Material, Methods_Deviation, file_name, user_provided_material, number_of_reps))) %>% 
-    pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
-                 names_to = "data_type", 
-                 values_to = "data_value") %>% 
-    ungroup()
+  data <- list(headers = data_headers, 
+               data = data_files)
   
   # add to list
   data_files[[current_file_name]] <- current_file
@@ -95,12 +113,17 @@ for (i in 1:length(analyte_files)) { # this loops through each analyte file, rea
   
   # add to list
   data_headers[[current_file_name]] <- current_headers
+  return(data)
   
 }
 
+# read in files
+data <- read_in_files(analyte_files)
+
+
 
 # ====================== combine into single df ================================
-combine <- bind_rows(data_files) %>% 
+combine <- bind_rows(data$data) %>% 
   
   # identify fake boye files and then remove them
   mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
@@ -232,10 +255,10 @@ header_mapping_file <- calculate_summary %>%
   distinct()
 
 # loop through the data_headers list and rename cols based on the mapping file
-data_headers_renamed <- lapply(names(data_headers), function(df_name) {
+data_headers_renamed <- lapply(names(data$headers), function(df_name) {
   
   # get df
-  current_df <- data_headers[[df_name]]
+  current_df <- data$headers[[df_name]]
   
   # filter mapping file for current df name
   current_mapping_file <- header_mapping_file %>% 
