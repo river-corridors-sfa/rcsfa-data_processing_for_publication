@@ -2,7 +2,7 @@
 #
 # Add IGSNs into data files
 #
-# Status: In progress. ADD ONE COLUMN TO COLUMN COUNT
+# Status: Complete
 #
 # Note: only works for parent ID with six characters
 # ==============================================================================
@@ -14,7 +14,7 @@
 
 library(tidyverse)
 library(crayon)
-library(rstudioapi) # note: choose.dir wasn't working for me, so using rstudioapi::selectDirectory() instead - BP
+library(rstudioapi) 
 
 rm(list=ls(all=T))
 
