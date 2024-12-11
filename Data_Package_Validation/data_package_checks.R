@@ -2,6 +2,12 @@
 
 # Objective: Use this script to run all data package checks.
 
+# This script walks you through the steps to download the data and run it
+# through the checks. It relies on `checks.R`, which is the script that
+# validates the data and produces tabular outputs. Those tabular outputs are
+# then read into the `checks_report.Rmd` file and creates the graphics and
+# visual report.
+
 
 ### User Inputs ################################################################
 # Directions: Fill out the user inputs. Then run the chunk.
@@ -38,9 +44,9 @@ setwd("../...") # move wd back to the repo directory
 getwd()
 
 # load functions
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R")
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R")
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Validation/functions/checks.R")
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R") # note: will need to update this link after I merge branches
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R") # note: will need to update this link after I merge branches
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Validation/functions/checks.R") # note: will need to update this link after I merge branches
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.

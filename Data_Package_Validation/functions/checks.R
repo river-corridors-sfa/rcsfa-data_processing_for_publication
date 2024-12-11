@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2024-10-10
+# Date Updated: 2024-12-11
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -182,6 +182,13 @@ check_for_no_special_chrs <- function(input,
     # if source is a directory, also allows "/"
     # if source is a file_name or column_header, check fails if the input is ""
   
+  # confirm source input
+  if (!source %in% c("file_name", "directory_name", "column_header")) {
+    
+    stop("`source` does not match controlled vocabulary options: file_name, directory_name, column_header")
+    
+  }
+  
   # if source is a directory, then include "/" into allowed chrs
   if (source == "directory_name") {
     
@@ -272,10 +279,10 @@ check_for_no_proprietary_files <- function(input,
 } # end of check_for_no_proprietary_files
 
 check_for_unique_names <- function(input, 
-                                      all_names, 
-                                      data_checks_table = initialize_checks_df(),
-                                      source = c("file_name", "column_header"),
-                                      file) {
+                                   all_names,
+                                   data_checks_table = initialize_checks_df(),
+                                   source = c("file_name", "column_header"),
+                                   file) {
   # checks to see if the input occurs more than once in the "all_names" object
   # inputs: 
     # input = a single vectored value to check
@@ -287,6 +294,13 @@ check_for_unique_names <- function(input,
   # assumptions: 
     # this check will only be run on file_names or column_headers because you can't have duplicate directories
     # if the input isn't included in all_files the pass_check will result in NA
+  
+  # confirm source input
+  if (!source %in% c("file_name", "column_header")) {
+    
+    stop("`source` does not match controlled vocabulary options: file_name, column_header")
+    
+  }
   
   # count how many times the input exists in the string
   name_count <- sum(str_count(all_names, input))
