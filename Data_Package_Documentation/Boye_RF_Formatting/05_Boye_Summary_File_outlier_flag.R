@@ -16,8 +16,7 @@
 #
 # Updated 2024-12-10: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
-# Status: in progress 
-# next steps: create and run tests to make sure calculations are correct
+# Status: complete 
 
 # INPUTS: 
   # assumptions for the inputs files: 
@@ -67,6 +66,10 @@ material <- 'Water' # the material entered here is how the data files are locate
 
 # function to read in files
 read_in_files <- function(analyte_files) {
+  # INPUTS: 
+    # a vector of absolute file names of .csv files in the Boye Format
+  # OUTPUT: 
+    # a list that contains two sub lists: headers and data
   
   data_files <- list()
   data_headers <- list()
@@ -135,6 +138,12 @@ read_in_files <- function(analyte_files) {
 
 # function to assign flags
 assign_flags <- function(combine_df) {
+  # INPUT: 
+    # the the data combined into a single df
+  # OUTPUT: 
+    # a df with 2 added cols: 
+      # `_data_type` that is the data type column name with an underscore appended to it
+      # `Outlier` that indicates the text string that needs to match to `_data_type` to determine if it's an outlier
   
   max_deviations <- combine_df %>%
     select(Methods_Deviation) %>% 
@@ -168,7 +177,9 @@ assign_flags <- function(combine_df) {
     filter(!is.na(Outlier)) %>% 
     distinct() %>% 
     group_by(Outlier) %>% 
-    summarise(column_look_up_match = toString(data_type))
+    summarise(column_look_up_match = toString(data_type)) %>% 
+    print()
+  
   print("The above outlier flags have been identified and match with these corresponding columns.")
   
   return(combine_prepare_outliers)
@@ -177,8 +188,12 @@ assign_flags <- function(combine_df) {
 
 # function to apply flags
 apply_flags <- function(combine_prepare_outliers_df) {
+  # INPUT: 
+    # the output of `assign_flags()`
+  # OUTPUT: 
+    # a df that drops the c(Methods_Deviation, Outlier, and _data_type) columns after converting outliers to NA
   
-  combine_remove_outliers <- combine_prepare_outliers %>% 
+  combine_remove_outliers <- combine_prepare_outliers_df %>% 
     
     group_by(Sample_Name) %>% 
     
@@ -198,6 +213,10 @@ apply_flags <- function(combine_prepare_outliers_df) {
 
 # function to calculate summary
 calculate_summary <- function(combine_remove_outliers_df) {
+  # INPUT: 
+    # the output of `apply_flags()`
+  # OUTPUT: 
+    # a long df that averages each data type for each sample (an average of the reps for each sample)
   
   calculate_summary <- combine_remove_outliers_df %>% 
     group_by(parent_id, file_name, data_type) %>% 
@@ -282,9 +301,9 @@ combine_remove_outliers <- apply_flags(combine_prepare_outliers_df = combine_pre
   # if any sample had a rep dropped, marks the entire row Mean_Missing_Reps == TRUE
 
 # calculate average for every parent_id for each data_type
-calculate_summary <- calculate_summary(combine_remove_outliers_df = combine_remove_outliers)
+summary_calculated <- calculate_summary(combine_remove_outliers_df = combine_remove_outliers)
 
-summary <- calculate_summary %>% 
+summary <- summary_calculated %>% 
   # pivot wider
   pivot_wider(id_cols = c(Sample_Name, Material, Mean_Missing_Reps), names_from = summary_header_name, values_from = average) %>% 
   relocate(Mean_Missing_Reps, .after = last_col()) %>% 
@@ -314,9 +333,11 @@ summary <- summary %>%
 # ===================== Prepare header rows ====================================
 
 # create header mapping file
-header_mapping_file <- calculate_summary %>% 
+header_mapping_file <- summary_calculated %>% 
   select(file_name, data_type, summary_header_name) %>% 
   distinct()
+
+print(header_mapping_file)
 
 # loop through the data_headers list and rename cols based on the mapping file
 data_headers_renamed <- lapply(names(data$headers), function(df_name) {
@@ -340,12 +361,12 @@ data_headers_renamed <- lapply(names(data$headers), function(df_name) {
 })
 
 # combine headers
-combine_headers <- reduce(data_headers_renamed, left_join, by = c("Field_Name", "Sample_Name", "Material", "Methods_Deviation")) %>% 
+combine_headers <- reduce(data_headers_renamed, left_join, by = c("Field_Name", "Sample_Name", "Material", "Methods_Deviation")) %>% # this takes the list of header info for each file and joins them binding columns across all files together
   
   # add new Mean_Missing_Reps col
   add_column(Mean_Missing_Reps = "N/A") %>% 
   
-  # drop cols that don't exist in summary and reorder
+  # drop cols that don't exist in summary and reorders to make sure the headers properly line up with the data
   select(colnames(summary))
 
 # verify column order matches
