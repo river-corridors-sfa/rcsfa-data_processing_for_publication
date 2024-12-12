@@ -303,7 +303,7 @@ check_for_unique_names <- function(input,
   }
   
   # count how many times the input exists in the string
-  name_count <- sum(str_count(all_names, input))
+  name_count <- sum(str_count(all_names, fixed(input)))
   
   name <- paste0(input, " x", name_count)
   
