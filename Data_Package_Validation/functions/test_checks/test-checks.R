@@ -183,7 +183,7 @@ test_that("no special characters are present in file names", {
 
 test_that("no proprietary file extensions are present in file names", {
   
-  # test for when there are no errors in input
+  # test for when there are no proprietary files in input
   expect_equal(object = check_for_no_proprietary_files(input = "example_file_name.csv", 
                                                        invalid_extensions = input_parameters$non_proprietary_extensions, 
                                                        data_checks_table = initialize_checks_df(), 
@@ -192,7 +192,7 @@ test_that("no proprietary file extensions are present in file names", {
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
                                   "recommended*", TRUE, "no proprietary files", "example_file_name.csv", "none", "file_name", "example_file_name.csv"))
   
-  # test for when there are special characters in input
+  # test for when there are proprietary files in input
   expect_equal(object = check_for_no_proprietary_files(input = "example file_name.xlsx", 
                                                        invalid_extensions = input_parameters$non_proprietary_extensions, 
                                                        data_checks_table = initialize_checks_df(), 
@@ -233,4 +233,84 @@ test_that("file names are unique", {
 
 #### tabular data - checks ####
 
+test_that("no special chracters are present in column names", {
+  
+  # test for when there are no special characters in input
+  expect_equal(object = check_for_no_special_chrs(input = "example_column_name",
+                                                  invalid_chrs = input_parameters$special_chrs,
+                                                  data_checks_table = initialize_checks_df(),
+                                                  source = "column_header",
+                                                  file = "example_filename.csv"),
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "recommended*", TRUE, "no special characters", "example_column_name", "none", "column_header", "example_filename.csv"))
+  
+  # test for when there are special characters in input
+  expect_equal(object = check_for_no_special_chrs(input = "column with space", 
+                                                  invalid_chrs = input_parameters$special_chrs,
+                                                  data_checks_table = initialize_checks_df(),
+                                                  source = "column_header",
+                                                  file = "example filename.csv"),
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "recommended*", FALSE, "no special characters", "column with space", "space", "column_header", "example filename.csv",
+                                  "recommended*", FALSE, "no special characters", "column with space", "space", "column_header", "example filename.csv"))
+  
+  expect_equal(object = check_for_no_special_chrs(input = "column$specialchr", 
+                                                  invalid_chrs = input_parameters$special_chrs,
+                                                  data_checks_table = initialize_checks_df(),
+                                                  source = "column_header",
+                                                  file = "example filename.csv"),
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "recommended*", FALSE, "no special characters", "column$specialchr", "$", "column_header", "example filename.csv"))
+  
+})
+
+test_that("column names are unique", {
+  
+  # test for when there are unique column headers
+  expect_equal(object = check_for_unique_names(input = "col_chr",
+                                               all_names = c("col_chr", "col$num", "col_log"),
+                                               source = "column_header",
+                                               file = "example1.csv"), 
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "recommended*", TRUE, "no duplicate names", "col_chr", "col_chr x1", "column_header", "example1.csv"))
+  
+  expect_equal(object = check_for_unique_names(input = "col$num",
+                                               all_names = c("col_chr", "col$num", "col_log"),
+                                               source = "column_header",
+                                               file = "example1.csv"), 
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "recommended*", TRUE, "no duplicate names", "col$num", "col$num x1", "column_header", "example1.csv"))
+  
+
+  # test for when there are duplicate column headers
+  expect_equal(object = check_for_unique_names(input = "col_chr",
+                                               all_names = c("col_chr", "col_chr", "col$num"),
+                                               source = "column_header",
+                                               file = "example1.csv"), 
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "recommended*", FALSE, "no duplicate names", "col_chr", "col_chr x2", "column_header", "example1.csv"))
+  
+  
+})
+
+
+
+# check for special characters in column headers
+data_checks_output <- check_for_no_special_chrs(input = current_header,
+                                                invalid_chrs = input_parameters$special_chrs,
+                                                data_checks_table = data_checks_output,
+                                                source = "column_header",
+                                                file = current_file_name)
+
+# check for unique headers - this check will flag is a header is included more than once
+data_checks_output <- check_for_unique_names(input = current_header, 
+                                             all_names = current_headers, 
+                                             data_checks_table = data_checks_output, 
+                                             source = "column_header", 
+                                             file = current_file_name)
+
+
+
 #### tabular data - range reports ####
+
+test_that(" ", {})
