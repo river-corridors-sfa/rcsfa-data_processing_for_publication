@@ -337,36 +337,260 @@ check_for_unique_names <- function(input,
   
 } # end of check_for_duplicate_names
 
+initialize_report_df <- function(){
+  
+  data_tabular_report <- tibble(
+    file_name = as.character(),
+    column_name = as.character(),
+    column_type = as.character(),
+    num_rows = as.numeric(),
+    num_unique_rows = as.numeric(),
+    num_missing_rows = as.numeric(),
+    top_counts = as.character(),
+    range_min = NA_character_,
+    range_max = NA_character_,
+    num_negative_rows = NA_real_)
+  
+  return(data_tabular_report)
+  
+}
+
+create_range_report <- function(input_df, 
+                                input_df_name, 
+                                report_table = initialize_report_df(),
+                                missing_value_codes){
+  
+  # input_df = data frame you want to generate the report from
+  # input_df_name = the file name of the df
+  # report_table = a df that includes the following cols: 
+    # file_name (chr)
+    # column_name (chr)
+    # column_type (chr)
+    # num_rows (num)
+    # num_unique_rows (num)
+    # num_missing_rows (num)
+    # top_counts (chr)
+    # range_min (chr)
+    # range_max (chr)
+    # num_negative_rows (num)
+  # missing_value_codes = a vector of all values that you want to convert to NA
+  
+  data_tabular_report <- report_table
+  
+  # loop through each column in the df
+  for (k in 1:length(input_df)) {
+    
+    # get current column
+    current_column <- input_df[k]
+    
+    # get current column name
+    current_column_name <- colnames(current_column)
+    
+    log_info(paste0("Creating range report for column ", k, " of ", length(input_df), ": ", current_column_name))
+    
+    # convert to NA
+    current_column <- current_column %>% 
+      mutate(across(everything(), ~ replace(., . %in% missing_value_codes, NA)))
+    
+    # calculate number of total rows
+    current_nrow <- current_column %>% 
+      nrow()
+    
+    # calculate number of missing rows
+    current_n_misisng <- current_column %>% 
+      filter(is.na(current_column)) %>% 
+      nrow()
+    
+    # calculate number of unique rows
+    current_unique_rows <- current_column %>% 
+      n_distinct()
+    
+    # calculate top counts
+    current_top_counts <- current_column %>% 
+      count(current_column[1], sort = T) %>% 
+      drop_na() %>% 
+      mutate(top_counts = paste0(!!sym(names(current_column)[1]), " (n=", n, ")")) %>% 
+      head(5) %>%
+      summarise(top_counts = str_c(top_counts, collapse = "  ---  ")) %>% 
+      pull()
+    
+    # get column type
+    current_column_type <- current_column %>% 
+      pull(1) %>% 
+      class() %>% 
+      head(1)
+    
+    # set defaults
+    current_min <- NA_character_
+    current_max <- NA_character_
+    current_n_negative <- NA_real_
+    
+    # if chr
+    if (current_column_type == "character") {
+      
+      # check if col is mixed - separate out numeric vs chr rows
+      current_mixed <- current_column %>% 
+        mutate(
+          numeric_col = case_when(grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.numeric(current_column[[1]]),
+                                  TRUE ~ NA_real_),
+          character_col = case_when(!grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.character(current_column[[1]]),
+                                    TRUE ~ NA_character_))
+      
+      # if there are numeric values, return TRUE and change column type to be "mixed"
+      is_mixed <- current_mixed %>% 
+        filter(!is.na(numeric_col)) %>% 
+        nrow(.) > 0
+      
+      if (is_mixed == TRUE) {
+        current_column_type <- "mixed"
+      }
+      
+    } # end of if chr
+    
+    
+    # if mixed
+    if (current_column_type == "mixed") { 
+      
+      # calculate min
+      current_min <- current_mixed$numeric_col %>% 
+        min(na.rm = T)
+      
+      # calculate max
+      current_max <- current_mixed$numeric_col %>% 
+        max(na.rm = T)
+      
+      # if there are negative values, see how many rows
+      if (current_min < 0) {
+        
+        # calculate number of rows with a negative value
+        current_n_negative <- current_mixed %>% 
+          select(numeric_col) %>% 
+          filter(numeric_col < 0) %>% 
+          count()
+      } else {
+        current_n_negative <- 0
+      }
+      
+    } # end of if mixed
+    
+    # if numeric
+    if (current_column_type == "numeric") {
+      
+      # calculate min
+      current_min <- current_column %>% 
+        pull(1) %>% 
+        min(na.rm = T)
+      
+      # calculate max
+      current_max <- current_column %>% 
+        pull(1) %>% 
+        max(na.rm = T)
+      
+      # if there are negative values, see how many rows
+      if (current_min < 0) {
+        
+        # calculate number of rows with a negative value
+        current_n_negative <- current_column %>% 
+          pull(1) %>% 
+          {sum(. < 0, na.rm = T)}
+        
+      } else {
+        current_n_negative <- 0
+      }
+      
+    } # end of if numeric
+    
+    # if date
+    if (current_column_type == "Date") {
+      
+      current_min <- current_column %>% 
+        pull(1) %>% 
+        min(na.rm = T)
+      
+      current_max <- current_column %>% 
+        pull(1) %>% 
+        max(na.rm = T)
+      
+    } # end of if date
+    
+    # if time
+    if (current_column_type == "hms") {
+      
+      current_min <- current_column %>% 
+        pull(1) %>% 
+        as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC") %>% 
+        min(na.rm = T) %>% 
+        as_hms()
+      
+      current_max <- current_column %>% 
+        pull(1) %>% 
+        as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC") %>% 
+        max(na.rm = T) %>% 
+        as_hms()
+      
+    } # end of if time
+    
+    # if datetime
+    if (current_column_type == "POSIXct") {
+      
+      current_min <- current_column %>% 
+        pull(1) %>% 
+        min(na.rm = T)
+      
+      current_max <- current_column %>% 
+        pull(1) %>% 
+        max(na.rm = T)
+      
+    } # end of if datetime
+    
+    if (current_column_type == "logical") {
+      
+      # if logical, currently do nothing
+      
+    }
+    
+    
+    # create summary tibble
+    current_data_report <- tibble(
+      file_name = input_df_name,
+      column_name = current_column_name,
+      column_type = current_column_type,
+      num_rows = current_nrow,
+      num_unique_rows = current_unique_rows,
+      num_missing_rows = current_n_misisng,
+      top_counts = current_top_counts,
+      range_min = as.character(current_min),
+      range_max = as.character(current_max),
+      num_negative_rows = current_n_negative
+    )
+    
+    # add current row to existing summary
+    data_tabular_report <- data_tabular_report %>% 
+      add_row(current_data_report)
+    
+  } # end of loop through current_df columns
+  
+  return(data_tabular_report)
+  
+}
+
+create_range_report_summary <- function(){
+  
+  
+  
+}
+
 ### Run Checks #################################################################
 # this chunk prepares the data to be checked
 
 # initialize empty df for summary list of all checks
-data_checks_summary <- tibble(
-  requirement = factor(), 
-  pass_check = logical(), 
-  assessment = factor(), 
-  value = character(), 
-  source = character(), 
-  file_count = numeric(),
-  files = character()
-)
+data_checks_summary <- initialize_checks_df()
 
 # initialize empty df for full list of all checks
 data_checks_output <- initialize_checks_df()
 
 # initialize empty df for tabular data report
-data_tabular_report <- tibble(
-  file_name = as.character(),
-  column_name = as.character(),
-  column_type = as.character(),
-  num_rows = as.numeric(),
-  num_unique_rows = as.numeric(),
-  num_missing_rows = as.numeric(),
-  top_counts = as.character(),
-  range_min = NA_character_,
-  range_max = NA_character_,
-  num_negative_rows = NA_real_
-)
+data_tabular_report <- initialize_report_df()
 
 # get all file paths and file names
 all_files_absolute <- data_package_data$outputs$filtered_file_paths
@@ -473,7 +697,7 @@ for (i in 1:length(all_files_absolute)) {
       log_info(paste0("Running data checks on column header: ", current_header))
       
       # check for special characters in column headers
-      data_checks_output <- check_for_no_special_chrs(input =  current_header,
+      data_checks_output <- check_for_no_special_chrs(input = current_header,
                                                       invalid_chrs = input_parameters$special_chrs,
                                                       data_checks_table = data_checks_output,
                                                       source = "column_header",
@@ -491,199 +715,10 @@ for (i in 1:length(all_files_absolute)) {
     
   ### run range reports ########################################################
     
-    
-    # loop through each column in the df
-    for (k in 1:length(current_df)) {
-      
-      # get current column
-      current_column <- current_df[k]
-      
-      # get current column name
-      current_column_name <- colnames(current_column)
-      
-      log_info(paste0("Creating range report for column ", k, " of ", length(current_df), ": ", current_column_name))
-      
-      # convert to NA
-      current_column <- current_column %>% 
-        mutate(across(everything(), ~ replace(., . %in% input_parameters$missing_value_codes, NA)))
-      
-      # calculate number of total rows
-      current_nrow <- current_column %>% 
-        nrow()
-      
-      # calculate number of missing rows
-      current_n_misisng <- current_column %>% 
-        filter(is.na(current_column)) %>% 
-        nrow()
-      
-      # calculate number of unique rows
-      current_unique_rows <- current_column %>% 
-        n_distinct()
-      
-      # calculate top counts
-      current_top_counts <- current_column %>% 
-        count(current_column[1], sort = T) %>% 
-        drop_na() %>% 
-        mutate(top_counts = paste0(!!sym(names(current_column)[1]), " (n=", n, ")")) %>% 
-        head(5) %>%
-        summarise(top_counts = str_c(top_counts, collapse = "  ---  ")) %>% 
-        pull()
-      
-      # get column type
-      current_column_type <- current_column %>% 
-        pull(1) %>% 
-        class() %>% 
-        head(1)
-      
-      # set defaults
-      current_min <- NA_character_
-      current_max <- NA_character_
-      current_n_negative <- NA_real_
-      
-      # if chr
-      if (current_column_type == "character") {
-        
-        # check if col is mixed - separate out numeric vs chr rows
-        current_mixed <- current_column %>% 
-          mutate(
-            numeric_col = case_when(grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.numeric(current_column[[1]]),
-                                    TRUE ~ NA_real_),
-            character_col = case_when(!grepl("^-?\\d+(\\.\\d+)?$", current_column[[1]]) ~ as.character(current_column[[1]]),
-                                      TRUE ~ NA_character_))
-        
-        # if there are numeric values, return TRUE and change column type to be "mixed"
-        is_mixed <- current_mixed %>% 
-          filter(!is.na(numeric_col)) %>% 
-          nrow(.) > 0
-        
-        if (is_mixed == TRUE) {
-          current_column_type <- "mixed"
-        }
-        
-      } # end of if chr
-      
-      
-      # if mixed
-      if (current_column_type == "mixed") { 
-        
-        # calculate min
-        current_min <- current_mixed$numeric_col %>% 
-          min(na.rm = T)
-        
-        # calculate max
-        current_max <- current_mixed$numeric_col %>% 
-          max(na.rm = T)
-        
-        # if there are negative values, see how many rows
-        if (current_min < 0) {
-          
-          # calculate number of rows with a negative value
-          current_n_negative <- current_mixed %>% 
-            select(numeric_col) %>% 
-            filter(numeric_col < 0) %>% 
-            count()
-        } else {
-          current_n_negative <- 0
-        }
-        
-      } # end of if mixed
-      
-      # if numeric
-      if (current_column_type == "numeric") {
-        
-        # calculate min
-        current_min <- current_column %>% 
-          pull(1) %>% 
-          min(na.rm = T)
-        
-        # calculate max
-        current_max <- current_column %>% 
-          pull(1) %>% 
-          max(na.rm = T)
-        
-        # if there are negative values, see how many rows
-        if (current_min < 0) {
-          
-          # calculate number of rows with a negative value
-          current_n_negative <- current_column %>% 
-            pull(1) %>% 
-            {sum(. < 0, na.rm = T)}
-          
-        } else {
-          current_n_negative <- 0
-        }
-        
-      } # end of if numeric
-      
-      # if date
-      if (current_column_type == "Date") {
-        
-        current_min <- current_column %>% 
-          pull(1) %>% 
-          min(na.rm = T)
-        
-        current_max <- current_column %>% 
-          pull(1) %>% 
-          max(na.rm = T)
-        
-      } # end of if date
-      
-      # if time
-      if (current_column_type == "hms") {
-        
-        current_min <- current_column %>% 
-          pull(1) %>% 
-          as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC") %>% 
-          min(na.rm = T) %>% 
-          as_hms()
-        
-        current_max <- current_column %>% 
-          pull(1) %>% 
-          as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC") %>% 
-          max(na.rm = T) %>% 
-          as_hms()
-        
-      } # end of if time
-      
-      # if datetime
-      if (current_column_type == "POSIXct") {
-        
-        current_min <- current_column %>% 
-          pull(1) %>% 
-          min(na.rm = T)
-        
-        current_max <- current_column %>% 
-          pull(1) %>% 
-          max(na.rm = T)
-        
-      } # end of if datetime
-      
-      if (current_column_type == "logical") {
-        
-        # if logical, currently do nothing
-        
-      }
-      
-      
-      # create summary tibble
-      current_data_report <- tibble(
-        file_name = current_file_name_relative,
-        column_name = current_column_name,
-        column_type = current_column_type,
-        num_rows = current_nrow,
-        num_unique_rows = current_unique_rows,
-        num_missing_rows = current_n_misisng,
-        top_counts = current_top_counts,
-        range_min = as.character(current_min),
-        range_max = as.character(current_max),
-        num_negative_rows = current_n_negative
-      )
-      
-      # add current row to existing summary
-      data_tabular_report <- data_tabular_report %>% 
-        add_row(current_data_report)
-      
-    } # end of loop through current_df columns
+  data_tabular_report <- create_range_report(input_df = current_df,
+                                             input_df_name = current_file_name_relative, 
+                                             report_table = data_tabular_report, 
+                                             missing_value_codes = input_parameters$missing_value_codes)
     
   } # end of loop through all tabular files
   
