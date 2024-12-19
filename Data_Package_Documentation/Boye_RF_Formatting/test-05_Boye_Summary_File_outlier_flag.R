@@ -343,6 +343,30 @@ test_that("flags are correctly assigned", {
   expect_equal(object = result, 
                expected = expected_result)
   
+  # this test confirms that number of rows in the output match the number in the input when there are multiple outliers listed for a given sample
+  testing_data <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
+    mutate(Methods_Deviation = case_when(Methods_Deviation == "Br_OUTLIER_000" ~ "Br_OUTLIER_000; C_OUTLIER_000", T ~ Methods_Deviation)) %>% 
+    create_long_testing_data(.)
+  
+  # calculate the number of rows there should be
+  expected_row_count <- nrow(testing_data) /  testing_data %>%
+                                                select(data_type) %>% 
+                                                distinct() %>% 
+                                                count() %>% 
+                                                pull() # the number of rows in the wide data = number of rows in long data divided by the number of data_type columns
+  
+  
+  result <- assign_flags(testing_data)
+  
+  result_row_count <- nrow(result) /  result %>%
+                                        select(data_type) %>% 
+                                        distinct() %>% 
+                                        count() %>% 
+                                        pull()
+  
+  expect_equal(object = result_row_count, 
+               expected = expected_row_count)
+  
   
 })
 
