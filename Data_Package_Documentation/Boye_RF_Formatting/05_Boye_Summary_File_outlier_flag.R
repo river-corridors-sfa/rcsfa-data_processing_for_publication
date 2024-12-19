@@ -49,7 +49,6 @@
 # ==============================================================================
 
 library(tidyverse)
-library(janitor)
 rm(list=ls(all=T))
 
 # ================================= User inputs ================================
@@ -153,6 +152,7 @@ assign_flags <- function(combine_df) {
   
   combine_prepare_outliers <- combine_df %>% 
     # split outlier methods deviations into separate columns
+    mutate(original_Methods_Deviation = Methods_Deviation) %>%
     separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
     pivot_longer(cols = starts_with("Methods_Deviation"), names_to = "Methods_Deviation_type", values_to = "Methods_Deviation") %>% # pivots the multiple methods cols longer
     select(-Methods_Deviation_type) %>% 
@@ -169,7 +169,12 @@ assign_flags <- function(combine_df) {
     mutate(`_data_type` = paste0("_", data_type)) %>% # add underscore to front of col name so the padding works for columns that don't begin with a number (e.g., NPOC_mg_per_L_as_C becomes _NPOC_mg_per_L_as_C)
     
     # remove Outlier if it doesn't match with _data_type column
-    mutate(Outlier = case_when(str_detect(`_data_type`, Outlier) ~ Outlier, T ~ NA_character_))
+    mutate(Outlier = case_when(str_detect(`_data_type`, Outlier) ~ Outlier, T ~ NA_character_)) %>% 
+    
+    # remove duplicate rows that had been added when pivoting the methods deviations
+    mutate(drop = case_when(!is.na(original_Methods_Deviation) & is.na(Outlier) ~ TRUE, T ~ FALSE)) %>% 
+    filter(drop == FALSE) %>% 
+    select(-drop, -original_Methods_Deviation)
   
   # show user how the outlier flags match to the columns
   combine_prepare_outliers %>% 
