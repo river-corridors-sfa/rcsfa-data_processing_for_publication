@@ -11,7 +11,7 @@ The `download_and_read_data()` function downloads data from [ESS-DIVE](https://d
 library(devtools)
 
 # Specify the GitHub URL of the script
-github_url <- "https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-essdive-api/main/ESS-DIVE_Download_R/script_ess_dive_file_download_function.R"
+github_url <- "https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_R/script_ess_dive_file_download_function.R"
 
 # Source the script from GitHub
 source_url(github_url)
