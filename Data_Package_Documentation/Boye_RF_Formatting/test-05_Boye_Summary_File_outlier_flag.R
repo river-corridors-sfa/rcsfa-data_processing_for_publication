@@ -343,6 +343,7 @@ test_that("flags are correctly assigned", {
   expect_equal(object = result, 
                expected = expected_result)
   
+  
   # this test confirms that number of rows in the output match the number in the input when there are multiple outliers listed for a given sample
   testing_data <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
     mutate(Methods_Deviation = case_when(Methods_Deviation == "Br_OUTLIER_000" ~ "Br_OUTLIER_000; C_OUTLIER_000", T ~ Methods_Deviation)) %>% 
@@ -366,6 +367,24 @@ test_that("flags are correctly assigned", {
   
   expect_equal(object = result_row_count, 
                expected = expected_row_count)
+  
+  
+  # this test confirms that the number of samples in the input match the output
+  
+  testing_data <- create_long_testing_data(create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637))
+  
+  expected_sample_counts <- testing_data %>% 
+    count(Sample_Name) %>% 
+    arrange(Sample_Name)
+  
+  result <- assign_flags(testing_data)
+  
+  result_sample_counts <- result %>% 
+    count(Sample_Name) %>% 
+    arrange(Sample_Name)
+  
+  expect_equal(object = result_sample_counts,
+               expected = expected_sample_counts)
   
   
 })
@@ -415,24 +434,44 @@ test_that("average works when all reps are included", {
 
 test_that("average works when some reps are NA", {
   # this test checks that data with 3 reps, including some with NA values but no methods deviations, are correctly averaged
+  # this also checks that Mean_Missing_Reps correctly returns T when a NA value is present within any of the reps
   
   testing_data <- tribble(~Sample_Name,      ~parent_id, ~analyte, ~rep, ~Material, ~Methods_Deviation, ~file_name, ~user_provided_material, ~number_of_reps, ~data_type,                   ~data_value,
                           "ABC_0001_GRA-1",  "ABC_0001", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.25,
                           "ABC_0001_GRA-2",  "ABC_0001", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
                           "ABC_0001_GRA-3",  "ABC_0001", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          
                           "ABC_0002_GRA-1",  "ABC_0002", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.45,
                           "ABC_0002_GRA-2",  "ABC_0002", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.35,
-                          "ABC_0002_GRA-3",  "ABC_0002", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.75)
+                          "ABC_0002_GRA-3",  "ABC_0002", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.75,
+                          
+                          "ABC_0003_GRA-1",  "ABC_0003", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          "ABC_0003_GRA-2",  "ABC_0003", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          "ABC_0003_GRA-3",  "ABC_0003", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          
+                          "ABC_0004_GRA-1",  "ABC_0004", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    NA_real_,
+                          "ABC_0004_GRA-2",  "ABC_0004", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.5,
+                          "ABC_0004_GRA-3",  "ABC_0004", "GRA",    3,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   3,              "00681_NPOC_mg_per_L_as_C",    0.5,
+                          
+                          "ABC_0005_GRA-1",  "ABC_0005", "GRA",    1,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   2,              "00681_NPOC_mg_per_L_as_C",    0.20,
+                          "ABC_0005_GRA-2",  "ABC_0005", "GRA",    2,   "Liquid>aqueous", NA_character_, "File_A", "Water",                   2,              "00681_NPOC_mg_per_L_as_C",    0.90,
+                          
+        
+                          )
   
   result <- calculate_summary(testing_data)
   
   expected_result <- tribble(~Sample_Name,     ~Material,        ~average, ~data_type,                  ~file_name, ~summary_header_name,             ~Mean_Missing_Reps,
-                             "ABC_0001_Water", "Liquid>aqueous",  0.250     , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", TRUE,
-                             "ABC_0002_Water", "Liquid>aqueous",  0.517       , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", FALSE
+                             "ABC_0001_Water", "Liquid>aqueous",  0.250      , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", TRUE,
+                             "ABC_0002_Water", "Liquid>aqueous",  0.517      , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", FALSE,
+                             "ABC_0003_Water", "Liquid>aqueous",  NA_real_   , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", TRUE,
+                             "ABC_0004_Water", "Liquid>aqueous",  0.500      , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", TRUE,
+                             "ABC_0005_Water", "Liquid>aqueous",  0.550      , "00681_NPOC_mg_per_L_as_C",  "File_A",    "Mean_00681_NPOC_mg_per_L_as_C", FALSE
                              )
   
   expect_equal(object = result, 
                expected = expected_result)
+  
   
 })
 
@@ -444,3 +483,5 @@ test_that("average works when some reps are NA", {
 # the data before the rbind together upon export.
 
 
+
+### Run tests against published data packages ##################################
