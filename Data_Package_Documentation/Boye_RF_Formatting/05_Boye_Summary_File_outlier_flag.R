@@ -212,10 +212,10 @@ apply_flags <- function(combine_prepare_outliers_df) {
     group_by(Sample_Name) %>% 
     
     # if the lookup text in the Outlier col is present in the _data_type col, it converts the data_value to NA
-    mutate(data_value = case_when(str_detect(`_data_type`, Outlier) ~ NA_real_, T ~ data_value)) %>% 
+    mutate(data_value = case_when(str_detect(`_data_type`, has_outlier) ~ NA_real_, T ~ data_value)) %>% 
     
     # clean up df
-    select(-`_data_type`, -Methods_Deviation, -Outlier) %>% # drop Methods Deviation col
+    select(-`_data_type`, -Methods_Deviation, -has_outlier) %>% # drop Methods Deviation col
     
     # group by Sample_Name and make distinct to remove any duplicates created when we pivoted longer
     distinct() %>% 

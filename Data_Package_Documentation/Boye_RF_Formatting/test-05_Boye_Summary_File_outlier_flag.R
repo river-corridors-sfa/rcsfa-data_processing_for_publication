@@ -380,8 +380,8 @@ test_that("flags are correctly applied", {
   result <- apply_flags(testing_data)
   
   expected_result <- testing_data %>% 
-    mutate(data_value = case_when(!is.na(Outlier) ~ NA_real_, T ~ data_value)) %>% 
-    select(-`_data_type`, -Methods_Deviation, -Outlier) %>% # drop Methods Deviation col
+    mutate(data_value = case_when(!is.na(has_outlier) ~ NA_real_, T ~ data_value)) %>% 
+    select(-`_data_type`, -Methods_Deviation, -has_outlier) %>% # drop Methods Deviation col
     distinct() %>% 
     ungroup()
     
