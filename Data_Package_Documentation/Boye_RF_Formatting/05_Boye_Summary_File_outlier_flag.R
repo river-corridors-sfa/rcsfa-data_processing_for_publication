@@ -14,7 +14,7 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-12-23: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2024-12-24: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
 # Status: complete 
 
@@ -164,7 +164,7 @@ assign_flags <- function(combine_df) {
     mutate(across (.cols = starts_with("Outlier_"), # for all column names that start with "Outlier_"
                    .fns = ~ case_when(
                      str_detect(., "OUTLIER") ~ str_extract(., "^[^_]+"), # if "OUTLIER" is present, then extract the look up text (the text that's before "_OUTLIER")
-                     TRUE ~ NA_character_), # otherwise if "OUTLIER" isn't present, convert to NA
+                     TRUE ~ ""), # otherwise if "OUTLIER" isn't present, convert to NA
                    .names = "{.col}" # keep col names the same
                    )) %>% 
     mutate(across(.cols = starts_with("Outlier_"), # if the cell isn't empty, then pad both sides of the look up text with underscores (e.g., TN becomes _TN_)
@@ -175,20 +175,22 @@ assign_flags <- function(combine_df) {
     
     # remove Outlier if it doesn't match with _data_type column - currently not working
     rowwise() %>% 
-    mutate(across(starts_with("Outlier_"),
-                  ~ case_when(grepl(., `_data_type`, ignore.case = FALSE) ~ ., # if the Outlier_ value is detected in the _data_type col, then keep it
-                              TRUE ~ NA_character_))) %>% # otherwise set it to NA
-    mutate(has_outlier = paste(na.omit(across(starts_with("Outlier_"))), collapse = "; ")) %>% # collapse all Outlier cols into single col
-        
+    mutate(has_outlier = paste(across(starts_with("Outlier_")), collapse = "|"),  # create single outlier col that combines all Outlier_ cols
+           has_outlier = str_replace(has_outlier, "\\|__", ""),
+           has_outlier = str_replace(has_outlier, "__\\|", "")) %>% # the NA values are converted into __, so this removes those
+    mutate(has_outlier = case_when(any(str_detect(`_data_type`, str_split(has_outlier, "\\|")[[1]])) ~ has_outlier, # if the outlier look up text in has_outlier matches the _data_type col it keeps the lookup text, otherwise it convertst that value to NA
+                                   T ~ NA_character_)) %>% 
     ungroup() %>% 
-     view()
+    
+    # clean up cols
+    select(-c(starts_with("Outlier_")))
   
   # show user how the outlier flags match to the columns
   combine_prepare_outliers %>% 
-    select(Outlier, data_type, `_data_type`) %>% 
-    filter(!is.na(Outlier)) %>% 
+    select(has_outlier, data_type, `_data_type`) %>% 
+    filter(!is.na(has_outlier)) %>% 
     distinct() %>% 
-    group_by(Outlier) %>% 
+    group_by(has_outlier) %>% 
     summarise(column_look_up_match = toString(data_type)) %>% 
     print()
   

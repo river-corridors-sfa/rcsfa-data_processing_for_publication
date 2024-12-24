@@ -1,6 +1,6 @@
 ### test-05_Boye_Summary_File.R ################################################
 # Date Created: 2024-10-31
-# Date Updated: 2024-12-10
+# Date Updated: 2024-12-24
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -228,7 +228,7 @@ test_that("flags are correctly assigned", {
   
   expected_result <- testing_data %>% 
     mutate(`_data_type` = case_when(!is.na(Methods_Deviation) ~ paste0("_", data_type))) %>% 
-    mutate(Outlier = case_when((Methods_Deviation == "Br_OUTLIER_000" & data_type %in% c("X71870_Br_mg_per_L")) ~ "_Br_",
+    mutate(has_outlier = case_when((Methods_Deviation == "Br_OUTLIER_000" & data_type %in% c("X71870_Br_mg_per_L")) ~ "_Br_",
                                (Methods_Deviation == "C_OUTLIER_000" & data_type %in% c("X01463_C_percent_per_mg", "01395_C_percent_per_mg")) ~ "_C_",
                                (Methods_Deviation == "Ca_OUTLIER_000" & data_type %in% c("X00915_Ca_mg_per_L", "Total_Ca_mg_per_L", "52718_Total_Ca_mg_per_kg", "Total_Ca_mg_per_kg")) ~ "_Ca_",
                                (Methods_Deviation == "Cl_OUTLIER_000" & data_type %in% c("X00940_Cl_mg_per_L")) ~ "_Cl_",
