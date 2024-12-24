@@ -14,7 +14,7 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-12-10: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2024-12-23: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
 # Status: complete 
 
@@ -152,29 +152,36 @@ assign_flags <- function(combine_df) {
   
   combine_prepare_outliers <- combine_df %>% 
     # split outlier methods deviations into separate columns
-    mutate(original_Methods_Deviation = Methods_Deviation) %>%
-    separate(Methods_Deviation, into = paste0("Methods_Deviation_", 1:max(max_deviations)), sep = ";", fill = "right") %>% # splits methods deviation col into multiple cols
-    pivot_longer(cols = starts_with("Methods_Deviation"), names_to = "Methods_Deviation_type", values_to = "Methods_Deviation") %>% # pivots the multiple methods cols longer
-    select(-Methods_Deviation_type) %>% 
+    separate(Methods_Deviation, into = paste0("Outlier_", 1:max(max_deviations)), sep = ";", fill = "right", remove = F) %>% # splits methods deviation col into multiple cols
     
     # clean up Methods_Deviation column
-    mutate(across(starts_with("Methods_Deviation"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
-    
-    # create outlier column
-    mutate(Outlier = case_when(str_detect(Methods_Deviation, "OUTLIER") ~ Methods_Deviation, TRUE ~ NA_character_)) %>%  # pulls over methods deviations that say "_OUTLIER" in them
-    mutate(Outlier = case_when(str_detect(Outlier, "OUTLIER") ~ str_extract(Outlier, "^[^_]+"), TRUE ~ NA_character_)) %>%  # extract lookup text (the text that's before "_OUTLIER")
-    mutate(Outlier = case_when(!is.na(Outlier) ~ paste0("_", Outlier, "_"))) %>% # pad both sides of lookup text with underscores (e.g., TN becomes _TN_)
+    mutate(across(starts_with("Outlier"), ~ str_replace_all(., "\\s+", ""))) %>% # remove any white space
     
     # create temporary new column name that includes an extra underscore
     mutate(`_data_type` = paste0("_", data_type)) %>% # add underscore to front of col name so the padding works for columns that don't begin with a number (e.g., NPOC_mg_per_L_as_C becomes _NPOC_mg_per_L_as_C)
     
-    # remove Outlier if it doesn't match with _data_type column
-    mutate(Outlier = case_when(str_detect(`_data_type`, Outlier) ~ Outlier, T ~ NA_character_)) %>% 
+    # convert outlier cols into look up text
+    mutate(across (.cols = starts_with("Outlier_"), # for all column names that start with "Outlier_"
+                   .fns = ~ case_when(
+                     str_detect(., "OUTLIER") ~ str_extract(., "^[^_]+"), # if "OUTLIER" is present, then extract the look up text (the text that's before "_OUTLIER")
+                     TRUE ~ NA_character_), # otherwise if "OUTLIER" isn't present, convert to NA
+                   .names = "{.col}" # keep col names the same
+                   )) %>% 
+    mutate(across(.cols = starts_with("Outlier_"), # if the cell isn't empty, then pad both sides of the look up text with underscores (e.g., TN becomes _TN_)
+                  .fns = ~ case_when(
+                    !is.na(.) ~ paste0("_", ., "_")),
+                  .names = "{.col}"
+                  )) %>%
     
-    # remove duplicate rows that had been added when pivoting the methods deviations
-    mutate(drop = case_when(!is.na(original_Methods_Deviation) & is.na(Outlier) ~ TRUE, T ~ FALSE)) %>% 
-    filter(drop == FALSE) %>% 
-    select(-drop, -original_Methods_Deviation)
+    # remove Outlier if it doesn't match with _data_type column - currently not working
+    rowwise() %>% 
+    mutate(across(starts_with("Outlier_"),
+                  ~ case_when(grepl(., `_data_type`, ignore.case = FALSE) ~ ., # if the Outlier_ value is detected in the _data_type col, then keep it
+                              TRUE ~ NA_character_))) %>% # otherwise set it to NA
+    mutate(has_outlier = paste(na.omit(across(starts_with("Outlier_"))), collapse = "; ")) %>% # collapse all Outlier cols into single col
+        
+    ungroup() %>% 
+     view()
   
   # show user how the outlier flags match to the columns
   combine_prepare_outliers %>% 
