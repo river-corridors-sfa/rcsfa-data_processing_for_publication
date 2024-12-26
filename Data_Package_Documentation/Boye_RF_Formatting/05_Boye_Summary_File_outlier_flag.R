@@ -272,7 +272,7 @@ analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
 print(basename(analyte_files))
 
 # read in files
-data <- read_in_files(analyte_files)
+data <- read_in_files(analyte_files, material = material)
 
 
 # ====================== combine into single df ================================
@@ -356,7 +356,9 @@ header_mapping_file <- summary_calculated %>%
   select(file_name, data_type, summary_header_name) %>% 
   distinct()
 
-print(header_mapping_file)
+# note: this script has been commented out. Uncomment this if you need to visualize the new column names
+# print(header_mapping_file)
+# cat("The above table shows that columns with more than 1 rep will be renamed to include 'Mean_'.")
 
 # loop through the data_headers list and rename cols based on the mapping file
 data_headers_renamed <- lapply(names(data$headers), function(df_name) {
@@ -408,7 +410,7 @@ top <- tibble('one' = as.character(),
 
 
 summary_out_file <- paste0(dir, "/", study_code, "_", material,'_Sample_Data_Summary_', Sys.Date(), '.csv') # this is one is for when you have files in the Share Drive
-summary_out_file
+cat("Exporting... ", summary_out_file)
 
 write_csv(top, summary_out_file, col_names = F)
 
