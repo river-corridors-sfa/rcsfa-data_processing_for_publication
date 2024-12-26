@@ -173,7 +173,7 @@ assign_flags <- function(combine_df) {
                   .names = "{.col}"
                   )) %>%
     
-    # remove Outlier if it doesn't match with _data_type column - currently not working
+    # remove Outlier if it doesn't match with _data_type column
     rowwise() %>% 
     mutate(has_outlier = paste(across(starts_with("Outlier_")), collapse = "|"),  # create single outlier col that combines all Outlier_ cols
            has_outlier = str_replace(has_outlier, "\\|__", ""),
