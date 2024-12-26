@@ -1,6 +1,6 @@
 ### test-05_Boye_Summary_File.R ################################################
 # Date Created: 2024-10-31
-# Date Updated: 2024-12-24
+# Date Updated: 2024-12-26
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -485,3 +485,81 @@ test_that("average works when some reps are NA", {
 
 
 ### Run tests against published data packages ##################################
+
+
+test_that("published SPS v3 summary file matches the new workflow", {
+  
+  material <- "Water"
+  
+  analyte_files <- list.files("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData", pattern = paste0(material, ".*\\.csv$"), full.names = T) %>% 
+    head(6) # retrieve all water files except for v3_SPS_Water_Sample_Data_Summary
+  
+  # load in data and combine
+  data <- read_in_files(analyte_files = analyte_files, material = material)
+  
+  combine <- bind_rows(data$data) %>% 
+    
+    # identify fake boye files and then remove them
+    mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
+    filter(is_fake_boye == FALSE) %>% 
+    select(-is_fake_boye) %>% 
+    
+    # remove text flags
+    rowwise() %>% 
+    mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
+    mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
+    mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
+    select(-is_numeric) %>% 
+    ungroup()
+  
+  # identify outliers
+  combine_prepare_outliers <- assign_flags(combine_df = combine)
+  
+  # remove outlier values  
+  combine_remove_outliers <- apply_flags(combine_prepare_outliers_df = combine_prepare_outliers)
+  
+  # calculate average for every parent_id for each data_type
+  summary_calculated <- calculate_summary(combine_remove_outliers_df = combine_remove_outliers)
+  
+  summary <- summary_calculated %>% 
+    # pivot wider
+    pivot_wider(id_cols = c(Sample_Name, Material, Mean_Missing_Reps), names_from = summary_header_name, values_from = average) %>% 
+    relocate(Mean_Missing_Reps, .after = last_col()) %>% 
+    
+    # sort by sample name
+    arrange(Sample_Name)
+  
+  summary <- summary %>% 
+    # add Field Name col
+    mutate(Field_Name = NA_character_, .before = Sample_Name,
+           Field_Name = replace(Field_Name, row_number() == 1, "#Start_Data")) %>% 
+    
+    # add -9999 and N/A
+    mutate_if(is.numeric, replace_na, replace = -9999)%>%
+    mutate_if(is.character, replace_na, replace = 'N/A') %>% 
+    
+    bind_rows(tibble(Field_Name = "#End_Data")) %>% 
+  
+    # add N/A to Field Name col
+    mutate(Field_Name = case_when(is.na(Field_Name) ~ "N/A", T ~ Field_Name)) %>% 
+    
+    # expected will match when the following changes are made to summary: 
+      # drop stdev_B6CA_del13C_per_mil, stdev_B5CA_del13C_per_mil
+      # convert all to chr
+      # remove last #End_Data row
+    select(-c(stdev_B6CA_del13C_per_mil, stdev_B5CA_del13C_per_mil)) %>% 
+    mutate_all(as.character) %>% 
+    filter(Field_Name != "#End_Data")
+  
+  
+  expected <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData/v3_SPS_Water_Sample_Data_Summary.csv", skip = 2) %>% 
+    filter(Sample_Name != "N/A" & Sample_Name != "-9999") %>% 
+    
+    # summary will match expected when the following changes are made to expected: IGSN column is dropped
+    select(-IGSN) %>% 
+    select(colnames(summary))
+  
+  expect_equal(object = summary, 
+               expected = expected)
+  
+})

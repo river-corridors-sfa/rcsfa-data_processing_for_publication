@@ -14,7 +14,7 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-12-24: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2024-12-26: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
 # Status: complete 
 
@@ -64,7 +64,7 @@ material <- 'Water' # the material entered here is how the data files are locate
 # ====================== functions used in this script =========================
 
 # function to read in files
-read_in_files <- function(analyte_files) {
+read_in_files <- function(analyte_files, material) {
   # INPUTS: 
     # a vector of absolute file names of .csv files in the Boye Format
   # OUTPUT: 
@@ -288,7 +288,12 @@ combine <- bind_rows(data$data) %>%
   select(-is_fake_boye) %>% 
   
   # remove text flags
-  mutate(data_value = as.numeric(data_value))
+  rowwise() %>% 
+  mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
+  mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
+  mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
+  select(-is_numeric) %>% 
+  ungroup()
 
 
 # ====================== remove outliers =======================================
