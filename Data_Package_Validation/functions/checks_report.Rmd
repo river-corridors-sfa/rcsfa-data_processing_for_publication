@@ -25,7 +25,7 @@ failed_checks <- output$data_checks_summary %>%
   select(requirement, assessment, source, pass_check) %>% 
   filter(pass_check == FALSE)
 
-y_required_total <- all_checks %>% 
+y_required_total <- all_checks_summary %>% 
   filter(requirement == "required") %>% 
   count() %>% 
   pull(n)
@@ -35,7 +35,7 @@ x_required_failed <- failed_checks %>%
   count() %>% 
   pull(n)
 
-y_recommended_total <- all_checks %>% 
+y_recommended_total <- all_checks_summary %>% 
   filter(requirement == "recommended*") %>% 
   count() %>% 
   pull(n)
@@ -56,7 +56,7 @@ x_recommended_failed <- failed_checks %>%
 
 ```{r echo=FALSE}
 # display table of checks
-all_check_table <- all_checks %>% 
+all_check_table <- all_checks_summary %>% 
   left_join(failed_checks, by = join_by(requirement, assessment, source)) %>% 
   mutate(pass_check = case_when((pass_check != FALSE | is.na(pass_check)) ~ TRUE, T ~ pass_check))
 
@@ -109,7 +109,7 @@ output$data_checks %>%
   ggplot(aes(x = "", y = n, fill = pass_check)) + 
     geom_bar(sta = "identity", width = 1) + # bar chart with no x axis
     coord_polar(theta = "y") +
-    scale_fill_manual(values = c("FAILED" = "red", "PASSED" = "grey")) +
+    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
     labs(title = "Evaluation of Required Files") +
     theme_void()
 
@@ -155,6 +155,8 @@ failed_no_proprietary_files <- output$data_checks %>%
 ```
 > <p style='color:black;'><strong> **Your data package has `r failed_no_proprietary_files` proprietary file(s).**  </strong></p>
 
+ESS-DIVE requests that all files are saved in a non-proprietary file format. While not exhaustive, this check confirms that the following common proprietary extensions are not included: `r input_parameters$non_proprietary_extensions`
+
 ``` {r echo=FALSE}
 
 # show bar chart of file extensions
@@ -171,7 +173,7 @@ output$data_checks %>%
     geom_bar(stat = "identity") +
     geom_text(aes(label = extension_count), vjust = -0.5) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-    scale_fill_manual(values = c("FAILED" = "red", "PASSED" = "grey")) +
+    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
     theme_minimal() +
     labs(x = "File Extension", y = "Count of Files", title = paste0("Evaluation of File Extensions"))
     
@@ -230,7 +232,7 @@ output$data_checks %>%
   ggplot(aes(x = "", y = n, fill = pass_check)) + 
     geom_bar(sta = "identity", width = 1) + # bar chart with no x axis
     coord_polar(theta = "y") +
-    scale_fill_manual(values = c("FAILED" = "red", "PASSED" = "grey")) +
+    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
     labs(title = "Evaluation of Folders with Special Characters") +
     theme_void()
 
@@ -248,7 +250,7 @@ output$data_checks %>%
     geom_bar(stat = "identity") +
     geom_text(aes(label = special_chr_count), vjust = -0.5) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-    scale_fill_manual(values = c("FAILED" = "red", "PASSED" = "grey")) +
+    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
     theme_minimal() +
     labs(x = "Special Characters", y = "Count of Folders", title = paste0("Evaluation of Special Characters in Folders"))
 
