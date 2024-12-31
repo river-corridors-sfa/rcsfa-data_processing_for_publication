@@ -315,7 +315,31 @@ test_that("checks only pass when all items meet the passing criteria", {
 
 #### tabular data - range reports ####
 
-test_that("column type is identified as either character, numeric, logical, Date, hms, or mixed", {})
+test_that("column type is identified as either character, numeric, logical, Date, hms, or mixed", {
+  
+  testing_df <- tibble(
+    chr_column = c("apple", "banana", "cherry", "date"),
+    numeric_column = c(42.7, 23.1, 67.3, 89.0),
+    logical_column = c(TRUE, FALSE, TRUE, FALSE),
+    date_column = as.Date(c("2024-01-01", "2024-02-14", "2024-03-15", "2024-04-22")),
+    hms_column = hms::as_hms(c("12:30:45", "08:15:00", "19:00:30", "05:45:15")),
+    mixed_column = c("ABC", "123", "DEF", "456")
+  )
+  
+  result <- create_range_report(input_df = testing_df,
+                                input_df_name = "testing", 
+                                report_table = initialize_report_df(),
+                                missing_value_codes = input_parameters$missing_value_codes) %>% 
+    select(column_name, column_type)
+  
+  expected <- tibble(
+    column_name = c("chr_column", "numeric_column", "logical_column", "date_column", "hms_column", "mixed_column"),
+    column_type = c("character", "numeric", "logical", "Date", "hms", "mixed"))
+  
+  expect_equal(object = result, 
+               expected = expected)
+  
+})
 
 test_that("the number of missing rows are correctly reported")
 
