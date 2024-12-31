@@ -16,11 +16,11 @@
 # Status: in progress
   # next step: iteratively test and resolve bugs
     # resolve bugs
-      # add for check to fail if it's empty for file_name or column_header still broken
+      # add for check to fail if it's empty for file_name or column_header still broken - DONE
       # not able to finish loop. fails with error in mutate() bc can't transform a df with NA or "" names - DONE
       # for column headers, add check for column name is duplicated - DONE
-      # for file names, add check for duplicate file names
-      # bad column headers are still passing - go back to check that column header assessments are being done correctly
+      # for file names, add check for duplicate file names - DONE
+      # bad column headers are still passing - go back to check that column header assessments are being done correctly - DONE
       # the summary counts aren't working - if one header fails, it still reports that whole file as "passing" when I don't want it to
       # data checks output collapses to show distinct rows; this means that when there are duplicate headers there is only one row entry
     # test this script with a couple other data package examples
@@ -28,46 +28,46 @@
     # update commented readme text at the top of the script
 
 
-### TEST SPACE #################################################################
-# load libraries
-library(rstudioapi)
-library(tidyverse)
-library(rlog)
-library(devtools) # for sourcing from github
-library(hms) # for handling times
-library(fs) # for tree diagram
-library(clipr) # for copying to clipboard
-library(knitr) # for kable
-library(kableExtra) # for rmd report table styling
-library(DT) # for interactive tables in report
-library(rmarkdown) # for rendering report
-library(plotly) # for interactive graphs
-
-# set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
-current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
-setwd(dirname(current_path)) # set wd to current path
-rm(current_path)
-setwd("../...") # move wd back to the repo directory
-getwd()
-
-# load functions
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R")
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R")
-
-# set up - for setting up a new data package to test
-test_directory <- "C:/Users/powe419/Downloads/Sandbox_Data"
-
-test_data <- load_tabular_data_from_flmd(directory = test_directory)
-
-data_package_data <- test_data
-
-save(test_data, data_package_data, 
-     file = "C:/Users/powe419/Downloads/checks_test_data.Rda")
-
-# after set up - after you've run that once, you can just load it in now
-
-# load data
-load("C:/Users/powe419/Downloads/checks_test_data.Rda")
+# ### TEST SPACE #################################################################
+# # load libraries
+# library(rstudioapi)
+# library(tidyverse)
+# library(rlog)
+# library(devtools) # for sourcing from github
+# library(hms) # for handling times
+# library(fs) # for tree diagram
+# library(clipr) # for copying to clipboard
+# library(knitr) # for kable
+# library(kableExtra) # for rmd report table styling
+# library(DT) # for interactive tables in report
+# library(rmarkdown) # for rendering report
+# library(plotly) # for interactive graphs
+# 
+# # set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
+# current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
+# setwd(dirname(current_path)) # set wd to current path
+# rm(current_path)
+# setwd("../...") # move wd back to the repo directory
+# getwd()
+# 
+# # load functions
+# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R")
+# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R")
+# 
+# # set up - for setting up a new data package to test
+# test_directory <- "C:/Users/powe419/Downloads/Sandbox_Data"
+# 
+# test_data <- load_tabular_data_from_flmd(directory = test_directory)
+# 
+# data_package_data <- test_data
+# 
+# save(test_data, data_package_data, 
+#      file = "C:/Users/powe419/Downloads/checks_test_data.Rda")
+# 
+# # after set up - after you've run that once, you can just load it in now
+# 
+# # load data
+# load("C:/Users/powe419/Downloads/checks_test_data.Rda")
 
 
 ### Checks Inputs ##############################################################
