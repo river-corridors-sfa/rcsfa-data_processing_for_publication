@@ -20,6 +20,7 @@
   # repeat
 
   # delete `create testing data` section? not sure if i need it? 
+  # update `status` section of this script
 
 ### Prep script ################################################################
 
@@ -249,18 +250,26 @@ test_that("no special chracters are present in column names", {
                                                   invalid_chrs = input_parameters$special_chrs,
                                                   data_checks_table = initialize_checks_df(),
                                                   source = "column_header",
-                                                  file = "example filename.csv"),
+                                                  file = "example_filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "recommended*", FALSE, "no special characters", "column with space", "space", "column_header", "example filename.csv",
-                                  "recommended*", FALSE, "no special characters", "column with space", "space", "column_header", "example filename.csv"))
+                                  "recommended*", FALSE, "no special characters", "column with space", "space", "column_header", "example_filename.csv",
+                                  "recommended*", FALSE, "no special characters", "column with space", "space", "column_header", "example_filename.csv"))
   
   expect_equal(object = check_for_no_special_chrs(input = "column$specialchr", 
                                                   invalid_chrs = input_parameters$special_chrs,
                                                   data_checks_table = initialize_checks_df(),
                                                   source = "column_header",
-                                                  file = "example filename.csv"),
+                                                  file = "example_filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "recommended*", FALSE, "no special characters", "column$specialchr", "$", "column_header", "example filename.csv"))
+                                  "recommended*", FALSE, "no special characters", "column$specialchr", "$", "column_header", "example_filename.csv"))
+  
+  expect_equal(object = check_for_no_special_chrs(input = "", 
+                                                  invalid_chrs = input_parameters$special_chrs,
+                                                  data_checks_table = initialize_checks_df(),
+                                                  source = "column_header",
+                                                  file = "example_filename.csv"),
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "recommended*", FALSE, "no special characters", "", "column_header is empty", "column_header", "example_filename.csv"))
   
 })
 
@@ -294,23 +303,20 @@ test_that("column names are unique", {
 })
 
 
+#### checks summary ####
 
-# check for special characters in column headers
-data_checks_output <- check_for_no_special_chrs(input = current_header,
-                                                invalid_chrs = input_parameters$special_chrs,
-                                                data_checks_table = data_checks_output,
-                                                source = "column_header",
-                                                file = current_file_name)
-
-# check for unique headers - this check will flag is a header is included more than once
-data_checks_output <- check_for_unique_names(input = current_header, 
-                                             all_names = current_headers, 
-                                             data_checks_table = data_checks_output, 
-                                             source = "column_header", 
-                                             file = current_file_name)
-
+test_that("checks only pass when all items meet the passing criteria", {
+  
+  
+  
+  
+})
 
 
 #### tabular data - range reports ####
 
-test_that(" ", {})
+test_that("column type is identified as either character, numeric, logical, Date, hms, or mixed", {})
+
+test_that("the number of missing rows are correctly reported")
+
+test_that("numerical min and max ranges are correctly reported")
