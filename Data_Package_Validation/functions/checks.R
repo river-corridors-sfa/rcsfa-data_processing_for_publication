@@ -466,7 +466,8 @@ create_range_report <- function(input_df,
         current_n_negative <- current_mixed %>% 
           select(numeric_col) %>% 
           filter(numeric_col < 0) %>% 
-          count()
+          count() %>% 
+          pull()
       } else {
         current_n_negative <- 0
       }
