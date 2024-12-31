@@ -23,7 +23,7 @@ report_author <- "Bibi Powers-McCormack"
 # Directions: Run this chunk without modification.
 
 # load libraries
-library(rstudioapi)
+library(here) # for setting wd at git repo
 library(tidyverse)
 library(rlog)
 library(devtools) # for sourcing from github
@@ -37,10 +37,7 @@ library(rmarkdown) # for rendering report
 library(plotly) # for interactive graphs
 
 # set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
-current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
-setwd(dirname(current_path)) # set wd to current path
-rm(current_path)
-setwd("../...") # move wd back to the repo directory
+setwd(here())
 getwd()
 
 # load functions
