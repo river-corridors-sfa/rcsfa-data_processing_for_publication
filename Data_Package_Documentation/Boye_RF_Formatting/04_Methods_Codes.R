@@ -30,9 +30,9 @@ study_code <- 'AV1'
 # ================================= Build dir ================================
 boye_dir <- paste0(dir, RC, '/Boye_Files/', study_code, '/')
 
-typical_codes <- paste0(dir, 'Protocols-Guidance-Workflows-Methods/Methods_Codes/Method_Typical_Codes.xlsx')
+typical_codes <- paste0(dir, 'Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx')
   
-deviation_codes <- paste0(dir, 'Protocols-Guidance-Workflows-Methods/Methods_Codes/Method_Deviation_Codes.xlsx')
+deviation_codes <- paste0(dir, 'Workflows-MethodsCodes/Methods_Codes/Method_Deviation_Codes.xlsx')
 
 # ======================== get files and make methods file =====================
 
