@@ -1,6 +1,6 @@
 ### recreate_SESAR_template.R ##################################################
 # Date Created: 2024-11-07
-# Date Updated: 2024-12-04
+# Date Updated: 2025-01-07
 # Author: Bibi Powers-McCormack
 
 # Background: 
@@ -24,6 +24,7 @@
   # Requires input IGSN file to have 2 columns: `IGSN` that has the sample IGSNs and `Parent_IGSN` that has the site IGSNs.
   # The input file IGSNs should not have the full DOI URL. It is okay if they look like "10.58052/IEPRS007S" or "IEPRS007S".
   # If there are more than 100 samples or sites, you will have to repeat the downloading process (but this script will walk you through that).
+  # Uses the user code 'IEWDR' for WHONDRS  and 'IEPRS' for everything else.
   # This script has functions that work only on Windows machines. 
 
 # Directions: 
@@ -51,13 +52,14 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 # user inputs - update these each time you run the script
 data_package_igsns <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_IGSN-Mapping.csv", skip = 1) # read in the file from your data package that has IGSN and Parent_IGSN cols
 ess_dive_infrastructure_only_dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/ESS_DIVE_Infrastructure_ONLY"
+is_whondrs <- T # indicate T/F if this data package is WHONDRS
 
 # create and open your temp directory - this folder and files in it will automatically delete when your R session ends
 temp_dir <- tempdir()
 shell.exec(temp_dir) # this only works on windows; use system(paste0("open '", temp_dir, "'")) for macs - you will have to change this in several places within this script
 
 # function to download from SESAR
-download_from_SESAR <- function(type = c("sites", "samples"), max) {
+download_from_SESAR <- function(dir, type = c("sites", "samples"), max) {
   
   # go to website
   browseURL("https://www.geosamples.org/search-options/catalog-search")
@@ -112,41 +114,6 @@ download_from_SESAR <- function(type = c("sites", "samples"), max) {
 # search for files
 # download them to a temporary directory
 
-# get site IGSN col
-site_igsns <- data_package_igsns %>% 
-  mutate(Parent_IGSN = str_replace_all(Parent_IGSN, "\\s+", "")) %>% 
-  select(Parent_IGSN) %>%
-  distinct() %>% 
-  mutate(step = (row_number() - 1) %/% 100 + 1) # this assigns a value for every 100
-
-log_info(paste0("There are ", count(site_igsns), " sites."))
-
-# create temp site dir
-dir.create(paste0(temp_dir, "/sites"))
-
-# if there are more than 100 sites, then need to break it up for downloading from SESAR
-# this loop grabs 100 sites at a time and walks you through how to download them from SESAR
-for (i in 1:max(site_igsns$step)){
-  
-  current_step <- site_igsns %>% 
-    filter(step == i) %>% 
-    select(-step) %>% 
-    {print(paste0("There are ", nrow(.), " sites.")); .} %>% 
-    pull(.) %>% 
-    str_c(collapse = ", ")
-  
-  current_max <- max(site_igsns$step)
-    
-  # copy IGSNs to clipboard
-  write_clip(current_step)
-  
-  # download sites
-  download_from_SESAR(type = "sites", max = current_max)
-  
-}
-
-# now we're gonna do the same thing but for samples
-
 # get sample IGSN col
 sample_igsns <- data_package_igsns %>% 
   mutate(IGSN = str_replace_all(IGSN,  "\\s+", "")) %>% 
@@ -176,64 +143,34 @@ for (i in 1:max(sample_igsns$step)){
   write_clip(current_step)
   
   # download samples
-  download_from_SESAR(type = "samples", max = current_max)
+  download_from_SESAR(dir = temp_dir, type = "samples", max = current_max)
 }
 
 
 ### Identify format of desired output ##########################################
 
-# list out the headers of the final file. I got these final column headers from downloading a batch template from mySESAR. 
-output_site_header <- tibble('Object Type:'= as.character(),
-                            'Site'= as.character(),
-                            'User Code:'= as.character(), 
-                            'IEPRS' = as.character()) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
+# set user code
+if (is_whondrs == TRUE) {
+  user_code_value <- "IEWDR"
+} else {
+  user_code_value <- "IEPRS"
+}
 
-output_site_columns <- c("Sample Name", "IGSN", "Parent IGSN", 
-                         "Release Date", "Geological unit", "Comment", 
-                         "Purpose", "Latitude", "Longitude", 
-                         "Vertical datum", "Elevation start", "Elevation unit", "Navigation type", 
-                         "Primary physiographic feature", "Name of physiographic feature", 
-                         "Location description", "Locality", "Locality description", "Country", "State/Province", "County", "City/Township", 
-                         "Field program/cruise", "Collector/Chief Scientist", "Collector/Chief Scientist Address") 
+# list out the headers of the final file. I got these final column headers from downloading a batch template from mySESAR. 
 
 output_sample_header <- tibble('Object Type:'= as.character(),
                             'Individual Sample'= as.character(),
                             'User Code:'= as.character(), 
-                            'IEPRS' = as.character()) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
+                            !!sym(user_code_value) := as.character()) # !! unquotes the user code value, sym() converts it to a symbol to remove the quotes, and := allows for dynamic column naming
 
 output_sample_columns <- c("Sample Name", "IGSN", "Parent IGSN", "Release Date", 
                            "Material", "Field name (informal classification)", "Classification", 
                            "Collection method", "Purpose", "Latitude", "Longitude", 
+                           "Country", # this was added per suggestion from ess-dive
                            "Elevation start", "Elevation unit", "Navigation type", 
                            "Primary physiographic feature", "Name of physiographic feature", 
                            "Field program/cruise", "Collector/Chief Scientist", "Collection date", 
                            "Collection date precision", "Current archive", "Current archive contact")
-
-
-### Create SITES SESAR template ################################################
-
-# read in site file(s)
-site_files <- list.files(paste0(temp_dir, "/sites"), pattern = ".xlsx$", full.names = T) # gets all xlsx files from the temp dir
-basename(site_files)
-
-sites_template <- site_files %>% 
-  map(~ read_excel(.x)) %>% 
-  bind_rows()
-
-# rename columns
-sites_template <- rename_column_headers(sites_template, output_site_columns)
-
-# remove cols where all values are NA
-output_sites_template <- sites_template %>% 
-  select_if(~ !all(is.na(.))) %>% # only selects columns that have content in them
-  
-  # make additional edits based on ESS-DIVE's preferences
-  # fix coordinates: round to 5 decimal places to provide accuracy within 1 meter
-  mutate(Latitude = round(Latitude, 5),
-         Longitude = round(Longitude, 5)) %>% 
-  
-  # fix column order
-  select(`Sample Name`, IGSN, `Release Date`, Latitude, Longitude, `Primary physiographic feature`, `Name of physiographic feature`, Country, everything())
 
 
 
@@ -255,6 +192,7 @@ output_samples_template <- samples_template %>%
   select_if(~ !all(is.na(.))) %>% # only selects columns that have content in them
 
   # make additional edits based on ESS-DIVE's preferences
+  
   # fix date: convert date time to date
   mutate(`Collection date` = as.Date(`Collection date`)) %>% 
   
@@ -265,75 +203,53 @@ output_samples_template <- samples_template %>%
   # edit Parent IGSN col by removing the full DOI link
   mutate(`Parent IGSN` = str_remove_all(`Parent IGSN`, "https://doi.org/")) %>% 
   
+  # fix col names: if Related URL 1 and Related URL Type 1 exist, rename those col names dropping the 1
+  rename_with(~ c("Related URL", "Related URL Type"), any_of(c("Related URL 1", "Related URL Type 1"))) %>% 
+  
   # select and reorder columns (reorder based on this list: https://github.com/ess-dive-community/essdive-sample-id-metadata/blob/main/guide.md)
-  select(`Sample Name`, IGSN, `Parent IGSN`,
-         Material, `Sample Type`, 
-         `Collector/Chief Scientist`, `Collection date`, `Collection method`, `Collection method description`, `Field program/cruise`,
-         Latitude, Longitude, `Primary physiographic feature`, Country,
-         `Release Date`, `Current Registrant Name`, `Original Registrant Name`, URL)
+  select(any_of(c("Sample Name", "IGSN", "Parent IGSN",
+         "Material", "Sample Type", 
+         "Collector/Chief Scientist", "Collection date", "Collection method", "Collection method description", "Field program/cruise",
+         "Latitude", "Longitude", "Primary physiographic feature", "Country",
+         "Release Date", "Current Registrant Name", "Original Registrant Name", "URL", "Related URL", "Related URL Type")), everything())
 
 
 ### Check for ESS-DIVE required columns ########################################
 # checks that the required columns (according to https://ess-dive.gitbook.io/sample-id-and-metadata/guide) are present
 
-# 2024-11-26 note: commenting these tests out for now - waiting to receive more clarification on what ESS-DIVE needs
-# test_that("Header rows are correct", {
-#   
-#   # check samples
-#   # first 3 cols are Object Type:, Individual Sample, User Code:
-#   # 4th col is either IEWDR or IEPRS
-#   expect_equal(colnames(output_sample_header)[1:3], c("Object Type:", "Individual Sample", "User Code:"))
-#   expect_true(colnames(output_sample_header[4]) %in% c("IEWDR", "IEPRS")) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
-#   
-#   # check sites
-#   # first 3 cols are Object Type:, Site, User Code:
-#   # 4th col is either IEWDR or IEPRS
-#   expect_equal(colnames(output_site_header)[1:3], c("Object Type:", "Site", "User Code:"))
-#   expect_true(colnames(output_site_header[4]) %in% c("IEWDR", "IEPRS")) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
-#   
-# })
-# 
-# 
-# test_that("Required SITES columns are present", {
-#   
-#   required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist", 
-#                      "Collection date", "Collection method description", "Field program/cruise",
-#                      "Latitude", "Longitude", "Primary physiographic feature", "Release Date")
-#   
-#   expect_true(all(required_cols %in% colnames(output_samples_template)))
-#   
-#   cat("Required cols NOT in your template: ")
-#   cat("\n")
-#   print(setdiff(required_cols, colnames(output_samples_template)))
-#   cat("\n")
-#   cat("Non-required cols in your template: ")
-#   cat("\n")
-#   print(setdiff(colnames(output_samples_template), required_cols))
-#   cat("\n")
-#   cat("\n")
-# 
-# })
-# 
-# 
-# test_that("Required SAMPLES columns are present", {
-#   
-#   required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist", 
-#                      "Collection date", "Collection method description", "Field program/cruise",
-#                      "Latitude", "Longitude", "Primary physiographic feature", "Release Date")
-#   
-#   expect_true(all(required_cols %in% colnames(output_sites_template)))
-#   
-#   cat("Required cols NOT in your template: ")
-#   cat("\n")
-#   print(setdiff(required_cols, colnames(output_sites_template)))
-#   cat("\n")
-#   cat("Non-required cols in your template: ")
-#   cat("\n")
-#   print(setdiff(colnames(output_sites_template), required_cols))
-#   cat("\n")
-#   cat("\n")
-#   
-# })
+
+test_that("Header rows are correct", {
+
+  # check samples
+  # first 3 cols are Object Type:, Individual Sample, User Code:
+  # 4th col is either IEWDR or IEPRS
+  expect_equal(colnames(output_sample_header)[1:3], c("Object Type:", "Individual Sample", "User Code:"))
+  expect_true(colnames(output_sample_header[4]) %in% c("IEWDR", "IEPRS")) # 'IEWDR' is for WHONDRS  'IEPRS' is not for WHONDRS
+
+})
+
+
+test_that("Required SAMPLES columns are present", {
+
+  required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist",
+                     "Collection date", "Collection method description", "Field program/cruise",
+                     "Latitude", "Longitude", "Primary physiographic feature", "Release Date",
+                     "Country") # adding country per ess-dive specific request to add it
+
+  expect_true(all(required_cols %in% colnames(output_samples_template)))
+
+  cat("Required cols NOT in your template: ")
+  cat("\n")
+  print(setdiff(required_cols, colnames(output_samples_template)))
+  cat("\n")
+  cat("Non-required cols in your template: ")
+  cat("\n")
+  print(setdiff(colnames(output_samples_template), required_cols))
+  cat("\n")
+  cat("\n")
+
+})
+
 
 
 ### Create readme for ESS_DIVE_Infrastructure_ONLY folder ######################
