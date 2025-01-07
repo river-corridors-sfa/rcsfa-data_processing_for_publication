@@ -52,7 +52,7 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 # user inputs - update these each time you run the script
 data_package_igsns <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_IGSN-Mapping.csv", skip = 1) # read in the file from your data package that has IGSN and Parent_IGSN cols
 ess_dive_infrastructure_only_dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/ESS_DIVE_Infrastructure_ONLY"
-is_whondrs <- T # indicate T/F if this data package is WHONDRS
+is_whondrs <- F # indicate T/F if this data package is WHONDRS
 
 # create and open your temp directory - this folder and files in it will automatically delete when your R session ends
 temp_dir <- tempdir()
@@ -90,7 +90,7 @@ download_from_SESAR <- function(dir, type = c("sites", "samples"), max) {
     
   }
   
-  cat("There are", i, "files saved to your", type, "temp dir: ", list.files(paste0(temp_dir, "/", type)))
+  cat("There are", i, "files saved to your", type, "temp dir:", list.files(paste0(temp_dir, "/", type)))
   cat("\n")
   
   
@@ -156,22 +156,21 @@ if (is_whondrs == TRUE) {
   user_code_value <- "IEPRS"
 }
 
-# list out the headers of the final file. I got these final column headers from downloading a batch template from mySESAR. 
+# list out the headers of the final file. 
 
 output_sample_header <- tibble('Object Type:'= as.character(),
                             'Individual Sample'= as.character(),
                             'User Code:'= as.character(), 
                             !!sym(user_code_value) := as.character()) # !! unquotes the user code value, sym() converts it to a symbol to remove the quotes, and := allows for dynamic column naming
 
-output_sample_columns <- c("Sample Name", "IGSN", "Parent IGSN", "Release Date", 
-                           "Material", "Field name (informal classification)", "Classification", 
-                           "Collection method", "Purpose", "Latitude", "Longitude", 
+# list out required columns. I got these column headers from https://github.com/ess-dive-community/essdive-sample-id-metadata/blob/main/guide.md
+output_sample_columns <- c("Sample Name",  
+                           "Material", 
+                           "Collector/Chief Scientist", "Collection date", "Collection method", "Field program/cruise",
+                           "Latitude", "Longitude", 
                            "Country", # this was added per suggestion from ess-dive
-                           "Elevation start", "Elevation unit", "Navigation type", 
-                           "Primary physiographic feature", "Name of physiographic feature", 
-                           "Field program/cruise", "Collector/Chief Scientist", "Collection date", 
-                           "Collection date precision", "Current archive", "Current archive contact")
-
+                           "Primary physiographic feature",
+                           "Release Date")
 
 
 ### Create SAMPLES SESAR template ##############################################
@@ -208,9 +207,9 @@ output_samples_template <- samples_template %>%
   
   # select and reorder columns (reorder based on this list: https://github.com/ess-dive-community/essdive-sample-id-metadata/blob/main/guide.md)
   select(any_of(c("Sample Name", "IGSN", "Parent IGSN",
-         "Material", "Sample Type", 
+         "Material", "Field name (informal classification)", "Sample Type", 
          "Collector/Chief Scientist", "Collection date", "Collection method", "Collection method description", "Field program/cruise",
-         "Latitude", "Longitude", "Primary physiographic feature", "Country",
+         "Latitude", "Longitude", "Primary physiographic feature", "Locality", "Country",
          "Release Date", "Current Registrant Name", "Original Registrant Name", "URL", "Related URL", "Related URL Type")), everything())
 
 
@@ -231,20 +230,16 @@ test_that("Header rows are correct", {
 
 test_that("Required SAMPLES columns are present", {
 
-  required_cols <- c("Sample Name", "Material", "Collector/Chief Scientist",
-                     "Collection date", "Collection method description", "Field program/cruise",
-                     "Latitude", "Longitude", "Primary physiographic feature", "Release Date",
-                     "Country") # adding country per ess-dive specific request to add it
 
-  expect_true(all(required_cols %in% colnames(output_samples_template)))
+  expect_true(all(output_sample_columns %in% colnames(output_samples_template)))
 
   cat("Required cols NOT in your template: ")
   cat("\n")
-  print(setdiff(required_cols, colnames(output_samples_template)))
+  print(setdiff(output_sample_columns, colnames(output_samples_template)))
   cat("\n")
   cat("Non-required cols in your template: ")
   cat("\n")
-  print(setdiff(colnames(output_samples_template), required_cols))
+  print(setdiff(colnames(output_samples_template), output_sample_columns))
   cat("\n")
   cat("\n")
 
@@ -272,11 +267,6 @@ readme
 
 # write out readme
 write_lines(readme, paste0(ess_dive_infrastructure_only_dir, "/readme_ESS-DIVE_Insfrastructure_ONLY.txt"))
-
-# write out sites
-write_csv(output_site_header, paste0(ess_dive_infrastructure_only_dir, "/igsn_metadata_sites_for_samples.csv"))
-
-write_csv(output_sites_template, paste0(ess_dive_infrastructure_only_dir, "/igsn_metadata_sites_for_samples.csv"), append = TRUE, col_names = TRUE, na = "")
 
 # write out samples
 write_csv(output_sample_header, paste0(ess_dive_infrastructure_only_dir, "/igsn_metadata_samples.csv"))
