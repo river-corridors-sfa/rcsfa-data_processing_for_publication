@@ -482,6 +482,39 @@ test_that("average works when some reps are NA", {
 # we want. the biggest issue was to make sure the headers align correctly with
 # the data before the rbind together upon export.
 
+test_that("user selected columns are removed from summary file", {
+  
+  testing_data <- tibble(
+    ID = 1:5,                         # Numeric
+    Name = c("Alice", "Bob", "Carol", "David", "Eve"), # Character
+    Age = c(25, 30, 22, 28, 35),      # Numeric
+    City = c("NY", "LA", "SF", "CHI", "SEA"),          # Character
+    Height_cm = c(165, 180, 155, 175, 160),            # Numeric
+    Weight_kg = c(60, 75, 50, 70, 55),                 # Numeric
+    Department = c("HR", "IT", "Finance", "IT", "HR"), # Character
+    Salary = c(50000, 70000, 48000, 72000, 52000),     # Numeric
+    Performance = c("High", "Medium", "High", "Low", "Medium"), # Character
+    Experience = c(3, 5, 2, 6, 4)                      # Numeric
+  )
+  
+  result <- drop_df_columns(df = testing_data, drop_indices = c(5, 6, 8))
+  
+  expected_result <- tibble(
+    ID = 1:5,                         # Numeric
+    Name = c("Alice", "Bob", "Carol", "David", "Eve"), # Character
+    Age = c(25, 30, 22, 28, 35),      # Numeric
+    City = c("NY", "LA", "SF", "CHI", "SEA"),          # Character
+    Department = c("HR", "IT", "Finance", "IT", "HR"), # Character
+    Performance = c("High", "Medium", "High", "Low", "Medium"), # Character
+    Experience = c(3, 5, 2, 6, 4)                      # Numeric
+  )
+  
+  expect_equal(object = result,
+               expected = expected_result)
+  
+  
+})
+
 
 
 ### Run tests against published data packages ##################################

@@ -256,6 +256,43 @@ calculate_summary <- function(combine_remove_outliers_df) {
 } # end of `calculate_summary()` function
 
 
+drop_df_columns <- function(df, drop_indices) {
+  
+  # INPUT:
+    # data frame
+    # column indices that you want to be dropped (e.g., c(1, 4, 6))
+  
+  # OUTPUT: 
+    # the input df with the columns dropped
+  
+  # Check if indices are valid
+  if (any(drop_indices > ncol(df) | drop_indices < 1)) {
+    stop("Some indices are out of range.")
+  }
+  
+  # Get the column names corresponding to the indices
+  drop_cols <- colnames(df)[drop_indices]
+  
+  # Display columns to be dropped
+  message("The following columns will be dropped:")
+  print(df %>% select(all_of(drop_cols)))
+  
+  # Ask for confirmation
+  confirm <- readline(prompt = "Do you want to proceed? (Y/N): ")
+  
+  if (tolower(confirm) == "y") {
+    dropped_df <- df %>% select(-all_of(drop_cols))
+    message("`drop_df_columns()` complete")
+    return(dropped_df)
+  } else {
+    message("Operation cancelled. No columns were dropped.")
+    return(df)
+  }
+  
+
+}
+
+
 # ====================== read in data files ====================================
 # assumptions: 
   # each boye file has 2 top rows that are skipped
@@ -329,6 +366,30 @@ summary <- summary_calculated %>%
   
   # sort by sample name
   arrange(Sample_Name)
+
+# ========================= clean up summary ===================================
+
+# provide list of columns to the user
+cat("Listing all columns in the summary file: ")
+cat(paste0(seq_along(colnames(summary)), ". ", colnames(summary)), sep = "\n")
+
+# ask user if they would like to drop any cols 
+  # return "N" if want to keep all cols
+  # return comma separated list listing cols to drop
+response <- readline(prompt = "Enter the numbers of columns to drop (comma-separated). If you would like to keep all cols, enter 'N': ")
+
+if (tolower(response) == "n") {
+  
+  cat("No columns will be dropped.")
+  
+  } else {
+    
+  drop_indices <- as.numeric(unlist(strsplit(response, ",")))
+  
+  # drop the cols
+  summary <- drop_df_columns(df = summary, drop_indices = drop_indices)
+  
+  }
 
 
 # ==================================== Format ==================================
