@@ -20,15 +20,15 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-boye_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC4/CN/03_ProcessedData/'
+boye_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC2/Ions/03_ProcessedData/20241021_Data_Processed_Ions_SBR_RC2_SPS_1-47'
 
-RC <- 'RC4'
+RC <- 'RC2'
 
-study_code <- 'AV1'
+study_code <- 'SPS'
 
-material <- 'Sediment'
+material <- 'Water'
 
-outdir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC4/Boye_Files/AV1/'
+outdir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC2/Boye_Files/SPS/'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
 

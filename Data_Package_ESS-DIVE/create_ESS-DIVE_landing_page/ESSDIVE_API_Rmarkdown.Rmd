@@ -161,7 +161,18 @@ if(all(checkid)){
   spatial_coor_lat = spatial_coor_lat_main
   spatial_coor_long = spatial_coor_long_main
 
-  post =uploading_script(script_path_main,json_file_main,Author_Info_main,package_path_main,docx_file_main,API_website_main,author_file_main,zip_file_main,spatial_csv_main,spatial_header_main,spatial_coor_lat_main,spatial_coor_long_main)
+  post =uploading_script(script_path = script_path_main,
+                         json_input = json_file_main,
+                         Author_Info = Author_Info_main,
+                         package_path = package_path_main,
+                         docx_file = docx_file_main,
+                         API_website = API_website_main,
+                         author_file = author_file_main,
+                         zip_file = zip_file_main,
+                         spatial_csv = spatial_csv_main,
+                         spatial_header = spatial_header_main,
+                         spatial_coor_lat = spatial_coor_lat_main,
+                         spatial_coor_long = spatial_coor_long_main)
   print(post)
   print(content(post)$viewUrl)
   print(content(post)$errors)

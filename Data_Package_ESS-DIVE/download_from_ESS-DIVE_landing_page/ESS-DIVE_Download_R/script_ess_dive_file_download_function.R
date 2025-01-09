@@ -21,6 +21,8 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
   existed_files<- list.files(downloads_folder)
   destfile <-file.path(downloads_folder,filename)
   if (!filename %in% existed_files){
+    cat("Downloading...")
+    cat("\n")
     curl_download(target_url, destfile =destfile)
   }else{
     cat( filename,' already in folder')
@@ -69,15 +71,15 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
       # all files in folder
       zfiles <- unzip(destfile, list = TRUE)$Name
       # non-photo zip file in sub folders
-      zfiles <- zfiles[-grep('Photos',zfiles,ignore.case = TRUE)]
+      zfiles <- zfiles[-grep('Photos',zfiles,ignore.case = TRUE)] # filters out any file names that contain "photos" (case insensitive)
       # Loop through each file and extract
       for (file in zfiles) {
-        if(grepl('.zip',file,ignore.case = TRUE)){
-          idir <- file.path(new_dir, gsub('.zip', '', file))
+        if(grepl('.zip',file,ignore.case = TRUE)){ # if there are more nested zip files...
+          idir <- file.path(new_dir, gsub('.zip', '', file)) # creates a new dir for the sub zip
           if(!dir.exists(idir)==T){dir.create(idir)}
-          unzip(file.path(new_dir, file), exdir = idir)
+          unzip(file.path(new_dir, file), exdir = idir) # unzips
           if(rm_zip==TRUE){
-            file.remove(file.path(new_dir, file))
+            file.remove(file.path(new_dir, file)) # removes zip if user had indicated it
           }
         }
       }
@@ -121,7 +123,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
                   data_sub_file[[sf]]<-DT
                 }
               }else if(grepl('.csv',sf)){
-                l2_fdata<- read.csv(file.path(l1_subfolder, sf))
+                l2_fdata<- read_csv(file.path(l1_subfolder, sf), show_col_types = F)
                 data_sub_file[[sf]]<- l2_fdata
               }
             }
@@ -149,7 +151,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
         else if(grepl('.csv',fd)){
           # read .csv files in folder
           #dname <- tools::file_path_sans_ext(basename(fd))
-          fdata<- read.csv(file.path(new_dir, fd))
+          fdata<- read_csv(file.path(new_dir, fd), show_col_types = F)
           data_in_file[[fd]]<- fdata
         }
       }
@@ -159,6 +161,12 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
       # delete the un_zip directory 
       unlink(new_dir,recursive=TRUE) 
     }
+    cat('\n')
+    cat('\n')
+    cat("STATUS: The data package has successfully downloaded.")
+    cat('\n')
+    cat("WARNING: The .csv files have been loaded in, however you may experience parsing issues.")
+    cat('\n')
     return(data_in_file)
   }else{
     cat("Downloaded file:", filename)
