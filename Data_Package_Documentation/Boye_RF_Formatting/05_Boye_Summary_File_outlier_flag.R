@@ -255,7 +255,7 @@ calculate_summary <- function(combine_remove_outliers_df) {
   
 } # end of `calculate_summary()` function
 
-
+# function to drop columns based on column index number
 drop_df_columns <- function(df, drop_indices) {
   
   # INPUT:
@@ -290,7 +290,7 @@ drop_df_columns <- function(df, drop_indices) {
   }
   
 
-}
+} # end of `drop_df_columns()` function
 
 
 # ====================== read in data files ====================================
@@ -368,6 +368,29 @@ summary <- summary_calculated %>%
   arrange(Sample_Name)
 
 # ========================= clean up summary ===================================
+# assumptions
+  # we generally want to remove any `stdev` columns
+  # within respiration rate cols, we usually only want the `Respiration_Rate_mg_DO_per_L_per_H`, so we usually omit the following cols from the summary
+    # Respiration_R_Squared
+    # Respiration_R_Squared_Adj
+    # Respiration_p_value
+    # Total_Incubation_Time_Min
+    # Number_Points_In_Respiration_Regression
+    # Number_Points_Removed_Respiration_Regression
+    # DO_Concentration_At_Incubation_Time_Zero
+
+# tell the user common columns we usually omit
+cat("We often remove the following columns from data package summary files: ")
+summary %>% 
+  select(contains("stdev"),
+         contains("Respiration_R_Squared"), 
+         contains("Respiration_R_Squared_Adj"),
+         contains("Respiration_p_value"),
+         contains("Total_Incubation_Time_Min"),
+         contains("Number_Points_In_Respiration_Regression"),
+         contains("Number_Points_Removed_Respiration_Regression"),
+         contains("DO_Concentration_At_Incubation_Time_Zero")) %>% 
+  colnames()
 
 # provide list of columns to the user
 cat("Listing all columns in the summary file: ")
