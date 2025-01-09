@@ -295,6 +295,7 @@ drop_df_columns <- function(df, drop_indices) {
 
 # ====================== read in data files ====================================
 # assumptions: 
+  # checks for any files that end in "*Summary.csv" and asks the user to remove them
   # each boye file has 2 top rows that are skipped
   # each boye file has 11 header rows
   # boye files requrie the following headers: Field_Name, Sample_Name, Material, Methods_Deviation (+ any data columns)
@@ -307,6 +308,11 @@ drop_df_columns <- function(df, drop_indices) {
 analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
 analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
 print(basename(analyte_files))
+
+# check if a summary file already exists - if it does, warn the user
+if (any(str_detect(analyte_files, "Summary\\.csv"))) {
+  warning("Summary file(s) detected. Please remove before proceeding: ", basename(analyte_files[str_detect(analyte_files, "Summary\\.csv")]))
+}
 
 # read in files
 data <- read_in_files(analyte_files, material = material)
