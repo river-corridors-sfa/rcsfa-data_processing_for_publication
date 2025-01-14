@@ -1,10 +1,14 @@
 # ==============================================================================
 #
 # Make a summary file of means for each analyte file going into a data package
+# 
+# ==============================================================================
+# Script Updates
 #
 # Status: In progress
-#
+# this version can be used when outlier deviations haven't been added - it uses a QAQC file to determine outliers
 # known issue: putting NA in detection limit and precision row 
+#
 # 
 # ==============================================================================
 #
@@ -20,13 +24,13 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/CM_SSS_Data_Package_v4"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5"
 
 # RC <- 'RC2'
 
 study_code <- 'CM_SSS'
 
-material <- 'Sediment'
+material <- 'Water'
 
 # ====================================== Build dir name ========================
 
@@ -38,13 +42,13 @@ material <- 'Sediment'
 
 # analyte_files <- analyte_files[!grepl('ReadyForBoye',analyte_files)]
 
-analyte_files <- list.files(paste0(dir, "/v4_CM_SSS_Data_Package/Sample_Data"), pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
-analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
+analyte_files <- list.files(paste0(dir, "/v5_CM_SSS_Data_Package/Sample_Data"), pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
+analyte_files <- analyte_files[!grepl('Mass_Volume|FTICR',analyte_files)]
 print(basename(analyte_files))
 
 # qaqc_files <- list.files(boye_dir, 'CombinedQAQC', full.names = T)
 
-qaqc_files <- list.files(dir, pattern = "(Outliers|CombinedQAQC).*\\.csv$", full.names = T) # selects .csv files that contain the word "Outliers" or "CombinedQAQC" in the file name
+qaqc_files <- list.files(paste0(dir, '/Outlier_files'), pattern = material, full.names = T) # selects .csv files that contain the word "Outliers" or "CombinedQAQC" in the file name
 print(basename(qaqc_files))
 
 # ====================== create combined data frames ===========================
@@ -59,12 +63,6 @@ for (i in 1:length(analyte_files)) {
     select(Sample_Name, Material) %>% 
     drop_na() %>% 
     mutate(
-      Sample_Name = str_remove(Sample_Name, '-1[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-2[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-3[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-4[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-5[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-6[:alpha:]'),
       Sample_Name = str_remove(Sample_Name, '-1'),
       Sample_Name = str_remove(Sample_Name, '-2'),
       Sample_Name = str_remove(Sample_Name, '-3'),
@@ -84,7 +82,8 @@ for (i in 1:length(analyte_files)) {
       Sample_Name = str_remove(Sample_Name, '_GRN'),
       Sample_Name = str_remove(Sample_Name, '_XRD'),
       Sample_Name = str_remove(Sample_Name, '_WIN'),
-      Sample_Name = str_remove(Sample_Name, '_SCN')) %>% 
+      Sample_Name = str_remove(Sample_Name, '_SCN'),
+      Sample_Name = str_remove(Sample_Name, '_SED')) %>% 
     distinct()
   
   # add samples to df
@@ -107,12 +106,12 @@ paste0("Total number of samples: ", count(distinct(combine, Sample_Name)))
 #   filter(!Sample_Name %in% c('N/A', '-9999', 'NA', '')) %>%
 #   select("Field_Name", "Sample_Name", "Material") %>%
 #   mutate(Field_Name = NA,
-#          Sample_Name = str_remove(Sample_Name, '-1[:alpha:]'),
-#          Sample_Name = str_remove(Sample_Name, '-2[:alpha:]'),
-#          Sample_Name = str_remove(Sample_Name, '-3[:alpha:]'),
-#          Sample_Name = str_remove(Sample_Name, '-4[:alpha:]'),
-#          Sample_Name = str_remove(Sample_Name, '-5[:alpha:]'),
-#          Sample_Name = str_remove(Sample_Name, '-6[:alpha:]'),
+#          Sample_Name = str_remove(Sample_Name, '-1'),
+#          Sample_Name = str_remove(Sample_Name, '-2'),
+#          Sample_Name = str_remove(Sample_Name, '-3'),
+#          Sample_Name = str_remove(Sample_Name, '-4'),
+#          Sample_Name = str_remove(Sample_Name, '-5'),
+#          Sample_Name = str_remove(Sample_Name, '-6'),
 #          Sample_Name = str_remove(Sample_Name, '-1'),
 #          Sample_Name = str_remove(Sample_Name, '-2'),
 #          Sample_Name = str_remove(Sample_Name, '-3'),
@@ -356,7 +355,7 @@ if (length(Ion_file) > 0) {
 NPOC_TN_file <- analyte_files[grepl("NPOC_TN", analyte_files)]
 NPOC_TN_file
 
-if (length(NPOC_TN_file) > 0) {
+if (length(NPOC_TN_file) > 0 & material == 'Water') {
   NPOC_TN_boye_headers <- read_csv(NPOC_TN_file, n_max = 11, skip = 2)%>%
     select(-'Methods_Deviation', -IGSN)
   
@@ -398,6 +397,64 @@ if (length(NPOC_TN_file) > 0) {
     ) %>%
     filter(!is.na(Sample_Name)) %>%
     select(Field_Name, Sample_Name, Material, `Mean_00681_NPOC_mg_per_L_as_C`, `Mean_00602_TN_mg_per_L_as_N`, Mean_Missing_Reps)%>%
+    distinct()
+  
+  combine <- combine %>%
+    full_join(NPOC_TN_summary, by = c("Field_Name", "Sample_Name", "Material")) %>%
+    arrange(Sample_Name) %>%
+    unite(Mean_Missing_Reps, Mean_Missing_Reps.x, Mean_Missing_Reps.y, remove = T, na.rm = T)%>%
+    mutate(Mean_Missing_Reps = ifelse(str_detect(Mean_Missing_Reps, 'TRUE'), TRUE, FALSE))%>%
+    filter(!is.na(Sample_Name))
+  
+  combine_headers <- combine_headers %>%
+    left_join(NPOC_TN_boye_headers)
+  
+}else if (length(NPOC_TN_file) > 0 & material == 'Sediment') {
+  NPOC_TN_boye_headers <- read_csv(NPOC_TN_file, n_max = 11, skip = 2)%>%
+    select(-'Methods_Deviation', -IGSN)
+  
+  NPOC_TN_NPOC_qaqc <- qaqc_files[grepl("NPOC_TN", qaqc_files)] %>% 
+    read_csv() %>%
+    filter(NPOC_Outlier == T)
+  
+  NPOC_TN_TN_qaqc <- qaqc_files[grepl("NPOC_TN", qaqc_files)] %>%
+    read_csv() %>%
+    filter(TN_Outlier == T)
+  
+  NPOC_TN_data <- read_csv(NPOC_TN_file, skip = 2, na = '-9999') %>%
+    select(-IGSN) %>%
+    filter(!Sample_Name %in% c('N/A', '-9999', NA),
+           Field_Name != '#End_Data') %>%
+    mutate(Field_Name = 'N/A',
+           `Extractable_NPOC_mg_per_L` = ifelse(Sample_Name %in% NPOC_TN_NPOC_qaqc$Sample_ID, NA, as.numeric(`Extractable_NPOC_mg_per_L`)),
+           `Extractable_NPOC_mg_per_kg` = ifelse(Sample_Name %in% NPOC_TN_NPOC_qaqc$Sample_ID, NA, as.numeric(`Extractable_NPOC_mg_per_kg`)),
+           `Extractable_TN_mg_per_L` = ifelse(Sample_Name %in% NPOC_TN_TN_qaqc$Sample_ID, NA, as.numeric(`Extractable_TN_mg_per_L`)),
+           `Extractable_TN_mg_per_kg` = ifelse(Sample_Name %in% NPOC_TN_TN_qaqc$Sample_ID, NA, as.numeric(`Extractable_TN_mg_per_kg`)),
+           Sample_Name = str_remove(Sample_Name, '-1'),
+           Sample_Name = str_remove(Sample_Name, '-2'),
+           Sample_Name = str_remove(Sample_Name, '-3'),
+           Sample_Name = str_remove(Sample_Name, '_SED')
+    )
+  
+  
+  NPOC_TN_summary <- NPOC_TN_data %>%
+    group_by(Sample_Name) %>%
+    mutate(count_NPOC = sum(!is.na(`Extractable_NPOC_mg_per_L`)),
+           count_TN = sum(!is.na(`Extractable_TN_mg_per_L`)),) %>%
+    summarize(
+      Field_Name = NA,
+      Material = unique(Material),
+      `Mean_Extractable_NPOC_mg_per_L` = mean(`Extractable_NPOC_mg_per_L`, na.rm = T),
+      `Mean_Extractable_TN_mg_per_L` = mean(`Extractable_TN_mg_per_L`, na.rm = T),
+      `Mean_Extractable_NPOC_mg_per_kg` = mean(`Extractable_NPOC_mg_per_kg`, na.rm = T),
+      `Mean_Extractable_TN_mg_per_kg` = mean(`Extractable_TN_mg_per_kg`, na.rm = T),
+      Mean_Missing_Reps = ifelse(count_NPOC<3, TRUE, FALSE),
+      Mean_Missing_Reps = ifelse(count_TN<3, TRUE, Mean_Missing_Reps),
+      count_NPOC = unique(count_NPOC),
+      count_TN = unique(count_TN)
+    ) %>%
+    filter(!is.na(Sample_Name)) %>%
+    select(Field_Name, Sample_Name, Material, `Mean_Extractable_NPOC_mg_per_L`, `Mean_Extractable_TN_mg_per_L`, Mean_Extractable_NPOC_mg_per_kg, Mean_Extractable_TN_mg_per_kg, Mean_Missing_Reps)%>%
     distinct()
   
   combine <- combine %>%
@@ -838,16 +895,23 @@ if (length(SFE_file) > 0) {
   SFE_boye_headers <- read_csv(SFE_file, n_max = 11, skip = 2)%>%
     select(-'Methods_Deviation', -IGSN)
   
+  # read in QAQC file
+  SFE_qaqc <- qaqc_files[grepl("SFE", qaqc_files)] %>%
+    read_csv() %>% 
+    clean_names(replace = c('flag' = 'Flag'), case = 'none') %>% # if applicable, make flag -> Flag
+    filter(Flag == "OMIT") %>%  # Flag == "OMIT" will later be marked as NA so it's value isn't included in the mean
+    pull(Sample_Name) # return a vector of samples to ignore in summary calculations
+  
   SFE_data <- read_csv(SFE_file, skip = 2, na = '-9999') %>%
     select(-IGSN) %>%
     filter(!Sample_Name %in% c('N/A', '-9999')) %>%
     mutate(
-      Sample_Name = str_remove(Sample_Name, '-1[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-2[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-3[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-4[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-5[:alpha:]'),
-      Sample_Name = str_remove(Sample_Name, '-6[:alpha:]'),
+      Sample_Name = str_remove(Sample_Name, '-1'),
+      Sample_Name = str_remove(Sample_Name, '-2'),
+      Sample_Name = str_remove(Sample_Name, '-3'),
+      Sample_Name = str_remove(Sample_Name, '-4'),
+      Sample_Name = str_remove(Sample_Name, '-5'),
+      Sample_Name = str_remove(Sample_Name, '-6'),
       Sample_Name = str_remove(Sample_Name, '_SFE')
     )
   
@@ -857,7 +921,7 @@ if (length(SFE_file) > 0) {
     mutate(Field_Name = 'N/A',
            `Fe_mg_per_kg` = as.numeric(`Fe_mg_per_kg`),
            `Fe_mg_per_L` = as.numeric(`Fe_mg_per_L`)) %>% 
-    filter(!str_detect(Methods_Deviation, "SFE_001"))
+    filter(!str_detect(Methods_Deviation, "SFE_001")) # remove data from 2.5 incubations
   
   SFE_summary <- SFE_data %>%
     group_by(Sample_Name) %>%
@@ -871,6 +935,7 @@ if (length(SFE_file) > 0) {
       na_SFE = unique(na_SFE)
     ) %>%
     filter(!is.na(Sample_Name)) %>%
+    mutate(across(where(is.numeric), ~ if_else(Sample_Name %in% SFE_qaqc, NA_real_, .))) %>%  # for any samples that are in the qaqc list, convert all numeric cols to NA
     select(Field_Name, Sample_Name, Material, Mean_Fe_mg_per_kg, 'Mean_Fe_mg_per_L', Mean_Missing_Reps) %>%
     distinct()
   

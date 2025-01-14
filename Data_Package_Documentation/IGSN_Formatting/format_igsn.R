@@ -17,22 +17,19 @@ library(readxl)
 
 # ================================= User inputs ================================
 
-dp_dir <- 'C:/Users/powe419/OneDrive - PNNL/Documents - Core Richland and Sequim Lab-Field Team/Data Generation and Files/RC3/05_Editable_ESS-DIVE_Format/SSF_Data_Package'
-dp_dir <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/CM_SSS_Data_Package_v3/v3_CM_SSS_Data_Package"
+dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package'
 
-out_file <- "new_sites_v3_CM_SSS_Metadata_IGSN-Mapping.csv"
+out_file <- "WHONDRS_AV1_Metadata_IGSN-Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 
 outdir <- paste(dp_dir, out_file, sep = '/')  
 
-site_file <- list.files(dp_dir, pattern = 'Site', full.names = T)
+site <- list.files(dp_dir, pattern = 'Site', full.names = T) %>%
+  read_csv(site_file, skip = 1) 
 
-sample_file <- list.files(dp_dir, pattern = 'Samples', full.names = T)
-
-site <- read_csv(site_file, skip = 1) 
-
-sample <- read_csv(sample_file, skip = 1)
+sample <- list.files(dp_dir, pattern = 'Samples', full.names = T) %>% 
+  read_csv(sample_file, skip = 1)
 
 # ========================= remove unwanted columns and rename =================
 

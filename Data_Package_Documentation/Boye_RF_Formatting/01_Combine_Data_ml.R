@@ -31,19 +31,19 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-pnnl_user <-  'laan208'
+pnnl_user <-  'forb086'
 
-dir <- paste0('C:/Users/', pnnl_user, '/OneDrive - PNNL/Shared Documents - Core Richland and Sequim Lab-Field Team/Data Generation and Files/')
+dir <- paste0('C:/Users/', pnnl_user, '/OneDrive - PNNL/Data Generation and Files/')
 
-RC <-  'RC2' # Options are RC2, RC3, or RC4
+RC <-  'RC4' # Options are RC2, RC3, or RC4
 
-study_code <-  'SPS' 
+study_code <-  'CM' 
 
 analysis <-  'NPOC_TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
 
-analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
+analyte_code <- 'SED' # Options are ION, OCN, DIC, TSS
 
-qaqc <- 'Y' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
+qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
 git_hub_dir <-  "C:/GitHub/QAQC_scripts/Functions_for_statistics/"
 
@@ -92,6 +92,8 @@ dir_create(study_out_dir)
 mapping_files <- list.files(mapping_file_dir, pattern = 'Mapping', recursive = T, full.names = T)
 
 mapping_files <- mapping_files[ !grepl('Archive',mapping_files)] #for RC2 NPOC_TN, also need to remove .txt and SPE
+
+mapping_files <- mapping_files[ !grepl('txt',mapping_files)] # skipping txt files
 
 combine_mapping <- tibble('Study_Code' = as.character(), 
                    'Sample_ID' = as.character(), 

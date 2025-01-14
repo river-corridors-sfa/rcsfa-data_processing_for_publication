@@ -8,7 +8,7 @@
 # ==============================================================================
 #
 # Author: Brieanne Forbes 
-# 8 February 2024
+# 30 October 2024
 #
 # ==============================================================================
 
@@ -20,11 +20,7 @@ rm(list=ls(all=T))
 
 # =========================== User inputs ======================================
 
-data_dir <- 'C:/Users/forb086/OneDrive - PNNL/Spatial Study 2022/SSS_Data_Processing/4 - SSS_MiniDOT_with_Depth/'
-
-published_coords <- 'C:/Users/forb086/Downloads/v2_SSS_Data_Package/v2_SSS_Field_Metadata.csv'
-
-out_dir <- 'C:/Users/forb086/OneDrive - PNNL/Spatial Study 2022/SSS_Data_Processing/5 - Publish_Ready_StreamMetabolizer_Input/'
+setwd('C:/Brieanne/GitHub/SSS_metabolism/Stream_Metabolizer/Inputs/Sensor_Files')
 
 # ========================== data base dirs ====================================
 
@@ -34,43 +30,19 @@ inst_methods_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/
 
 # ========================== read/get files =====================================
 
-headers <- read_xlsx(headers_dir, sheet = 'SSS_ER')
+headers <- read_xlsx(headers_dir, sheet = 'SSS_ER') %>%
+  filter(Sensor == 'input')
 
 inst_methods <- read_xlsx(inst_methods_dir)
 
-files <- list.files(data_dir, full.names = T, '.csv')
-
-coords <- read_csv(published_coords) %>%
-  select(Site_ID, Latitude, Longitude)
-  
+files <- list.files('.', full.names = T, '.csv')
 
 # ========================== loop through files=================================
 
 for (file in files) {
   
   data <- read_csv(file) %>%
-    select(DateTime, Parent_ID, Site_ID, miniDOT_Temperature, miniDOT_Dissolved_Oxygen, Baro_Pressure, Depth_m) %>%
-    rename(Temperature = miniDOT_Temperature,
-           Dissolved_Oxygen = miniDOT_Dissolved_Oxygen,
-           Pressure = Baro_Pressure,
-           Depth = Depth_m) %>%
-    mutate(Pressure = round(Pressure, 1), #pressure in millibar, was previously converted to mmHg
-           Depth = round(Depth, 2),
-           Dissolved_Oxygen = round(Dissolved_Oxygen, 2),
-           DateTime = paste0(' ', as.character(DateTime)),
-           Site_ID = case_when(Site_ID == 'S63P' ~ 'S63',
-                               Site_ID == 'S55' ~ 'S55N',
-                               Site_ID == 'S56' ~ 'S56N',
-                               Site_ID == 'T41' ~ 'T42',
-                               TRUE ~ Site_ID))
-  
-  site_coords <- coords %>%
-    filter(Site_ID == unique(data$Site_ID)) %>%
-    select(-Site_ID)
-  
-  data <- data %>% 
-    add_column(.after = 'Site_ID',
-               site_coords)
+    mutate(DateTime = paste0(' ', as.character(DateTime)))
   
   # ============== filter for different baro methods ===========================
   
@@ -101,6 +73,27 @@ for (file in files) {
     
   }
   
+  # ============== filter for different depth methods ========================
+  
+  if(unique(data$Site_ID) %in% c('W20')){
+    
+    headers_filter <- headers_filter %>%
+      filter(InstallationMethod_ID != 'Depth_01'|InstallationMethod_ID != 'Depth_03')
+    
+  }else if(unique(data$Site_ID) %in% c('T07')){
+    
+    headers_filter <- headers_filter %>%
+      filter(InstallationMethod_ID != 'Depth_01'|InstallationMethod_ID != 'Depth_02')
+    
+  }else {
+    
+    headers_filter <- headers_filter %>%
+      filter(InstallationMethod_ID != 'Depth_02'|InstallationMethod_ID != 'Depth_03')
+    
+  }
+  
+  # ============== add header rows ========================
+  
   data_cols <- data %>%
     select(-DateTime, -Parent_ID, -Site_ID) %>%
     colnames()
@@ -111,8 +104,7 @@ for (file in files) {
     select(header)
   
   data_headers <- tibble(header = '# HeaderRows_Format: Column_Header; Unit; InstallationMethod_ID; Instrument_Summary') %>%
-    add_row(headers_filter) %>%
-    head(7)
+    add_row(headers_filter)
   
   n_rows <- nrow(data_headers) + 2
   
@@ -120,12 +112,10 @@ for (file in files) {
     add_row(header = paste0('# HeaderRows_', n_rows),
             .before = 1)%>%
     mutate(header = str_replace_all(header, '\\..', '.'))
-
-  out_file <- str_c(out_dir,'v2_', unique(data$Parent_ID), '_Temp_DO_Press_Depth.csv', sep = '')
   
-  write_csv(data_headers, out_file, col_names = F)
+  write_csv(data_headers, file, col_names = F)
   
-  write_csv(data, out_file, col_names = T, append = T)
+  write_csv(data, file, col_names = T, append = T)
   
 }
 
