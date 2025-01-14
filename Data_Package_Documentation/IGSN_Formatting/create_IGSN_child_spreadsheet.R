@@ -35,15 +35,15 @@ library(readxl) # for reading in .xls files
 
 # select *_Field_Metadata.csv file (either use file.choose to select file or change filepath manually)
 metadata_filepath <- file.choose()
-metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
+# metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/EWEB_Year2_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/AV1_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
-# user_code <- 'IEWDR' # this is for WHONDRS
-user_code <- 'IEPRS'  # this is not for WHONDRS
+user_code <- 'IEWDR' # this is for WHONDRS
+# user_code <- 'IEPRS'  # this is not for WHONDRS
 
 # indicate if parent IGSNs exist
 parent_igsn_present <- T
@@ -51,11 +51,11 @@ parent_igsn_present <- T
 
 # if parent_igsn_presnt == T, select the registered sites (parent IGSN) .xls file (either use file.choose to select file or change filepath manually); skip if not applicable
 parent_filepath <- file.choose()
-parent_filepath <- "Z:\\IGSN\\CM_IGSN_Site_Registered.xls"
+parent_filepath <- "Z:\\IGSN\\AV1_IGSN_Site_Registered.xls"
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
 # materials_list <- c("water", "sediment", "filter")
-materials_list <- c("water")
+materials_list <- c("water", "sediment")
 
 
 ### Load data ##################################################################

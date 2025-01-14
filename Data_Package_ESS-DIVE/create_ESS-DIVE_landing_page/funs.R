@@ -462,7 +462,7 @@ uploading_script = function(script_path,json_input,Author_Info,package_path,docx
   #                  icon = "info", type = "ok") 
   #   }
   
-  Check_File_char_length=(nchar(Data_Files)>=255)
+  Check_File_char_length=all((nchar(Data_Files)>=255))
   
   if(T %in% Check_File_char_length & ((toupper(zip_file)=='NO')==T)){
     File_lists<-Data_Files[which(nchar(Data_Files)>=255)]
@@ -490,9 +490,9 @@ uploading_script = function(script_path,json_input,Author_Info,package_path,docx
   files2zip <- list.files(Data_Path, full.names = TRUE)
     #files2zip=files2zip[c(1,2,4,5,6)]
   
-  if(stringr::str_detect(Data_Files, '.zip')){
+  if(any(stringr::str_detect(Data_Files, '.zip'))){
     
-    up_Files<-Data_Files
+    up_Files<-str_subset(Data_Files, ".zip")
     
   } else if ((toupper(zip_file)=='YES')==T){
       zip::zipr(zipfile = paste(Data_Path,".zip",sep=""), files =files2zip ,include_directories = TRUE)

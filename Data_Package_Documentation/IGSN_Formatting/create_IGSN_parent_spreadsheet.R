@@ -18,10 +18,10 @@ metadata_filepath <- file.choose()
 metadata <- read_csv(metadata_filepath)
 metadata <- read_csv('Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/WHONDRS_CM_Data_Package/WHONDRS_CM_Data_Package/WHONDRS_CM_Field_Metadata.csv')
 
-# user_code <- 'IEWDR' # this if for WHONDRS
-user_code <- 'IEPRS' # this is NOT for WHONDRS
+user_code <- 'IEWDR' # this if for WHONDRS
+# user_code <- 'IEPRS' # this is NOT for WHONDRS
 
-outdir <- 'Z:/IGSN/EWEB_Year2_IGSN_Site_ToBeRegistered.csv'
+outdir <- 'Z:/IGSN/AV1_IGSN_Site_ToBeRegistered.csv'
 
 
 # ======================== input column names ============================
@@ -29,7 +29,7 @@ outdir <- 'Z:/IGSN/EWEB_Year2_IGSN_Site_ToBeRegistered.csv'
 colnames(metadata)
 
 # Sample Name: Some site identifier 
-a <- metadata$SiteID
+a <- metadata$Site_ID
 
 # IGSN: leave blank 
 b <- ''
@@ -41,43 +41,43 @@ c <- ''
 d <- ''
  
 # Other name(s)
-# use second line if not needed; used for the "extra names" for RC2 temporal plots
+# use second line if not needed; used for the "extra names" for RC2 temporal sites
 # e <- as.character(metadata$Site_Name)
 e <- ''
 
 # Latitude 
-f <- as.character(metadata$Latitude_WGS1984)
+f <- as.character(metadata$Sample_Latitude)
 
 # Longitude 
-g <- as.character(metadata$Longitude_WGS1984)
+g <- as.character(metadata$Sample_Longitude)
 
 # Primary physiographic feature: Stream 
 h <- 'stream'
  
 # Name of physiographic feature: Insert stream name 
-i <- as.character(metadata$Locality)
+i <- as.character(metadata$Stream_Name)
 # i <- 'St. Lawrence River'
  
 # Field program/Cruise
-j <- 'US Department of Energy River Corridor Science Focus Area'
-# j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
+# j <- 'US Department of Energy River Corridor Science Focus Area'
+j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
  
 # Country  
 k <- 'United States'
 # k <- as.character(metadata$Country)
 
-State/Province
+# State/Province
 # Use second line if not needed
-l <- 'Oregon'
-# l <- as.character(metadata$State)
+l <- metadata$State
+# l <- '
 
 # (optional) City/Township 
 # Use second line if not needed
-m <- ''
-# m <- as.character(metadata$City)
+m <- as.character(metadata$City)
+# m <- ''
 
 #name of study
-n <- 'EWEB Year 2'
+n <- 'WHONDRS Allison Veach collaboration'
 
 # =========================== create dataframe and add the data =================
 
@@ -103,7 +103,8 @@ output <- output %>%
          'State/Province' = l,
          'City/Township' = m,
          'Comment' = n
-  )
+  ) %>%
+  distinct(`Sample Name`, .keep_all = TRUE) # gets rid of duplicated sites
 
 if (user_code == 'IEWDR') {
 

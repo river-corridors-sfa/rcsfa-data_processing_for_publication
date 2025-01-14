@@ -24,11 +24,11 @@ dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
 dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/'
 
-RC <- 'RC4'
+RC <- 'RC2'
 
-study_code <- 'CM'
+study_code <- 'SSS'
 
-material <- 'Water'
+material <- 'Sediment'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
@@ -45,7 +45,8 @@ analyte_code <- case_when(material == 'Sediment' ~ 'SED',
 
 combined_mapping <- list.files(paste0(dir, RC, '/FTICR/03_ProcessedData/', study_code, '_Data_Processed_FTICR'),'Mapping', full.names = T) %>%
   read_csv() %>%
-  filter(str_detect(Sample_ID, analyte_code))
+  filter(str_detect(Sample_ID, analyte_code)) %>% # pull samples with correct analyte code for the material
+  filter(is.na(Notes) | !str_detect(Notes, 'OMIT')) # remove samples that were rerun
 
 if('FALSE' %in% combined_mapping$Method_Status | NA %in% combined_mapping$Method_Status){
   
