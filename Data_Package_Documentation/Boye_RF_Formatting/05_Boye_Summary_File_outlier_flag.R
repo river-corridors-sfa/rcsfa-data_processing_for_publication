@@ -385,40 +385,95 @@ summary <- summary_calculated %>%
     # Number_Points_Removed_Respiration_Regression
     # DO_Concentration_At_Incubation_Time_Zero
 
-# tell the user common columns we usually omit
-cat("We often remove the following columns from data package summary files: ")
-summary %>% 
-  select(contains("stdev"),
-         contains("Respiration_R_Squared"), 
-         contains("Respiration_R_Squared_Adj"),
-         contains("Respiration_p_value"),
-         contains("Total_Incubation_Time_Min"),
-         contains("Number_Points_In_Respiration_Regression"),
-         contains("Number_Points_Removed_Respiration_Regression"),
-         contains("DO_Concentration_At_Incubation_Time_Zero")) %>% 
-  colnames()
+# create a df that lists summary cols and whether they are usually dropped
+indexed_summary_cols <- colnames(summary) %>% 
+  tibble(column_name = .) %>% 
+  mutate(index = 1:n(), .before = "column_name") %>% 
+  rowwise() %>% 
+  mutate(default_remove = any(str_detect(column_name, c("stdev", 
+                                                        "Respiration_R_Squared",
+                                                        "Respiration_R_Squared_Adj", 
+                                                        "Respiration_p_value",
+                                                        "Total_Incubation_Time_Min",
+                                                        "Number_Points_In_Respiration_Regression",
+                                                        "Number_Points_Removed_Respiration_Regression",
+                                                        "DO_Concentration_At_Incubation_Time_Zero"
+                                                        )))) %>% 
+  ungroup() %>% 
+  mutate(default_remove = case_when(default_remove == TRUE ~ TRUE))
 
-# provide list of columns to the user
-cat("Listing all columns in the summary file: ")
-cat(paste0(seq_along(colnames(summary)), ". ", colnames(summary)), sep = "\n")
-
-# ask user if they would like to drop any cols 
-  # return "N" if want to keep all cols
-  # return comma separated list listing cols to drop
-response <- readline(prompt = "Enter the numbers of columns to drop (comma-separated). If you would like to keep all cols, enter 'N': ")
-
-if (tolower(response) == "n") {
+# if any cols in summary match with cols we commonly remove, ask user if they'd like to remove those cols
+if ((indexed_summary_cols %>% 
+    filter(default_remove == TRUE) %>% 
+    nrow()) > 0) {
   
-  cat("No columns will be dropped.")
+  # ask user if they would like to remove all of the indicated cols: 
+  # possible response combinations are
+  # remove default cols + additional cols 
+  # remove default cols
+  # remove additional cols
+  # remove no cols
+cat("We often remove the following columns from the data package summary files. ", 
+    View(indexed_summary_cols))
   
-  } else {
-    
-  drop_indices <- as.numeric(unlist(strsplit(response, ",")))
+  response_1 <- readline(prompt = "Would you like to remove all of the indicated columns from the summary file (Y/N)? ")
+  response_2 <- readline(prompt = "Which (additional) column(s) would you like to remove? Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none. ")
+  
+  
+} else {
+  
+  response_1 <- "N"
+  View(indexed_summary_cols %>% 
+         select(index, column_name))
+  cat("\n")
+  
+  response_2 <- readline(prompt = "Would you like to remove any column(s) from the summary file? If so, provide a comma-separated list of index numbers (e.g., '3, 5, 8'); otherwise write '0' if none. ")
+  
+}
+
+
+# based on response 1, identify if default cols should be removed
+if (tolower(response_1) == "n") {
+  
+  cols_to_remove <- integer(0)
+  
+} else if (tolower(response_1) == "y") {
+  
+  cols_to_remove <- indexed_summary_cols %>% 
+    filter(default_remove == TRUE) %>%
+    pull(as.integer(index)) 
+  
+} else {
+  
+  message("ERROR. Y/N not provided.")
+  
+}
+
+# based on response 2, remove additional cols
+if(response_2 != "0") {
+  
+  additional_cols_to_remove <- as.numeric(unlist(strsplit(response_2, ",")))
+  
+  cols_to_remove <- c(cols_to_remove, additional_cols_to_remove) %>%
+    unique() %>% 
+    as.integer()
+  
+}
+
+
+if(sum(cols_to_remove) != 0){
+  
+  cat("Dropping columns.")
+  cat("\n")
   
   # drop the cols
-  summary <- drop_df_columns(df = summary, drop_indices = drop_indices)
+  test_summary <- drop_df_columns(df = summary, drop_indices = cols_to_remove)
   
-  }
+} else {
+
+  cat("No columns will be dropped.")
+  
+}
 
 
 # ==================================== Format ==================================
