@@ -27,6 +27,7 @@ library(fs)
 library(clipr)
 library(tools)
 
+rm(list=ls(all=T))
 # set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
 current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
 setwd(dirname(current_path)) # set wd to current path
@@ -50,8 +51,8 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 ### Run Functions ##############################################################
 # Directions: Run chunk without modification. Answer inline prompts as they appear. 
 
-
-# 1. Load data
+# 1. Load data. 
+# TIP: to exclude/include multiple files, go to the directory > select all > copy path. Paste within c(). Click alt + shift + drag cursor over all lines > click "End" on keyboard > add a comma.
 # for excluding or including files, write the relative path from the directory, without slash in the beginning
 data_package_data <- load_tabular_data(directory, exclude_files = c("Sample_Data/FTICR/Sediment_FTICR_Data/CM_001_SED-2_p085.xml",
                                                                     "Sample_Data/FTICR/Sediment_FTICR_Data/CM_001_SED-3_p09.xml",
@@ -1170,6 +1171,7 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v4_CM_SSS_dd.csv")
 
+
 dd_skeleton <- dd_skeleton %>%
   select(Column_or_Row_Name) %>%
   left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
@@ -1178,12 +1180,29 @@ dd_skeleton <- dd_skeleton %>%
 # left join prelim flmd to this flmd
 
 prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v4_CM_SSS_flmd.csv") %>%
+
   select(-File_Path)
 
 flmd_skeleton <- flmd_skeleton %>%
   select(File_Name, File_Path) %>%
   left_join(prelim_flmd, by = c("File_Name")) %>%
   select(-File_Path, File_Path)
+
+### join headers to dd #########################################################
+# get headers
+# headers <- data_package_data$headers %>%
+#   mutate(relative_file = basename(file)) %>%
+#   group_by(header) %>% 
+#   summarise(header_count = n(),
+#             file_name = toString(relative_file),
+#             file_path = toString(file)) %>% 
+#   ungroup() %>% 
+#   arrange(header, .locale = "en")
+# 
+# 
+# dd_skeleton_with_header_source <- dd_skeleton_populated %>% 
+#   left_join(headers, by = c("Column_or_Row_Name" = "header")) %>% 
+#   select(-file_path)
 
 
 
