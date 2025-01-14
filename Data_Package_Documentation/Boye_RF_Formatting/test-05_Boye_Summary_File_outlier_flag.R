@@ -482,7 +482,90 @@ test_that("average works when some reps are NA", {
 # we want. the biggest issue was to make sure the headers align correctly with
 # the data before the rbind together upon export.
 
-test_that("user selected columns are removed from summary file", {
+
+test_that("user selections correctly select the columns to drop", {
+  
+  prep_summary_col_drops <- function(indexed_summary_cols, response_1 = c("Y", "N"), response_2 = "0") {
+    
+    # based on response 1, identify if default cols should be removed
+    if (tolower(response_1) == "n") {
+      
+      # if no, change default T to NA
+      indexed_summary_cols <- indexed_summary_cols %>% 
+        mutate(to_remove = case_when(to_remove == TRUE ~ NA, T ~ to_remove))
+        
+      
+    } else if (tolower(response_1) == "y") {
+      
+      # do nothing because keeping default TRUE 
+      
+    } else {
+      
+      message("ERROR. Y/N not provided.")
+      
+    }
+    
+    # based on response 2, remove additional cols
+    if(response_2 != "0") {
+      
+      additional_cols_to_remove <- as.numeric(unlist(strsplit(response_2, ",")))
+      
+      # update df with additional cols to remove
+      indexed_summary_cols <- indexed_summary_cols %>% 
+        mutate(to_remove = case_when(index %in% additional_cols_to_remove ~ TRUE, T ~ to_remove))
+    }
+    
+    # filter for cols to remove and get index value
+    cols_to_remove <- indexed_summary_cols %>% 
+      filter(to_remove == TRUE)
+    
+    if(nrow(cols_to_remove) > 0) {
+      
+      cols_to_remove <- cols_to_remove %>% 
+        pull(index)
+      
+    } else {
+      
+      cols_to_remove <- 0
+    }
+    
+    return(cols_to_remove)
+    
+  }
+  
+  testing_data <- tibble(
+    index = c(1, 2, 3, 4, 5),
+    column_name = c("sample_id", "name", "age", "city", "state"),
+    to_remove = c(FALSE, FALSE, TRUE, TRUE, FALSE)
+  )
+  
+  # removes default cols
+  expect_equal(object = prep_summary_col_drops(indexed_summary_cols = testing_data, response_1 = "Y", response_2 = "0"),
+               expected = c(3, 4))
+  
+  # removes default cols + 1 additional
+  expect_equal(object = prep_summary_col_drops(indexed_summary_cols = testing_data, response_1 = "Y", response_2 = "5"),
+               expected = c(3, 4, 5))
+
+  # removes default cols + 2 additional
+  expect_equal(object = prep_summary_col_drops(indexed_summary_cols = testing_data, response_1 = "Y", response_2 = "2, 5"),
+               expected = c(2, 3, 4, 5))
+
+  # removes 1 additional
+  expect_equal(object = prep_summary_col_drops(indexed_summary_cols = testing_data, response_1 = "N", response_2 = "5"),
+               expected = c(5))
+
+  # removes 2 additional
+  expect_equal(object = prep_summary_col_drops(indexed_summary_cols = testing_data, response_1 = "N", response_2 = "2, 5"),
+               expected = c(2, 5))
+
+  # removes none ----- this is the one causign the issue! 
+  expect_equal(object = prep_summary_col_drops(indexed_summary_cols = testing_data, response_1 = "N", response_2 = "0"),
+               expected = 0)
+  
+})
+
+test_that("selected columns are removed from summary file", {
   
   testing_data <- tibble(
     ID = 1:5,                         # Numeric

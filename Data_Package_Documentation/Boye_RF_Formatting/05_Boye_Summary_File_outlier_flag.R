@@ -390,7 +390,7 @@ indexed_summary_cols <- colnames(summary) %>%
   tibble(column_name = .) %>% 
   mutate(index = 1:n(), .before = "column_name") %>% 
   rowwise() %>% 
-  mutate(default_remove = any(str_detect(column_name, c("stdev", 
+  mutate(to_remove = any(str_detect(column_name, c("stdev", 
                                                         "Respiration_R_Squared",
                                                         "Respiration_R_Squared_Adj", 
                                                         "Respiration_p_value",
@@ -400,11 +400,11 @@ indexed_summary_cols <- colnames(summary) %>%
                                                         "DO_Concentration_At_Incubation_Time_Zero"
                                                         )))) %>% 
   ungroup() %>% 
-  mutate(default_remove = case_when(default_remove == TRUE ~ TRUE))
+  mutate(to_remove = case_when(to_remove == TRUE ~ TRUE))
 
 # if any cols in summary match with cols we commonly remove, ask user if they'd like to remove those cols
 if ((indexed_summary_cols %>% 
-    filter(default_remove == TRUE) %>% 
+    filter(to_remove == TRUE) %>% 
     nrow()) > 0) {
   
   # ask user if they would like to remove all of the indicated cols: 
@@ -423,8 +423,7 @@ cat("We often remove the following columns from the data package summary files. 
 } else {
   
   response_1 <- "N"
-  View(indexed_summary_cols %>% 
-         select(index, column_name))
+  View(indexed_summary_cols)
   cat("\n")
   
   response_2 <- readline(prompt = "Would you like to remove any column(s) from the summary file? If so, provide a comma-separated list of index numbers (e.g., '3, 5, 8'); otherwise write '0' if none. ")
@@ -435,29 +434,39 @@ cat("We often remove the following columns from the data package summary files. 
 # based on response 1, identify if default cols should be removed
 if (tolower(response_1) == "n") {
   
-  cols_to_remove <- integer(0)
+  # if no, change default T to NA
+  indexed_summary_cols <- indexed_summary_cols %>% 
+    mutate(to_remove = case_when(to_remove == TRUE ~ NA, T ~ to_remove))
   
-} else if (tolower(response_1) == "y") {
   
-  cols_to_remove <- indexed_summary_cols %>% 
-    filter(default_remove == TRUE) %>%
-    pull(as.integer(index)) 
-  
-} else {
+} else if (tolower(response_1) != "y") {
   
   message("ERROR. Y/N not provided.")
-  
-}
+
+  }
 
 # based on response 2, remove additional cols
 if(response_2 != "0") {
   
   additional_cols_to_remove <- as.numeric(unlist(strsplit(response_2, ",")))
   
-  cols_to_remove <- c(cols_to_remove, additional_cols_to_remove) %>%
-    unique() %>% 
-    as.integer()
+  # update df with additional cols to remove
+  indexed_summary_cols <- indexed_summary_cols %>% 
+    mutate(to_remove = case_when(index %in% additional_cols_to_remove ~ TRUE, T ~ to_remove))
+}
+
+# filter for cols to remove and get index value
+cols_to_remove <- indexed_summary_cols %>% 
+  filter(to_remove == TRUE)
+
+if(nrow(cols_to_remove) > 0) {
   
+  cols_to_remove <- cols_to_remove %>% 
+    pull(index)
+  
+} else {
+  
+  cols_to_remove <- 0
 }
 
 
