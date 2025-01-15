@@ -63,7 +63,8 @@ all_check_table <- all_checks_summary %>%
 all_check_table %>% 
   mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
                                 pass_check == TRUE ~ "PASSED",
-                                T ~ NA_character_)) %>% 
+                                T ~ NA_character_)) %>%
+  
   kable() %>% 
   kable_styling() %>%
   row_spec(which(all_check_table$pass_check == TRUE), color = "gray") %>% 
@@ -187,6 +188,7 @@ output$data_checks %>%
                                 pass_check == TRUE ~ "PASSED",
                                 T ~ NA_character_))) %>%
     filter(assessment == "no proprietary files") %>%
+    mutate(across(c(pass_check, file), as.factor)) %>% 
     arrange(pass_check) %>% 
     datatable(rownames = F,
               filter = "top", 
@@ -265,6 +267,7 @@ if (failed_no_special_chrs != 0) {
                                 pass_check == TRUE ~ "PASSED",
                                 T ~ NA_character_))) %>%
     filter(assessment == "no special characters") %>%
+    mutate(across(c(pass_check, value, file), as.factor)) %>% 
     arrange(pass_check) %>% 
     datatable(rownames = F,
               filter = "top", 
@@ -319,6 +322,7 @@ if (failed_duplicate_names != 0) {
                                 pass_check == TRUE ~ "PASSED",
                                 T ~ NA_character_))) %>%
     filter(assessment == "no duplicate names") %>%
+    mutate(across(c(pass_check, file), as.factor)) %>% 
     arrange(pass_check) %>% 
     datatable(rownames = F,
               filter = "top", 
@@ -387,6 +391,8 @@ output$tabular_report %>%
 output$data_checks_summary %>% 
     mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
                                 pass_check == FALSE ~ "FAILED")) %>% 
+    mutate(across(c(requirement, pass_check, assessment, source), as.factor)) %>% 
+    mutate(file_count = as.integer(file_count)) %>% 
       datatable(rownames = F,
               filter = "top", 
               class = "stripe")
@@ -398,6 +404,7 @@ output$data_checks_summary %>%
 output$data_checks %>% 
     mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
                                 pass_check == FALSE ~ "FAILED")) %>% 
+    mutate(across(c(requirement, pass_check, assessment, source, file), as.factor)) %>% 
       datatable(rownames = F,
               filter = "top", 
               class = "stripe")
