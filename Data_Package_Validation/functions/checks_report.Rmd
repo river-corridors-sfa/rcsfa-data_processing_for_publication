@@ -346,6 +346,7 @@ dir_tree(output$input$inputs$directory, recurse = T)
 ```{r echo=FALSE}
 
 output$tabular_report %>% 
+  select(-top_counts, top_counts) %>% # move top counts to end of df
   # convert dbl to int and chr to fct
    mutate(across(
     .cols = everything(),
@@ -359,18 +360,22 @@ output$tabular_report %>%
       }
     }
   )) %>% 
-
-  #  kable(
-  #   format = "html", 
-  #   # col.names = c("Requirement", "Status", "Assessment", "Special Character", "File"),
-  #   caption = "Tabular Report",
-  #   align = "l"
-  # ) %>% 
-  # kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
-
-    datatable(rownames = F,
-              filter = "top",
-              class = "stripe")
+    datatable(options = list(autoWidth = TRUE,
+                     scrollX = TRUE,
+                     columnDefs = list(list(width = '100%', targets = "_all"),
+                                       # hover text for top_counts
+                                       list(targets = 9,  # Index of the column (0-based) where you don't want text wrapping
+                                            render = JS("function(data, type, row, meta) { return '<div style=\"white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\" title=\"' + data + '\">' + data + '</div>';
+           }"
+        )))),
+      rownames = F,
+      filter = "top",
+      class = "stripe row-border") %>% 
+  
+  # color missing values red
+      formatStyle(c("num_missing_rows", "num_negative_rows"), # Column to apply the style
+                  color = styleInterval(0, c(NA, 'red'))  # Highlight cells with value > 0 in red
+                  )
 
 ```
 
