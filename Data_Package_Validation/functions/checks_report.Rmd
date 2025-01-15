@@ -93,9 +93,9 @@ failed_includes_required_files <- output$data_checks %>%
 
 In addition to your files, we require a file-level metadata file (FLMD), data dictionary (DD), and readme in each data package. To improve interoperability with ESS-DIVE's tools, these file names have specific file naming conventions.  
 
-- FLMD: file name must end with `*flmd.csv`. You may prepend anything to the beginning.  
-- DD: file name must end with `*dd.csv`. You may prepend anything to the beginning.  
-- readme: file name must begin with `readme*`. You may append anything to the end and the file extension must be non-proprietary.  
+- **FLMD**: file name must end with `*flmd.csv`. You may prepend anything to the beginning.  
+- **DD**: file name must end with `*dd.csv`. You may prepend anything to the beginning.  
+- **readme**: file name must begin with `readme*` and end with `.pdf`. You may append anything between "readme" and ".pdf".  
 
 ```{r echo=FALSE}
 
@@ -119,9 +119,10 @@ if (failed_includes_required_files != 0) {
   output$data_checks %>% 
     filter(assessment == "includes required files") %>% 
     select(requirement, pass_check, assessment, value) %>% 
-      mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
+    mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
                                   pass_check == TRUE ~ "PASSED",
                                   T ~ NA_character_)) %>% 
+    arrange(pass_check) %>% 
     datatable(rownames = F,
             filter = "top",
             class = "stripe")
@@ -136,11 +137,11 @@ if (failed_includes_required_files != 0) {
 The following checks are recommended to pass before a data package will be published. Passing `recommended*` checks prepare your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool. The RC-SFA project expects that all Study Data Packages adhere to both `required` and `recommended*` checks. Manuscript Data Packages must adhere to the `required` checks and are strongly encouraged to consider the `recommended*` checks.   
 
 Recommended checks:  
-1. **`no proprietary files`**: To increase increase accessibility, proprietary files should be converted to non-proprietary options (e.g., .docx are converted to .pdf).  
-2. **`no special characters` in directory names**: The only characters allowed in folder names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
-3. **`no special characters` in file names**: The only characters allowed in file names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
-4. **`no special characters` in column names**: The only characters allowed in tabular column headers are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. It is recommended that columns begin with a letter.  
-5. **`no duplicate names` in column names**: Column names should be unique within the same file. The same column name can repeat across files if it shares the same definition and unit.  
+1. **`*no proprietary files`**: To increase increase accessibility, proprietary files should be converted to non-proprietary options (e.g., .docx are converted to .pdf).  
+2. **`*no special characters` in directory names**: The only characters allowed in folder names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
+3. **`*no special characters` in file names**: The only characters allowed in file names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
+4. **`*no special characters` in column names**: The only characters allowed in tabular column headers are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. It is recommended that columns begin with a letter.  
+5. **`*no duplicate names` in column names**: Column names should be unique within the same file. The same column name can repeat across files if it shares the same definition and unit.  
 
 ### `no proprietary files` {.tabset}
 
@@ -186,6 +187,7 @@ output$data_checks %>%
                                 pass_check == TRUE ~ "PASSED",
                                 T ~ NA_character_))) %>%
     filter(assessment == "no proprietary files") %>%
+    arrange(pass_check) %>% 
     datatable(rownames = F,
               filter = "top", 
               class = "stripe")
@@ -201,72 +203,135 @@ output$data_checks %>%
 ```{r include=FALSE}
 
 # determine if these checks failed
-output$data_checks %>% 
+failed_no_special_chrs <- output$data_checks %>%
   filter(assessment == "no special characters") %>% 
-  filter(pass_check == FALSE) %>% 
-  count(source)
-
+  filter(pass_check == "FALSE") %>% 
+  count(source, pass_check) %>% 
+  summarise(n = sum(n)) %>% 
+  pull()
 
 ```
 
 
-> <p style='color:black;'><strong> **Your data package has `r failed_no_special_chrs_dirs` folder name(s) that contain special characters.**  </strong></p>
-> <p style='color:black;'><strong> **Your data package has `r failed_no_special_chrs_files` file name(s) that contain special characters.**  </strong></p>
-> <p style='color:black;'><strong> **Your data package has `r failed_no_special_chrs_cols` file(s) that contain column names with special characters.**  </strong></p>
+> <p style='color:black;'><strong> **Your data package has `r failed_no_special_chrs` folder/file/column name(s) that contain special characters.**  </strong></p>  
 
 Allowed characters include lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. Any other character (e.g., spaces, symbols, etc.) will cause the check to fail. 
 
-#### Folder Names {.tabset}
 ```{r echo=FALSE}
 
-# if special chrs are present, show figures and tables
-
-# show pie chart of the number of folder names that have a special chr
+# show bar chart of the count of files/folders/cols that have special chrs
 output$data_checks %>% 
   filter(assessment == "no special characters") %>% 
-  filter(source == "directory_name") %>%
-  select(pass_check, input) %>% 
+  select(pass_check, source, file) %>%
+  distinct() %>% 
+  group_by(source, file) %>% 
+  summarise(pass_check = !any(!pass_check), .groups = "drop") %>% # collapsing so if a file has some cols that pass and others that don't it counts the file as having failed the check
+  group_by(pass_check, source) %>% 
+  summarise(file_count = n(), .groups = "drop") %>% 
   mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
-                                pass_check == FALSE ~ "FAILED")) %>%  
-  count(pass_check) %>% 
-  ggplot(aes(x = "", y = n, fill = pass_check)) + 
-    geom_bar(sta = "identity", width = 1) + # bar chart with no x axis
-    coord_polar(theta = "y") +
-    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
-    labs(title = "Evaluation of Folders with Special Characters") +
-    theme_void()
-
-# show a bar chart of the special chrs present in the data package
-output$data_checks %>% 
-  filter(assessment == "no special characters") %>% 
-  filter(source == "directory_name") %>%
-  select(pass_check, input, value) %>% 
-  mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
-                                pass_check == FALSE ~ "FAILED")) %>% 
-  group_by(value, pass_check) %>% 
-  summarise(special_chr_count = n(), .groups = "drop") %>% 
+                                pass_check == FALSE ~ "FAILED")) %>%
   
-  ggplot(., aes(x = value, y = special_chr_count, fill = pass_check, text = paste("folders:", special_chr_count))) +
+  
+  ggplot(., aes(x = source, y = file_count, fill = pass_check, text = paste("files:", file_count))) +
     geom_bar(stat = "identity") +
-    geom_text(aes(label = special_chr_count), vjust = -0.5) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    geom_text(aes(label = file_count), position = position_stack(vjust = 0.5)) +
     scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
     theme_minimal() +
-    labs(x = "Special Characters", y = "Count of Folders", title = paste0("Evaluation of Special Characters in Folders"))
+    labs(x = "Source", y = "Count of Files/Folders", title = paste0("Evaluation of Files and Folders with Special Characters"))
+  
 
-
-# show table
-
+if (failed_no_special_chrs != 0) {
+  
+  # if there are special chrs, show another figure and a table of them
+  
+  # show bar chart of the count of the special chrs present
+  print(output$data_checks %>% 
+    filter(assessment == "no special characters") %>% 
+    filter(pass_check == FALSE) %>%
+    count(source, value) %>% 
+    
+    ggplot(., aes(x = value, y = n, fill = source)) + 
+      geom_bar(stat = "identity") + 
+      geom_text(aes(label = n), position = position_stack(vjust = 0.5)) +
+      scale_fill_manual(values = c("column_header" = "#da99de", "directory_name" = "#eded8e", "file_name" = "#8ec1ed")) +
+      theme_minimal() +
+      labs(x = "Special Character", y = "Count of Names with Special Characters", title = paste0("Evaluation of File, Folder, and Column Names with Special Characters")))
+  
+  
+  # table
+  output$data_checks %>% 
+    select(requirement, pass_check, assessment, value, file) %>%
+    mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
+                                pass_check == TRUE ~ "PASSED",
+                                T ~ NA_character_))) %>%
+    filter(assessment == "no special characters") %>%
+    arrange(pass_check) %>% 
+    datatable(rownames = F,
+              filter = "top", 
+              class = "stripe")
+  
+}
 
 
 ```
 
-
-#### File Names {.tabset}
-
-#### Column Names {.tabset}
-
 ### `no duplicate names` {.tabset}
+
+```{r include=FALSE}
+
+# determine if these checks failed
+failed_duplicate_names <- output$data_checks %>%
+  filter(assessment == "no duplicate names") %>% 
+  filter(pass_check == FALSE) %>% 
+  select(file) %>% 
+  distinct() %>% 
+  count() %>% 
+  pull(n)
+
+```
+> <p style='color:black;'><strong> **Your data package has `r failed_duplicate_names` file(s) that contain duplicate column names.**  </strong></p>
+
+```{r echo=FALSE}
+
+output$tabular_report %>% 
+  group_by(file_name, column_name) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  mutate(pass_check = ifelse(n > 1, "FAILED", "PASSED")) %>%
+
+  ggplot(aes(x = column_name, y = n, fill = pass_check)) +
+    geom_bar(stat = "identity", position = "stack") +
+    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    labs(x = "Column Name", 
+         y = "Count", 
+         title = "Column names across all files",
+         subtitle = "Red indicates a column name was used more than once within the same file") +
+    theme_minimal() +
+    coord_flip()
+  
+  
+if (failed_duplicate_names != 0) {
+  
+  # if there are duplicate column names within the same file, show table
+  output$data_checks %>% 
+    select(requirement, pass_check, assessment, value, file) %>%
+    mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
+                                pass_check == TRUE ~ "PASSED",
+                                T ~ NA_character_))) %>%
+    filter(assessment == "no duplicate names") %>%
+    arrange(pass_check) %>% 
+    datatable(rownames = F,
+              filter = "top", 
+              class = "stripe")
+  
+}
+  
+  
+  
+
+```
+
+
 
 ## About Your Data {.tabset}
 
@@ -278,6 +343,37 @@ dir_tree(output$input$inputs$directory, recurse = T)
 ```
 
 ### Tabular Data {.tabset}
+```{r echo=FALSE}
+
+output$tabular_report %>% 
+  # convert dbl to int and chr to fct
+   mutate(across(
+    .cols = everything(),
+    .fns = ~ {
+      if (is.double(.)) {
+        as.integer(.)
+      } else if (is.character(.)) {
+        as.factor(.)
+      } else {
+        .
+      }
+    }
+  )) %>% 
+
+  #  kable(
+  #   format = "html", 
+  #   # col.names = c("Requirement", "Status", "Assessment", "Special Character", "File"),
+  #   caption = "Tabular Report",
+  #   align = "l"
+  # ) %>% 
+  # kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+
+    datatable(rownames = F,
+              filter = "top",
+              class = "stripe")
+
+```
+
 
 ## Full Data Checks Report {.tabset}
 
