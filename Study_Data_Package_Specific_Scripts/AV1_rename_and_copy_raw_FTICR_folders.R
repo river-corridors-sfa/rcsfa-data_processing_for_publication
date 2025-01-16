@@ -98,14 +98,16 @@ test_that("IAT converts to 'p' correctly", {
 })
 
 # read in mapping files
-source_mapping_file_av1 <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents - Core Richland and Sequim Lab-Field Team/Data Generation and Files/RC4/FTICR/03_ProcessedData/AV1_Data_Processed_FTICR/AV1_Mapping.csv")
+source_mapping_file_av1 <- read_csv("C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC4/FTICR/03_ProcessedData/AV1_Data_Processed_FTICR/AV1_Mapping.csv")
 
 # clean mapping files
-mapping_file_cm <- source_mapping_file_cm %>% 
+mapping_file_av1 <- source_mapping_file_av1 %>% 
 # drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time and those that have "Blk" in their sample name
-  filter(!is.na(Accumulation_Time)) %>% 
-  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b")) %>% 
+  filter(!is.na(Accumulation_Time)) %>% # gets rid of 20 samples
+  # filter(!str_detect(Notes, "OMIT")) %>% #messing up somehow and we have none so can be removed
   filter(!str_detect(Sample_ID, "Blk")) %>% 
+  filter(!str_detect(Sample_ID, "AV1_003")) %>% #not publishing
+  filter(!str_detect(Sample_ID, "AV1_018")) %>% #not publishing
   
   # convert IAT to IAT_p
   rowwise() %>% 
@@ -120,38 +122,11 @@ mapping_file_cm <- source_mapping_file_cm %>%
   select(Randomized_ID, Sample_ID, iat_p, analyte_subdir)
 
 # print the files that were removed
-source_mapping_file_cm %>% 
-  filter(is.na(Accumulation_Time)) %>% 
-  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b"))
+source_mapping_file_av1%>% 
+  filter(is.na(Accumulation_Time) | str_detect(Sample_ID, "AV1_003") | str_detect(Sample_ID, "AV1_018")) 
   
 
-mapping_file_sss <- source_mapping_file_sss %>%
-  # drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time and those that have "Blk" in their sample name
-  filter(!is.na(Accumulation_Time)) %>% 
-  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b")) %>% 
-  filter(!str_detect(Sample_ID, "Blk")) %>% 
-  
-  # convert IAT to IAT_p
-  rowwise() %>% 
-  mutate(iat_p = convert_IAT(Accumulation_Time)) %>% 
-  ungroup() %>% 
-  
-  # identify sub folder based on analyte code
-  mutate(analyte_subdir = case_when(str_detect(Sample_ID, "ICR") ~ "Water",
-                                    str_detect(Sample_ID, "SED") ~ "Sediment")) %>% 
-  
-  # select needed cols
-  select(Randomized_ID, Sample_ID, iat_p, analyte_subdir)
-
-# print the files that were removed
-source_mapping_file_sss %>% 
-  filter(is.na(Accumulation_Time)) %>% 
-  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b"))
-
-
-# combine into single file
-mapping_file <- mapping_file_cm %>% 
-  add_row(mapping_file_sss) %>% 
+mapping_file <- mapping_file_av1 %>% 
   arrange(Sample_ID) %>% 
   mutate(out_dir_relative = paste0(analyte_subdir, "_FTICR_Raw_Data/", Sample_ID, "_", iat_p, ".d"),
          randomized_id_dot_d = paste0(Randomized_ID, ".d"))
@@ -179,20 +154,15 @@ source_dirs_df <- tibble(source = source_dirs) %>%
 source_dirs_df %>% 
   anti_join(mapping_file, by = join_by(source_folder == randomized_id_dot_d)) 
 # I checked these against the original mapping files. The following are okay to be omitted: 
-  # CM_O1 - BLK
-  # CM_O98 - BLK
-  # CM_P1 - BLK
-  # CM_P98 - BLK
-  # CM_Q01 - BLK
-  # CM_Q98 - BLK
-  # CM_R54 - omit
-  # CM_R82 - omit
-  # CM_R98 - BLK
-  # CM_S120_RR - omit
-  # CM_S123_RR - omit
-  # CM_S135_RR - BLK
-  # CM_S136_RR - omit
-  # CM_S138_RR - BLK
+  # AV1_M22 - Not publishing AV1_018
+  # AV1_M31 - Not publishing AV1_003
+  # AV1_M48 - Not publishing AV1_018
+  # AV1_M52 - Not publishing AV1_018
+  # AV1_M56 - Not publishing AV1_003
+  # AV1_M67 - Not publishing AV1_003
+  # AV1_N01 - BLK
+  # AV1_N49 - AV1_014_SED-2 No resolved spectra
+  # AV1_N86 - BLK
 
 # show the files that are in the filtered mapping file but we don't have a folder
 mapping_file %>% 
@@ -200,7 +170,7 @@ mapping_file %>%
   
 
 # create look up df 
-CM_SSS_lookup_df <- mapping_file %>% # uses mapping file as source of truth for which files to move
+av1_lookup_df <- mapping_file %>% # uses mapping file as source of truth for which files to move
   
   # join mapping file
   left_join(source_dirs_df, by = join_by(randomized_id_dot_d == source_folder)) %>% 
@@ -222,14 +192,14 @@ CM_SSS_lookup_df <- mapping_file %>% # uses mapping file as source of truth for 
 test_that("All sediment samples are present", {
   
   # read in boye sediment file - this is the source of truth for which samples we should have
-  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/CM_SSS_Sediment_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
+  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/WHONDRS_AV1_Sediment_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
     filter(!is.na(Sample_Name)) %>%
     filter(Sample_Name != "") %>% 
     filter(!is.na(`FTICR-MS`)) %>% 
     arrange(Sample_Name)
   
   # filter lookup to only include sediment samples
-  sed_filter <- CM_SSS_lookup_df %>%
+  sed_filter <- av1_lookup_df %>%
     filter(str_detect(Sample_ID, "SED")) %>% 
     arrange(Sample_ID)
   
@@ -238,21 +208,21 @@ test_that("All sediment samples are present", {
   
   # join look up to boye to look if there are issues
   boye_lookup_join <- boye %>% 
-    left_join(CM_SSS_lookup_df, by = join_by(Sample_Name == Sample_ID))
+    left_join(av1_lookup_df, by = join_by(Sample_Name == Sample_ID))
 
 })
 
 test_that("All water samples are present", {
   
   # read in boye water file - this is the source of truth for which samples we should have
-  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/CM_SSS_Water_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
+  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/WHONDRS_AV1_Water_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
     filter(!is.na(Sample_Name)) %>%
     filter(Sample_Name != "") %>% 
     filter(!is.na(`FTICR-MS`)) %>% 
     arrange(Sample_Name)
   
   # filter lookup to only include sediment samples
-  water_filter <- CM_SSS_lookup_df %>%
+  water_filter <- av1_lookup_df %>%
     filter(str_detect(Sample_ID, "ICR")) %>% 
     arrange(Sample_ID)
   
@@ -261,13 +231,13 @@ test_that("All water samples are present", {
   
   # join look up to boye to look if there are issues
   boye_lookup_join <- boye %>% 
-    left_join(CM_SSS_lookup_df, by = join_by(Sample_Name == Sample_ID))
+    left_join(av1_lookup_df, by = join_by(Sample_Name == Sample_ID))
   
 })
   
 
 # clean up 
-CM_SSS_lookup_df <- CM_SSS_lookup_df %>% 
+av1_lookup_df <- av1_lookup_df %>% 
   select(source, destination)
 
 
