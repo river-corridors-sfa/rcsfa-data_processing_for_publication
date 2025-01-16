@@ -124,7 +124,8 @@ output$data_checks %>%
     geom_bar(sta = "identity", width = 1) + # bar chart with no x axis
     coord_polar(theta = "y") +
     scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
-    labs(title = "Evaluation of Required Files") +
+    labs(title = "Evaluation of Required Files",
+         subtitle = "Red indicates the absence of required file(s)") +
     theme_void()
 
 if (failed_includes_required_files != 0) {
@@ -193,7 +194,10 @@ output$data_checks %>%
     theme_minimal() +
     scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
     theme(panel.grid.minor = element_blank()) +
-    labs(x = "File Extension", y = "Count of Files", title = paste0("Evaluation of File Extensions"))
+    labs(x = "File Extension", 
+         y = "Count of Files", 
+         title = "Evaluation of File Extensions",
+         subtitle = "Red indicates the presence of proprietary files")
     
 if (failed_no_proprietary_files != 0) {
   
@@ -257,7 +261,10 @@ output$data_checks %>%
     theme_minimal() +
     scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
     theme(panel.grid.minor = element_blank()) +
-    labs(x = "Source", y = "Count of Files/Folders", title = paste0("Evaluation of Files and Folders with Special Characters"))
+    labs(x = "Source", 
+         y = "Count of Files/Folders", 
+         title = "Evaluation of Files and Folders with Special Characters",
+         subtitle = "Red indicates the presence of special characters")
   
 
 if (failed_no_special_chrs != 0) {
