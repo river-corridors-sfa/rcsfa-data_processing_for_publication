@@ -2,7 +2,9 @@
 #
 # Format ICR data following the Boye et al. (2022) template. 
 #
-# Status: Incomplete; add console flag if method status is not done
+# Status: Complete
+#
+# Note: may need to adjust data status now that we are giving processed data
 #
 # ==============================================================================
 #
@@ -22,17 +24,17 @@ rm(list=ls(all=T))
 
 dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
-dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/'
+dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/'
 
-RC <- 'RC2'
+RC <- 'RC4'
 
-study_code <- 'SSS'
+study_code <- 'AV1'
 
-material <- 'Sediment'
+material <- 'Water'
 
-hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
+hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
-typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Method_Typical_Codes.xlsx'
+typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx'
 
 # =============================== list files ===================================
 
@@ -46,7 +48,8 @@ analyte_code <- case_when(material == 'Sediment' ~ 'SED',
 combined_mapping <- list.files(paste0(dir, RC, '/FTICR/03_ProcessedData/', study_code, '_Data_Processed_FTICR'),'Mapping', full.names = T) %>%
   read_csv() %>%
   filter(str_detect(Sample_ID, analyte_code)) %>% # pull samples with correct analyte code for the material
-  filter(is.na(Notes) | !str_detect(Notes, 'OMIT')) # remove samples that were rerun
+  filter(is.na(Notes) | !str_detect(Notes, 'OMIT')) %>% # remove samples that were rerun
+  filter(!str_detect(Sample_ID, 'Blk')) # remove blanks
 
 if('FALSE' %in% combined_mapping$Method_Status | NA %in% combined_mapping$Method_Status){
   
