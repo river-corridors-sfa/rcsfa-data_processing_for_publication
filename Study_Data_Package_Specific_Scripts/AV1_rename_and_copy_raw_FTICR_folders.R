@@ -252,25 +252,25 @@ test_that("folders were correctly copied and renamed", {
   
   # uses the FTICR file names as the source of truth for checking
   
-  raw_water_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/CM_SSS_FTICR_Raw_Data/Water_FTICR_Raw_Data') %>%
+  raw_water_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Water_FTICR_Raw_Data') %>%
     tibble() %>%
     mutate(across(where(is.character), ~ gsub("\\.d", "", .))) %>% 
     pull(.) %>% 
     sort()
   
-  raw_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/CM_SSS_FTICR_Raw_Data/Sediment_FTICR_Raw_Data') %>%
+  raw_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sediment_FTICR_Raw_Data') %>%
     tibble() %>%
     mutate(across(where(is.character), ~ gsub("\\.d", "", .))) %>% 
     pull(.) %>% 
     sort()
   
-  xml_water_files <-  list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/FTICR/Water_FTICR_Data') %>%
+  xml_water_files <-  list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/Water_FTICR_Data') %>%
     tibble()%>%
     mutate(across(where(is.character), ~ gsub("\\.xml", "", .))) %>% 
     pull(.) %>% 
     sort()
   
-  xml_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/FTICR/Sediment_FTICR_Data') %>%
+  xml_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/Sediment_FTICR_Data') %>%
     tibble() %>%
     mutate(across(where(is.character), ~ gsub("\\.xml", "", .))) %>% 
     pull(.) %>% 
