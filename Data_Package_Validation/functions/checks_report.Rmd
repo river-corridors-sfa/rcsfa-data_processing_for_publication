@@ -191,6 +191,8 @@ output$data_checks %>%
     theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
     scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
     theme_minimal() +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    theme(panel.grid.minor = element_blank()) +
     labs(x = "File Extension", y = "Count of Files", title = paste0("Evaluation of File Extensions"))
     
 if (failed_no_proprietary_files != 0) {
@@ -253,6 +255,8 @@ output$data_checks %>%
     geom_text(aes(label = file_count), position = position_stack(vjust = 0.5)) +
     scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
     theme_minimal() +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    theme(panel.grid.minor = element_blank()) +
     labs(x = "Source", y = "Count of Files/Folders", title = paste0("Evaluation of Files and Folders with Special Characters"))
   
 
@@ -271,6 +275,12 @@ if (failed_no_special_chrs != 0) {
       geom_text(aes(label = n), position = position_stack(vjust = 0.5)) +
       scale_fill_manual(values = c("column_header" = "#da99de", "directory_name" = "#eded8e", "file_name" = "#8ec1ed")) +
       theme_minimal() +
+      scale_y_continuous(breaks = seq(0, max(output$data_checks %>% 
+                                           filter(assessment == "no special characters") %>% 
+                                           filter(pass_check == FALSE) %>% 
+                                           count(source, value) %>% 
+                                           pull(n)), 1)) +
+      theme(panel.grid.minor = element_blank()) +
       labs(x = "Special Character", y = "Count of Names with Special Characters", title = paste0("Evaluation of File, Folder, and Column Names with Special Characters")))
   
   
@@ -326,6 +336,7 @@ output$tabular_report %>%
          title = "Column names across all files",
          subtitle = "Red indicates a column name was used more than once within the same file") +
     theme_minimal() +
+    theme(panel.grid.minor = element_blank()) +
     coord_flip()
   
   
