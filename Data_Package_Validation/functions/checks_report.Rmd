@@ -71,6 +71,19 @@ all_check_table %>%
   row_spec(which(all_check_table$pass_check == FALSE), color = "black", bold = T)
 ```
 
+#### What to expect in the Required and Recommended sections
+Each tab provides an evaluation of specific data quality checks designed to ensure compliance with best practices for accessibility and usability. Each tab follows a consistent format, displaying potential issues. 
+
+- **Summary**: A statement at the top indicates whether any issues were detected and how many.  
+
+- **Visual Overview**: A chart provides a visual summary of the check results. Problematic items (e.g., missing files, proprietary file formats, special characters, or duplicate column names) are highlighted in red for easy identification.  
+
+- **Detailed Table (if applicable)**: If issues are detected, a table lists specific files, columns, or items that were evaluated during the check.  
+
+  
+#### What to do with this information  
+Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.  
+
 ## Required Checks {.tabset}
   
 ### Required Checks
@@ -143,6 +156,7 @@ Recommended checks:
 3. **`*no special characters` in file names**: The only characters allowed in file names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
 4. **`*no special characters` in column names**: The only characters allowed in tabular column headers are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. It is recommended that columns begin with a letter.  
 5. **`*no duplicate names` in column names**: Column names should be unique within the same file. The same column name can repeat across files if it shares the same definition and unit.  
+
 
 ### `no proprietary files` {.tabset}
 
@@ -292,7 +306,9 @@ failed_duplicate_names <- output$data_checks %>%
   pull(n)
 
 ```
-> <p style='color:black;'><strong> **Your data package has `r failed_duplicate_names` file(s) that contain duplicate column names.**  </strong></p>
+> <p style='color:black;'><strong> **Your data package has `r failed_duplicate_names` file(s) that contain duplicate column names.**  </strong></p>  
+
+Column names should be unique within each file. Column names can be repeated across files if they share the same definition.
 
 ```{r echo=FALSE}
 
@@ -347,10 +363,20 @@ dir_tree(output$input$inputs$directory, recurse = T)
 ```
 
 ### Tabular Data {.tabset}
+
+This table summarizes column-level details across all the tabular files in your data package, highlighting potential issues in your data.    
+
+Here are a few key columns to check:  
+- `num_missing_rows`: check for missing data (the value should be 0 unless missing values are expected).  
+- `range_min` & `range_max`: if applicable, validate numeric ranges to ensure realistic values.  
+- `num_negative_rows`: if applicable, check for unexpected negative values.  
+- `top_counts`: verify the top values in each column; this displays the top 5 most frequent values for each column.  
+
+
 ```{r echo=FALSE}
 
 output$tabular_report %>% 
-  select(-top_counts, top_counts) %>% # move top counts to end of df
+  select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>% # reorder
   # convert dbl to int and chr to fct
    mutate(across(
     .cols = everything(),
@@ -385,6 +411,13 @@ output$tabular_report %>%
 
 
 ## Full Data Checks Report {.tabset}
+
+The Summary Table and Data Checks tabs provide high-level and detailed insights into the quality of your data. Use the summary to identify major issues and the detailed checks to troubleshoot specific problems. 
+
+1. Start with Summary Table. Focus on checks with `pass_check = FAILED` to locate critical issues first.  
+2. Then use the Data Checks tab to find problematic files and review detailed explanations of failures.  
+3. Correct the issues in your data files based on the failures identified, then re-run the checks to ensure all problems have been resolved.   
+
 
 ### Summary Table {.tabset}
 ```{r echo=FALSE}
