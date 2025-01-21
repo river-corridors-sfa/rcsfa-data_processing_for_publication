@@ -1,31 +1,50 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2024-12-11
+# Date Updated: 2025-01-20
 # Author: Bibi Powers-McCormack
 
-# Objective: 
-  # functions to run checks on a given data package
+# This script evaluates and then summarizes data quality checks that are
+# performed on a data set. It generates a detailed output for all quality checks
+# as well as a condensed summary. The goal is to provide clear insights into
+# data quality issues, making it easier to identify and subsequently address
+# them.
+
+# The script contains 3 parts. Part 1 is a modular user-defined list that lets
+# the user adjust common parameters. Part 2 contains the core functions
+# responsible for performing data quality checks. Each function examines an
+# aspect of the input data package and returns a standardized data checks df
+# with the following fields: `requirement`, `pass_check`, `assessment`,
+# `source`, `value`, and `file`. Part 3 runs is the final function that combines
+# Part 1 and 2 to run checks at a data package level. While this entire script
+# is sourced into `data_package_checks.R`, it's this only this final function
+# that's actually used (with all of the Part 2 functions embedded within) in
+# other scripts.
 
 # Inputs: 
-  # all functions require the output from the load_tabular_data_from_flmd.R script
+  # the main function in part 2 requires the output from the `load_tabular_data_from_flmd.R` script
 
 # Outputs: 
+  # All of the functions in Part 2 have this output: 
+    # requirement = indicates the type of requirement with c("required", "strongly_recommended", "recommended", "optional") as options.
+    # pass_check = is a logical T/F indication of whether the assessment passed or failed. 
+    # assessment = describes the specific assessment that the data were evaluated against; each check function has it's own unique assessment name.
+    # input = indicates the exact value (such as a file name or column header) that the assessment was evaluating.
+    # value = indicates the specific content of the input that was being assessed or triggered a failure (e.g., if special chrs are being evaluated and input = "example$input", then the value will be "$").
+    # source = indicates what the assessment is checking; options are c("all_file_names", "file_name", "directory_name","column_header").
+    # file = provides the file that's being assessed.
 
-# Assumptions: 
+  # The output of Part 3 is a list: 
+    # input = 
+    # parameters
+    # data_checks_summary
+    # data_checks
+    # tabular_report
 
 # Status: in progress
-  # next step: iteratively test and resolve bugs
-    # resolve bugs
-      # add for check to fail if it's empty for file_name or column_header still broken - DONE
-      # not able to finish loop. fails with error in mutate() bc can't transform a df with NA or "" names - DONE
-      # for column headers, add check for column name is duplicated - DONE
-      # for file names, add check for duplicate file names - DONE
-      # bad column headers are still passing - go back to check that column header assessments are being done correctly - DONE
-      # the summary counts aren't working - if one header fails, it still reports that whole file as "passing" when I don't want it to
-      # data checks output collapses to show distinct rows; this means that when there are duplicate headers there is only one row entry
-    # test this script with a couple other data package examples
-    # if all looks good, start on html output - may have to come back here to edit outputs/inputs for html report
-    # update commented readme text at the top of the script
+  # next steps: 
+    # clean up script
+    # turn part 3 into a function
+    # test functions on a couple of data packages
 
 
 # ### TEST SPACE #################################################################
