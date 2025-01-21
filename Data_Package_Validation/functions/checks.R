@@ -58,48 +58,6 @@
     # test functions on a couple of data packages
 
 
-# ### TEST SPACE #################################################################
-# # load libraries
-# library(rstudioapi)
-# library(tidyverse)
-# library(rlog)
-# library(devtools) # for sourcing from github
-# library(hms) # for handling times
-# library(fs) # for tree diagram
-# library(clipr) # for copying to clipboard
-# library(knitr) # for kable
-# library(kableExtra) # for rmd report table styling
-# library(DT) # for interactive tables in report
-# library(rmarkdown) # for rendering report
-# library(plotly) # for interactive graphs
-# 
-# # set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
-# current_path <- rstudioapi::getActiveDocumentContext()$path # get current path
-# setwd(dirname(current_path)) # set wd to current path
-# rm(current_path)
-# setwd("../...") # move wd back to the repo directory
-# getwd()
-# 
-# # load functions
-# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R")
-# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R")
-# 
-# # set up - for setting up a new data package to test
-# test_directory <- "C:/Users/powe419/Downloads/Sandbox_Data"
-# 
-# test_data <- load_tabular_data_from_flmd(directory = test_directory)
-# 
-# data_package_data <- test_data
-# 
-# save(test_data, data_package_data, 
-#      file = "C:/Users/powe419/Downloads/checks_test_data.Rda")
-# 
-# # after set up - after you've run that once, you can just load it in now
-# 
-# # load data
-# load("C:/Users/powe419/Downloads/checks_test_data.Rda")
-
-
 ### Checks Inputs ##############################################################
 # this chunk provides all the modular, although generally consistent parameters for the checks
 
