@@ -33,12 +33,23 @@
     # source = indicates what the assessment is checking; options are c("all_file_names", "file_name", "directory_name","column_header").
     # file = provides the file that's being assessed.
 
-  # The output of Part 3 is a list: 
-    # input = 
-    # parameters
-    # data_checks_summary
-    # data_checks
-    # tabular_report
+  # The output of Part 3 is a list that includes the function's inputs and 3 output tables: 
+    # input = a list that's the input to this function but the output to `load_tabular_data_from_flmd.R`. inputs are what was originally provided as an input to the load_tabular_data_from_flmd() function; outputs are outputs from `load_tabular_data_from_flmd()`.
+      # output$input$inputs$directory = the user provided directory
+      # output$input$inputs$flmd_df = the (optional) user provided flmd
+      # output$input$inputs$exclude_files = a vector of files to exclude
+      # output$input$inputs$include_files = a vector of files to filter for/include
+      # output$input$outputs$header_row_info = a df that includes the columns c("File_Name", File_Path_Absolute", "Header_Position", "Data_Start_Row") to aid in reading in files
+      # output$input$outputs$filtered_file_paths = a vector of absolute file paths to read in (fitlered if exclude or include files were provided)
+      # output$input$outputs$tabular_data = a list of all the dfs read in
+    # parameters = a list of the modular parameters that this check was based off of
+      # output$parameters$required_file_strings = a list of file strings that are required to be in the data package
+      # output$parameters$special_chrs = a vector of characters that are not allowed (regex)
+      # output$parameters$no_proprietary_extensions = a vector of file extensions that are not allowed
+      # output$parameters$missing_value_codes = a vector of values that indicate missing data
+    # data_checks_summary = a df that summarizes the results of the data checks
+    # data_checks = a df that includes a detailed output of all the data checks
+    # tabular_report = a df that provides a summary of each column including data types, row-level statistics, and potential quality issues
 
 # Status: in progress
   # next steps: 
