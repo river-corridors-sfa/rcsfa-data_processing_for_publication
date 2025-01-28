@@ -327,7 +327,7 @@ combine <- bind_rows(data$data) %>%
   
   # identify fake boye files and then remove them
   mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
-  filter(is_fake_boye == FALSE) %>% 
+  filter(is_fake_boye == FALSE | is.na(is_fake_boye)) %>% 
   select(-is_fake_boye) %>% 
   
   # remove text flags
