@@ -100,20 +100,29 @@ read_in_files <- function(analyte_files, material) {
       # convert all to chr (temporarily)
       mutate(across(everything(), as.character))
     
-    # show all character data values
-    cat("\n", "The above text values will be converted to NA. Okay to proceed?",
-    current_file %>% 
+    # extract any values that have letters in them
+    current_file_with_letters <- current_file %>% 
       select(-any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material",  "Methods_Deviation", "file_name", "user_provided_material"))) %>% 
       mutate(across(everything(), ~ case_when(str_detect(., "[A-Za-z]") ~ ., TRUE ~ NA))) %>% # shows the user any values that have letters in them
       pivot_longer(everything()) %>%
       filter(!is.na(value)) %>%
       pull(value) %>%
       unique(.) %>% 
-      unlist() %>% 
-      cat(., sep = "\n"))
+      unlist()
+    
+    if (length(current_file_with_letters > 0)) {
       
-    # ask if okay to convert all of those to NA
-    response <- readline(prompt = "(Y/N): ")
+      # show all character data values
+      cat("\n", "The above text values will be converted to NA. Okay to proceed?",
+          current_file_with_letters %>% 
+            cat(., sep = "\n"))
+      
+      # ask if okay to convert all of those to NA
+      response <- readline(prompt = "(Y/N): ")
+      
+    } else {
+      response <- "Y"
+    }
     
     # if yes, then convert all to NA
     if (tolower(response) == "y") {
@@ -344,7 +353,7 @@ drop_df_columns <- function(df, drop_indices) {
 options(scipen = 999) # you can check your current scipen value wtih getOption("scipen"); the default is 0 and increasing it reduced the likelihood of scientific notation being used
 
 analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
-analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
+analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)] # removing any file that says Mass_Volumne because sometimes those files also have the material type in them, but we don't want them included in the summary
 print(basename(analyte_files))
 
 # check if a summary file already exists - if it does, warn the user
