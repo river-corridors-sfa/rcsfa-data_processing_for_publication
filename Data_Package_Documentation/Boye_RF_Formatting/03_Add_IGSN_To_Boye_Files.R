@@ -53,7 +53,7 @@ material <- data %>%
   pull()
 
 
-if(str_detect(dp_dir, 'EC')){ # IGSN in field metadata for ECA so having to pull in a different way
+if(str_detect(dp_dir, 'EC|EV')){ # IGSN in field metadata for ECA so having to pull in a different way
   
   igsn <- read_csv(list.files(dp_dir, 'Metadata', full.names = T)) %>%
     select(Parent_ID, IGSN) 
