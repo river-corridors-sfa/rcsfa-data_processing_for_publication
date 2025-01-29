@@ -476,12 +476,68 @@ test_that("average works when some reps are NA", {
 })
 
 
+
 ### Run tests for inputs & outputs #############################################
 
-# these tests were never developed because the main script has the verification
-# we want. the biggest issue was to make sure the headers align correctly with
-# the data before the rbind together upon export.
+test_that("filter correctly returns text in mixed columns", {
+  
+  testing_data <- tibble(
+    col1 = c(12, -5.4, "abc", "123abc", 56),
+    col2 = c("hello", "world", 3.14, -0.9, "xyz123"),
+    col3 = c(100, -200, "42", "45.67", "-100.5"),
+    col4 = c("hello123", 5.678, "test", "-42.56", 99),
+    col5 = c("-3", "4.5", "text_flag|000", 99, 150)
+  )
+  
+  result <- testing_data %>% 
+    mutate(across(everything(), as.character)) %>%  # Convert all columns to character type
+    mutate(across(everything(), ~ case_when(str_detect(., "[A-Za-z]") ~ ., TRUE ~ NA))) %>% # shows the user any values that have letters in them
+    pivot_longer(everything()) %>%
+    filter(!is.na(value)) %>%
+    pull(value) %>%
+    unique(.) %>% 
+    unlist() %>%
+    sort() %>% 
+    print()
+    
+  expected_result <- c("123abc", "abc", "hello", "hello123", "test", "text_flag|000", "world", "xyz123")
+  
+  expect_equal(object = result,
+               expected = expected_result)
+  
+})
 
+
+test_that("data has correct struture types when reading in", {
+  
+  # create temporary data
+  testing_data <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
+    mutate(Field_Name = as.logical(Field_Name)) %>%
+    mutate(Total_P_mg_per_L = case_when(row_number() %% 2 == 1 ~ "text_flag|000",
+                                        T ~ as.character(round(runif(n(), min = 0, max = 25)))))
+  
+  # create temp dir and write out testing data to it
+  temp_dir <- tempdir()
+  write_csv(tibble(header = c(1, 2)), file = paste0(temp_dir, "/testing_Water_data.csv"), col_names = F)
+  write_csv(testing_data, file = paste0(temp_dir, "/testing_Water_data.csv"), append = T, col_names = T)
+  
+  # read file back in
+  result <- read_in_files(analyte_files = analyte_files, material = "Water")
+  
+  expected_result <- testing_data %>% 
+    mutate(Total_P_mg_per_L = case_when(Total_P_mg_per_L == "text_flag|000" ~ NA_character_, T ~ Total_P_mg_per_L)) %>% 
+    mutate(Total_P_mg_per_L = as.numeric(Total_P_mg_per_L)) %>% 
+    create_long_testing_data() %>% 
+    mutate(file_name = "testing_Water_data")
+    
+  
+  # the two files should match
+  expect_equal(object = result$data$testing_Water_data,
+               expected = expected_result)
+  
+  
+})
+  
 
 test_that("user selections correctly select the columns to drop", {
   

@@ -96,27 +96,62 @@ read_in_files <- function(analyte_files, material) {
       # split out sample name
       separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
       separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
+    
+      # convert all to chr (temporarily)
+      mutate(across(everything(), as.character))
+    
+    # show all character data values
+    cat("\n", "The above text values will be converted to NA. Okay to proceed?",
+    current_file %>% 
+      select(-any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material",  "Methods_Deviation", "file_name", "user_provided_material"))) %>% 
+      mutate(across(everything(), ~ case_when(str_detect(., "[A-Za-z]") ~ ., TRUE ~ NA))) %>% # shows the user any values that have letters in them
+      pivot_longer(everything()) %>%
+      filter(!is.na(value)) %>%
+      pull(value) %>%
+      unique(.) %>% 
+      unlist() %>% 
+      cat(., sep = "\n"))
       
-      # count number of reps
-      group_by(parent_id) %>% 
-      mutate(number_of_reps = n_distinct(rep)) %>% 
+    # ask if okay to convert all of those to NA
+    response <- readline(prompt = "(Y/N): ")
+    
+    # if yes, then convert all to NA
+    if (tolower(response) == "y") {
       
-      # pivot longer
-      group_by(across(c(Sample_Name, parent_id, analyte, rep, Material, Methods_Deviation, file_name, user_provided_material, number_of_reps))) %>% 
-      pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
-                   names_to = "data_type", 
-                   values_to = "data_value") %>% 
-      ungroup()
-    
-    # add to list
-    data_files[[current_file_name]] <- current_file
-    
-    
-    # read in headers
-    current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)
-    
-    # add to list
-    data_headers[[current_file_name]] <- current_headers
+      # then convert all data values to numeric
+      current_file <- current_file %>% 
+        mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
+                      ~ case_when(str_detect(.x, "[A-Za-z]") ~ NA_character_, 
+                                  TRUE ~ .x))) %>% 
+        mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
+                              ~ as.numeric(.))) %>% 
+        
+        # count number of reps
+        group_by(parent_id) %>% 
+        mutate(number_of_reps = n_distinct(rep)) %>% 
+        
+        # pivot longer
+        group_by(across(c(Sample_Name, parent_id, analyte, rep, Material, Methods_Deviation, file_name, user_provided_material, number_of_reps))) %>% 
+        pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
+                     names_to = "data_type", 
+                     values_to = "data_value") %>% 
+        ungroup()
+      
+      # add to list
+      data_files[[current_file_name]] <- current_file
+      
+      
+      # read in headers
+      current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)
+      
+      # add to list
+      data_headers[[current_file_name]] <- current_headers
+      
+    } else{
+      
+      stop("Script stoping.")
+      
+    }
     
   }
   
