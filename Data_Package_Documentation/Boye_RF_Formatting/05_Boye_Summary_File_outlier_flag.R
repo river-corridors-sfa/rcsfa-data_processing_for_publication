@@ -340,6 +340,9 @@ drop_df_columns <- function(df, drop_indices) {
   # fake boye files have text in their data column that starts with "See_"
   # if an igsn column is present in the boye file, it will drop it
 
+# increases threshold for using scientific notation
+options(scipen = 999) # you can check your current scipen value wtih getOption("scipen"); the default is 0 and increasing it reduced the likelihood of scientific notation being used
+
 analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
 analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
 print(basename(analyte_files))
