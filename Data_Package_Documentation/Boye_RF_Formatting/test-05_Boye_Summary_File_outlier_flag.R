@@ -514,7 +514,8 @@ test_that("data has correct struture types when reading in", {
   testing_data <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
     mutate(Field_Name = as.logical(Field_Name)) %>%
     mutate(Total_P_mg_per_L = case_when(row_number() %% 2 == 1 ~ "text_flag|000",
-                                        T ~ as.character(round(runif(n(), min = 0, max = 25)))))
+                                        T ~ as.character(round(runif(n(), min = 0, max = 25))))) %>% 
+    mutate(across(where(is.numeric), ~round(., 5))) # round to 5 decimal points
   
   # create temp dir and write out testing data to it
   temp_dir <- tempdir()
@@ -522,18 +523,35 @@ test_that("data has correct struture types when reading in", {
   write_csv(testing_data, file = paste0(temp_dir, "/testing_Water_data.csv"), append = T, col_names = T)
   
   # read file back in
-  result <- read_in_files(analyte_files = analyte_files, material = "Water")
+  result <- read_in_files(analyte_files = paste0(temp_dir, "/testing_Water_data.csv"), material = "Water")
   
   expected_result <- testing_data %>% 
-    mutate(Total_P_mg_per_L = case_when(Total_P_mg_per_L == "text_flag|000" ~ NA_character_, T ~ Total_P_mg_per_L)) %>% 
-    mutate(Total_P_mg_per_L = as.numeric(Total_P_mg_per_L)) %>% 
+    mutate(across(everything(), as.character)) %>%
     create_long_testing_data() %>% 
     mutate(file_name = "testing_Water_data")
+  
+  cat("values in result that are not in expected: ")
+  setdiff(result$data$testing_Water_data$data_value, expected_result$data_value) %>% 
+    print()
+  
+  # shows the values in the result that don't match to expected
+  result$data$testing_Water_data %>% 
+    anti_join(expected_result) %>% 
+    print()
+  
+  cat("values in expected that are not in result: ")
+  setdiff(expected_result$data_value, result$data$testing_Water_data$data_value) %>% 
+    print()
+  
+  # shows the values in expected that aren't in the result
+  expected_result %>% 
+    anti_join(result$data$testing_Water_data) %>% 
+    print()
     
   
   # the two files should match
   expect_equal(object = result$data$testing_Water_data,
-               expected = expected_result)
+               expected = expected_result) 
   
   
 })

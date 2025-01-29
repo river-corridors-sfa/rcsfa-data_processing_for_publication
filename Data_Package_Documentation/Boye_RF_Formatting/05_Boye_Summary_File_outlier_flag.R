@@ -100,40 +100,40 @@ read_in_files <- function(analyte_files, material) {
       # convert all to chr (temporarily)
       mutate(across(everything(), as.character))
     
-    # extract any values that have letters in them
-    current_file_with_letters <- current_file %>% 
-      select(-any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material",  "Methods_Deviation", "file_name", "user_provided_material"))) %>% 
-      mutate(across(everything(), ~ case_when(str_detect(., "[A-Za-z]") ~ ., TRUE ~ NA))) %>% # shows the user any values that have letters in them
-      pivot_longer(everything()) %>%
-      filter(!is.na(value)) %>%
-      pull(value) %>%
-      unique(.) %>% 
-      unlist()
+    # # extract any values that have letters in them
+    # current_file_with_letters <- current_file %>% 
+    #   select(-any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material",  "Methods_Deviation", "file_name", "user_provided_material"))) %>% 
+    #   mutate(across(everything(), ~ case_when(str_detect(., "[A-Za-z]") ~ ., TRUE ~ NA))) %>% # shows the user any values that have letters in them
+    #   pivot_longer(everything()) %>%
+    #   filter(!is.na(value)) %>%
+    #   pull(value) %>%
+    #   unique(.) %>% 
+    #   unlist()
+    # 
+    # if (length(current_file_with_letters > 0)) {
+    #   
+    #   # show all character data values
+    #   cat("\n", "The above text values will be converted to NA. Okay to proceed?",
+    #       current_file_with_letters %>% 
+    #         cat(., sep = "\n"))
+    #   
+    #   # ask if okay to convert all of those to NA
+    #   response <- readline(prompt = "(Y/N): ")
+    #   
+    # } else {
+    #   response <- "Y"
+    # }
     
-    if (length(current_file_with_letters > 0)) {
-      
-      # show all character data values
-      cat("\n", "The above text values will be converted to NA. Okay to proceed?",
-          current_file_with_letters %>% 
-            cat(., sep = "\n"))
-      
-      # ask if okay to convert all of those to NA
-      response <- readline(prompt = "(Y/N): ")
-      
-    } else {
-      response <- "Y"
-    }
-    
-    # if yes, then convert all to NA
-    if (tolower(response) == "y") {
+    # # if yes, then convert all to NA
+    # if (tolower(response) == "y") {
       
       # then convert all data values to numeric
       current_file <- current_file %>% 
-        mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
-                      ~ case_when(str_detect(.x, "[A-Za-z]") ~ NA_character_, 
-                                  TRUE ~ .x))) %>% 
-        mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
-                              ~ as.numeric(.))) %>% 
+        # mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
+        #               ~ case_when(str_detect(.x, "[A-Za-z]") ~ NA_character_, 
+        #                           TRUE ~ .x))) %>% 
+        # mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
+        #                       ~ as.numeric(.))) %>% 
         
         # count number of reps
         group_by(parent_id) %>% 
@@ -156,11 +156,11 @@ read_in_files <- function(analyte_files, material) {
       # add to list
       data_headers[[current_file_name]] <- current_headers
       
-    } else{
-      
-      stop("Script stoping.")
-      
-    }
+    # } else{
+    #   
+    #   stop("Script stoping.")
+    #   
+    # }
     
   }
   
