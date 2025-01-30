@@ -400,7 +400,9 @@ indexed_summary_cols <- colnames(summary) %>%
                                                         "DO_Concentration_At_Incubation_Time_Zero"
                                                         )))) %>% 
   ungroup() %>% 
-  mutate(to_remove = case_when(to_remove == TRUE ~ TRUE))
+  mutate(to_remove = case_when(to_remove == TRUE ~ TRUE)) %>% 
+  mutate(to_remove = case_when(column_name %in% c("Field_Name", "Sample_Name", "Material", "Mean_Missing_Reps") ~ FALSE, T ~ to_remove)) %>% 
+  mutate(index = case_when(to_remove == FALSE ~ NA_integer_, T ~ index))
 
 # if any cols in summary match with cols we commonly remove, ask user if they'd like to remove those cols
 if ((indexed_summary_cols %>% 
