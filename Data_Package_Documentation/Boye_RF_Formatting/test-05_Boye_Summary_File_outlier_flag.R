@@ -1,6 +1,6 @@
 ### test-05_Boye_Summary_File.R ################################################
 # Date Created: 2024-10-31
-# Date Updated: 2024-12-26
+# Date Updated: 2025-01-29
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -179,7 +179,8 @@ create_wide_testing_data <- function(outlier_options, set_seed = 637) {
                          Percent_Coarse_Sand = runif(length(outlier_options), min = 0, max = 1),
                          Percent_Tot_Sand = runif(length(outlier_options), min = 0, max = 1),
                          Percent_Silt = runif(length(outlier_options), min = 0, max = 1),
-                         Percent_Clay = runif(length(outlier_options), min = 0, max = 1))
+                         Percent_Clay = runif(length(outlier_options), min = 0, max = 1)) %>% 
+    mutate(across(where(is.numeric), ~ round(., 5)))
   
   return(testing_data)
 }
@@ -479,6 +480,23 @@ test_that("average works when some reps are NA", {
 
 ### Run tests for inputs & outputs #############################################
 
+read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/WHONDRS_AV1_Sediment_Incubations_Respiration_Rates.csv", skip = 2) %>%
+  filter(!is.na(Sample_Name)) %>% 
+  select(-Field_Name) %>% 
+  select(-any_of("IGSN")) %>% 
+  
+  # add user input material
+  mutate(user_provided_material = material) %>% 
+  
+  # split out sample name
+  separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
+  separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
+  
+  # convert all to chr (temporarily)
+  mutate(across(everything(), as.character)) %>% 
+  View()
+
+
 test_that("filter correctly returns text in mixed columns", {
   
   testing_data <- tibble(
@@ -553,6 +571,35 @@ test_that("data has correct struture types when reading in", {
   expect_equal(object = result$data$testing_Water_data,
                expected = expected_result) 
   
+  
+})
+
+test_that("combine function correctly connects data", {
+  
+  data1 <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
+            mutate(Total_P_mg_per_L = case_when(row_number() %% 2 == 1 ~ "text_flag|000",
+                                                T ~ as.character(round(runif(n(), min = 0, max = 25))))) %>% 
+            mutate(across(everything(), as.character))
+  
+  data2 <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 987) %>% 
+            mutate(across(everything(), as.character))
+    
+  
+  testing_data <- list(data = list(data1 = create_long_testing_data(data1),
+                                   data2 = create_long_testing_data(data2)))
+    
+  result <- combine_data(testing_data) %>% 
+    arrange(Sample_Name, data_type, data_value)
+  
+  expected_result <- bind_rows(create_long_testing_data(create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
+                                                          mutate(Total_P_mg_per_L = case_when(row_number() %% 2 == 1 ~ NA_character_,
+                                                                                              T ~ as.character(round(runif(n(), min = 0, max = 25))))) %>% 
+                                                          mutate(Total_P_mg_per_L = as.numeric(Total_P_mg_per_L))),
+                               create_long_testing_data(create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 987))) %>% 
+    arrange(Sample_Name, data_type, data_value)
+  
+  expect_equal(object = result,
+               expected = expected_result)
   
 })
   

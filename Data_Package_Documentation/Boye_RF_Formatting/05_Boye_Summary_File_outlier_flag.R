@@ -14,9 +14,9 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-12-26: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2025-01-29: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
-# Status: complete 
+# Status: in progress 
 
 # INPUTS: 
   # assumptions for the inputs files: 
@@ -97,53 +97,18 @@ read_in_files <- function(analyte_files, material) {
       separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
       separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
     
-      # convert all to chr (temporarily)
-      mutate(across(everything(), as.character))
-    
-    # # extract any values that have letters in them
-    # current_file_with_letters <- current_file %>% 
-    #   select(-any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material",  "Methods_Deviation", "file_name", "user_provided_material"))) %>% 
-    #   mutate(across(everything(), ~ case_when(str_detect(., "[A-Za-z]") ~ ., TRUE ~ NA))) %>% # shows the user any values that have letters in them
-    #   pivot_longer(everything()) %>%
-    #   filter(!is.na(value)) %>%
-    #   pull(value) %>%
-    #   unique(.) %>% 
-    #   unlist()
-    # 
-    # if (length(current_file_with_letters > 0)) {
-    #   
-    #   # show all character data values
-    #   cat("\n", "The above text values will be converted to NA. Okay to proceed?",
-    #       current_file_with_letters %>% 
-    #         cat(., sep = "\n"))
-    #   
-    #   # ask if okay to convert all of those to NA
-    #   response <- readline(prompt = "(Y/N): ")
-    #   
-    # } else {
-    #   response <- "Y"
-    # }
-    
-    # # if yes, then convert all to NA
-    # if (tolower(response) == "y") {
+      # convert all to chr (temporarily - will convert back in later step)
+      mutate(across(everything(), as.character)) %>% 
+        
+      # count number of reps
+      group_by(parent_id) %>% 
+      mutate(number_of_reps = n_distinct(rep)) %>% 
       
-      # then convert all data values to numeric
-      current_file <- current_file %>% 
-        # mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
-        #               ~ case_when(str_detect(.x, "[A-Za-z]") ~ NA_character_, 
-        #                           TRUE ~ .x))) %>% 
-        # mutate(across(!any_of(c("Sample_Name", "parent_id", "analyte", "rep", "Material", "Methods_Deviation", "file_name", "user_provided_material")), 
-        #                       ~ as.numeric(.))) %>% 
-        
-        # count number of reps
-        group_by(parent_id) %>% 
-        mutate(number_of_reps = n_distinct(rep)) %>% 
-        
-        # pivot longer
-        group_by(across(c(Sample_Name, parent_id, analyte, rep, Material, Methods_Deviation, file_name, user_provided_material, number_of_reps))) %>% 
-        pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
-                     names_to = "data_type", 
-                     values_to = "data_value") %>% 
+      # pivot longer
+      group_by(across(c(Sample_Name, parent_id, analyte, rep, Material, Methods_Deviation, file_name, user_provided_material, number_of_reps))) %>% 
+      pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
+                   names_to = "data_type", 
+                   values_to = "data_value") %>% 
         ungroup()
       
       # add to list
@@ -155,12 +120,6 @@ read_in_files <- function(analyte_files, material) {
       
       # add to list
       data_headers[[current_file_name]] <- current_headers
-      
-    # } else{
-    #   
-    #   stop("Script stoping.")
-    #   
-    # }
     
   }
   
@@ -178,6 +137,63 @@ read_in_files <- function(analyte_files, material) {
   return(data)
   
 } # end of `read_in_files()` function
+
+
+combine_data <- function(data) {
+  
+  # inputs: 
+    # data = list of dfs saved as a sublist from the read_in_files function (data$data$dfs)
+  # outputs: 
+    # combine_data = long df of all data combined together
+  
+  # extract any values that have letters in them
+  data_with_letters <- bind_rows(data$data) %>% 
+    mutate(data_value = case_when(str_detect(data_value, "[A-Za-z]") ~ data_value, TRUE ~ NA)) %>% 
+    filter(!is.na(data_value)) %>% 
+    pull(data_value) %>% 
+    unique(.) %>% 
+    unlist()
+  
+  if (length(data_with_letters > 0)) {
+    
+    # show all character data values
+    cat("\n", "The above text values will be converted to NA. Okay to proceed?",
+        data_with_letters %>%
+          cat(., sep = "\n"))
+    
+    # ask if okay to convert all of those to NA
+    response <- readline(prompt = "(Y/N): ")
+    
+  } else {
+    response <- "Y"
+  }
+  
+  if (tolower(response) == "y") {
+    
+    combine_df <- bind_rows(data$data) %>% 
+      
+      # identify fake boye files and then remove them
+      mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
+      filter(is_fake_boye == FALSE | is.na(is_fake_boye)) %>% 
+      select(-is_fake_boye) %>% 
+      
+      # remove text flags
+      rowwise() %>% 
+      mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
+      mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
+      mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
+      select(-is_numeric) %>% 
+      ungroup()
+    
+  } else {
+    
+    stop("Script stoping.")
+    
+  }
+  
+  return(combine_df)
+  
+} # end of `combine_data()` function
 
 # function to assign flags
 assign_flags <- function(combine_df) {
@@ -370,20 +386,8 @@ data <- read_in_files(analyte_files, material = material)
   # fake boye files, identified by the presence of "See_" in the data value column are filtered out (the entire row removed)
   # all other text values (e.g., text flags) are converted to NA (the row is kept, but the value converted to NA)
 
-combine <- bind_rows(data$data) %>% 
-  
-  # identify fake boye files and then remove them
-  mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
-  filter(is_fake_boye == FALSE | is.na(is_fake_boye)) %>% 
-  select(-is_fake_boye) %>% 
-  
-  # remove text flags
-  rowwise() %>% 
-  mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
-  mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
-  mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
-  select(-is_numeric) %>% 
-  ungroup()
+# combine all data dfs together + drop fake boyes and text flags
+combine <- combine_data(data)
 
 
 # ====================== remove outliers =======================================
