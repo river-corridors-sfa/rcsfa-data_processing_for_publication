@@ -340,7 +340,7 @@ drop_df_columns <- function(df, drop_indices) {
   
   # Display columns to be dropped
   message("The following columns will be dropped:")
-  print(df %>% select(all_of(drop_cols)))
+  print(df %>% select(all_of(drop_cols)) %>% str())
   
   # Ask for confirmation
   confirm <- readline(prompt = "Do you want to proceed? (Y/N): ")
@@ -471,11 +471,12 @@ if ((indexed_summary_cols %>%
   # remove default cols
   # remove additional cols
   # remove no cols
-cat("We often remove the following columns from the data package summary files. ", 
+cat("Columns that are typically removed are indicated as 'TRUE' in the `to_remove` column and 'FALSE' indicates the column cannot be removed. ", 
     View(indexed_summary_cols))
   
   response_1 <- readline(prompt = "Would you like to remove all of the indicated columns from the summary file (Y/N)? ")
-  response_2 <- readline(prompt = "Which (additional) column(s) would you like to remove? Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none. ")
+  response_2 <- readline(prompt = paste0("Which (additional) column(s) would you like to remove?, "\n", 
+                                          Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none: "))
   
   
 } else {
@@ -484,7 +485,8 @@ cat("We often remove the following columns from the data package summary files. 
   View(indexed_summary_cols)
   cat("\n")
   
-  response_2 <- readline(prompt = "Would you like to remove any column(s) from the summary file? If so, provide a comma-separated list of index numbers (e.g., '3, 5, 8'); otherwise write '0' if none. ")
+  response_2 <- readline(prompt = paste0("Would you like to remove any column(s) from the summary file?", "\n", 
+                                          "If so, provide a comma-separated list of index numbers (e.g., '3, 5, 8'); otherwise write '0' if none: "))
   
 }
 
