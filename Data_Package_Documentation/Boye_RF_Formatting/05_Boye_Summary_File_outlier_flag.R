@@ -14,7 +14,7 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-12-26: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2025-02-03: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
 # Status: complete 
 
@@ -96,7 +96,10 @@ read_in_files <- function(analyte_files, material) {
       # split out sample name
       separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
       separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
-      
+    
+      # convert all to chr (temporarily - will convert back in later step)
+      mutate(across(everything(), as.character)) %>% 
+        
       # count number of reps
       group_by(parent_id) %>% 
       mutate(number_of_reps = n_distinct(rep)) %>% 
@@ -106,17 +109,17 @@ read_in_files <- function(analyte_files, material) {
       pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
                    names_to = "data_type", 
                    values_to = "data_value") %>% 
-      ungroup()
-    
-    # add to list
-    data_files[[current_file_name]] <- current_file
-    
-    
-    # read in headers
-    current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)
-    
-    # add to list
-    data_headers[[current_file_name]] <- current_headers
+        ungroup()
+      
+      # add to list
+      data_files[[current_file_name]] <- current_file
+      
+      
+      # read in headers
+      current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)
+      
+      # add to list
+      data_headers[[current_file_name]] <- current_headers
     
   }
   
@@ -134,6 +137,68 @@ read_in_files <- function(analyte_files, material) {
   return(data)
   
 } # end of `read_in_files()` function
+
+
+combine_data <- function(data) {
+  
+  # inputs: 
+    # data = list of dfs saved as a sublist from the read_in_files function (data$data$dfs)
+  # outputs: 
+    # combine_data = long df of all data combined together
+  
+  # extract any values that have letters in them
+  data_with_letters <- bind_rows(data$data) %>% 
+    mutate(data_value = case_when(str_detect(data_value, "[A-Za-z]") ~ data_value, TRUE ~ NA)) %>% 
+    filter(!is.na(data_value)) %>% 
+    pull(data_value) %>% 
+    unique(.) %>% 
+    unlist()
+  
+  if (length(data_with_letters > 0)) {
+    
+    # show all character data values
+    cat("\n", "The above text values will be converted to NA. Okay to proceed?",
+        data_with_letters %>%
+          cat(., sep = "\n"))
+    
+    # ask if okay to convert all of those to NA
+    response <- readline(prompt = "(Y/N): ")
+    
+  } else {
+    response <- "Y"
+  }
+  
+  if (tolower(response) == "y") {
+    
+    combine_df <- bind_rows(data$data) %>% 
+      
+      # identify fake boye files and then remove them
+      mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
+      filter(is_fake_boye == FALSE | is.na(is_fake_boye)) %>% 
+      select(-is_fake_boye) %>% 
+      
+      # remove text flags
+      rowwise() %>% 
+      mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
+      mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
+      mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
+      select(-is_numeric) %>% 
+      ungroup()
+
+    return(combine_df) # returns df
+    
+  } else if (tolower(response) == "n") {
+    
+    warning("The `data_value` column must be numeric. Fix your data and try again.")
+    return(invisible(NULL)) # exits function
+    
+  } else {
+    
+    stop("The script is stopping due to an issue. Please check your input data and try again.")
+    
+  }
+  
+} # end of `combine_data()` function
 
 # function to assign flags
 assign_flags <- function(combine_df) {
@@ -305,8 +370,11 @@ drop_df_columns <- function(df, drop_indices) {
   # fake boye files have text in their data column that starts with "See_"
   # if an igsn column is present in the boye file, it will drop it
 
+# increases threshold for using scientific notation
+options(scipen = 999) # you can check your current scipen value wtih getOption("scipen"); the default is 0 and increasing it reduced the likelihood of scientific notation being used
+
 analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
-analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
+analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)] # removing any file that says Mass_Volumne because sometimes those files also have the material type in them, but we don't want them included in the summary
 print(basename(analyte_files))
 
 # check if a summary file already exists - if it does, warn the user
@@ -323,20 +391,8 @@ data <- read_in_files(analyte_files, material = material)
   # fake boye files, identified by the presence of "See_" in the data value column are filtered out (the entire row removed)
   # all other text values (e.g., text flags) are converted to NA (the row is kept, but the value converted to NA)
 
-combine <- bind_rows(data$data) %>% 
-  
-  # identify fake boye files and then remove them
-  mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
-  filter(is_fake_boye == FALSE | is.na(is_fake_boye)) %>% 
-  select(-is_fake_boye) %>% 
-  
-  # remove text flags
-  rowwise() %>% 
-  mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
-  mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
-  mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
-  select(-is_numeric) %>% 
-  ungroup()
+# combine all data dfs together + drop fake boyes and text flags
+combine <- combine_data(data)
 
 
 # ====================== remove outliers =======================================
