@@ -40,10 +40,10 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_Data_Package" 
+directory <- "C:/Brieanne/GitHub/YRB_Water_Column_Respiration" 
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_Data_Package"
+out_directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package"
   
 
 ### Run Functions ##############################################################
@@ -73,7 +73,7 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 # left join prelim dd to this dd
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/EC_dd.csv")
+prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Archive/Fulton_2024_Water_Column_Respiration_Data_Package_dd.csv")
 
 
 dd_skeleton <- dd_skeleton %>%
@@ -83,7 +83,7 @@ dd_skeleton <- dd_skeleton %>%
 
 # left join prelim flmd to this flmd
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/EC_flmd.csv") %>%
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Archive/Fulton_2024_Water_Column_Respiration_Data_Package_flmd.csv") %>%
 
   select(-File_Path)
 
@@ -116,7 +116,7 @@ flmd_skeleton <- flmd_skeleton %>%
   # After exporting, remember to properly rename the dd and flmd files and to update the flmd to reflect such changes.
 
 # write out data package data
-save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
+# save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
 
 # write out skeleton dd
 write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"), na = "")
