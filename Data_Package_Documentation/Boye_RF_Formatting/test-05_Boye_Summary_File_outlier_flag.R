@@ -1,6 +1,6 @@
 ### test-05_Boye_Summary_File.R ################################################
 # Date Created: 2024-10-31
-# Date Updated: 2025-01-29
+# Date Updated: 2025-02-03
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -12,10 +12,11 @@
   # 3. Return to this script and run the `Run tests for calculations` chunk
 
 # Tests: 
-  # These tests are separated into two chunks. The first chunk confirms that the
+  # These tests are separated into chunks. The first chunk confirms that the
   # outliers are being removed and the averages calculated correctly. The second
   # test chunk confirms that the inputs are being read in and the outputs are
-  # being generated correctly.
+  # being generated correctly. The third chunk stress tests against existing 
+  # data packages. 
   
   # CALCULATION TESTS: 
   # test that outlier flags are correctly assigned by mapping the outlier text to the column name
@@ -24,12 +25,6 @@
   # test that average works when some reps are NA
   # test that Mean_Missing_Rep flag is applied when averaging includes NA values
   # test that column headers with multiple reps are renamed to have "Mean_" appended to title
-
-  # INPUT/OUTPUT TESTS: 
-  # these tests have not been developed, meaning that there are no checks to
-  # confirm that the files are read in correctly, nor exported correctly.
-  # However, there are a few checks that occur within the main script that seem
-  # sufficient until a need presents itself to further develop these tests.
 
 
 ### Prep script ################################################################
@@ -253,11 +248,14 @@ test_that("flags are correctly assigned", {
 
   # note: here are the remaining columns that do NOT yet have an associated
   # outlier (an thus are not being evaluated or considered if these columns
-  # conflict with existing outlier flags). If additional outlier flags are
-  # used, make sure to add them to this test. To do that, add the new outlier to
-  # the `Methods_Deviation_outlier_options` vector in this script. Then add a
-  # new row to the `expected_result` case_when statements that indicates which
-  # columns the outlier should be flagging.
+  # conflict with existing outlier flags). If additional outlier flags are used,
+  # make sure to add them to this test. To do that, add the new outlier to the
+  # `Methods_Deviation_outlier_options` vector in this script (above). Then add
+  # a new row to the `create_wide_testing_data()` function. Finally add a new
+  # row to the `expected_result` case_when statements in this test that
+  # indicates which columns the outlier should be flagging. To confirm that the
+  # new outlier is okay, run the `Prep_Script` section and then run the "flags
+  # are correctly assigned" test.
   
     # X00530_TSS_mg_per_L
     # pH

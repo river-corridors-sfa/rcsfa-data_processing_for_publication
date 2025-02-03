@@ -46,6 +46,14 @@
 # OUTPUTS: 
   # a single summary file as a .csv to the user indicated `dir`
 
+# NOTES: 
+  # If any edits are made to this script, confirm that the tests in 
+  # `test-05_Boye_Summary_File_outlier_flag.R` still pass. 
+
+  # If you need to add new outliers (or see which outliers this script works with)
+  # see `test-05_Boye_Summary_File_outlier_flag.R`. Follow the commented
+  # directions in the test called "flags are correctly assigned".
+
 # ==============================================================================
 
 library(tidyverse)
