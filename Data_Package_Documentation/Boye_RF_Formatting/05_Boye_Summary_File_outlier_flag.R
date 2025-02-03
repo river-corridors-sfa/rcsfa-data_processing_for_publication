@@ -14,9 +14,9 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2025-01-29: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2025-02-03: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
-# Status: in progress 
+# Status: complete 
 
 # INPUTS: 
   # assumptions for the inputs files: 
@@ -184,14 +184,19 @@ combine_data <- function(data) {
       mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
       select(-is_numeric) %>% 
       ungroup()
+
+    return(combine_df) # returns df
+    
+  } else if (tolower(response) == "n") {
+    
+    warning("The `data_value` column must be numeric. Fix your data and try again.")
+    return(invisible(NULL)) # exits function
     
   } else {
     
-    stop("Script stoping.")
+    stop("The script is stopping due to an issue. Please check your input data and try again.")
     
   }
-  
-  return(combine_df)
   
 } # end of `combine_data()` function
 
