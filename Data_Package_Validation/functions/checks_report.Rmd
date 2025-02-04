@@ -50,10 +50,10 @@ x_recommended_failed <- failed_checks %>%
 ```
 
 ## Summary
-**`r basename(data_package_checks$input$inputs$directory)`  **
+**Data Package: `r basename(data_package_checks$input$inputs$directory)`**  
   
-> <p style='color:black;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
-> <p style='color:black;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` recommended* test(s).** </strong></p>
+> <p style='color: `r ifelse(x_required_failed > 0, "red", "black")`;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
+> <p style='color: `r ifelse(x_recommended_failed > 0, "red", "black")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` recommended* test(s).** </strong></p>
 
 
 ```{r echo=FALSE}
