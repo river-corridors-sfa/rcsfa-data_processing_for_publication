@@ -66,9 +66,10 @@ all_check_table %>%
   mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
                                 pass_check == TRUE ~ "PASSED",
                                 T ~ NA_character_)) %>%
-  
-  kable() %>% 
-  kable_styling() %>%
+  mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
+                                                                   pass_check == "FAILED" ~ "lightcoral"))) %>% 
+  kable("html", escape = FALSE) %>% 
+  kable_styling("striped", full_width = TRUE) %>% 
   row_spec(which(all_check_table$pass_check == TRUE), color = "gray") %>% 
   row_spec(which(all_check_table$pass_check == FALSE), color = "black", bold = T)
 ```
@@ -118,17 +119,17 @@ In addition to your files, we require a file-level metadata file (FLMD), data di
 # show pie chart of all passed/failed files
 data_package_checks$data_checks %>% 
   filter(assessment == "includes required files") %>% 
-  select(pass_check, input) %>% 
+  select(pass_check, value, input) %>% 
   mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
                                 pass_check == FALSE ~ "FAILED")) %>%  
-  count(pass_check) %>% 
-  ggplot(aes(x = "", y = n, fill = pass_check)) + 
-    geom_bar(sta = "identity", width = 1) + # bar chart with no x axis
-    coord_polar(theta = "y") +
-    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
-    labs(title = "Evaluation of Required Files",
-         subtitle = "Red indicates the absence of required file(s)") +
-    theme_void()
+  mutate(value = case_when(value == ".*flmd\\.csv$" ~ "FLMD", 
+                           value == ".*dd\\.csv$"  ~ "DD",
+                           value == "^readme.*\\.pdf$" ~ "readme")) %>% 
+  mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
+                                                                   pass_check == "FAILED" ~ "lightcoral"))) %>% 
+  rename(required_file = value) %>% 
+  kable("html", escape = FALSE) %>% 
+  kable_styling("striped", full_width = FALSE)
 
 if (failed_includes_required_files != 0) {
 
