@@ -334,17 +334,21 @@ Column names should be unique within each file. Column names can be repeated acr
 
 data_package_checks$tabular_report %>% 
   group_by(file_name, column_name) %>%
-  summarise(n = n(), .groups = "drop") %>%
-  mutate(pass_check = ifelse(n > 1, "FAILED", "PASSED")) %>%
+  summarise(column_counts_within_files = as.integer(n()), .groups = "drop") %>%
+  group_by(column_name) %>% 
+  mutate(column_counts_between_files = as.integer(n())) %>% 
+  mutate(pass_check = case_when(column_counts_within_files > 1 ~ "FAILED", 
+                                column_counts_between_files > 1 ~ "WARNING", 
+                                T ~ "PASSED")) %>% 
 
-  ggplot(aes(x = column_name, y = n, fill = pass_check)) +
+  ggplot(aes(x = column_name, y = column_counts_within_files, fill = pass_check)) +
     geom_bar(stat = "identity", position = "stack") +
-    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
-    scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    scale_fill_manual(values = c("FAILED" = "darkred", "WARNING" = "#e3a84f","PASSED" = "grey")) +
+    scale_y_continuous(breaks = scales::pretty_breaks()) +
     labs(x = "Column Name", 
          y = "Count", 
          title = "Column names across all files",
-         subtitle = "Red indicates a column name was used more than once within the same file") +
+         subtitle = paste0("Red (failed) indicates a column name was used more than once within the same file.", "\n", "Orange (warning) indicates a column name was used more than once across files.")) +
     theme_minimal() +
     theme(panel.grid.minor = element_blank()) +
     coord_flip()
