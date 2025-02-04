@@ -392,16 +392,19 @@ dir_tree(data_package_checks$input$inputs$directory, recurse = T)
 This table summarizes column-level details across all the tabular files in your data package, highlighting potential issues in your data.    
 
 Here are a few key columns to check:  
-- `num_missing_rows`: check for missing data (the value should be 0 unless missing values are expected).  
+- `num_missing_values`: check for missing data (the value should be 0 unless missing values are expected).  
 - `range_min` & `range_max`: if applicable, validate numeric ranges to ensure realistic values.  
-- `num_negative_rows`: if applicable, check for unexpected negative values.  
-- `top_counts`: verify the top values in each column; this displays the top 5 most frequent values for each column.  
+- `num_negative_values`: if applicable, check for unexpected negative values.  
+- `data_preview`: verify the top values in each column; this displays the top 5 most frequent values for each column.  
 
 
 ```{r echo=FALSE}
 
 data_package_checks$tabular_report %>% 
   select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>% # reorder
+  rename(num_missing_values = num_missing_rows,
+         num_negative_values = num_negative_rows,
+         data_preview = top_counts) %>% 
   # convert dbl to int and chr to fct
    mutate(across(
     .cols = everything(),
@@ -428,7 +431,7 @@ data_package_checks$tabular_report %>%
       class = "stripe row-border") %>% 
   
   # color missing values red
-      formatStyle(c("num_missing_rows", "num_negative_rows"), # Column to apply the style
+      formatStyle(c("num_missing_values", "num_negative_values"), # Column to apply the style
                   color = styleInterval(0, c(NA, 'red'))  # Highlight cells with value > 0 in red
                   )
 
