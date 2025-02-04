@@ -2,7 +2,7 @@
 title: "Data Package Checks Report"
 rmd_author: "Bibi Powers-McCormack"
 date_created: "2024-06-12"
-date_updated: "2025-01-20"
+date_updated: "2025-02-03"
 output: 
   html_document:
     toc: TRUE
@@ -12,8 +12,10 @@ output:
 This report was created on `r Sys.Date()` by `r report_author`.
 
 ```{r, echo=FALSE}
-
 # see if the data package passed all checks
+
+# script inputs: 
+  # requires `output` list from the check_data_package() function
 
 # get total number of checks
 all_checks_summary <- output$data_checks_summary %>% 
