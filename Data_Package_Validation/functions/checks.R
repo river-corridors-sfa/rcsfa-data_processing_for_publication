@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2025-01-20
+# Date Updated: 2025-02-033
 # Author: Bibi Powers-McCormack
 
 # This script evaluates and then summarizes data quality checks that are
@@ -563,182 +563,218 @@ create_range_report <- function(input_df,
   
 } # end `create_range_report` function
 
-create_range_report_summary <- function(){
+### Function to run checks ####################################################
+# this chunk combines all of the above checks to evaluate an entire DP
+
+check_data_package <- function(data_package_data, input_parameters = input_parameters) {
+
+  # This function runs all the checks functions for a given data package. 
   
+  # It requires the following checks functions:
+    # check_for_no_proprietary_files()
+    # check_for_no_special_chrs()
+    # check_for_required_file_strings()
+    # check_for_unique_names()
+    # create_range_report()
   
+  # It requires the following util functions: 
+    # initialize_checks_df()
+    # initialize_report_df()
   
-}
-
-### Run Checks #################################################################
-# this chunk prepares the data to be checked
-
-# initialize empty df for summary list of all checks
-data_checks_summary <- initialize_checks_df()
-
-# initialize empty df for full list of all checks
-data_checks_output <- initialize_checks_df()
-
-# initialize empty df for tabular data report
-data_tabular_report <- initialize_report_df()
-
-# get all file paths and file names
-all_files_absolute <- data_package_data$outputs$filtered_file_paths
-
-all_file_names <- basename(all_files_absolute)
-
-### Run checks on all files ####################################################
-# this chunk first checks the entire DP for any checks
-
-# check for making sure specific files are included (e.g., flmd, dd, readme)
-data_checks_output <- check_for_required_file_strings(input = all_file_names, 
-                                                      required_file_strings = input_parameters$required_file_strings,
-                                                      data_checks_table = data_checks_output)
-
-
-
-### Loop through and run checks on each file ###################################
-# this chunk loops through every file and conducts file and column header level checks
+  # inputs
+    # input_parameters list
+      # list(required_file_strings = list(flmd = "", 
+      #                                   dd = "",
+      #                                   readme = ""), 
+      #     special_chrs = "",
+      #     no_proprietary_extensions = c(""),
+      #     missing_value_codes = c(""))
   
-
-for (i in 1:length(all_files_absolute)) {
-  
-  #### get inputs ##############################################################
-  # get current absolute file path
-  current_file_name_absoulte <- data_package_data$outputs$filtered_file_paths[i]
-  
-  # get current relative file path
-  current_file_name_relative <- current_file_name_absoulte %>% 
-    str_remove(pattern = data_package_data$inputs$directory) # get relative file path by stripping absolute file path off
-  
-  # get file name
-  current_file_name <- basename(current_file_name_absoulte)
-  
-  # get relative folder name
-  current_folder_path_relative <- dirname(current_file_name_absoulte) %>% 
-    str_remove(pattern = data_package_data$inputs$directory) # get relative file path by stripping absolute file path off
-
-  # if tabular data, get col headers and df
-  if (str_detect(current_file_name, "\\.csv$|\\.tsv$")){
+    # data_package_data list
+      # list(inputs = list(directory = "",                 -> the inputs provided in the load_tabular_data_from_flmd() function
+      #                    flmd_df = df(),
+      #                   exclude_files = c(""),
+      #                   include_files = c("")),
+      #      outputs = list(header_row_info = df(),        -> the outputs from the load_tabular_data_from_flmd() function
+      #                     filtered_file_paths = c(""),
+      #      tabular_data = list())                        -> all of the data loaded in as dfs
     
-    current_is_tabular <- TRUE
-
-    # get dataframe
-    current_df <- data_package_data$tabular_data[[current_file_name_absoulte]]
+  # outputs
+    # data_package_checks list
+      # list(input = data_package_data,       -> this is the data package provided as input
+      #      parameters = input_parameters,   -> this is the list of parameters provided as input that the checks rely on
+      #      data_checks_summary = list(),    -> this is the summarized results
+      #      data_checks = list(),            -> this is the complete raw list of all the checks
+      #      tabular_report = list())         -> this is the tabular range reports
     
-    # update empty col names so the checks and range reports can run
-    if (any(is.na(colnames(current_df)))) {
+  ### Prepare the data to be checked ##########################################
+  # initialize empty df for summary list of all checks
+  data_checks_summary <- initialize_checks_df()
+
+  # initialize empty df for full list of all checks
+  data_checks_output <- initialize_checks_df()
+
+  # initialize empty df for tabular data report
+  data_tabular_report <- initialize_report_df()
+
+  # get all file paths and file names
+  all_files_absolute <- data_package_data$outputs$filtered_file_paths
+
+  all_file_names <- basename(all_files_absolute)
+
+  # check for making sure specific files are included (e.g., flmd, dd, readme)
+  data_checks_output <- check_for_required_file_strings(input = all_file_names, 
+                                                        required_file_strings = input_parameters$required_file_strings,
+                                                        data_checks_table = data_checks_output)
+
+
+
+  ### Loop through and run checks on each file ###################################
+  # this chunk loops through every file and conducts file and column header level checks
+    
+
+  for (i in 1:length(all_files_absolute)) {
+    
+    #### get inputs ##############################################################
+    # get current absolute file path
+    current_file_name_absoulte <- data_package_data$outputs$filtered_file_paths[i]
+    
+    # get current relative file path
+    current_file_name_relative <- current_file_name_absoulte %>% 
+      str_remove(pattern = data_package_data$inputs$directory) # get relative file path by stripping absolute file path off
+    
+    # get file name
+    current_file_name <- basename(current_file_name_absoulte)
+    
+    # get relative folder name
+    current_folder_path_relative <- dirname(current_file_name_absoulte) %>% 
+      str_remove(pattern = data_package_data$inputs$directory) # get relative file path by stripping absolute file path off
+
+    # if tabular data, get col headers and df
+    if (str_detect(current_file_name, "\\.csv$|\\.tsv$")){
       
-      # find indices of unnamed cols
-      empty_col_indices <- which(is.na(colnames(current_df)))
+      current_is_tabular <- TRUE
+
+      # get dataframe
+      current_df <- data_package_data$tabular_data[[current_file_name_absoulte]]
       
-      # Rename the unnamed columns
-      # colnames(current_df)[empty_col_indices] <- paste0("unnamed_col_", seq_along(empty_col_indices))
-      colnames(current_df)[empty_col_indices] <- "EMPTY COLUMN HEADER"
+      # update empty col names so the checks and range reports can run
+      if (any(is.na(colnames(current_df)))) {
+        
+        # find indices of unnamed cols
+        empty_col_indices <- which(is.na(colnames(current_df)))
+        
+        # Rename the unnamed columns
+        # colnames(current_df)[empty_col_indices] <- paste0("unnamed_col_", seq_along(empty_col_indices))
+        colnames(current_df)[empty_col_indices] <- "EMPTY COLUMN HEADER"
+        
+      }
       
+      # get col headers
+      current_headers <- colnames(current_df)
+      
+    } else {
+      current_is_tabular <- FALSE
     }
     
-    # get col headers
-    current_headers <- colnames(current_df)
+    log_info(paste0("Running data checks on file ", i, " of ", length(data_package_data$outputs$filtered_file_paths), ": ", current_file_name))
     
-  } else {
-    current_is_tabular <- FALSE
-  }
-  
-  log_info(paste0("Running data checks on file ", i, " of ", length(data_package_data$outputs$filtered_file_paths), ": ", current_file_name))
-  
-  ### Run checks on folders ####################################################
-  # this chunk then checks all folder paths
-  
-  # check for special characters in folder names
-  data_checks_output <- check_for_no_special_chrs(input = current_folder_path_relative,
+    ### Run checks on folders ####################################################
+    # this chunk then checks all folder paths
+    
+    # check for special characters in folder names
+    data_checks_output <- check_for_no_special_chrs(input = current_folder_path_relative,
+                                                    invalid_chrs = input_parameters$special_chrs,
+                                                    data_checks_table = data_checks_output,
+                                                    source = "directory_name",
+                                                    file = current_folder_path_relative)
+    
+    ### run checks on files ######################################################
+    
+    # check for special characters in file names
+    data_checks_output <- check_for_no_special_chrs(input = current_file_name,
                                                   invalid_chrs = input_parameters$special_chrs,
                                                   data_checks_table = data_checks_output,
-                                                  source = "directory_name",
-                                                  file = current_folder_path_relative)
-  
-  ### run checks on files ######################################################
-  
-  # check for special characters in file names
-  data_checks_output <- check_for_no_special_chrs(input = current_file_name,
-                                                 invalid_chrs = input_parameters$special_chrs,
-                                                 data_checks_table = data_checks_output,
-                                                 source = "file_name",
-                                                 file = current_file_name)
-  
-  # check for non-proprietary file extensions
-  data_checks_output <- check_for_no_proprietary_files(input = current_file_name,
-                                                        invalid_extensions = input_parameters$non_proprietary_extensions,
+                                                  source = "file_name",
+                                                  file = current_file_name)
+    
+    # check for non-proprietary file extensions
+    data_checks_output <- check_for_no_proprietary_files(input = current_file_name,
+                                                          invalid_extensions = input_parameters$non_proprietary_extensions,
+                                                          data_checks_table = data_checks_output,
+                                                          source = "file_name",
+                                                          file = current_file_name)
+    
+    
+    ### run checks on tabular data ###############################################
+    
+    if (current_is_tabular == TRUE) {
+      
+      
+      for (j in 1:length(current_headers)) {
+        
+        # get current header
+        current_header <- current_headers[j]
+        
+        log_info(paste0("Running data checks on column header: ", current_header))
+        
+        # check for special characters in column headers
+        data_checks_output <- check_for_no_special_chrs(input = current_header,
+                                                        invalid_chrs = input_parameters$special_chrs,
                                                         data_checks_table = data_checks_output,
-                                                        source = "file_name",
+                                                        source = "column_header",
                                                         file = current_file_name)
-  
-  
-  ### run checks on tabular data ###############################################
-  
-  if (current_is_tabular == TRUE) {
-    
-    
-    for (j in 1:length(current_headers)) {
+        
+        # check for unique headers - this check will flag is a header is included more than once
+        data_checks_output <- check_for_unique_names(input = current_header, 
+                                                    all_names = current_headers, 
+                                                    data_checks_table = data_checks_output, 
+                                                    source = "column_header", 
+                                                    file = current_file_name)
+        
+      }
       
-      # get current header
-      current_header <- current_headers[j]
       
-      log_info(paste0("Running data checks on column header: ", current_header))
+    ### run range reports ########################################################
       
-      # check for special characters in column headers
-      data_checks_output <- check_for_no_special_chrs(input = current_header,
-                                                      invalid_chrs = input_parameters$special_chrs,
-                                                      data_checks_table = data_checks_output,
-                                                      source = "column_header",
-                                                      file = current_file_name)
+    data_tabular_report <- create_range_report(input_df = current_df,
+                                              input_df_name = current_file_name_relative, 
+                                              report_table = data_tabular_report, 
+                                              missing_value_codes = input_parameters$missing_value_codes)
       
-      # check for unique headers - this check will flag is a header is included more than once
-      data_checks_output <- check_for_unique_names(input = current_header, 
-                                                   all_names = current_headers, 
-                                                   data_checks_table = data_checks_output, 
-                                                   source = "column_header", 
-                                                   file = current_file_name)
-      
-    }
+    } # end of loop through all tabular files
     
-    
-  ### run range reports ########################################################
-    
-  data_tabular_report <- create_range_report(input_df = current_df,
-                                             input_df_name = current_file_name_relative, 
-                                             report_table = data_tabular_report, 
-                                             missing_value_codes = input_parameters$missing_value_codes)
-    
-  } # end of loop through all tabular files
-  
-} # end of loop through all files
+  } # end of loop through all files
 
-### Summarize Checks ###########################################################
-# this chunk generates a summary file of all the checks
+  ### Summarize Checks ###########################################################
+  # this chunk generates a summary file of all the checks
 
-# clean up checks table
-data_checks_output <- data_checks_output %>% 
-  distinct()
+  # clean up checks table
+  data_checks_output <- data_checks_output %>% 
+    distinct()
 
-# create summary
-data_checks_summary <- data_checks_output %>% 
-  group_by(requirement, pass_check, assessment, source) %>% 
-  summarise(values = str_c(unique(value), collapse = ", "),
-            file_count = length(unique(file)),
-            files = str_c(unique(file), collapse = ", ")) %>% 
-  ungroup() %>% 
-  mutate(requirement = factor(requirement, levels = c("required", "recommended*", "recommended", "optional"), ordered = TRUE),
-         source = factor(source, levels = c("all_file_names", "directory_name", "file_name", "column_header"), ordered = TRUE)) %>%
-  arrange(requirement, pass_check, source, .locale = "en")
+  # create summary
+  data_checks_summary <- data_checks_output %>% 
+    group_by(requirement, pass_check, assessment, source) %>% 
+    summarise(values = str_c(unique(value), collapse = ", "),
+              file_count = length(unique(file)),
+              files = str_c(unique(file), collapse = ", ")) %>% 
+    ungroup() %>% 
+    mutate(requirement = factor(requirement, levels = c("required", "recommended*", "recommended", "optional"), ordered = TRUE),
+          source = factor(source, levels = c("all_file_names", "directory_name", "file_name", "column_header"), ordered = TRUE)) %>%
+    arrange(requirement, pass_check, source, .locale = "en")
 
 
-### Return Output ##############################################################
-# this chunk cleans up the script and prepares the list to return
+  ### Return Output ##############################################################
+  # this chunk cleans up the script and prepares the list to return
 
-output <- list(input = data_package_data, # this is the data package provided as input
-               parameters = input_parameters, # this is the list of parameters the functions used
-               data_checks_summary = data_checks_summary,  # this is the summarized results, ready for graphing
-               data_checks = data_checks_output, # this is the complete raw list of all checks
-               tabular_report = data_tabular_report) # this is the tabular range reports
+  output <- list(input = data_package_data, # this is the data package provided as input
+                parameters = input_parameters, # this is the list of parameters the functions used
+                data_checks_summary = data_checks_summary,  # this is the summarized results, ready for graphing
+                data_checks = data_checks_output, # this is the complete raw list of all checks
+                tabular_report = data_tabular_report) # this is the tabular range reports
 
-return(output)
+  return(output)
+
+}
+
