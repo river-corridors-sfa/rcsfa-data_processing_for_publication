@@ -2,7 +2,7 @@
 title: "Data Package Checks Report"
 rmd_author: "Bibi Powers-McCormack"
 date_created: "2024-06-12"
-date_updated: "2025-02-03"
+date_updated: "2025-02-04"
 output: 
   html_document:
     toc: TRUE
@@ -18,12 +18,12 @@ This report was created on `r Sys.Date()` by `r report_author`.
   # requires `output` list from the check_data_package() function
 
 # get total number of checks
-all_checks_summary <- output$data_checks_summary %>% 
+all_checks_summary <- data_package_checks$data_checks_summary %>% 
   select(requirement, assessment, source) %>% 
   distinct()
 
 # see if any failed
-failed_checks <- output$data_checks_summary %>% 
+failed_checks <- data_package_checks$data_checks_summary %>% 
   select(requirement, assessment, source, pass_check) %>% 
   filter(pass_check == FALSE)
 
@@ -50,7 +50,7 @@ x_recommended_failed <- failed_checks %>%
 ```
 
 ## Summary
-**`r basename(output$input$inputs$directory)`  **
+**`r basename(data_package_checks$input$inputs$directory)`  **
   
 > <p style='color:black;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
 > <p style='color:black;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` recommended* test(s).** </strong></p>
@@ -98,7 +98,7 @@ The following checks are required to pass before a data package will be publishe
 ```{r echo=FALSE}
 
 # determine if this check failed
-failed_includes_required_files <- output$data_checks %>% 
+failed_includes_required_files <- data_package_checks$data_checks %>% 
   filter(assessment == "includes required files" & pass_check == FALSE) %>% 
   count() %>% 
   pull()
@@ -116,7 +116,7 @@ In addition to your files, we require a file-level metadata file (FLMD), data di
 ```{r echo=FALSE}
 
 # show pie chart of all passed/failed files
-output$data_checks %>% 
+data_package_checks$data_checks %>% 
   filter(assessment == "includes required files") %>% 
   select(pass_check, input) %>% 
   mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
@@ -133,7 +133,7 @@ output$data_checks %>%
 if (failed_includes_required_files != 0) {
 
   # if there are failed checks, display table
-  output$data_checks %>% 
+  data_package_checks$data_checks %>% 
     filter(assessment == "includes required files") %>% 
     select(requirement, pass_check, assessment, value) %>% 
     mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
@@ -166,7 +166,7 @@ Recommended checks:
 ```{r echo=FALSE}
 
 # determine if this check failed
-failed_no_proprietary_files <- output$data_checks %>% 
+failed_no_proprietary_files <- data_package_checks$data_checks %>% 
   filter(assessment == "no proprietary files") %>% 
   filter(pass_check == FALSE) %>% 
   count() %>% 
@@ -179,7 +179,7 @@ ESS-DIVE requests that all files are saved in a non-proprietary file format. Whi
 ``` {r echo=FALSE}
 
 # show bar chart of file extensions
-output$data_checks %>% 
+data_package_checks$data_checks %>% 
   filter(assessment == "no proprietary files") %>% 
   select(pass_check, input) %>% 
   mutate(extension = tools::file_ext(input)) %>% 
@@ -204,7 +204,7 @@ output$data_checks %>%
 if (failed_no_proprietary_files != 0) {
   
   # if there are proprietary extensions, show table of them
-output$data_checks %>% 
+data_package_checks$data_checks %>% 
     select(requirement, pass_check, assessment, value, file) %>%
     mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
                                 pass_check == TRUE ~ "PASSED",
@@ -227,7 +227,7 @@ output$data_checks %>%
 ```{r include=FALSE}
 
 # determine if these checks failed
-failed_no_special_chrs <- output$data_checks %>%
+failed_no_special_chrs <- data_package_checks$data_checks %>%
   filter(assessment == "no special characters") %>% 
   filter(pass_check == "FALSE") %>% 
   count(source, pass_check) %>% 
@@ -244,7 +244,7 @@ Allowed characters include lowercase letters, uppercase letters, numbers, unders
 ```{r echo=FALSE}
 
 # show bar chart of the count of files/folders/cols that have special chrs
-output$data_checks %>% 
+data_package_checks$data_checks %>% 
   filter(assessment == "no special characters") %>% 
   select(pass_check, source, file) %>%
   distinct() %>% 
@@ -274,7 +274,7 @@ if (failed_no_special_chrs != 0) {
   # if there are special chrs, show another figure and a table of them
   
   # show bar chart of the count of the special chrs present
-  print(output$data_checks %>% 
+  print(data_package_checks$data_checks %>% 
     filter(assessment == "no special characters") %>% 
     filter(pass_check == FALSE) %>%
     count(source, value) %>% 
@@ -284,7 +284,7 @@ if (failed_no_special_chrs != 0) {
       geom_text(aes(label = n), position = position_stack(vjust = 0.5)) +
       scale_fill_manual(values = c("column_header" = "#da99de", "directory_name" = "#eded8e", "file_name" = "#8ec1ed")) +
       theme_minimal() +
-      scale_y_continuous(breaks = seq(0, max(output$data_checks %>% 
+      scale_y_continuous(breaks = seq(0, max(data_package_checks$data_checks %>% 
                                            filter(assessment == "no special characters") %>% 
                                            filter(pass_check == FALSE) %>% 
                                            count(source, value) %>% 
@@ -294,7 +294,7 @@ if (failed_no_special_chrs != 0) {
   
   
   # table
-  output$data_checks %>% 
+  data_package_checks$data_checks %>% 
     select(requirement, pass_check, assessment, value, file) %>%
     mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
                                 pass_check == TRUE ~ "PASSED",
@@ -316,7 +316,7 @@ if (failed_no_special_chrs != 0) {
 ```{r include=FALSE}
 
 # determine if these checks failed
-failed_duplicate_names <- output$data_checks %>%
+failed_duplicate_names <- data_package_checks$data_checks %>%
   filter(assessment == "no duplicate names") %>% 
   filter(pass_check == FALSE) %>% 
   select(file) %>% 
@@ -331,7 +331,7 @@ Column names should be unique within each file. Column names can be repeated acr
 
 ```{r echo=FALSE}
 
-output$tabular_report %>% 
+data_package_checks$tabular_report %>% 
   group_by(file_name, column_name) %>%
   summarise(n = n(), .groups = "drop") %>%
   mutate(pass_check = ifelse(n > 1, "FAILED", "PASSED")) %>%
@@ -352,7 +352,7 @@ output$tabular_report %>%
 if (failed_duplicate_names != 0) {
   
   # if there are duplicate column names within the same file, show table
-  output$data_checks %>% 
+  data_package_checks$data_checks %>% 
     select(requirement, pass_check, assessment, value, file) %>%
     mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
                                 pass_check == TRUE ~ "PASSED",
@@ -379,7 +379,7 @@ if (failed_duplicate_names != 0) {
 
 Below is a list of all of your folders and files that were present when the report was generated.
 ```{r, echo = FALSE}
-dir_tree(output$input$inputs$directory, recurse = T)
+dir_tree(data_package_checks$input$inputs$directory, recurse = T)
 ```
 
 ### Tabular Data {.tabset}
@@ -395,7 +395,7 @@ Here are a few key columns to check:
 
 ```{r echo=FALSE}
 
-output$tabular_report %>% 
+data_package_checks$tabular_report %>% 
   select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>% # reorder
   # convert dbl to int and chr to fct
    mutate(across(
@@ -441,7 +441,7 @@ The Summary Table and Data Checks tabs provide high-level and detailed insights 
 
 ### Summary Table {.tabset}
 ```{r echo=FALSE}
-output$data_checks_summary %>% 
+data_package_checks$data_checks_summary %>% 
     mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
                                 pass_check == FALSE ~ "FAILED")) %>% 
     mutate(across(c(requirement, pass_check, assessment, source), as.factor)) %>% 
@@ -454,7 +454,7 @@ output$data_checks_summary %>%
 
 ### Data Checks {.tabset}
 ```{r echo=FALSE}
-output$data_checks %>% 
+data_package_checks$data_checks %>% 
     mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
                                 pass_check == FALSE ~ "FAILED")) %>% 
     mutate(across(c(requirement, pass_check, assessment, source, file), as.factor)) %>% 
