@@ -267,6 +267,8 @@ data_package_checks$tabular_report %>%
   mutate(pass_check = case_when(column_counts_within_files > 1 ~ "FAILED", 
                                 column_counts_between_files > 1 ~ "WARNING", 
                                 T ~ "PASSED")) %>% 
+  ungroup() %>% 
+  mutate(column_name = factor(column_name, levels = rev(sort(unique(column_name))))) %>% 
 
   ggplot(aes(x = column_name, y = column_counts_within_files, fill = pass_check)) +
     geom_bar(stat = "identity", position = "stack") +
@@ -275,7 +277,7 @@ data_package_checks$tabular_report %>%
     labs(x = "Column Name", 
          y = "Count", 
          title = "Column names across all files",
-         subtitle = paste0("Red (failed) indicates a column name was used more than once within the same file.", "\n", "Orange (warning) indicates a column name was used more than once across files.")) +
+         subtitle = paste0("Red (failed) = column name appears more than once within the same file.", "\n", "Orange (warning) = column name appears more than once across files.")) +
     theme_minimal() +
     theme(panel.grid.minor = element_blank()) +
     coord_flip()
