@@ -389,6 +389,25 @@ dir_tree(data_package_checks$input$inputs$directory, recurse = T)
 
 ### Tabular Data {.tabset}
 
+```{r include = FALSE}
+
+# determine if there are missing or negative values
+
+data_are_missing <- data_package_checks$tabular_report %>% 
+  filter(num_missing_rows > 0) %>% 
+  count() %>% 
+  pull()
+
+data_are_negative <- data_package_checks$tabular_report %>% 
+  filter(num_negative_rows > 0) %>% 
+  count() %>% 
+  pull()
+
+```
+
+> <p style='color: `r ifelse(data_are_missing > 0, "red", "black")`;'><strong> **Number of missing values in your data package: `r data_are_missing`**  </strong></p>  
+> <p style='color: `r ifelse(data_are_negative > 0, "red", "black")`;'><strong> **Number of negative values in your data package: `r data_are_negative`**  </strong></p>  
+
 This table summarizes column-level details across all the tabular files in your data package, highlighting potential issues in your data.    
 
 Here are a few key columns to check:  
