@@ -38,12 +38,12 @@ x_required_failed <- failed_checks %>%
   pull(n)
 
 y_recommended_total <- all_checks_summary %>% 
-  filter(requirement == "recommended*") %>% 
+  filter(requirement == "strongly_recommended") %>% 
   count() %>% 
   pull(n)
 
 x_recommended_failed <- failed_checks %>% 
-  filter(requirement == "recommended*") %>% 
+  filter(requirement == "strongly_recommended") %>% 
   count() %>% 
   pull(n)
 
@@ -53,7 +53,7 @@ x_recommended_failed <- failed_checks %>%
 **Data Package: `r basename(data_package_checks$input$inputs$directory)`**  
   
 > <p style='color: `r ifelse(x_required_failed > 0, "red", "black")`;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
-> <p style='color: `r ifelse(x_recommended_failed > 0, "red", "black")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` recommended* test(s).** </strong></p>
+> <p style='color: `r ifelse(x_recommended_failed > 0, "red", "black")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` strongly_recommended test(s).** </strong></p>
 
 
 ```{r echo=FALSE}
@@ -136,7 +136,7 @@ data_package_checks$data_checks %>%
 ## Recommended Checks {.tabset}
   
 ### Recommended Checks
-The following checks are recommended to pass before a data package will be published. Passing `recommended*` checks prepare your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool. The RC-SFA project expects that all Study Data Packages adhere to both `required` and `recommended*` checks. Manuscript Data Packages must adhere to the `required` checks and are strongly encouraged to consider the `recommended*` checks.   
+The following checks are recommended to pass before a data package will be published. Passing `strongly_recommended` checks prepare your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool. The RC-SFA project expects that all Study Data Packages adhere to both `required` and `strongly_recommended` checks. Manuscript Data Packages must adhere to the `required` checks and are strongly encouraged to consider the `strongly_recommended` checks.   
 
 Recommended checks:  
 1. **`*no proprietary files`**: To increase increase accessibility, proprietary files should be converted to non-proprietary options (e.g., .docx are converted to .pdf).  

@@ -212,7 +212,7 @@ check_for_no_special_chrs <- function(input,
   
   data_checks_table <- data_checks_table %>% 
     add_row(
-      requirement = "recommended*", 
+      requirement = "strongly_recommended", 
       pass_check = !has_special_chrs, 
       assessment = "no special characters", 
       input = input,
@@ -253,7 +253,7 @@ check_for_no_proprietary_files <- function(input,
   # update output
   data_checks_table <- data_checks_table %>% 
     add_row(
-      requirement = "recommended*", 
+      requirement = "strongly_recommended", 
       pass_check = !has_proprietary_file_ext, 
       assessment = "no proprietary files", 
       input = input,
@@ -312,7 +312,7 @@ check_for_unique_names <- function(input,
   # update output
   data_checks_table <- data_checks_table %>% 
     add_row(
-      requirement = "recommended*", 
+      requirement = "strongly_recommended", 
       pass_check = !has_duplicate_name, 
       assessment = "no duplicate names", 
       input = input,
@@ -760,7 +760,7 @@ check_data_package <- function(data_package_data, input_parameters = input_param
               file_count = length(unique(file)),
               files = str_c(unique(file), collapse = ", ")) %>% 
     ungroup() %>% 
-    mutate(requirement = factor(requirement, levels = c("required", "recommended*", "recommended", "optional"), ordered = TRUE),
+    mutate(requirement = factor(requirement, levels = c("required", "strongly_recommended", "recommended", "optional"), ordered = TRUE),
           source = factor(source, levels = c("all_file_names", "directory_name", "file_name", "column_header"), ordered = TRUE)) %>%
     arrange(requirement, pass_check, source, .locale = "en")
 
