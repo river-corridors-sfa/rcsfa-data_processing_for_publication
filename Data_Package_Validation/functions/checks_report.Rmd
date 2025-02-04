@@ -131,22 +131,6 @@ data_package_checks$data_checks %>%
   kable("html", escape = FALSE) %>% 
   kable_styling("striped", full_width = FALSE)
 
-if (failed_includes_required_files != 0) {
-
-  # if there are failed checks, display table
-  data_package_checks$data_checks %>% 
-    filter(assessment == "includes required files") %>% 
-    select(requirement, pass_check, assessment, value) %>% 
-    mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
-                                  pass_check == TRUE ~ "PASSED",
-                                  T ~ NA_character_)) %>% 
-    arrange(pass_check) %>% 
-    datatable(rownames = F,
-            filter = "top",
-            class = "stripe")
-  
-}
-
 ```
 
 ## Recommended Checks {.tabset}
@@ -201,23 +185,6 @@ data_package_checks$data_checks %>%
          y = "Count of Files", 
          title = "Evaluation of File Extensions",
          subtitle = "Red indicates the presence of proprietary files")
-    
-if (failed_no_proprietary_files != 0) {
-  
-  # if there are proprietary extensions, show table of them
-data_package_checks$data_checks %>% 
-    select(requirement, pass_check, assessment, value, file) %>%
-    mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
-                                pass_check == TRUE ~ "PASSED",
-                                T ~ NA_character_))) %>%
-    filter(assessment == "no proprietary files") %>%
-    mutate(across(c(pass_check, file), as.factor)) %>% 
-    arrange(pass_check) %>% 
-    datatable(rownames = F,
-              filter = "top", 
-              class = "stripe")
-  
-}
 
   
 ```
@@ -268,46 +235,6 @@ data_package_checks$data_checks %>%
          y = "Count of Files/Folders", 
          title = "Evaluation of Files and Folders with Special Characters",
          subtitle = "Red indicates the presence of special characters")
-  
-
-if (failed_no_special_chrs != 0) {
-  
-  # if there are special chrs, show another figure and a table of them
-  
-  # show bar chart of the count of the special chrs present
-  print(data_package_checks$data_checks %>% 
-    filter(assessment == "no special characters") %>% 
-    filter(pass_check == FALSE) %>%
-    count(source, value) %>% 
-    
-    ggplot(., aes(x = value, y = n, fill = source)) + 
-      geom_bar(stat = "identity") + 
-      geom_text(aes(label = n), position = position_stack(vjust = 0.5)) +
-      scale_fill_manual(values = c("column_header" = "#da99de", "directory_name" = "#eded8e", "file_name" = "#8ec1ed")) +
-      theme_minimal() +
-      scale_y_continuous(breaks = seq(0, max(data_package_checks$data_checks %>% 
-                                           filter(assessment == "no special characters") %>% 
-                                           filter(pass_check == FALSE) %>% 
-                                           count(source, value) %>% 
-                                           pull(n)), 1)) +
-      theme(panel.grid.minor = element_blank()) +
-      labs(x = "Special Character", y = "Count of Names with Special Characters", title = paste0("Evaluation of File, Folder, and Column Names with Special Characters")))
-  
-  
-  # table
-  data_package_checks$data_checks %>% 
-    select(requirement, pass_check, assessment, value, file) %>%
-    mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
-                                pass_check == TRUE ~ "PASSED",
-                                T ~ NA_character_))) %>%
-    filter(assessment == "no special characters") %>%
-    mutate(across(c(pass_check, value, file), as.factor)) %>% 
-    arrange(pass_check) %>% 
-    datatable(rownames = F,
-              filter = "top", 
-              class = "stripe")
-  
-}
 
 
 ```
@@ -352,27 +279,6 @@ data_package_checks$tabular_report %>%
     theme_minimal() +
     theme(panel.grid.minor = element_blank()) +
     coord_flip()
-  
-  
-if (failed_duplicate_names != 0) {
-  
-  # if there are duplicate column names within the same file, show table
-  data_package_checks$data_checks %>% 
-    select(requirement, pass_check, assessment, value, file) %>%
-    mutate(pass_check = as.character(case_when(pass_check == FALSE ~ "FAILED",
-                                pass_check == TRUE ~ "PASSED",
-                                T ~ NA_character_))) %>%
-    filter(assessment == "no duplicate names") %>%
-    mutate(across(c(pass_check, file), as.factor)) %>% 
-    arrange(pass_check) %>% 
-    datatable(rownames = F,
-              filter = "top", 
-              class = "stripe")
-  
-}
-  
-  
-  
 
 ```
 
@@ -489,19 +395,5 @@ data_package_checks$data_checks %>%
               filter = "top", 
               class = "stripe")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
