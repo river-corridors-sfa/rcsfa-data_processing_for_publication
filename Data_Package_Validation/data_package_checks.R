@@ -43,7 +43,7 @@ getwd()
 # load functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R") # note: will need to update this link after I merge branches
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R") # note: will need to update this link after I merge branches
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Validation/functions/checks.R") # note: will need to update this link after I merge branches
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/data_checks_v2/Data_Package_Validation/functions/checks.R") # note: will need to update this link after I merge branches
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
@@ -60,7 +60,7 @@ data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df 
 
 
 # 3. Run checks
-data_package_checks <- check_data_package()
+data_package_checks <- check_data_package(data_package_data = data_package_data, input_parameters = input_parameters)
 
 
 # 4. Generate report

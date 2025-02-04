@@ -774,7 +774,10 @@ check_data_package <- function(data_package_data, input_parameters = input_param
                 data_checks = data_checks_output, # this is the complete raw list of all checks
                 tabular_report = data_tabular_report) # this is the tabular range reports
 
+  log_info("check_data_package() complete.")
   return(output)
+
+
 
 }
 
