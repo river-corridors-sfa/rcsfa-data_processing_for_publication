@@ -60,7 +60,7 @@ data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df 
 
 
 # 3. Run checks
-
+data_package_checks <- check_data_package()
 
 
 # 4. Generate report
