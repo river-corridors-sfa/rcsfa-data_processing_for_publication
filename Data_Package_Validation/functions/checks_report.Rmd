@@ -87,12 +87,16 @@ Each tab provides an evaluation of specific data quality checks designed to ensu
 #### What to do with this information  
 Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.  
 
+---
+
 ## Required Checks {.tabset}
   
 ### Required Checks
   
 The following checks are required to pass before a data package will be published.  
 1. **`includes required files`**: Certain files are required and must be named correctly (e.g., readme, flmd, dd).  
+
+---
 
 ### `includes required files` {.tabset}
 
@@ -133,6 +137,8 @@ data_package_checks$data_checks %>%
 
 ```
 
+---
+
 ## Recommended Checks {.tabset}
   
 ### Recommended Checks
@@ -145,6 +151,7 @@ Recommended checks:
 4. **`*no special characters` in column names**: The only characters allowed in tabular column headers are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. It is recommended that columns begin with a letter.  
 5. **`*no duplicate names` in column names**: Column names should be unique within the same file. The same column name can repeat across files if it shares the same definition and unit.  
 
+---
 
 ### `no proprietary files` {.tabset}
 
@@ -189,6 +196,7 @@ data_package_checks$data_checks %>%
   
 ```
 
+---
 
 ### `no special characters` {.tabset}
 
@@ -239,6 +247,8 @@ data_package_checks$data_checks %>%
 
 ```
 
+---
+
 ### `no duplicate names` {.tabset}
 
 ```{r include=FALSE}
@@ -284,7 +294,7 @@ data_package_checks$tabular_report %>%
 
 ```
 
-
+---
 
 ## About Your Data {.tabset}
 
@@ -294,6 +304,8 @@ Below is a list of all of your folders and files that were present when the repo
 ```{r, echo = FALSE}
 dir_tree(data_package_checks$input$inputs$directory, recurse = T)
 ```
+
+---
 
 ### Tabular Data {.tabset}
 
@@ -373,6 +385,7 @@ The Summary Table and Data Checks tabs provide high-level and detailed insights 
 2. Then use the Data Checks tab to find problematic files and review detailed explanations of failures.  
 3. Correct the issues in your data files based on the failures identified, then re-run the checks to ensure all problems have been resolved.   
 
+---
 
 ### Summary Table {.tabset}
 ```{r echo=FALSE}
@@ -386,6 +399,7 @@ data_package_checks$data_checks_summary %>%
               class = "stripe")
 ```
 
+---
 
 ### Data Checks {.tabset}
 ```{r echo=FALSE}
@@ -398,4 +412,4 @@ data_package_checks$data_checks %>%
               class = "stripe")
 ```
 
-
+---
