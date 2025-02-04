@@ -105,7 +105,7 @@ failed_includes_required_files <- data_package_checks$data_checks %>%
   pull()
 
 ```
-> <p style='color:black;'><strong> **Your data package is missing `r failed_includes_required_files` required file(s).** </strong></p>
+> <p style='color: `r ifelse(failed_includes_required_files > 0, "red", "black")`;'><strong> **Your data package is missing `r failed_includes_required_files` required file(s).** </strong></p>
 
 
 In addition to your files, we require a file-level metadata file (FLMD), data dictionary (DD), and readme in each data package. To improve interoperability with ESS-DIVE's tools, these file names have specific file naming conventions.  
@@ -173,7 +173,7 @@ failed_no_proprietary_files <- data_package_checks$data_checks %>%
   count() %>% 
   pull()
 ```
-> <p style='color:black;'><strong> **Your data package has `r failed_no_proprietary_files` proprietary file(s).**  </strong></p>
+> <p style='color: `r ifelse(failed_no_proprietary_files > 0, "red", "black")`;'><strong> **Your data package has `r failed_no_proprietary_files` proprietary file(s).**  </strong></p>
 
 ESS-DIVE requests that all files are saved in a non-proprietary file format. While not exhaustive, this check confirms that the following common proprietary extensions are not included: `r input_parameters$non_proprietary_extensions`
 
@@ -238,7 +238,7 @@ failed_no_special_chrs <- data_package_checks$data_checks %>%
 ```
 
 
-> <p style='color:black;'><strong> **Your data package has `r failed_no_special_chrs` folder/file/column name(s) that contain special characters.**  </strong></p>  
+> <p style='color: `r ifelse(failed_no_special_chrs > 0, "red", "black")`;'><strong> **Your data package has `r failed_no_special_chrs` folder/file/column name(s) that contain special characters.**  </strong></p>  
 
 Allowed characters include lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. Any other character (e.g., spaces, symbols, etc.) will cause the check to fail. 
 
@@ -326,7 +326,7 @@ failed_duplicate_names <- data_package_checks$data_checks %>%
   pull(n)
 
 ```
-> <p style='color:black;'><strong> **Your data package has `r failed_duplicate_names` file(s) that contain duplicate column names.**  </strong></p>  
+> <p style='color: `r ifelse(failed_duplicate_names > 0, "red", "black")`;'><strong> **Your data package has `r failed_duplicate_names` file(s) that contain duplicate column names.**  </strong></p>  
 
 Column names should be unique within each file. Column names can be repeated across files if they share the same definition.
 
