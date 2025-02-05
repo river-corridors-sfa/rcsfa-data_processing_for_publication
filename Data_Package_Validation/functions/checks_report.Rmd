@@ -68,6 +68,8 @@ all_check_table %>%
                                 T ~ NA_character_)) %>%
   mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
                                                                    pass_check == "FAILED" ~ "lightcoral"))) %>% 
+  select(pass_check, assessment, requirement, source) %>% 
+
   kable("html", escape = FALSE) %>% 
   kable_styling("striped", full_width = TRUE) %>% 
   row_spec(which(all_check_table$pass_check == TRUE), color = "gray") %>% 
