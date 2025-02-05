@@ -326,6 +326,10 @@ data_package_checks$tabular_report %>%
       }
     }
   )) %>% 
+  
+  # convert all to UTF-8 encoding
+  mutate(across(everything(), ~iconv(., to = "UTF-8"))) %>% 
+  
     datatable(options = list(autoWidth = TRUE,
                      scrollX = TRUE,
                      columnDefs = list(list(width = '100%', targets = "_all"),
