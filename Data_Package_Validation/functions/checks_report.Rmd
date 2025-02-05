@@ -5,7 +5,7 @@ date_created: "2024-06-12"
 date_updated: "2025-02-04"
 output: 
   html_document:
-    toc: TRUE
+    toc: FALSE
     theme: simplex
 ---
 
@@ -49,16 +49,13 @@ x_recommended_failed <- failed_checks %>%
 
 ```
 
-## Did your data package pass? 
-**Data Package: `r basename(data_package_checks$input$inputs$directory)`**  
+<p style='color: black;'> Data Package: **`r basename(data_package_checks$input$inputs$directory)`** </p>
   
 > <p style='color: `r ifelse(x_required_failed > 0, "lightcoral", "green")`;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
 > <p style='color: `r ifelse(x_recommended_failed > 0, "lightcoral", "green")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` strongly_recommended test(s).** </strong></p>
 
 
----
-
-## Diagnositc Figures {.tabset}  
+## Did your data package pass? {.tabset}  
 **Each tab provides an evaluation of specific data quality checks designed to ensure compliance with best practices for accessibility and usability. Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.**   
 
 ### Overview  
