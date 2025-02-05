@@ -78,7 +78,7 @@ all_check_table %>%
   select(pass_check, assessment, requirement, source) %>% 
 
   kable("html", escape = FALSE) %>% 
-  kable_styling("striped", full_width = TRUE) %>% 
+  kable_styling("striped", full_width = FALSE) %>% 
   row_spec(which(all_check_table$pass_check == TRUE), color = "gray") %>% 
   row_spec(which(all_check_table$pass_check == FALSE), color = "black", bold = T)
 ```
@@ -354,6 +354,7 @@ The Summary Table and Data Checks tabs provide high-level and detailed insights 
 2. Then use the Data Checks tab to find problematic files and review detailed explanations of failures.  
 3. Correct the issues in your data files based on the failures identified, then re-run the checks to ensure all problems have been resolved.   
 
+
 ### Summary Table {.tabset}
 ```{r echo=FALSE}
 # data_package_checks$data_checks_summary %>% 
@@ -374,7 +375,7 @@ data_package_checks$data_checks_summary %>%
   mutate(check_dd = case_when(assessment == "includes required files" & str_detect(values, ".*dd\\\\.csv\\$") ~ "DD")) %>% 
   mutate(check_readme = case_when(assessment == "includes required files" & str_detect(values, "\\^readme.*\\\\.pdf\\$") ~ "readme")) %>% 
   mutate(values = case_when(assessment == "includes required files" ~ str_flatten(c(check_flmd, check_dd, check_readme), collapse = ", ", na.rm = T), T ~ values)) %>% 
-  select(-c(check_flmd, check_dd, check_readme)) %>% 
+  select(-c(check_flmd, check_dd, check_readme, files)) %>% 
 
   # prep up pass_check colors
   mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
@@ -385,7 +386,8 @@ data_package_checks$data_checks_summary %>%
 
   # make nice table
   kable("html", escape = FALSE) %>% 
-  kable_styling("striped", full_width = TRUE) %>% 
+  kable_styling("striped", full_width = TRUE, position = "center") %>% 
+  scroll_box(width = "100%") %>% 
   row_spec(which(all_check_table$pass_check == TRUE), color = "gray") %>% 
   row_spec(which(all_check_table$pass_check == FALSE), color = "black", bold = T)
 ```
