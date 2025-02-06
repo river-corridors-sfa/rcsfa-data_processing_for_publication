@@ -52,7 +52,7 @@ x_recommended_failed <- failed_checks %>%
 <p style='color: black;'> Data Package: **`r basename(data_package_checks$input$inputs$directory)`** </p>
   
 > <p style='color: `r ifelse(x_required_failed > 0, "darkred", "green")`;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
-> <p style='color: `r ifelse(x_recommended_failed > 0, "darkred", "green")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` strongly_recommended test(s).** </strong></p>
+> <p style='color: `r ifelse(x_recommended_failed > 0, "darkred", "green")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` strongly recommended test(s).** </strong></p>
 
 
 ## Did your data package pass? {.tabset}  
@@ -247,7 +247,7 @@ failed_duplicate_names <- data_package_checks$data_checks %>%
 
 Column names should be unique within each file. Column names can be repeated across files if they share the same definition.
 
-```{r echo=FALSE, fig.align='center'}
+```{r echo=FALSE, fig.align='center', fig.height=max(5, length(unique(data_package_checks$tabular_report$column_name)) * 0.2), fig.width=8}
 
 data_package_checks$tabular_report %>% 
   group_by(file_name, column_name) %>%
