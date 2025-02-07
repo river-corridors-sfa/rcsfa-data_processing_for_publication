@@ -755,6 +755,8 @@ check_data_package <- function(data_package_data, input_parameters = input_param
 
   # create summary
   data_checks_summary <- data_checks_output %>% 
+    mutate(file = case_when(assessment == "includes required files" ~ value, # add value into file for this check so it's able to count files correctly
+                            T ~ file)) %>% 
     group_by(requirement, pass_check, assessment, source) %>% 
     summarise(values = str_c(unique(value), collapse = ", "),
               file_count = length(unique(file)),
