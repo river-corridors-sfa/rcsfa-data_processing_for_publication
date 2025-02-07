@@ -415,9 +415,21 @@ The Summary Table and Data Checks tabs provide high-level and detailed insights 
 ### Failed Checks {.tabset}
 ```{r echo=FALSE}
 data_package_checks$data_checks %>% 
-    filter(pass_check == FALSE) %>% 
-    select(assessment, requirement, input, source, value, file) %>% 
-    mutate(across(c(assessment, requirement, source, file), as.factor)) %>% 
+    filter(pass_check == FALSE) %>%
+    rowwise() %>% 
+    mutate(action = case_when(assessment == "includes required files" & str_detect(value, "flmd") ~ "Add a FLMD to your data package",
+                              assessment == "includes required files" & str_detect(value, "dd") ~ "Add a DD to your data package",
+                              assessment == "includes required files" & str_detect(value, "readme") ~ "Add a readme to your data package",
+                              assessment == "no proprietary files" ~ paste0("Convert `", input, "` into a non-proprietary format"), 
+                              input == "EMPTY COLUMN HEADER" ~ paste0("Add a name to the missing column header in `", file, "`"), 
+                              assessment == "no special characters" & source == "column_header" ~ paste0("Remove special characters (`", value, "`) from the column header `", input, "` in `", file, "`"), 
+                              assessment == "no special characters" & source == "file_name" ~ paste0("Remove special characters from the file name `", input, "`"), 
+                              assessment == "no special characters" & source == "directory_name" ~ paste0("Remove special characters from the folder name `", input, "`"), 
+                              assessment == "no duplicate names" & source == "column_header" ~ paste0("The column header `", input, "` appears more than once in `", file, "`. Remove or rename column headers so there are no duplicates."), 
+                              T ~ ""
+                              )) %>% 
+    select(assessment, action, requirement, input, file) %>%
+    mutate(across(c(assessment, requirement, file), as.factor)) %>% 
       datatable(rownames = F,
               filter = "top", 
               class = "stripe")
