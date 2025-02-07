@@ -56,7 +56,7 @@ x_recommended_failed <- failed_checks %>%
 
 
 ## Did your data package pass? {.tabset}  
-**Each tab provides an evaluation of specific data quality checks designed to ensure compliance with best practices for accessibility and usability. Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.**   
+**The data quality checks help data packages comply with the best practices for accessibility and usability. Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.**   
 
 ### Overview  
 - Required checks are required to pass before a data package will be published.  
@@ -143,11 +143,19 @@ failed_includes_required_files <- data_package_checks$data_checks %>%
 > <p style='color: `r ifelse(failed_includes_required_files > 0, "darkred", "green")`;'><strong> **Your data package is missing `r failed_includes_required_files` required file(s).** </strong></p>
 
 
-In addition to your files, we require a file-level metadata file (FLMD), data dictionary (DD), and readme in each data package Proprietary files should be converted to non-proprietary options (e.g., .docx are converted to .pdf). To improve interoperability with ESS-DIVE's tools, these file names have specific file naming conventions.  
+In addition to your data files, we require a file-level metadata file (FLMD), data dictionary (DD), and readme in each data package. Proprietary files should be converted to non-proprietary options (e.g., .docx are converted to .pdf). To improve interoperability with ESS-DIVE's tools, these three file have specific file naming conventions.  
+ 
+``` {r echo = FALSE}
+tribble(~file, ~`file naming requirement`, ~`file name example`,
+        "readme", "File name must begin with `readme*` and end with `.pdf`. You may append anything between 'readme' and '.pdf', but we recommend the text matches your data package folder name.", "`readme_Smith_2005_Wildfire_Impacts.csv`", 
+        "FLMD", "File must end with `flmd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name.", "`Smith_2005_Wildfire_Impacts_flmd.csv`", 
+        "DD", "File must end with `dd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name.", "`Smith_2005_Wildfire_Impacts_dd.csv`", 
+        "ESS-DIVE metadata", "This 4th file needs to be filled out to populate your data package landing page on ESS-DIVE; however, because the file will not be included in your data package there is not a check for it.", "N/A") %>% 
+  kable("html", escape = FALSE) %>% 
+  kable_styling("striped", full_width = FALSE)
 
-- **FLMD**: file name must end with `*flmd.csv`. You may prepend anything to the beginning.  
-- **DD**: file name must end with `*dd.csv`. You may prepend anything to the beginning.  
-- **readme**: file name must begin with `readme*` and end with `.pdf`. You may append anything between "readme" and ".pdf".  
+```
+
 
 ```{r echo=FALSE}
 
@@ -155,6 +163,8 @@ In addition to your files, we require a file-level metadata file (FLMD), data di
 data_package_checks$data_checks %>% 
   filter(assessment == "includes required files") %>% 
   select(pass_check, value, input) %>% 
+  mutate(input = case_when(is.na(input) ~ "file not found", T ~ input)) %>% 
+  rename(file = input) %>% 
   mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
                                 pass_check == FALSE ~ "FAILED")) %>%  
   mutate(value = case_when(value == ".*flmd\\.csv$" ~ "FLMD", 
