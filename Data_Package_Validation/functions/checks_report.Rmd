@@ -2,7 +2,7 @@
 title: "Data Package Checks Report"
 rmd_author: "Bibi Powers-McCormack"
 date_created: "2024-06-12"
-date_updated: "2025-02-04"
+date_updated: "2025-02-07"
 output: 
   html_document:
     toc: FALSE
@@ -66,21 +66,63 @@ x_recommended_failed <- failed_checks %>%
 ```{r echo=FALSE}
 # display table of checks
 
-data_package_checks$data_checks_summary %>% 
-  select(pass_check, assessment, requirement, source, file_count) %>% 
+overview_table <- data_package_checks$data_checks_summary %>% 
+  select(pass_check, assessment, source, requirement, file_count) %>% 
 
-  # prep up pass_check colors
-  mutate(pass_check = case_when(pass_check == FALSE ~ "FAILED", 
-                              pass_check == TRUE ~ "PASSED",
-                              T ~ NA_character_)) %>%
+  # make table wide
+  mutate(pass_check_files = case_when(pass_check == FALSE ~ "failed_files", 
+                                      pass_check == TRUE ~ "passed_files", 
+                                      T ~ NA_character_)) %>% 
+  pivot_wider(names_from = pass_check_files, values_from = file_count, values_fill = 0) %>% 
+  group_by(assessment, requirement, source) %>%
+  summarise(across(c(failed_files, passed_files), sum), .groups = "drop") %>% 
+  
+  # pretty up text
+  mutate(assessment = case_when(assessment == "includes required files" ~ "includes required metadata files: FLMD, DD, readme",
+                                assessment == "no duplicate names" & source == "column_header" ~ "no duplicate column headers within files",
+                                assessment == "no proprietary files" & source == "file_name" ~ "no proprietary files",
+                                assessment == "no special characters" & source == "column_header" ~ "no special characters in column headers",
+                                assessment == "no special characters" & source == "file_name" ~ "no special characters in file names",
+                                assessment == "no special characters" & source == "directory_name" ~ "no special characters in folder names",
+                                T ~ assessment)) %>% 
+
+  # prep pass_check colors
+  rowwise() %>% 
+  mutate(pass_check = case_when(failed_files > 0 ~ "FAILED", 
+                                failed_files == 0 ~ "PASSED",
+                                T ~ NA_character_), .before = assessment) %>%
+  arrange(requirement, pass_check) %>% 
+  select(pass_check, assessment, requirement, failed_files, passed_files)
+  
+
+# make nice table
+
+# option 1 
+overview_table %>% 
+  select(-requirement) %>% 
   mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
                                                                   pass_check == "FAILED" ~ "lightcoral"))) %>% 
-
-  # make nice table
-  kable("html", escape = FALSE) %>% 
+  mutate(failed_files = cell_spec(failed_files, background = case_when(failed_files > 0 ~ "lightcoral",
+                                                                       T ~ ""))) %>% 
+  kable("html", escape = FALSE, row.names = TRUE, align = c("c", "l", "c", "c", "c")) %>% 
   kable_styling("striped", full_width = FALSE, position = "center") %>% 
-  row_spec(which(data_package_checks$data_checks_summary$pass_check == TRUE), color = "gray") %>% 
-  row_spec(which(data_package_checks$data_checks_summary$pass_check == FALSE), color = "black", bold = T)
+  row_spec(which(overview_table$pass_check == "PASSED"), color = "gray") %>% 
+  row_spec(which(overview_table$pass_check == "FAILED"), color = "black", bold = T) %>% 
+  pack_rows("Required Checks", 1, sum(overview_table$requirement == "required"), label_row_css = "background-color: #e6e6e6; color: #000000;") %>%
+  pack_rows("Strongly Recommended Checks", 
+            sum(overview_table$requirement == "required") + 1, 
+            nrow(overview_table), label_row_css = "background-color: #e6e6e6; color: #000000;")
+
+# option 2
+# overview_table %>% 
+#   mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
+#                                                                   pass_check == "FAILED" ~ "lightcoral"))) %>% 
+#   mutate(failed_files = cell_spec(failed_files, background = case_when(failed_files > 0 ~ "lightcoral",
+#                                                                        T ~ ""))) %>% 
+#   kable("html", escape = FALSE, row.names = TRUE) %>% 
+#   kable_styling("striped", full_width = FALSE, position = "center") %>% 
+#   row_spec(which(overview_table$pass_check == "PASSED"), color = "gray") %>% 
+#   row_spec(which(overview_table$pass_check == "FAILED"), color = "black", bold = T)
 
 
 ```
