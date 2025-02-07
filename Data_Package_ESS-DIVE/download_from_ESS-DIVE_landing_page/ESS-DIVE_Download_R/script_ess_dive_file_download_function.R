@@ -18,6 +18,25 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
   # downloads_folder: target folder to store the downloaded file 
   # rm_zip: whether to remove the downloaded zip file after unzipped the file, default is FALSE
   # rm_unzip_folder: whether to remove the unzip_folder after reading data into R, default is FALSE
+  
+  cat("WARNING: Confirm that the URL you provided is current: \n\n", target_url, 
+      "\n\nIf an outdated URL is provided, it will download an old data package version.\n\nDo you want to proceed?")
+  
+  response <- readline(prompt = "(Y/N): ")
+  
+  if (tolower(response) == "y") {
+
+    
+
+  } else if (tolower(response) == "n") {
+
+    stop("Stopping function.")
+
+  } else {
+
+    stop("ERROR. Stopping function.")
+  }
+  
   existed_files<- list.files(downloads_folder)
   destfile <-file.path(downloads_folder,filename)
   if (!filename %in% existed_files){
@@ -25,7 +44,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
     cat("\n")
     curl_download(target_url, destfile =destfile)
   }else{
-    cat( filename,' already in folder')
+    cat( filename,'already in folder. Skipping download. Will read in existing files. ')
     cat("\n")
   }
   # Wait for the download to complete
@@ -63,7 +82,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
           cat('unzipping file', destfile)
           cat("\n")
         }else {
-          cat( destfile,' have been unzipped previously')
+          # doing nothing if files have already been unzipped
           cat("\n")
         }
  
@@ -94,6 +113,8 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
       # Print the file names within the folder
       cat("Files and folders in", new_dir, "folder:\n")
       cat(paste0(extracted_files, "\n"), sep = "")
+      cat("\n")
+      cat("Reading in files...")
       cat("\n")
       data_in_file <- list()
       # read the extracted files in folder
