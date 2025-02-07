@@ -100,29 +100,18 @@ overview_table <- data_package_checks$data_checks_summary %>%
 # option 1 
 overview_table %>% 
   select(-requirement) %>% 
-  mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
+  mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen", # add colors on PASSED/FAILED checks
                                                                   pass_check == "FAILED" ~ "lightcoral"))) %>% 
   mutate(failed_files = cell_spec(failed_files, background = case_when(failed_files > 0 ~ "lightcoral",
                                                                        T ~ ""))) %>% 
-  kable("html", escape = FALSE, row.names = TRUE, align = c("c", "l", "c", "c", "c")) %>% 
-  kable_styling("striped", full_width = FALSE, position = "center") %>% 
-  row_spec(which(overview_table$pass_check == "PASSED"), color = "gray") %>% 
-  row_spec(which(overview_table$pass_check == "FAILED"), color = "black", bold = T) %>% 
+  kable("html", escape = FALSE, row.names = TRUE, align = c("c", "l", "c", "c", "c")) %>% # decide left, center, or right justification for each col
+  kable_styling("striped", full_width = FALSE, position = "center") %>% # add stripes to rows and position table in center of page
+  row_spec(which(overview_table$pass_check == "PASSED"), color = "gray") %>% # make passed checks in gray
+  row_spec(which(overview_table$pass_check == "FAILED"), color = "black", bold = T) %>% # make failed checks in bold black
+  
+  # add headers for requirement
   pack_rows("Required Checks", 1, sum(overview_table$requirement == "required"), label_row_css = "background-color: #e6e6e6; color: #000000;") %>%
-  pack_rows("Strongly Recommended Checks", 
-            sum(overview_table$requirement == "required") + 1, 
-            nrow(overview_table), label_row_css = "background-color: #e6e6e6; color: #000000;")
-
-# option 2
-# overview_table %>% 
-#   mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
-#                                                                   pass_check == "FAILED" ~ "lightcoral"))) %>% 
-#   mutate(failed_files = cell_spec(failed_files, background = case_when(failed_files > 0 ~ "lightcoral",
-#                                                                        T ~ ""))) %>% 
-#   kable("html", escape = FALSE, row.names = TRUE) %>% 
-#   kable_styling("striped", full_width = FALSE, position = "center") %>% 
-#   row_spec(which(overview_table$pass_check == "PASSED"), color = "gray") %>% 
-#   row_spec(which(overview_table$pass_check == "FAILED"), color = "black", bold = T)
+  pack_rows("Strongly Recommended Checks", sum(overview_table$requirement == "required") + 1, nrow(overview_table), label_row_css = "background-color: #e6e6e6; color: #000000;")
 
 
 ```
