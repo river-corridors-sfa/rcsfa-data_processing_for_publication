@@ -58,7 +58,8 @@ x_recommended_failed <- failed_checks %>%
 ## Did your data package pass? {.tabset}  
 **The data quality checks help data packages comply with the best practices for accessibility and usability. Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.**   
 
-### Overview  
+### Checks  {.tabset}
+#### Overview {.tabset}
 - Required checks are required to pass before a data package will be published.  
 - Recommended checks are suggested to pass before a data package will be published. Passing `strongly_recommended` checks prepares your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool.  
 - The RC-SFA project expects that all Study Data Packages adhere to both `required` and `strongly_recommended` checks. Manuscript Data Packages must adhere to the `required` checks and are encouraged to consider the `strongly_recommended` checks.  
@@ -118,7 +119,7 @@ overview_table %>%
 
 ---
 
-### `includes required files` {.tabset}
+#### `includes required files` {.tabset}
 
 ```{r echo=FALSE}
 
@@ -170,7 +171,7 @@ data_package_checks$data_checks %>%
 ---
 
 
-### `no proprietary files` {.tabset}
+#### `no proprietary files` {.tabset}
 
 ```{r echo=FALSE}
 
@@ -215,7 +216,7 @@ data_package_checks$data_checks %>%
 
 ---
 
-### `no special characters` {.tabset}
+#### `no special characters` {.tabset}
 
 ```{r include=FALSE}
 
@@ -271,7 +272,7 @@ data_package_checks$data_checks %>%
 
 ---
 
-### `no duplicate names` {.tabset}
+#### `no duplicate names` {.tabset}
 
 ```{r include=FALSE}
 
