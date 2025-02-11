@@ -413,7 +413,7 @@ data_package_checks$tabular_report %>%
 ---
 
 
-## Detailed Error Report {.tabset}
+## Detailed Report {.tabset}
 
 The Summary Table and Data Checks tabs provide high-level and detailed insights into the quality of your data. Use the summary to identify major issues and the detailed checks to troubleshoot specific problems. 
 
