@@ -336,25 +336,42 @@ data_are_negative <- data_package_checks$tabular_report %>%
 
 ```
 
+#### **Preview your tabular data:**
+
 > <p style='color: `r ifelse(data_are_missing > 0, "darkred", "green")`;'><strong> **Number of missing values in your data package: `r data_are_missing`**  </strong></p>  
 > <p style='color: `r ifelse(data_are_negative > 0, "darkred", "green")`;'><strong> **Number of negative values in your data package: `r data_are_negative`**  </strong></p>  
 
-This table summarizes column-level details across all the tabular files in your data package, highlighting potential issues in your data.    
+This table summarizes column-level details across all the tabular files in your data package. While it does not enforce strict pass/fail criteria like the data checks, it summarizes dataset structure and flags potential issues for further review, enabling users to assess data quality within the context of their data package.  
 
-Here are a few key columns to check:  
-- `num_missing_values`: check for missing data (the value should be 0 unless missing values are expected).  
-- `range_min` & `range_max`: if applicable, validate numeric ranges to ensure realistic values.  
-- `num_negative_values`: if applicable, check for unexpected negative values.  
-- `data_preview`: verify the top values in each column; this displays the top 5 most frequent values for each column.  
-
+<details>
+  <summary>Each row in the table represents a single column from a tabular data file. Click to expand/collapse column definitions.</summary>
+- **`file_name`** = The name of the file where the column is found.  
+- **`column_name`** = The name of the column within the file.  
+- **`column_type`** = The data type of the column (e.g., character, numeric, logical, mixed, etc.)  
+- **`num_rows`** = The total number of rows in the column.  
+- **`num_unique_rows`** = The number of unique values present in the column. If this number is the same as `num_rows`, then all values are unique. If this number is less than `num_rows`, then there are duplicate values within the column.    
+- **`num_missing_values`** = The count of missing values in the column. **Check for missing data (the value should be 0 unless missing values are expected).**  
+- **`num_negative_values`** = The count of values less than 0 in the column (if column type is numeric or mixed).  
+- **`range_min`** = The minimum value in the column (if column is not character or logical). **If applicable, validate numeric ranges to ensure realistic values.**  
+- **`range_max`** = The maximum value in the column (if column is not character or logical). **If applicable, validate numeric ranges to ensure realistic values.**  
+- **`data_preview`** = A sampled preview of the top five most frequent values in the column, with the counts for each.  
+</details>
+  
+<br>  
+  
 
 ```{r echo=FALSE}
 
 data_package_checks$tabular_report %>% 
-  select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>% # reorder
+  select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>%   
+  # reorder
   rename(num_missing_values = num_missing_rows,
          num_negative_values = num_negative_rows,
          data_preview = top_counts) %>% 
+
+  # convert to UTF-8 encoding
+  mutate(across(where(is.character), ~iconv(., to = "UTF-8"))) %>% 
+  
   # convert dbl to int and chr to fct
    mutate(across(
     .cols = everything(),
@@ -369,8 +386,6 @@ data_package_checks$tabular_report %>%
     }
   )) %>% 
   
-  # convert all to UTF-8 encoding
-  mutate(across(everything(), ~iconv(., to = "UTF-8"))) %>% 
   
     datatable(options = list(autoWidth = TRUE,
                      scrollX = TRUE,
@@ -387,7 +402,11 @@ data_package_checks$tabular_report %>%
   # color missing values red
       formatStyle(c("num_missing_values", "num_negative_values"), # Column to apply the style
                   color = styleInterval(0, c(NA, 'red'))  # Highlight cells with value > 0 in red
-                  )
+                  ) %>% 
+  
+  # add column lines
+  formatStyle(columns = c("file_name", "column_name", "column_type", "num_rows", "num_unique_rows", "num_missing_values",
+                          "num_negative_values", "range_min", "range_max", "data_preview"), border = '0.1px solid #e6e6e6')
 
 ```
 
