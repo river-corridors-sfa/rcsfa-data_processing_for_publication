@@ -22,15 +22,15 @@ source_url(github_url)
  		- To get the url, you will need to go to the data package on ESS-DIVE, hover over the green download button of the file, zip, or download all button, right click, and select "copy link address". 
 	- `filename` = The filename of the file you want to download from ESS-DIVE. The filename indicates the name of the file as it  will be saved on  your computer, it does not have to match the file name on ESS-DIVE, but we recommend it does for traceability.
 	- `downloads_folder` = Target folder to store the downloaded file
-	- `rm_zip` = Whether to remove the downloaded zip file after unzipped the file, default is FALSE
-	- `rm_unzip_folder`: Whether to remove the unzip_folder after reading data into R, default is FALSE  
+	- `rm_zip` = [Optional] Whether to remove the downloaded zip file after unzipped the file, default is FALSE
+	- `rm_unzip_folder`: [Optional] Whether to remove the unzip_folder after reading data into R, default is FALSE  
 ``` R
 # Example reading in a .zip file. This will download the zip file and load in all the .csv files within the .zip into R
 # Example from Spatial Study 2022: https://data.ess-dive.lbl.gov/view/doi:10.15485/1969566
 csv_files_from_data_package <- download_and_read_data(
 	target_url = "https://data.ess-dive.lbl.gov/catalog/d1/mn/v2/object/ess-dive-e99c54f68893641-20230824T171850688", # the url from ess-dive
 	filename = "v2_SSS_Data_Package.zip", # your choice for how the downloaded zip will be named
-	downloads_folder = "C:/Users/jdoe123/Downloads")` # the directory the .zip will save to
+	downloads_folder = "C:/Users/jdoe123/Downloads") # the directory the .zip will save to
 ```
 
 5. See [script_ess_dive_file_download_example.R](https://github.com/river-corridors-sfa/rcsfa-essdive-api/blob/main/ESS-DIVE_Download_R/script_ess_dive_file_download_example.R) for more examples on how to use the function.

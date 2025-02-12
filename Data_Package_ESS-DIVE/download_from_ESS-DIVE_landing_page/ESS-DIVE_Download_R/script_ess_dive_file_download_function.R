@@ -18,6 +18,24 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
   # downloads_folder: target folder to store the downloaded file 
   # rm_zip: whether to remove the downloaded zip file after unzipped the file, default is FALSE
   # rm_unzip_folder: whether to remove the unzip_folder after reading data into R, default is FALSE
+  
+  cat("WARNING: A newer version of the data package version may be available. \nProviding an outdated URL will result in downloading an older version.\n\nCheck ESS-DIVE for updates before proceeding. Do you want to continue?")
+  
+  response <- readline(prompt = "(Y/N): ")
+  
+  if (tolower(response) == "y") {
+
+    
+
+  } else if (tolower(response) == "n") {
+
+    stop("Stopping function.")
+
+  } else {
+
+    stop("ERROR. Stopping function.")
+  }
+  
   existed_files<- list.files(downloads_folder)
   destfile <-file.path(downloads_folder,filename)
   if (!filename %in% existed_files){
@@ -25,7 +43,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
     cat("\n")
     curl_download(target_url, destfile =destfile)
   }else{
-    cat( filename,' already in folder')
+    cat( filename,'already in folder. Skipping download. Will read in previously downloaded files. ')
     cat("\n")
   }
   # Wait for the download to complete
@@ -63,7 +81,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
           cat('unzipping file', destfile)
           cat("\n")
         }else {
-          cat( destfile,' have been unzipped previously')
+          # doing nothing if files have already been unzipped
           cat("\n")
         }
  
@@ -94,6 +112,8 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
       # Print the file names within the folder
       cat("Files and folders in", new_dir, "folder:\n")
       cat(paste0(extracted_files, "\n"), sep = "")
+      cat("\n")
+      cat("Reading in files...")
       cat("\n")
       data_in_file <- list()
       # read the extracted files in folder
@@ -163,7 +183,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
     }
     cat('\n')
     cat('\n')
-    cat("STATUS: The data package has successfully downloaded.")
+    cat("STATUS: download_and_read_data() complete.\n", filename, "can be found in", downloads_folder)
     cat('\n')
     cat("WARNING: The .csv files have been loaded in, however you may experience parsing issues.")
     cat('\n')

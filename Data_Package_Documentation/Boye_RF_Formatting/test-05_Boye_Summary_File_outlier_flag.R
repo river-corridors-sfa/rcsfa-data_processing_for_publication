@@ -1,6 +1,6 @@
 ### test-05_Boye_Summary_File.R ################################################
 # Date Created: 2024-10-31
-# Date Updated: 2024-12-26
+# Date Updated: 2025-02-03
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -12,10 +12,11 @@
   # 3. Return to this script and run the `Run tests for calculations` chunk
 
 # Tests: 
-  # These tests are separated into two chunks. The first chunk confirms that the
+  # These tests are separated into chunks. The first chunk confirms that the
   # outliers are being removed and the averages calculated correctly. The second
   # test chunk confirms that the inputs are being read in and the outputs are
-  # being generated correctly.
+  # being generated correctly. The third chunk stress tests against existing 
+  # data packages. 
   
   # CALCULATION TESTS: 
   # test that outlier flags are correctly assigned by mapping the outlier text to the column name
@@ -24,12 +25,6 @@
   # test that average works when some reps are NA
   # test that Mean_Missing_Rep flag is applied when averaging includes NA values
   # test that column headers with multiple reps are renamed to have "Mean_" appended to title
-
-  # INPUT/OUTPUT TESTS: 
-  # these tests have not been developed, meaning that there are no checks to
-  # confirm that the files are read in correctly, nor exported correctly.
-  # However, there are a few checks that occur within the main script that seem
-  # sufficient until a need presents itself to further develop these tests.
 
 
 ### Prep script ################################################################
@@ -179,7 +174,8 @@ create_wide_testing_data <- function(outlier_options, set_seed = 637) {
                          Percent_Coarse_Sand = runif(length(outlier_options), min = 0, max = 1),
                          Percent_Tot_Sand = runif(length(outlier_options), min = 0, max = 1),
                          Percent_Silt = runif(length(outlier_options), min = 0, max = 1),
-                         Percent_Clay = runif(length(outlier_options), min = 0, max = 1))
+                         Percent_Clay = runif(length(outlier_options), min = 0, max = 1)) %>% 
+    mutate(across(where(is.numeric), ~ round(., 5)))
   
   return(testing_data)
 }
@@ -252,11 +248,14 @@ test_that("flags are correctly assigned", {
 
   # note: here are the remaining columns that do NOT yet have an associated
   # outlier (an thus are not being evaluated or considered if these columns
-  # conflict with existing outlier flags). If additional outlier flags are
-  # used, make sure to add them to this test. To do that, add the new outlier to
-  # the `Methods_Deviation_outlier_options` vector in this script. Then add a
-  # new row to the `expected_result` case_when statements that indicates which
-  # columns the outlier should be flagging.
+  # conflict with existing outlier flags). If additional outlier flags are used,
+  # make sure to add them to this test. To do that, add the new outlier to the
+  # `Methods_Deviation_outlier_options` vector in this script (above). Then add
+  # a new row to the `create_wide_testing_data()` function. Finally add a new
+  # row to the `expected_result` case_when statements in this test that
+  # indicates which columns the outlier should be flagging. To confirm that the
+  # new outlier is okay, run the `Prep_Script` section and then run the "flags
+  # are correctly assigned" test.
   
     # X00530_TSS_mg_per_L
     # pH
@@ -476,12 +475,132 @@ test_that("average works when some reps are NA", {
 })
 
 
+
 ### Run tests for inputs & outputs #############################################
 
-# these tests were never developed because the main script has the verification
-# we want. the biggest issue was to make sure the headers align correctly with
-# the data before the rbind together upon export.
+read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/WHONDRS_AV1_Sediment_Incubations_Respiration_Rates.csv", skip = 2) %>%
+  filter(!is.na(Sample_Name)) %>% 
+  select(-Field_Name) %>% 
+  select(-any_of("IGSN")) %>% 
+  
+  # add user input material
+  mutate(user_provided_material = material) %>% 
+  
+  # split out sample name
+  separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
+  separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
+  
+  # convert all to chr (temporarily)
+  mutate(across(everything(), as.character)) %>% 
+  View()
 
+
+test_that("filter correctly returns text in mixed columns", {
+  
+  testing_data <- tibble(
+    col1 = c(12, -5.4, "abc", "123abc", 56),
+    col2 = c("hello", "world", 3.14, -0.9, "xyz123"),
+    col3 = c(100, -200, "42", "45.67", "-100.5"),
+    col4 = c("hello123", 5.678, "test", "-42.56", 99),
+    col5 = c("-3", "4.5", "text_flag|000", 99, 150)
+  )
+  
+  result <- testing_data %>% 
+    mutate(across(everything(), as.character)) %>%  # Convert all columns to character type
+    mutate(across(everything(), ~ case_when(str_detect(., "[A-Za-z]") ~ ., TRUE ~ NA))) %>% # shows the user any values that have letters in them
+    pivot_longer(everything()) %>%
+    filter(!is.na(value)) %>%
+    pull(value) %>%
+    unique(.) %>% 
+    unlist() %>%
+    sort() %>% 
+    print()
+    
+  expected_result <- c("123abc", "abc", "hello", "hello123", "test", "text_flag|000", "world", "xyz123")
+  
+  expect_equal(object = result,
+               expected = expected_result)
+  
+})
+
+
+test_that("data has correct struture types when reading in", {
+  
+  # create temporary data
+  testing_data <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
+    mutate(Field_Name = as.logical(Field_Name)) %>%
+    mutate(Total_P_mg_per_L = case_when(row_number() %% 2 == 1 ~ "text_flag|000",
+                                        T ~ as.character(round(runif(n(), min = 0, max = 25))))) %>% 
+    mutate(across(where(is.numeric), ~round(., 5))) # round to 5 decimal points
+  
+  # create temp dir and write out testing data to it
+  temp_dir <- tempdir()
+  write_csv(tibble(header = c(1, 2)), file = paste0(temp_dir, "/testing_Water_data.csv"), col_names = F)
+  write_csv(testing_data, file = paste0(temp_dir, "/testing_Water_data.csv"), append = T, col_names = T)
+  
+  # read file back in
+  result <- read_in_files(analyte_files = paste0(temp_dir, "/testing_Water_data.csv"), material = "Water")
+  
+  expected_result <- testing_data %>% 
+    mutate(across(everything(), as.character)) %>%
+    create_long_testing_data() %>% 
+    mutate(file_name = "testing_Water_data")
+  
+  cat("values in result that are not in expected: ")
+  setdiff(result$data$testing_Water_data$data_value, expected_result$data_value) %>% 
+    print()
+  
+  # shows the values in the result that don't match to expected
+  result$data$testing_Water_data %>% 
+    anti_join(expected_result) %>% 
+    print()
+  
+  cat("values in expected that are not in result: ")
+  setdiff(expected_result$data_value, result$data$testing_Water_data$data_value) %>% 
+    print()
+  
+  # shows the values in expected that aren't in the result
+  expected_result %>% 
+    anti_join(result$data$testing_Water_data) %>% 
+    print()
+    
+  
+  # the two files should match
+  expect_equal(object = result$data$testing_Water_data,
+               expected = expected_result) 
+  
+  
+})
+
+test_that("combine function correctly connects data", {
+  
+  data1 <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
+            mutate(Total_P_mg_per_L = case_when(row_number() %% 2 == 1 ~ "text_flag|000",
+                                                T ~ as.character(round(runif(n(), min = 0, max = 25))))) %>% 
+            mutate(across(everything(), as.character))
+  
+  data2 <- create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 987) %>% 
+            mutate(across(everything(), as.character))
+    
+  
+  testing_data <- list(data = list(data1 = create_long_testing_data(data1),
+                                   data2 = create_long_testing_data(data2)))
+    
+  result <- combine_data(testing_data) %>% 
+    arrange(Sample_Name, data_type, data_value)
+  
+  expected_result <- bind_rows(create_long_testing_data(create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 637) %>% 
+                                                          mutate(Total_P_mg_per_L = case_when(row_number() %% 2 == 1 ~ NA_character_,
+                                                                                              T ~ as.character(round(runif(n(), min = 0, max = 25))))) %>% 
+                                                          mutate(Total_P_mg_per_L = as.numeric(Total_P_mg_per_L))),
+                               create_long_testing_data(create_wide_testing_data(outlier_options = Methods_Deviation_outlier_options, set_seed = 987))) %>% 
+    arrange(Sample_Name, data_type, data_value)
+  
+  expect_equal(object = result,
+               expected = expected_result)
+  
+})
+  
 
 test_that("user selections correctly select the columns to drop", {
   
