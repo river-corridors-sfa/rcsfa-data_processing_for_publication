@@ -43,7 +43,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
     cat("\n")
     curl_download(target_url, destfile =destfile)
   }else{
-    cat( filename,'already in folder. Skipping download. Will read in existing files. ')
+    cat( filename,'already in folder. Skipping download. Will read in previously downloaded files. ')
     cat("\n")
   }
   # Wait for the download to complete
