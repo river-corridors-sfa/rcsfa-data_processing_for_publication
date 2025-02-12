@@ -183,7 +183,7 @@ download_and_read_data<-function(target_url,filename,downloads_folder,rm_zip=FAL
     }
     cat('\n')
     cat('\n')
-    cat("STATUS: The data package has successfully downloaded.")
+    cat("STATUS: download_and_read_data() complete.\nThe data package", filename, "can be found in", downloads_folder)
     cat('\n')
     cat("WARNING: The .csv files have been loaded in, however you may experience parsing issues.")
     cat('\n')
