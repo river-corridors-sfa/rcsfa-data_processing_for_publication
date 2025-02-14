@@ -341,7 +341,7 @@ data_are_negative <- data_package_checks$tabular_report %>%
 > <p style='color: `r ifelse(data_are_missing > 0, "darkred", "green")`;'><strong> **Number of missing values in your data package: `r data_are_missing`**  </strong></p>  
 > <p style='color: `r ifelse(data_are_negative > 0, "darkred", "green")`;'><strong> **Number of negative values in your data package: `r data_are_negative`**  </strong></p>  
 
-This table summarizes column-level details across all the tabular files in your data package. While it does not enforce strict pass/fail criteria like the data checks, it summarizes dataset structure and flags potential issues for further review, enabling users to assess data quality within the context of their data package.  
+This table summarizes tabular files in your data package to enable you to review each tabular data column for your own data quality concerns (e.g., anticipated ranges or avoiding negative values). Unlike the other tabs, this tab does not display discrete pass/fail data checks because the review enabled by this tab is based upon the individual data package needs as determined by the author/reviewer. It is up to you, as the data package author/reviewer, to check this table for any relevant data concerns. 
 
 <details>
   <summary>Each row in the table represents a single column from a tabular data file. Click to expand/collapse column definitions.</summary>
@@ -415,13 +415,27 @@ data_package_checks$tabular_report %>%
 
 ## Detailed Report {.tabset}
 
-The Summary Table and Data Checks tabs provide high-level and detailed insights into the quality of your data. Use the summary to identify major issues and the detailed checks to troubleshoot specific problems. 
+The Overview Table and tabs above assess the quality of your data. If any of the data checks failed, use the `Failed Checks` tab below to identify the actions you can take to troubleshoot specific problems. 
 
-1. Start with summary table (above). Focus on checks where `pass_check = "FAILED"` to locate critical issues first.  
-2. Then use the "Failed Checks" tab to find problematic files and review detailed explanations of failures.  
-3. Correct the issues in your data files based on the failures identified, then re-run the checks to ensure all problems have been resolved.   
+1. Start with Overview Table (above). Focus on checks where `pass_check == "FAILED"` to locate critical issues first.  
+2. Then use the "Failed Checks" tab (below) to review the actions you can take to address the issue.    
+3. Correct the issues in your data files based, then re-run the checks to ensure all issues have been resolved.   
 
 ### Failed Checks {.tabset}
+
+<br>
+
+<details>
+  <summary>Each row in the table represents a failed check. Click to expand/collapse column definitions.</summary>
+- **`assessment`** = Describes the type of data validation or check being performed.  
+- **`action`** = Specifies the action or change required to address the issue identified by the assessment, including instructions on how to resolve the issue.  
+- **`requirement`** = Indicates the level of importance or necessity for addressing the issue.   
+- **`input`** = Refers to the specific input text that caused the check to fail.   
+- **`file`** = Lists the file that contains the issue, providing context for where the problem exists.  
+</details>
+  
+<br>  
+
 ```{r echo=FALSE}
 data_package_checks$data_checks %>% 
     filter(pass_check == FALSE) %>%
