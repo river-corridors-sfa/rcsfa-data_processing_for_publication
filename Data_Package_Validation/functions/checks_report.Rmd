@@ -185,7 +185,7 @@ failed_no_proprietary_files <- data_package_checks$data_checks %>%
 
 ESS-DIVE requests that all files are saved in a non-proprietary file format. While not exhaustive, this check confirms that the following common proprietary extensions are not included: `r input_parameters$non_proprietary_extensions`
 
-``` {r echo=FALSE, fig.align='center'}
+``` {r echo=FALSE, fig.align='center',  fig.width=12}
 
 # show bar chart of file extensions
 data_package_checks$data_checks %>% 
