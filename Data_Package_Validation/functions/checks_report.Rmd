@@ -438,7 +438,6 @@ The Overview Table and tabs above assess the quality of your data. If any of the
 
 ```{r echo=FALSE}
 
-# option 1 - shorter assessment text
 data_package_checks$data_checks %>% 
     filter(pass_check == FALSE) %>%
     rowwise() %>% 
@@ -462,36 +461,6 @@ data_package_checks$data_checks %>%
               class = "stripe")
 
 
-# option 2 - more user friendly assessment text
-data_package_checks$data_checks %>% 
-    filter(pass_check == FALSE) %>%
-    rowwise() %>% 
-    
-    # add action column
-    mutate(action = case_when(assessment == "includes required files" & str_detect(value, "flmd") ~ "Add a FLMD to your data package.",
-                              assessment == "includes required files" & str_detect(value, "dd") ~ "Add a DD to your data package.",
-                              assessment == "includes required files" & str_detect(value, "readme") ~ "Add a readme to your data package.",
-                              assessment == "no proprietary files" ~ paste0("Convert `", input, "` into a non-proprietary format."), 
-                              input == "EMPTY COLUMN HEADER" ~ paste0("Add a name to the missing column header in `", file, "`"), 
-                              assessment == "no special characters" & source == "column_header" ~ paste0("Remove special characters (`", value, "`) from the column header `", input, "` in `", file, "`."), 
-                              assessment == "no special characters" & source == "file_name" ~ paste0("Remove special characters from the file name `", input, "`."), 
-                              assessment == "no special characters" & source == "directory_name" ~ paste0("Remove special characters from the folder name `", input, "`."), 
-                              assessment == "no duplicate names" & source == "column_header" ~ paste0("The column header `", input, "` appears more than once in `", file, "`. Remove or rename column headers so there are no duplicates."), 
-                              T ~ ""
-                              )) %>% 
-    # pretty up text
-    mutate(assessment = case_when(assessment == "includes required files" ~ "includes required metadata files: FLMD, DD, readme",
-                                assessment == "no duplicate names" & source == "column_header" ~ "no duplicate column headers within files",
-                                assessment == "no proprietary files" & source == "file_name" ~ "no proprietary files",
-                                assessment == "no special characters" & source == "column_header" ~ "no special characters in column headers",
-                                assessment == "no special characters" & source == "file_name" ~ "no special characters in file names",
-                                assessment == "no special characters" & source == "directory_name" ~ "no special characters in folder names",
-                                T ~ assessment)) %>% 
-    select(assessment, action, requirement, input, file) %>%
-    mutate(across(c(assessment, action, requirement, input, file), as.factor)) %>% 
-      datatable(rownames = F,
-              filter = "top", 
-              class = "stripe")
 ```
 
 ---
