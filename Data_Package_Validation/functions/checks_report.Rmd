@@ -362,7 +362,7 @@ This table summarizes tabular files in your data package to enable you to review
 
 ```{r echo=FALSE}
 
-data_package_checks$tabular_report %>% 
+tabular_report <- data_package_checks$tabular_report %>% 
   select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>%   
   # reorder
   rename(num_missing_values = num_missing_rows,
@@ -370,8 +370,20 @@ data_package_checks$tabular_report %>%
          data_preview = top_counts) %>% 
 
   # convert to UTF-8 encoding
-  mutate(across(where(is.character), ~iconv(., to = "UTF-8"))) %>% 
-  
+  mutate(across(where(is.character), ~iconv(., to = "UTF-8")))
+
+# button to download table
+tabular_report %>% 
+  download_this(output_name = paste0(basename(data_package_checks$input$inputs$directory), "_Tabualr_Data_Report"),
+                output_extension = ".xlsx",
+                button_label = "Download Table (.xlsx)",
+                button_type = "default")
+```
+
+<br> 
+
+``` {r echo = FALSE}
+tabular_report %>% 
   # convert dbl to int and chr to fct
    mutate(across(
     .cols = everything(),
