@@ -428,7 +428,7 @@ The Overview Table and tabs above assess the quality of your data. If any of the
 <details>
   <summary>Each row in the table represents a failed check. Click to expand/collapse column definitions.</summary>
 - **`assessment`** = Describes the type of data validation or check being performed.  
-- **`action`** = Specifies the action or change required to address the issue identified by the assessment, including instructions on how to resolve the issue.  
+- **`action`** = Specifies the action or change required to resolve the issue.  
 - **`requirement`** = Indicates the level of importance or necessity for addressing the issue.   
 - **`input`** = Refers to the specific input text that caused the check to fail.   
 - **`file`** = Lists the file that contains the issue, providing context for where the problem exists.  
@@ -441,19 +441,26 @@ The Overview Table and tabs above assess the quality of your data. If any of the
 data_package_checks$data_checks %>% 
     filter(pass_check == FALSE) %>%
     rowwise() %>% 
+  
     
     # add action column
     mutate(action = case_when(assessment == "includes required files" & str_detect(value, "flmd") ~ "Add a FLMD to your data package.",
                               assessment == "includes required files" & str_detect(value, "dd") ~ "Add a DD to your data package.",
                               assessment == "includes required files" & str_detect(value, "readme") ~ "Add a readme to your data package.",
                               assessment == "no proprietary files" ~ paste0("Convert `", input, "` into a non-proprietary format."), 
-                              input == "EMPTY COLUMN HEADER" ~ paste0("Add a name to the missing column header in `", file, "`"), 
+                              assessment == "no special characters" & input == "EMPTY COLUMN HEADER" ~ paste0("Add a name to the missing column header in `", file, "`"), 
                               assessment == "no special characters" & source == "column_header" ~ paste0("Remove special characters (`", value, "`) from the column header `", input, "` in `", file, "`."), 
                               assessment == "no special characters" & source == "file_name" ~ paste0("Remove special characters (`", value, "`) from the file name `", input, "`."), 
                               assessment == "no special characters" & source == "directory_name" ~ paste0("Remove special characters from the folder name `", input, "`."), 
                               assessment == "no duplicate names" & source == "column_header" ~ paste0("The column header `", input, "` appears more than once in `", file, "`. Remove or rename column headers so there are no duplicates."), 
                               T ~ ""
                               )) %>% 
+    
+  # edit input
+    mutate(input = paste0(source, ": ", input)) %>% 
+    mutate(input = case_when(assessment == "includes required files" & input == "all_file_names: NA" ~ "file not found", 
+                             T ~ input)) %>% 
+  
     select(assessment, action, requirement, input, file) %>%
     mutate(across(c(assessment, action, requirement, input, file), as.factor)) %>% 
       datatable(rownames = F,
@@ -466,11 +473,25 @@ data_package_checks$data_checks %>%
 ---
 
 ### Passed Checks {.tabset}
+
+<br>
+
+<details>
+  <summary>Each row in the table represents a passed check. Click to expand/collapse column definitions.</summary>
+- **`assessment`** = Describes the type of data validation or check being performed.  
+- **`requirement`** = Indicates the level of importance or necessity of the assessment passing.   
+- **`input`** = Refers to the specific input text that was evaluated.   
+- **`file`** = Lists the file that was evaluated, providing context for the assessment.    
+</details>
+  
+<br>  
+
 ```{r echo=FALSE}
  data_package_checks$data_checks %>% 
     filter(pass_check == TRUE) %>% 
-    select(assessment, requirement, input, source, value, file) %>% 
-    mutate(across(c(assessment, requirement, source, file), as.factor)) %>% 
+    mutate(input = paste0(source, ": ", input)) %>% 
+    select(assessment, requirement, input, file) %>% 
+    mutate(across(c(assessment, requirement, input, file), as.factor)) %>% 
       datatable(rownames = F,
               filter = "top", 
               class = "stripe")
