@@ -127,7 +127,7 @@ test_that("no special characters are present in directory names", {
                                                   source = "directory_name",
                                                   file = "example.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", TRUE, "no special characters", "example/directory", "none", "directory_name", "example.csv"))
+                                  "strongly recommended", TRUE, "no special characters", "example/directory", "none", "directory_name", "example.csv"))
   
   # test for when there are special characters in input
   expect_equal(object = check_for_no_special_chrs(input = "example/directory name/with (spaces)", 
@@ -136,10 +136,10 @@ test_that("no special characters are present in directory names", {
                                                   source = "directory_name",
                                                   file = "example.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no special characters", "example/directory name/with (spaces)", "space", "directory_name", "example.csv",
-                                  "strongly_recommended", FALSE, "no special characters", "example/directory name/with (spaces)", "space", "directory_name", "example.csv",
-                                  "strongly_recommended", FALSE, "no special characters", "example/directory name/with (spaces)", "(", "directory_name", "example.csv",
-                                  "strongly_recommended", FALSE, "no special characters", "example/directory name/with (spaces)", ")", "directory_name", "example.csv"))
+                                  "strongly recommended", FALSE, "no special characters", "example/directory name/with (spaces)", "space", "directory_name", "example.csv",
+                                  "strongly recommended", FALSE, "no special characters", "example/directory name/with (spaces)", "space", "directory_name", "example.csv",
+                                  "strongly recommended", FALSE, "no special characters", "example/directory name/with (spaces)", "(", "directory_name", "example.csv",
+                                  "strongly recommended", FALSE, "no special characters", "example/directory name/with (spaces)", ")", "directory_name", "example.csv"))
   
   # test for when source is entered incorrectly
   expect_error(object = check_for_no_special_chrs(input = "example/directory", 
@@ -160,7 +160,7 @@ test_that("no special characters are present in file names", {
                                                   source = "file_name",
                                                   file = "example_filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", TRUE, "no special characters", "example_filename.csv", "none", "file_name", "example_filename.csv"))
+                                  "strongly recommended", TRUE, "no special characters", "example_filename.csv", "none", "file_name", "example_filename.csv"))
   
   # test for when there are special characters in input
   expect_equal(object = check_for_no_special_chrs(input = "/example filename.csv", 
@@ -169,8 +169,8 @@ test_that("no special characters are present in file names", {
                                                   source = "file_name",
                                                   file = "example filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no special characters", "/example filename.csv", "/", "file_name", "example filename.csv",
-                                  "strongly_recommended", FALSE, "no special characters", "/example filename.csv", "space", "file_name", "example filename.csv"))
+                                  "strongly recommended", FALSE, "no special characters", "/example filename.csv", "/", "file_name", "example filename.csv",
+                                  "strongly recommended", FALSE, "no special characters", "/example filename.csv", "space", "file_name", "example filename.csv"))
   
   # test for when source is entered incorrectly
   expect_error(object = check_for_no_special_chrs(input = "example_filename.csv", 
@@ -191,7 +191,7 @@ test_that("no proprietary file extensions are present in file names", {
                                                        source = "file_name", 
                                                        file = "example_file_name.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", TRUE, "no proprietary files", "example_file_name.csv", "none", "file_name", "example_file_name.csv"))
+                                  "strongly recommended", TRUE, "no proprietary files", "example_file_name.csv", "none", "file_name", "example_file_name.csv"))
   
   # test for when there are proprietary files in input
   expect_equal(object = check_for_no_proprietary_files(input = "example file_name.xlsx", 
@@ -200,7 +200,7 @@ test_that("no proprietary file extensions are present in file names", {
                                                        source = "file_name", 
                                                        file = "example file_name.xlsx"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no proprietary files", "example file_name.xlsx", ".xlsx", "file_name", "example file_name.xlsx"))
+                                  "strongly recommended", FALSE, "no proprietary files", "example file_name.xlsx", ".xlsx", "file_name", "example file_name.xlsx"))
   
   
 })
@@ -213,7 +213,7 @@ test_that("file names are unique", {
                                                source = "file_name",
                                                file = "example1.csv"), 
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", TRUE, "no duplicate names", "example1.csv", "example1.csv x1", "file_name", "example1.csv"))
+                                  "strongly recommended", TRUE, "no duplicate names", "example1.csv", "example1.csv x1", "file_name", "example1.csv"))
   
   # test for when there are duplicate file names
   expect_equal(object = check_for_unique_names(input = "example1.csv",
@@ -221,7 +221,7 @@ test_that("file names are unique", {
                                                source = "file_name",
                                                file = "example1.csv"), 
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no duplicate names", "example1.csv", "example1.csv x2", "file_name", "example1.csv"))
+                                  "strongly recommended", FALSE, "no duplicate names", "example1.csv", "example1.csv x2", "file_name", "example1.csv"))
   
   # test for when source is entered incorrectly
   expect_error(object = check_for_unique_names(input = "example1.csv",
@@ -243,7 +243,7 @@ test_that("no special chracters are present in column names", {
                                                   source = "column_header",
                                                   file = "example_filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", TRUE, "no special characters", "example_column_name", "none", "column_header", "example_filename.csv"))
+                                  "strongly recommended", TRUE, "no special characters", "example_column_name", "none", "column_header", "example_filename.csv"))
   
   # test for when there are special characters in input
   expect_equal(object = check_for_no_special_chrs(input = "column with space", 
@@ -252,8 +252,8 @@ test_that("no special chracters are present in column names", {
                                                   source = "column_header",
                                                   file = "example_filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no special characters", "column with space", "space", "column_header", "example_filename.csv",
-                                  "strongly_recommended", FALSE, "no special characters", "column with space", "space", "column_header", "example_filename.csv"))
+                                  "strongly recommended", FALSE, "no special characters", "column with space", "space", "column_header", "example_filename.csv",
+                                  "strongly recommended", FALSE, "no special characters", "column with space", "space", "column_header", "example_filename.csv"))
   
   expect_equal(object = check_for_no_special_chrs(input = "column$specialchr", 
                                                   invalid_chrs = input_parameters$special_chrs,
@@ -261,7 +261,7 @@ test_that("no special chracters are present in column names", {
                                                   source = "column_header",
                                                   file = "example_filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no special characters", "column$specialchr", "$", "column_header", "example_filename.csv"))
+                                  "strongly recommended", FALSE, "no special characters", "column$specialchr", "$", "column_header", "example_filename.csv"))
   
   expect_equal(object = check_for_no_special_chrs(input = "", 
                                                   invalid_chrs = input_parameters$special_chrs,
@@ -269,7 +269,7 @@ test_that("no special chracters are present in column names", {
                                                   source = "column_header",
                                                   file = "example_filename.csv"),
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no special characters", "", "column_header is empty", "column_header", "example_filename.csv"))
+                                  "strongly recommended", FALSE, "no special characters", "", "column_header is empty", "column_header", "example_filename.csv"))
   
 })
 
@@ -281,14 +281,14 @@ test_that("column names are unique", {
                                                source = "column_header",
                                                file = "example1.csv"), 
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", TRUE, "no duplicate names", "col_chr", "col_chr x1", "column_header", "example1.csv"))
+                                  "strongly recommended", TRUE, "no duplicate names", "col_chr", "col_chr x1", "column_header", "example1.csv"))
   
   expect_equal(object = check_for_unique_names(input = "col$num",
                                                all_names = c("col_chr", "col$num", "col_log"),
                                                source = "column_header",
                                                file = "example1.csv"), 
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", TRUE, "no duplicate names", "col$num", "col$num x1", "column_header", "example1.csv"))
+                                  "strongly recommended", TRUE, "no duplicate names", "col$num", "col$num x1", "column_header", "example1.csv"))
   
 
   # test for when there are duplicate column headers
@@ -297,7 +297,7 @@ test_that("column names are unique", {
                                                source = "column_header",
                                                file = "example1.csv"), 
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly_recommended", FALSE, "no duplicate names", "col_chr", "col_chr x2", "column_header", "example1.csv"))
+                                  "strongly recommended", FALSE, "no duplicate names", "col_chr", "col_chr x2", "column_header", "example1.csv"))
   
   
 })

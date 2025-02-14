@@ -38,12 +38,12 @@ x_required_failed <- failed_checks %>%
   pull(n)
 
 y_recommended_total <- all_checks_summary %>% 
-  filter(requirement == "strongly_recommended") %>% 
+  filter(requirement == "strongly recommended") %>% 
   count() %>% 
   pull(n)
 
 x_recommended_failed <- failed_checks %>% 
-  filter(requirement == "strongly_recommended") %>% 
+  filter(requirement == "strongly recommended") %>% 
   count() %>% 
   pull(n)
 
@@ -60,8 +60,8 @@ x_recommended_failed <- failed_checks %>%
 
 ### Overview {.tabset}
 - Required checks are required to pass before a data package will be published.  
-- Recommended checks are suggested to pass before a data package will be published. Passing `strongly_recommended` checks prepares your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool.  
-- The RC-SFA project expects that all Study Data Packages adhere to both `required` and `strongly_recommended` checks. Manuscript Data Packages must adhere to the `required` checks and are encouraged to consider the `strongly_recommended` checks.  
+- Recommended checks are suggested to pass before a data package will be published. Passing `strongly recommended` checks prepares your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool.  
+- The RC-SFA project expects that all Study Data Packages adhere to both `required` and `strongly recommended` checks. Manuscript Data Packages must adhere to the `required` checks and are encouraged to consider the `strongly recommended` checks.  
 
 ```{r echo=FALSE}
 # display table of checks
