@@ -35,6 +35,7 @@ library(kableExtra) # for rmd report table styling
 library(DT) # for interactive tables in report
 library(rmarkdown) # for rendering report
 library(plotly) # for interactive graphs
+library(downloadthis) # for downloading tabular data report as .csv
 
 # set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
 setwd(here())
