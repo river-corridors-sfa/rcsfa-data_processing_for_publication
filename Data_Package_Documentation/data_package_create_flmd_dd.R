@@ -40,10 +40,10 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Brieanne/GitHub/YRB_Water_Column_Respiration" 
+directory <- "C:/Brieanne/GitHub/Cincinnati_Multireactor_Respiration" 
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package"
+out_directory <- "C:/Brieanne/GitHub/Cincinnati_Multireactor_Respiration"
   
 
 ### Run Functions ##############################################################
@@ -94,19 +94,19 @@ flmd_skeleton <- flmd_skeleton %>%
 
 ### join headers to dd #########################################################
 # get headers
-# headers <- data_package_data$headers %>%
-#   mutate(relative_file = basename(file)) %>%
-#   group_by(header) %>% 
-#   summarise(header_count = n(),
-#             file_name = toString(relative_file),
-#             file_path = toString(file)) %>% 
-#   ungroup() %>% 
-#   arrange(header, .locale = "en")
-# 
-# 
-# dd_skeleton_with_header_source <- dd_skeleton_populated %>% 
-#   left_join(headers, by = c("Column_or_Row_Name" = "header")) %>% 
-#   select(-file_path)
+headers <- data_package_data$headers %>%
+  mutate(relative_file = basename(file)) %>%
+  group_by(header) %>%
+  summarise(header_count = n(),
+            file_name = toString(relative_file),
+            file_path = toString(file)) %>%
+  ungroup() %>%
+  arrange(header, .locale = "en")
+
+
+dd_skeleton_with_header_source <- dd_skeleton_populated %>%
+  left_join(headers, by = c("Column_or_Row_Name" = "header")) %>%
+  select(-file_path)
 
 
 
@@ -116,10 +116,10 @@ flmd_skeleton <- flmd_skeleton %>%
   # After exporting, remember to properly rename the dd and flmd files and to update the flmd to reflect such changes.
 
 # write out data package data
-# save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
+save(data_package_data, file = paste0(out_directory, "/data_package_data.rda"))
 
 # write out skeleton dd
-write_csv(dd_skeleton, paste0(out_directory, "/skeleton_dd.csv"), na = "")
+write_csv(dd_skeleton_with_header_source, paste0(out_directory, "/skeleton_dd.csv"), na = "")
 
 # write out populated dd
 write_csv(dd_skeleton_populated, paste0(out_directory, "/skeleton_populated_dd.csv"), na = "")
