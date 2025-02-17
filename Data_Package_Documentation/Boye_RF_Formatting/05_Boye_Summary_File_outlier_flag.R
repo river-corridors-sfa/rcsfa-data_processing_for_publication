@@ -461,7 +461,8 @@ indexed_summary_cols <- colnames(summary) %>%
                                                         "Total_Incubation_Time_Min",
                                                         "Number_Points_In_Respiration_Regression",
                                                         "Number_Points_Removed_Respiration_Regression",
-                                                        "DO_Concentration_At_Incubation_Time_Zero"
+                                                        "DO_Concentration_At_Incubation_Time_Zero",
+                                                   'FTICR-MS'
                                                         )))) %>% 
   ungroup() %>% 
   mutate(to_remove = case_when(to_remove == TRUE ~ TRUE)) %>% 
