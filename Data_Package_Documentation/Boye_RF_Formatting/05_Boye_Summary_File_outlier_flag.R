@@ -484,8 +484,8 @@ cat("Columns that are typically removed are indicated as 'TRUE' in the `to_remov
     View(indexed_summary_cols))
   
   response_1 <- readline(prompt = "Would you like to remove all of the indicated columns from the summary file (Y/N)? ")
-  response_2 <- readline(prompt = paste0("Which (additional) column(s) would you like to remove?, "\n", 
-                                          Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none: "))
+  response_2 <- readline(prompt = paste0("Which (additional) column(s) would you like to remove?",  "\n",
+                                          "Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none: "))
   
   
 } else {
@@ -545,7 +545,7 @@ if(sum(cols_to_remove) != 0){
   cat("\n")
   
   # drop the cols
-  test_summary <- drop_df_columns(df = summary, drop_indices = cols_to_remove)
+  summary <- drop_df_columns(df = summary, drop_indices = cols_to_remove)
   
 } else {
 
