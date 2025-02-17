@@ -133,17 +133,11 @@ failed_includes_required_files <- data_package_checks$data_checks %>%
 
 
 In addition to your data files, we require a file-level metadata file (FLMD), data dictionary (DD), and readme in each data package. Proprietary files should be converted to non-proprietary options (e.g., .docx are converted to .pdf). To improve interoperability with ESS-DIVE's tools, these three file have specific file naming conventions.  
- 
-``` {r echo = FALSE}
-tribble(~file, ~`file name requirement`, ~`file name example`,
-        "readme", "File name must begin with `readme*` and end with `.pdf`. You may append anything between 'readme' and '.pdf', but we recommend the text matches your data package folder name.", "`readme_Smith_2005_Wildfire_Impacts.csv`", 
-        "FLMD", "File name must end with `flmd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name.", "`Smith_2005_Wildfire_Impacts_flmd.csv`", 
-        "DD", "File name must end with `dd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name.", "`Smith_2005_Wildfire_Impacts_dd.csv`", 
-        "ESS-DIVE metadata", "This 4th file needs to be filled out to populate your data package landing page on ESS-DIVE; however, because the file will not be included in your data package there is not a check or file name requirement for it.", "N/A") %>% 
-  kable("html", escape = FALSE) %>% 
-  kable_styling("striped", full_width = FALSE)
 
-```
+- **readme**: File name must begin with `readme` and end with `.pdf`. You may append anything between `readme` and `.pdf`, but we recommend the text matches your data package folder name. Ex: "readme_Smith_2005_Wildfire_Impacts.csv".  
+- **FLMD**: File name must end with `flmd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name. Ex: "Smith_2005_Wildfire_Impacts_flmd.csv".  
+- **DD**: File name must end with `dd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name. Ex: "Smith_2005_Wildfire_Impacts_dd.csv".  
+- **ESS-DIVE metadata**: This 4th file needs to be filled out to populate your data package landing page on ESS-DIVE; however, because the file will not be included in your data package there is not a check or file name requirement for it.  
 
 
 ```{r echo=FALSE}
