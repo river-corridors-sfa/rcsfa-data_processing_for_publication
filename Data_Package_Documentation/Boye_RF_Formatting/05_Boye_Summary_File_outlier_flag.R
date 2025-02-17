@@ -62,11 +62,11 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data"
 
-study_code <- 'SPS' # this is used to rename the output file
+study_code <- 'WHONDRS_AV1' # this is used to rename the output file
 
-material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
+material <- 'Sediment' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 
 # ====================== functions used in this script =========================
