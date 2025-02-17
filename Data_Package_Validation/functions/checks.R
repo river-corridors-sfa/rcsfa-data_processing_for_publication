@@ -291,7 +291,7 @@ check_for_unique_names <- function(input,
   }
   
   # count how many times the input exists in the string
-  name_count <- sum(str_count(all_names, fixed(input)))
+  name_count <- sum(all_names == fixed(input))
   
   name <- paste0(input, " x", name_count)
   
@@ -323,7 +323,7 @@ check_for_unique_names <- function(input,
   
   return(data_checks_table)
   
-} # end of check_for_duplicate_names
+} # end of check_for_unique_names
 
 initialize_report_df <- function(){
   

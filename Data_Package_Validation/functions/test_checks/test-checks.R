@@ -299,7 +299,21 @@ test_that("column names are unique", {
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
                                   "strongly recommended", FALSE, "no duplicate names", "col_chr", "col_chr x2", "column_header", "example1.csv"))
   
+  # test for when there are duplicate column headers where the substring of a shorter column header is included in another col name
+  expect_equal(object = check_for_unique_names(input = "col", 
+                                               all_names = c("col", "col_chr", "another_name"),
+                                               source = "column_header", 
+                                               file = "example1.csv"),
+              expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                 "strongly recommended", TRUE, "no duplicate names", "col", "col x1", "column_header", "example1.csv"))
   
+  # test for when there's a combination of duplicate col names and substring matches
+  expect_equal(object = check_for_unique_names(input = "col", 
+                                               all_names = c("col", "col_chr", "col", "another_name", "another_col"),
+                                               source = "column_header", 
+                                               file = "example1.csv"),
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "strongly recommended", FALSE, "no duplicate names", "col", "col x2", "column_header", "example1.csv"))
 })
 
 
