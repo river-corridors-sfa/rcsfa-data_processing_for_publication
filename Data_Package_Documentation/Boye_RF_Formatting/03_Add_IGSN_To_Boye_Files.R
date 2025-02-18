@@ -4,7 +4,6 @@
 #
 # Status: Complete
 #
-# Note: only works for parent ID with six characters
 # ==============================================================================
 #
 # Author: Brieanne Forbes
@@ -21,6 +20,10 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 dp_dir <- selectDirectory()
+
+
+#number of digits in the parent ID
+parent_id_number <- 7
 
 file <- file.choose()
 
@@ -42,7 +45,7 @@ data <- read_csv(file, skip = 2) %>%
   
   data <- read_csv(file, skip = 2) %>%
     filter(!Sample_Name %in% c('N/A', '-9999')) %>%
-    mutate(Parent_ID = str_extract(Sample_Name, '.{6}'))
+    mutate(Parent_ID = str_extract(Sample_Name, paste0('.{', parent_id_number, '}')))
   
 }
 
@@ -70,7 +73,7 @@ if(str_detect(dp_dir, 'EC|EV')){ # IGSN in field metadata for ECA so having to p
   igsn <- read_csv(list.files(dp_dir, 'IGSN', full.names = T), skip = 1) %>%
     select(Sample_Name, IGSN, Material) %>%
     filter(Material == material) %>%
-    mutate(Parent_ID = str_extract(Sample_Name, '.{6}')) %>%
+    mutate(Parent_ID = str_extract(Sample_Name, paste0('.{', parent_id_number, '}'))) %>%
     select(-Sample_Name, -Material)
   
   }
