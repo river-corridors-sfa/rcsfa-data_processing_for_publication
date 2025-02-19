@@ -643,6 +643,7 @@ check_data_package <- function(data_package_data, input_parameters = input_param
     # check_for_no_special_chrs()
     # check_for_required_file_strings()
     # check_for_unique_names()
+    # check_for_empty_column_headers()
     # create_range_report()
   
   # It requires the following util functions: 
@@ -799,6 +800,12 @@ check_data_package <- function(data_package_data, input_parameters = input_param
                                                     data_checks_table = data_checks_output, 
                                                     source = "column_header", 
                                                     file = current_file_name)
+        
+        # check for empty column headers
+        data_checks_output <- check_for_empty_column_headers(input = current_header,
+                                                             data_checks_table = data_checks_output,
+                                                             source = "column_header",
+                                                             file = current_file_name)
         
       }
       
