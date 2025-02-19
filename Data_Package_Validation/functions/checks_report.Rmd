@@ -450,7 +450,7 @@ data_package_checks$data_checks %>%
                               assessment == "includes required files" & str_detect(value, "dd") ~ "Add a DD to your data package.",
                               assessment == "includes required files" & str_detect(value, "readme") ~ "Add a readme to your data package.",
                               assessment == "no proprietary files" ~ paste0("Convert `", input, "` into a non-proprietary format."), 
-                              assessment == "no special characters" & input == "EMPTY COLUMN HEADER" ~ paste0("Add a name to the missing column header in `", file, "`"), 
+                              assessment == "no special characters" & input == "EMPTY_COLUMN_HEADER" ~ paste0("Add a name to the missing column header in `", file, "`"), 
                               assessment == "no special characters" & source == "column_header" ~ paste0("Remove special characters (`", value, "`) from the column header `", input, "` in `", file, "`."), 
                               assessment == "no special characters" & source == "file_name" ~ paste0("Remove special characters (`", value, "`) from the file name `", input, "`."), 
                               assessment == "no special characters" & source == "directory_name" ~ paste0("Remove special characters from the folder name `", input, "`."), 

@@ -735,7 +735,7 @@ check_data_package <- function(data_package_data, input_parameters = input_param
         
         # Rename the unnamed columns
         # colnames(current_df)[empty_col_indices] <- paste0("unnamed_col_", seq_along(empty_col_indices))
-        colnames(current_df)[empty_col_indices] <- "EMPTY COLUMN HEADER"
+        colnames(current_df)[empty_col_indices] <- "EMPTY_COLUMN_HEADER"
         
       }
       

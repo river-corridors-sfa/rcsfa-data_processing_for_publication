@@ -277,14 +277,14 @@ test_that("no special chracters are present in column names", {
                                  file = "example_filename.csv"))
   
   # test that empty column headers pass this check because they are evaluated in another (separate) check
-  expect_equal(object = check_for_no_special_chrs(input = "EMPTY COLUMN HEADER",
+  expect_equal(object = check_for_no_special_chrs(input = "EMPTY_COLUMN_HEADER",
                                                   invalid_chrs = input_parameters$special_chrs,
                                                   source = "column_header", 
                                                   file = "example_filename.csv"),
                expected = tibble(requirement = "strongly recommended", 
                                  pass_check = TRUE, 
                                  assessment = "no special characters",
-                                 input = "EMPTY COLUMN HEADER",
+                                 input = "EMPTY_COLUMN_HEADER",
                                  value = "none",
                                  source = "column_header", 
                                  file = "example_filename.csv"))
@@ -346,12 +346,12 @@ test_that("no empty column headers exist", {
                                             "strongly recommended", TRUE, "no empty column headers", "col_header", "col_header", "column_header", "example_filename.csv"))
   
   # test for when there is 1 empty column header
-  expect_equal(object = check_for_empty_column_headers(input = "EMPTY COLUMN HEADER", 
+  expect_equal(object = check_for_empty_column_headers(input = "EMPTY_COLUMN_HEADER", 
                                                     data_checks_table = initialize_checks_df(),
                                                     source = "column_header", 
                                                     file = "example_filename.csv"),
               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                            "strongly recommended", FALSE, "no empty column headers", "EMPTY COLUMN HEADER", "EMPTY COLUMN HEADER", "column_header", "example_filename.csv"))
+                                            "strongly recommended", FALSE, "no empty column headers", "EMPTY_COLUMN_HEADER", "EMPTY_COLUMN_HEADER", "column_header", "example_filename.csv"))
   
   
 })
