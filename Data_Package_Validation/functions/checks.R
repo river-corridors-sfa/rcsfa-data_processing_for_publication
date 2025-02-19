@@ -337,7 +337,7 @@ check_for_empty_column_headers <- function(input,
                                            file) {
   
   
-  # checks to see if the input matches "EMPTY COLUMN HEADER"
+  # checks to see if the input matches "EMPTY_COLUMN_HEADER"
   # inputs: 
     # input = a single vectored value to check
     # data_checks_table = the table you want to add to
@@ -356,7 +356,7 @@ check_for_empty_column_headers <- function(input,
   }
   
   # check if string matches
-  if (input == "EMPTY COLUMN HEADER") {
+  if (input == "EMPTY_COLUMN_HEADER") {
     
     has_empty_column_header <-  TRUE
     
