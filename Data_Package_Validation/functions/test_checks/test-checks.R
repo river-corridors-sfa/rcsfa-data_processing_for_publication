@@ -316,6 +316,27 @@ test_that("column names are unique", {
                                   "strongly recommended", FALSE, "no duplicate names", "col", "col x2", "column_header", "example1.csv"))
 })
 
+test_that("no empty column headers exist", {
+  
+  # test for when there are no empty column headers
+  expect_equal(object = check_for_empty_column_headers(input = "col_header", 
+                                                    data_checks_table = initialize_checks_df(),
+                                                    source = "column_header", 
+                                                    file = "example_filename.csv"),
+              expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                            "strongly recommended", TRUE, "no empty column headers", "col_header", "col_header", "column_header", "example_filename.csv"))
+  
+  # test for when there is 1 empty column header
+  expect_equal(object = check_for_empty_column_headers(input = "EMPTY COLUMN HEADER", 
+                                                    data_checks_table = initialize_checks_df(),
+                                                    source = "column_header", 
+                                                    file = "example_filename.csv"),
+              expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                            "strongly recommended", FALSE, "no empty column headers", "EMPTY COLUMN HEADER", "EMPTY COLUMN HEADER", "column_header", "example_filename.csv"))
+  
+  
+})
+
 
 #### checks summary ####
 

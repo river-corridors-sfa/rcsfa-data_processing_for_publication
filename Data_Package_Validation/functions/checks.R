@@ -235,6 +235,7 @@ check_for_no_proprietary_files <- function(input,
     # input = a single vectored value to check
     # invalid_extensions = a vector of extensions that aren't allowed
     # data_checks_table = the table you want to add to
+    # source = a categorical variable, currently only set up to work with "file_name"
     # file = the name of the file that's being evaluated
   # outputs: 
     # standard checks df
@@ -276,6 +277,7 @@ check_for_unique_names <- function(input,
     # input = a single vectored value to check
     # all_names = a character string of the values for the input to be checked against
     # data_checks_table = the table you want to add to
+    # source = a categorical variable choosing between "file_name" or "column_header"
     # file = the name of the file that's being evaluated
   # outputs: 
     # standard checks df
@@ -324,6 +326,61 @@ check_for_unique_names <- function(input,
   return(data_checks_table)
   
 } # end of check_for_unique_names
+
+
+check_for_empty_column_headers <- function(input, 
+                                           data_checks_table = initialize_checks_df(),
+                                           source = "column_header", 
+                                           file) {
+  
+  
+  # checks to see if the input matches "EMPTY COLUMN HEADER"
+  # inputs: 
+    # input = a single vectored value to check
+    # data_checks_table = the table you want to add to
+    # source = a categorical variable, currently only set up to work with "column_header"
+    # file = the name of the file that's being evaluated
+  # outputs: 
+   # standard checks df
+  # assumptions: 
+    # this check will only be run on column_headers
+  
+  # confirm source input
+  if (!source %in% c("column_header")) {
+    
+    stop("`source` does not match controlled vocabulary options: column_header")
+    
+  }
+  
+  # check if string matches
+  if (input == "EMPTY COLUMN HEADER") {
+    
+    has_empty_column_header <-  TRUE
+    
+  } else{
+    
+    # otherwise, column isn't empty
+    has_empty_column_header <- FALSE
+    
+  }
+  
+  # update output
+  data_checks_table <- data_checks_table %>% 
+    add_row(
+      requirement = "strongly recommended", 
+      pass_check = !has_empty_column_header, 
+      assessment = "no empty column headers", 
+      input = input,
+      value = input, 
+      source = source, 
+      file = file
+    )
+  
+  return(data_checks_table)
+  
+} # end of check_for_empty_column_headers
+
+
 
 initialize_report_df <- function(){
   
