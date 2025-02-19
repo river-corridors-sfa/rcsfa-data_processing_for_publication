@@ -268,8 +268,27 @@ test_that("no special chracters are present in column names", {
                                                   data_checks_table = initialize_checks_df(),
                                                   source = "column_header",
                                                   file = "example_filename.csv"),
-               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
-                                  "strongly recommended", FALSE, "no special characters", "", "column_header is empty", "column_header", "example_filename.csv"))
+               expected = tibble(requirement = "strongly recommended",
+                                 pass_check = FALSE,
+                                 assessment = "no special characters",
+                                 input = "",
+                                 value = "column_header is empty",
+                                 source = "column_header",
+                                 file = "example_filename.csv"))
+  
+  # test that empty column headers pass this check because they are evaluated in another (separate) check
+  expect_equal(object = check_for_no_special_chrs(input = "EMPTY COLUMN HEADER",
+                                                  invalid_chrs = input_parameters$special_chrs,
+                                                  source = "column_header", 
+                                                  file = "example_filename.csv"),
+               expected = tibble(requirement = "strongly recommended", 
+                                 pass_check = TRUE, 
+                                 assessment = "no special characters",
+                                 input = "EMPTY COLUMN HEADER",
+                                 value = "none",
+                                 source = "column_header", 
+                                 file = "example_filename.csv"))
+  
   
 })
 
