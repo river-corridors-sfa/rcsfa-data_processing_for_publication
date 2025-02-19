@@ -455,6 +455,7 @@ data_package_checks$data_checks %>%
                               assessment == "no special characters" & source == "file_name" ~ paste0("Remove special characters (`", value, "`) from the file name `", input, "`."), 
                               assessment == "no special characters" & source == "directory_name" ~ paste0("Remove special characters from the folder name `", input, "`."), 
                               assessment == "no duplicate names" & source == "column_header" ~ paste0("The column header `", input, "` appears more than once in `", file, "`. Remove or rename column headers so there are no duplicates."), 
+                              assessment == "no empty column headers" & source == "column_header" ~ paste0("Add a header to the unnamed column in `", file, "`."),
                               T ~ ""
                               )) %>% 
     
