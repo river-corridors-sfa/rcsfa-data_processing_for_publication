@@ -185,40 +185,32 @@ check_for_no_special_chrs <- function(input,
     
   }
   
-  # if source is a column header and the text says "EMPTY COLUMN HEADER", then pass it
-  if (source == "column_header" & input == "EMPTY COLUMN HEADER") {
+  
+  # split out source by character
+  split_chrs <- unlist(strsplit(input, ""))
+  
+  # check for special characters
+  has_special_chrs <-
+    length(grep(invalid_chrs, split_chrs)) > 0 # the ^ turns the allowed chrs into a negated chr which matches any chr not listed within allowed_chrs
+  
+  # if the source is a file_name or column_name, an empty input will also fail
+  if ((source %in% c("file_name", "column_header")) &&
+      input == "" | is.na(input)) {
+    has_special_chrs <- TRUE
     
-    has_special_chrs <- FALSE
+    special_characters <- paste0(source, " is empty")
+  } else  if (has_special_chrs == FALSE) {
     special_characters <- "none"
     
-  } else { # otherwise evaluate it for special chrs
+  } else {
+    # get the special character values
+    special_characters <-
+      grep(invalid_chrs, split_chrs, value = TRUE)
     
-    # split out source by character
-    split_chrs <- unlist(strsplit(input, ""))
+    # replace space with "space"
+    special_characters[special_characters == " "] <- "space"
+  }
     
-    # check for special characters
-    has_special_chrs <- length(grep(invalid_chrs, split_chrs)) > 0 # the ^ turns the allowed chrs into a negated chr which matches any chr not listed within allowed_chrs
-    
-    # if the source is a file_name or column_name, an empty input will also fail
-    if ((source %in% c("file_name", "column_header")) && input == "" | is.na(input)) {
-      
-      has_special_chrs <- TRUE
-      
-      special_characters <- paste0(source, " is empty") 
-    } else  if (has_special_chrs == FALSE) {
-      
-      special_characters <- "none"
-      
-    } else {
-      
-      # get the special character values
-      special_characters <- grep(invalid_chrs, split_chrs, value = TRUE)
-      
-      # replace space with "space"
-      special_characters[special_characters == " "] <- "space"
-    }
-    
-    }
   
   
   data_checks_table <- data_checks_table %>% 
