@@ -300,19 +300,21 @@ check_for_unique_names <- function(input,
   
   name <- paste0(input, " x", name_count)
   
-  if (name_count > 1) {
-    # if input is listed more than once, duplicates exist
-    has_duplicate_name <- TRUE
+  if (input != "EMPTY_COLUMN_HEADER") { # if the input is "EMPTY_COLUMN_HEADER, then this check isn't applicable and it will return the original input data_checks_table
     
-  } else if (name_count <= 0) {
-    # if input is not included in the all_names, then check is not applicable
-    has_duplicate_name <- NA_real_
-    
-  } else {
-    # otherwise, duplicates do NOT exist
-    has_duplicate_name <- FALSE
-    
-  }
+    if (name_count > 1) {
+      # if input is listed more than once, duplicates exist
+      has_duplicate_name <- TRUE
+      
+    } else if (name_count <= 0) {
+      # if input is not included in the all_names, then check is not applicable
+      has_duplicate_name <- NA_real_
+      
+    } else {
+      # otherwise, duplicates do NOT exist
+      has_duplicate_name <- FALSE
+      
+    }
   
   # update output
   data_checks_table <- data_checks_table %>% 
@@ -325,6 +327,7 @@ check_for_unique_names <- function(input,
       source = source, 
       file = file
     )
+  }
   
   return(data_checks_table)
   
