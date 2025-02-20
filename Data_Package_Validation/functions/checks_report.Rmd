@@ -69,13 +69,23 @@ x_recommended_failed <- failed_checks %>%
 overview_table <- data_package_checks$data_checks_summary %>% 
   select(pass_check, assessment, source, requirement, file_count) %>% 
 
+  # add this row in to make sure both passed and failed categories exist 
+  bind_rows(tibble(pass_check = c(TRUE, FALSE), file_count = c(0, 0))) %>% 
+
   # make table wide
   mutate(pass_check_files = case_when(pass_check == FALSE ~ "failed_files", 
                                       pass_check == TRUE ~ "passed_files", 
                                       T ~ NA_character_)) %>% 
-  pivot_wider(names_from = pass_check_files, values_from = file_count, values_fill = 0) %>% 
+  
+  
+  pivot_wider(names_from = pass_check_files, values_from = file_count, values_fill = list(failed_files = 0, passed_files = 0)) %>%
+
+
   group_by(assessment, requirement, source) %>%
-  summarise(across(c(failed_files, passed_files), sum), .groups = "drop") %>% 
+  summarise(across(c(failed_files, passed_files), ~sum(.x, na.rm = TRUE)), .groups = "drop") %>% 
+  
+  # remove that extra NA row
+  filter(!is.na(assessment)) %>% 
   
   # pretty up text
   mutate(assessment = case_when(assessment == "includes required files" ~ "includes required metadata files: FLMD, DD, readme",
@@ -96,8 +106,6 @@ overview_table <- data_package_checks$data_checks_summary %>%
   
 
 # make nice table
-
-# option 1 
 overview_table %>% 
   select(-requirement) %>% 
   mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen", # add colors on PASSED/FAILED checks
@@ -465,6 +473,12 @@ The Overview Table and tabs above assess the quality of your data. If any of the
 
 ```{r echo=FALSE}
 
+if (data_package_checks$data_checks %>% filter(pass_check == FALSE) %>% nrow() == 0) {
+  
+  cat("You have no failed data package checks.")
+  
+} else {
+  
 data_package_checks$data_checks %>% 
     filter(pass_check == FALSE) %>%
     rowwise() %>% 
@@ -493,6 +507,8 @@ data_package_checks$data_checks %>%
       datatable(rownames = F,
               filter = "top", 
               class = "stripe")
+}
+
 
 
 ```
