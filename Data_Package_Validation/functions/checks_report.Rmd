@@ -221,44 +221,65 @@ failed_no_special_chrs <- data_package_checks$data_checks %>%
   summarise(n = sum(n)) %>% 
   pull()
 
+failed_no_empty_column_headers <- data_package_checks$data_checks %>% 
+  filter(assessment == "no empty column headers") %>% 
+  filter(pass_check == "FALSE") %>% 
+  count(source, pass_check) %>% 
+  summarise(n = sum(n)) %>% 
+  pull()
+
 ```
 
 
 > <p style='color: `r ifelse(failed_no_special_chrs > 0, "darkred", "green")`;'><strong> **Your data package has `r failed_no_special_chrs` special characters error(s).**  </strong></p>  
+> <p style='color: `r ifelse(failed_no_empty_column_headers > 0, "darkred", "green")`;'><strong> **Your data package has `r failed_no_empty_column_headers` empty column header(s).**  </strong></p>  
 
 Special characters are not allowed in folder names, file names, or column headers and will cause the check to fail.  
 
 - **`no special characters` in directory names**: The only characters allowed in folder names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
 - **`no special characters` in file names**: The only characters allowed in file names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
 - **`no special characters` in column headers**: The only characters allowed in tabular column headers are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. It is recommended that columns begin with a letter.  
-- **No empty column headers**: Tabular data must be rectangular and every column must have a column header; missing column headers will fail the "no special characters" check.    
+- **`no empty column headers`**: Tabular data must be rectangular - each row should have the same number of columns and every column must have a column header. 
 
-```{r echo=FALSE, fig.align='center'}
+```{r echo=FALSE, fig.align='center', fig.width=12}
 
-# show bar chart of the count of files/folders/cols that have special chrs
+# show bar chart of files/folders with empty column headers and special chrs
 data_package_checks$data_checks %>% 
-  filter(assessment == "no special characters") %>% 
-  select(pass_check, source, file) %>%
+  filter(assessment == "no empty column headers" | assessment == "no special characters") %>%  
+  select(assessment, source, pass_check, file) %>% 
+  
+  # rename assessment
+  mutate(assessment = case_when(assessment == "no special characters" ~ paste0(source, "_with_special_chrs"), 
+                            assessment == "no empty column headers" ~ paste0("empty_", source), 
+                            T ~ source)) %>% 
+  mutate(assessment = str_replace_all(assessment, "_", " ")) %>% 
+  mutate(assessment = factor(assessment, levels = c("directory name with special chrs", 
+                                                    "file name with special chrs", 
+                                                    "column header with special chrs", 
+                                                    "empty column header"))) %>% 
+  
   distinct() %>% 
-  group_by(source, file) %>% 
+  group_by(file, assessment) %>% 
   summarise(pass_check = !any(!pass_check), .groups = "drop") %>% # collapsing so if a file has some cols that pass and others that don't it counts the file as having failed the check
-  group_by(pass_check, source) %>% 
+  group_by(pass_check, assessment) %>% 
   summarise(file_count = n(), .groups = "drop") %>% 
   mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
-                                pass_check == FALSE ~ "FAILED")) %>%
+                                pass_check == FALSE ~ "FAILED")) %>% 
   
-  
-  ggplot(., aes(x = source, y = file_count, fill = pass_check, text = paste("files:", file_count))) +
-    geom_bar(stat = "identity") +
-    geom_text(aes(label = file_count), position = position_stack(vjust = 0.5)) +
-    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
-    theme_minimal() +
-    scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
-    theme(panel.grid.minor = element_blank()) +
-    labs(x = "Source", 
-         y = "Count of Files/Folders", 
-         title = "Evaluation of Files and Folders with Special Characters",
-         subtitle = "Red indicates the presence of special characters")
+  ggplot(., aes(x = assessment, y = file_count, fill = pass_check, text = paste("files:", file_count))) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = file_count), position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
+  theme_minimal() +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  theme(panel.grid.minor = element_blank()) +
+  labs(x = "Assessment", 
+       y = "Count of Files/Folders", 
+       title = "Evaluation of Files and Folders with Special Characters",
+       subtitle = "Red indicates the presence of an error")
+
+
+
 
 
 ```
