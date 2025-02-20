@@ -1,12 +1,12 @@
 ### load_tabular_data_from_flmd.R ###############################################
 # Date Created: 2024-04-19
-# Date Updated: 2024-06-20
+# Date Updated: 2025-02-20
 # Author: Bibi Powers-McCormack
 
 
 ### load_tabular_data_file function ############################################
 
-load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files = NA_character_, include_files = NA_character_){
+load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F){
   
   ### About the function #######################################################
   # Objective: Read in tabular data using the flmd to get file paths and header row info
@@ -16,6 +16,8 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     # flmd df (the return of the create_flmd_skeleton.R function)
     # exclude files (relative file paths to not include)
     # include files (relative file paths of files to include)
+    # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
+    # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
   
   # Outputs: 
     # a list that has
@@ -54,7 +56,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   
   # get all file paths
   log_info("Getting file paths from directory.")
-  file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = T)
+  file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = include_dot_files)
   current_file_paths <- file_paths_all
   
   # remove excluded files
@@ -150,12 +152,12 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
       if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
         
         # read in current file
-        current_tabular_file <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
+        current_tabular_file <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
         
       } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
         
         # read in current file
-        current_tabular_file <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F)
+        current_tabular_file <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
         
       }
       
@@ -211,12 +213,12 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
       
       # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-      current_tabular_file <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F)
+      current_tabular_file <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
       
     } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
       
       # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-      current_tabular_file <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F)
+      current_tabular_file <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
       
     }
     
