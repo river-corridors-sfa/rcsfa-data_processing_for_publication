@@ -6,7 +6,7 @@
 
 ### FUNCTION ###################################################################
 
-create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F) {
+create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F, query_header_info = T) {
   
   
   ### About the function #######################################################
@@ -18,6 +18,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
     # include_files = vector of files to include from within the dir. Optional argument; default is NA. 
     # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
     # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
+    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Optional argument; default is TRUE.  
   
   # Outputs: 
     # flmd df that lists out all the provided files
@@ -80,16 +81,17 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
                  rlog, # for logging documentation
                  fs) # for getting file extension
   
-  log_info("This function takes 5 arguments: 
+  log_info("This function takes 6 arguments: 
             - directory (required)
             - exclude_files (optional; default = NA)
             - include_files (optional; default = NA)
             - file_n_max (optional; default = 100)
             - include_dot_files (optional; default = F)
+            - query_header_info (optoina; default = F)
            
            It returns an FLMD with the following column headers: 
            -  File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position
-  Open the function script to see argument definitions, function assumptions, and examples.")
+  Open the function to see argument definitions, function assumptions, and examples.")
   
   ### List Files ###############################################################
   
@@ -178,6 +180,40 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   # create progress bar
   pb <- txtProgressBar(min = 0, max = length(current_file_paths), style = 3)
   
+  # function to ask for header row info
+  ask_user_input <- function() {
+    
+    # ask if there is more than just the data matrix present
+    user_input_has_header_rows <- readline(prompt = "Are header rows present (either above or below the column headers)? (Y/N) ")
+    
+    if (tolower(user_input_has_header_rows) == "y") {
+      
+      # ask location of column header
+      user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
+      current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
+      
+      # ask location of first data row
+      user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? "))
+      
+      # calculate header_row
+      current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
+      
+      # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct position (not 0)
+      current_column_or_row_name_position <- current_column_or_row_name_position + 1
+      
+      user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
+      
+      
+    } else {
+      
+      # if there is only a single data matrix/data doesn't have header rows, then col header is in row 1 and data headers = 0
+      user_inputs <- list(current_column_or_row_name_position = 1, current_header_row = 0)
+      
+    }
+    
+    return(user_inputs)
+  }
+  
   for (i in 1:length(current_file_paths)) {
     
     # gather flmd components
@@ -205,74 +241,53 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
       # if user said yes to adding header info...
       if (tolower(user_input_add_header_info) == "a") {
         
-        if (str_detect(current_file_name, "\\.csv$")) {
+        # if the user optional argument query_header_info = F, then fill in header row = 1 and data headers = 0
+        if (query_header_info == F) {
           
-          # read in current file
-          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
+          user_inputs <- list(current_column_or_row_name_position = 1, current_header_row = 0)
           
-        } else if (str_detect(current_file_name, "\\.tsv$")) {
           
-          # read in current file
-          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
+        } else { # otherwise if query_header_info = T (or anything else), ask the user for header row info
           
-        }
-        
-        log_info(paste0("Viewing tabular file ", i, " of ", length(current_file_paths), ": ", current_file_name))
-        
-        # show file
-        View(current_tabular_file)
-        
-        # function to ask for header row info
-        ask_user_input <- function() {
           
-          # ask if there is more than just the data matrix present
-          user_input_has_header_rows <- readline(prompt = "Are header rows present (either above or below the column headers)? (Y/N) ")
-          
-          if (tolower(user_input_has_header_rows) == "y") {
+          if (str_detect(current_file_name, "\\.csv$")) {
             
-            # ask location of column header
-            user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
-            current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
+            # read in current file
+            current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
             
-            # ask location of first data row
-            user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? "))
+          } else if (str_detect(current_file_name, "\\.tsv$")) {
             
-            # calculate header_row
-            current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
-            
-            # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct position (not 0)
-            current_column_or_row_name_position <- current_column_or_row_name_position + 1
-            
-            user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
-            
-            
-          } else {
-            
-            # if there is only a single data matrix/data doesn't have header rows, then col header is in row 1 and data headers = 0
-            user_inputs <- list(current_column_or_row_name_position = 1, current_header_row = 0)
+            # read in current file
+            current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
             
           }
           
-          return(user_inputs)
-        }
-        
-        # run function
-        user_inputs <- ask_user_input()
-        
-        # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
-        while(user_inputs$current_column_or_row_name_position < 0 | user_inputs$current_header_row <0) {
+          log_info(paste0("Viewing tabular file ", i, " of ", length(current_file_paths), ": ", current_file_name))
           
-          log_info("Asking for user input again because previous input included an invalid (negative) value. ")
+          # show file
+          View(current_tabular_file)
           
+          # run function
           user_inputs <- ask_user_input()
           
+          # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
+          while(user_inputs$current_column_or_row_name_position < 0 | user_inputs$current_header_row <0) {
+            
+            log_info("Asking for user input again because previous input included an invalid (negative) value. ")
+            
+            user_inputs <- ask_user_input()
+            
+          }
+          
+          # pull results out of list
+          current_column_or_row_name_position <- user_inputs$current_column_or_row_name_position
+          current_header_row <- user_inputs$current_header_row
+          
         }
         
-        # pull results out of list
-        current_column_or_row_name_position <- user_inputs$current_column_or_row_name_position
-        current_header_row <- user_inputs$current_header_row
         
-      }
+      } # if user said "F" (or anything except for "A"), then it skips filling in any header info and populates all with -9999
+      
       
     } else {
       

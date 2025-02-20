@@ -6,7 +6,7 @@
 
 ### load_tabular_data_file function ############################################
 
-load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F){
+load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F, query_header_info = T){
   
   ### About the function #######################################################
   # Objective: Read in tabular data using the flmd to get file paths and header row info
@@ -18,6 +18,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     # include files (relative file paths of files to include)
     # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
     # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
+    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Optional argument; default is TRUE.  
   
   # Outputs: 
     # a list that has
@@ -87,6 +88,15 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
   log_info(paste0("Planning to load ", length(file_paths_tabular), " tabular files."))
   
   
+  if (query_header_info == F) {
+    
+    # if the user indicated that all tabular files don't have header info, then set data start = 2 and header position = 1
+    current_df_metadata <- current_df_metadata %>% 
+      mutate(Header_Position = 1, 
+             Data_Start_Row = 2)
+    
+  } else { # otherwise use the flmd to begin to pull in header info and then prompt the user to gather the rest of the info
+  
   ### FLMD present? ############################################################
   
   # if the flmd is present... 
@@ -118,7 +128,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
       mutate(Header_Position = coalesce(Header_Position.x, Header_Position.y)) %>% 
       select(File_Name, Header_Position, Data_Start_Row, File_Path_Absolute)
     
-  } 
+  }  # end of if flmd_df exists
   
   ### Get header_position for any remaining files ##############################
   
@@ -184,7 +194,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
       
     }  
     
-  }
+  } # end of getting rest of header info
   # you should now have Header_Position for all files
   
   ### Ask for start data for each file #########################################
@@ -244,7 +254,10 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
       mutate(Data_Start_Row = case_when(.$File_Path_Absolute == current_df_metadata_file_path_absolute ~ current_data_start_row, T ~ Data_Start_Row))
     
     
-  }
+  } # end of asking for data start row info
+    
+  } # end of query_header_info != T
+  
   
   ### Use data inputs to read in data ##########################################
   
