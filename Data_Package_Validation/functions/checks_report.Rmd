@@ -307,6 +307,10 @@ Column names should be unique within each file. Column names can be repeated acr
 ```{r echo=FALSE, fig.align='center', fig.height=max(5, length(unique(data_package_checks$tabular_report$column_name)) * 0.2), fig.width=8}
 
 data_package_checks$tabular_report %>% 
+  
+  # remove empty col headers
+  filter(column_name != "EMPTY_COLUMN_HEADER") %>% 
+  
   group_by(file_name, column_name) %>%
   summarise(column_counts_within_files = as.integer(n()), .groups = "drop") %>%
   group_by(column_name) %>% 
