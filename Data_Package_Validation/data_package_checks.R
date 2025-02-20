@@ -49,15 +49,20 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
 
+# confirm directory has files in it
+if (length(list.files(directory)) == 0) {
+  warning("Your directory has 0 files.")
+}
+
 # 1. Load flmd
-data_package_flmd <- create_flmd_skeleton(directory = directory) %>% 
+data_package_flmd <- create_flmd_skeleton(directory = directory, query_header_info = F) %>% 
   # convert to R's NA
   mutate(across(everything(), ~ case_when(. == -9999 ~ NA, 
                                           . == "N/A" ~ NA,
                                           TRUE ~ .)))
 
 # 2. Load data
-data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd)
+data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = F)
 
 
 # 3. Run checks
