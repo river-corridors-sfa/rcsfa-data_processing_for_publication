@@ -18,6 +18,9 @@ directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Kassiano
 # provide the name of the person running the checks
 report_author <- "Bibi Powers-McCormack"
 
+# the tabular files have header rows? (T/F)
+user_input_has_header_rows <- F
+
 
 ### Prep Script ################################################################
 # Directions: Run this chunk without modification.
@@ -55,14 +58,14 @@ if (length(list.files(directory)) == 0) {
 }
 
 # 1. Load flmd
-data_package_flmd <- create_flmd_skeleton(directory = directory, query_header_info = F) %>% 
+data_package_flmd <- create_flmd_skeleton(directory = directory, query_header_info = user_input_has_header_rows) %>% 
   # convert to R's NA
   mutate(across(everything(), ~ case_when(. == -9999 ~ NA, 
                                           . == "N/A" ~ NA,
                                           TRUE ~ .)))
 
 # 2. Load data
-data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = F)
+data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows)
 
 # preview data
 invisible(lapply(names(data_package_data$tabular_data), function(name) {
