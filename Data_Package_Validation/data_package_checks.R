@@ -64,6 +64,13 @@ data_package_flmd <- create_flmd_skeleton(directory = directory, query_header_in
 # 2. Load data
 data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = F)
 
+# preview data
+invisible(lapply(names(data_package_data$tabular_data), function(name) {
+  cat("\n--- Data Preview of", name, "---\n")
+  glimpse(data_package_data$tabular_data[[name]])
+  print(data_package_data$tabular_data[[name]])
+}))
+
 
 # 3. Run checks
 data_package_checks <- check_data_package(data_package_data = data_package_data, input_parameters = input_parameters)
