@@ -40,10 +40,11 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Brieanne/GitHub/Cincinnati_Multireactor_Respiration" 
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2024_WRB_YRB_Scaling_Manuscript_Data_Package/rc_wrb_yrb_scaling"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
 out_directory <- "C:/Brieanne/GitHub/Cincinnati_Multireactor_Respiration"
+out_directory <- "C:/Users/powe419/Downloads"
   
 
 ### Run Functions ##############################################################
@@ -73,7 +74,7 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 # left join prelim dd to this dd
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Archive/Fulton_2024_Water_Column_Respiration_Data_Package_dd.csv")
+prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/Regier_2024_WRB_YRB_Scaling_Manuscript_Data_Package/Regier_2024_WRB_YRB_Scaling_dd_v0.1.csv", skip = 1)
 
 
 dd_skeleton <- dd_skeleton %>%
@@ -83,7 +84,7 @@ dd_skeleton <- dd_skeleton %>%
 
 # left join prelim flmd to this flmd
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Archive/Fulton_2024_Water_Column_Respiration_Data_Package_flmd.csv") %>%
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/Regier_2024_WRB_YRB_Scaling_Manuscript_Data_Package/Regier_2024_WRB_YRB_Scaling_flmd_v0.1.csv", skip = 1) %>%
 
   select(-File_Path)
 
@@ -104,7 +105,7 @@ headers <- data_package_data$headers %>%
   arrange(header, .locale = "en")
 
 
-dd_skeleton_with_header_source <- dd_skeleton_populated %>%
+dd_skeleton_with_header_source <- dd_skeleton %>%
   left_join(headers, by = c("Column_or_Row_Name" = "header")) %>%
   select(-file_path)
 
