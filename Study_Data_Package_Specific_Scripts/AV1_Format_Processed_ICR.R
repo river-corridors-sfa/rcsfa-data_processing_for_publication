@@ -98,12 +98,13 @@ sed_xml <- list.files(paste0(out_dir, '/Sediment_XML_Files')) %>%
   str_remove("\\.xml")%>%
   str_remove("_[^_]*$")
 
-processed <-  tibble(Sample_Name = sed_calib$Sample_Name)
+sed_processed <-  tibble(Sample_Name = sed_calib$Sample_Name)
 
-xml <-  tibble(Sample_Name = sed_xml)
+sed_xml <-  tibble(Sample_Name = sed_xml)
 
 #returns none, meaning the lists match
-anti_join(processed, xml)
+anti_join(sed_processed, sed_xml)
+anti_join(sed_xml, sed_processed)
 
 # all water samples from each list are in the other
 setequal(water_data %>%select(-Calibrated_Mass)%>%colnames(),
@@ -113,21 +114,72 @@ water_xml <- list.files(paste0(out_dir, '/Water_XML_Files')) %>%
   str_remove("\\.xml")%>%
   str_remove("_[^_]*$")
 
-processed <-  tibble(Sample_Name = water_calib$Sample_Name)
+water_processed <-  tibble(Sample_Name = water_calib$Sample_Name)
 
-xml <-  tibble(Sample_Name = water_xml)
+water_xml <-  tibble(Sample_Name = water_xml)
 
 # Good after removing AV1_003 and AV1_018 from the processed data
-anti_join(processed, xml)
+anti_join(water_processed, water_xml)
+anti_join(water_xml, water_processed)
 
 # ============================ write files ==========================
 
-write_csv(sed_data, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Sediment_Core-MS_Processed_ICR_Data.csv')
+write_csv(sed_data, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Sediment_CoreMS_Processed_ICR_Data.csv')
 
-write_csv(water_data, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Water_Core-MS_Processed_ICR_Data.csv')
+write_csv(water_data, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Water_CoreMS_Processed_ICR_Data.csv')
 
-write_csv(sed_calib, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Sediment_Core-MS_Processed_ICR_Calibration.csv')
+write_csv(sed_calib, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Sediment_CoreMS_Processed_ICR_Calibration.csv')
 
-write_csv(water_calib, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Water_Core-MS_Processed_ICR_Calibration.csv')
+write_csv(water_calib, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Water_CoreMS_Processed_ICR_Calibration.csv')
 
-write_csv(mol_formatted, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_Core-MS_Processed_ICR_Mol.csv')
+write_csv(mol_formatted, 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/FTICR/WHONDRS_AV1_CoreMS_Processed_ICR_Mol.csv')
+
+# ============================ compare corems outputs ==========================
+
+sed_corems_files <- list.files(paste0(out_dir, '/Sediment_CoreMS_Output_Files'))
+
+sed_corems_cal <- tibble(Sample_Name = sed_corems_files[str_detect(sed_corems_files, "\\.cal$")]) %>%
+  mutate(Sample_Name = str_remove(Sample_Name, "\\.corems\\.cal"),
+         Sample_Name = str_remove(Sample_Name, "_[^_]*$"))
+sed_corems_csv <- tibble(Sample_Name = sed_corems_files[str_detect(sed_corems_files, "\\.csv$")])%>%
+  mutate(Sample_Name = str_remove(Sample_Name, "\\.corems\\.csv"),
+         Sample_Name = str_remove(Sample_Name, "_[^_]*$"))
+sed_corems_json <- tibble(Sample_Name = sed_corems_files[str_detect(sed_corems_files, "\\.json$")])%>%
+  mutate(Sample_Name = str_remove(Sample_Name, "\\.corems\\.json"),
+         Sample_Name = str_remove(Sample_Name, "_[^_]*$"))
+
+#returns none, meaning the lists match
+anti_join(sed_corems_cal, sed_xml)
+anti_join(sed_xml, sed_corems_cal)
+
+#returns none, meaning the lists match
+anti_join(sed_corems_csv, sed_xml)
+anti_join(sed_xml, sed_corems_csv)
+
+#returns none, meaning the lists match
+anti_join(sed_corems_json, sed_xml)
+anti_join(sed_xml, sed_corems_json)
+
+water_corems_files <- list.files(paste0(out_dir, '/Water_CoreMS_Output_Files'))
+
+water_corems_cal <- tibble(Sample_Name = water_corems_files[str_detect(water_corems_files, "\\.cal$")]) %>%
+  mutate(Sample_Name = str_remove(Sample_Name, "\\.corems\\.cal"),
+         Sample_Name = str_remove(Sample_Name, "_[^_]*$"))
+water_corems_csv <- tibble(Sample_Name = water_corems_files[str_detect(water_corems_files, "\\.csv$")])%>%
+  mutate(Sample_Name = str_remove(Sample_Name, "\\.corems\\.csv"),
+         Sample_Name = str_remove(Sample_Name, "_[^_]*$"))
+water_corems_json <- tibble(Sample_Name = water_corems_files[str_detect(water_corems_files, "\\.json$")])%>%
+  mutate(Sample_Name = str_remove(Sample_Name, "\\.corems\\.json"),
+         Sample_Name = str_remove(Sample_Name, "_[^_]*$"))
+
+# Good after removing AV1_003 and AV1_018
+anti_join(water_corems_cal, water_xml)
+anti_join(water_xml, water_corems_cal)
+
+#Good after removing AV1_003 and AV1_018
+anti_join(water_corems_csv, water_xml)
+anti_join(water_xml, water_corems_csv)
+
+#Good after removing AV1_003 and AV1_018
+anti_join(water_corems_json, water_xml)
+anti_join(water_xml, water_corems_json)
