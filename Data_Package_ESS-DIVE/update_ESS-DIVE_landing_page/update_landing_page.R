@@ -49,6 +49,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 ### Updating Coordinates #######################################################
 
+# this part of the script is in progress -- see this readme for details for now: 
+# https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/create-update-landing-page-authors/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/README_update_ESS-DIVE_landing_page_coordinates.md
+
 # USER INPUTS
 
 # RUN function (no modifications needed)
