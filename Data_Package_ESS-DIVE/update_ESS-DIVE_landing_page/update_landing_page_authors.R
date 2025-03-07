@@ -184,7 +184,6 @@ get_author_spreadsheet_info <- function(author_df, # df with 3 cols: first_name,
       middle_name = as.character(),
       last_name = as.character(),
       orcid = as.character(),
-      affiliation = as.character(),
       email = as.character()
     )
     
@@ -223,8 +222,9 @@ get_author_spreadsheet_info <- function(author_df, # df with 3 cols: first_name,
     author_info <- author_info %>% 
       mutate(first_name = case_when(!is.na(middle_name) ~ paste0(first_name, " ", middle_name), 
                                     T ~ first_name)) %>% 
-      select(-middle_name) %>% 
-      rename(is_missing = name)
+      rename(is_missing = name,
+             affiliation = institution) %>% 
+      select(-middle_name)
     
     # if there are missing names, give a warning
     if (author_info %>% filter(!is.na(is_missing)) %>% nrow() > 0) {
