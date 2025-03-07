@@ -3,11 +3,247 @@
 # Date Created: 2025-03-06
 # Date Updated: 2025-03-06
 
+# This script contains 3 functions used to get author information for ESS-DIVE data packages. 
+# get_authors_from_essdive_metaata() gets the list of names, 
+# get_author_spreadsheet_info() uses those names to pull author metadata, 
+# update_landing_page_authors() then updates a landing page with author info. 
+
+
+get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
+  
+  # Objective: 
+    # Retrieve the list of authors from an ESS-DIVE Metadata .docx file
+  
+  # Assumptions: 
+    # All authors are listed on a new line
+    # Authors are listed below the text "Creators:" and above the text "Start date:"
+    # Only authors are listed in between those patterns (all instruction text is removed)
+  
+  # Inputs: 
+    # the absolute file path of the ess-dive metadata .docx file
+  
+  # Outputs: 
+    # a df with 4 cols (name, first_name, middle_name, last_name) with each row representing a single author's name
+  
+  ### Prep Script ##############################################################
+  
+  # load libraries
+  library(tidyverse)
+  library(rlog)
+  library(officer) # for reading in docx file
+  
+  # read in file
+  docx <- read_docx(essdive_metadata_file)
+  docx_text <- docx_summary(docx)$text
+  
+  # define start and end patterns
+  start_pattern <- "Creators:"
+  end_pattern <- "Start date:"
+  
+  ### Extract authors ##########################################################
+  
+  # find indices where the patterns occur
+  start_index <- grep(start_pattern, docx_text)
+  end_index <- grep(end_pattern, docx_text)
+  
+  # extract text between indices
+  if (length(start_index) > 0 && length(end_index) > 0 && start_index < end_index) {
+    extracted_text <- docx_text[(start_index + 1):(end_index - 1)]
+    
+    # add to df
+    author_names <- tibble(name = extracted_text) %>% 
+      filter(!is.na(name) & name != "") %>% # remove blanks
+      mutate(name = str_trim(name)) # strip white-space from beginning and ends
+    
+    print(author_names, n = nrow(author_names))
+    
+    # split names into first, middle, and last
+    authors <- author_names %>% 
+      mutate(name_split = str_split(name, " ")) %>% 
+      mutate(
+        first_name = map_chr(name_split, ~ ifelse(length(.x) > 1, .x[1], NA)),  # First name if available
+        middle_name = map_chr(name_split, ~ ifelse(length(.x) == 3, .x[2], NA)), # Middle name if three parts
+        last_name = map_chr(name_split, ~ ifelse(length(.x) > 1, last(.x), .x[1])) # Last name (or only name)
+      ) %>%
+      select(-name_split)  # Remove intermediate list column
+    
+    
+  } else {
+    warning("Start or end pattern not found, or they are in the wrong order.")
+  }
+  
+  log_info("get_authors_from_essdive_metadata() complete")
+  return(authors)
+  
+}
+
+get_author_spreadsheet_info <- function(author_df, # df with 3 cols: first_name, middle_name, last_name
+                                        author_info_file = "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx") { # absolute file path
+  
+  # Objective: 
+    # Join the author spreadsheet info to the current author list
+  
+  # Assumptions: 
+    # Input name options include: 
+      # first, middle, and last
+      # first, last
+      # last
+  
+  # Inputs: 
+    # df with 3 required cols (first_name, middle_name, last_name)
+    # absolute file path of the author spreadsheet
+  
+  # Outputs: 
+    # df with 5 cols: first_name, last_name, orcid, affiliation, email
+  
+  
+  ### Prep Script ##############################################################
+  
+  # load libraries
+  library(tidyverse)
+  library(readxl)
+  library(janitor) # for cleaning up col headers
+  
+  # load author spreadsheet
+  author_spreadsheet <- read_excel(author_info_file, trim_ws = T) %>% 
+    clean_names()
+  
+  
+  ### Author lookup ############################################################
+  
+  # initialize empty df
+  author_list <- list()
+  
+  # iterate through each author
+  for (i in seq_len(nrow(author_df))) {
+    
+    current_row <- author_df[i, ]
+    current_first <- current_row$first_name
+    current_middle <- current_row$middle_name
+    current_last <- current_row$last_name
+    current_join <- NULL
+   
+    if (!is.na(current_first) & !is.na(current_middle) & !is.na(current_last)) {
+      
+     # attempt to match by first, middle, last name
+      current_join <- author_spreadsheet %>% 
+        filter(first_name == current_first, middle_name == current_middle, last_name == current_last)
+      
+    } else if (!is.na(current_first) & is.na(current_middle) & !is.na(current_last)) {
+      
+      # attempt to match by first, last
+      current_join <- author_spreadsheet %>%
+        filter(first_name == current_first, last_name == current_last)
+      
+    } else if (is.na(current_first) & is.na(current_middle) & !is.na(current_last)) {
+      
+      # attempt to match by last  
+      current_join <- author_spreadsheet %>%
+        filter(last_name == current_last)
+      
+    } else {
+        
+      log_warn(paste0("No match for `", current_row$name, "` in the author spreadsheet."))
+      
+    }
+    
+    if (nrow(current_join) == 1) {
+      
+      # join if a single match was found
+      current_row <- current_row %>% 
+        suppressWarnings(left_join(current_join))
+      
+      
+    } else if (nrow(current_join) > 1) { 
+      
+      # check if multiple matches were found
+      log_warn(paste0("Multiple matches found for `", current_row$name, "`: "))
+      print(current_join)
+      
+    } else {
+      # If no match, add warning
+      log_warn(paste0("No matches found for `", current_row$name, "`."))
+    }
+    
+    # clean up join
+    current_join <- current_join %>% 
+      select(first_name, middle_name, last_name, orcid, institution, e_mail) %>% 
+      rename(email = e_mail)
+    
+    # add matches to list
+    author_list[[current_row$name]] <- current_join
+    
+  }
+  
+  ### Author clean up ##########################################################
+    
+    # initialize final df
+    author_info <- tibble(
+      name = as.character(),
+      first_name = as.character(),
+      middle_name = as.character(),
+      last_name = as.character(),
+      orcid = as.character(),
+      affiliation = as.character(),
+      email = as.character()
+    )
+    
+    # iterate through each name again
+    for (i in seq_len(nrow(author_df))) {
+      
+      # get current name
+      current_name <- author_df[i, ] %>% 
+        pull(name)
+      
+      # look up name in list
+      current_entry <- author_list[[current_name]]
+      
+      # if only 1 entry, save it to final df
+      if (nrow(current_entry) == 1) {
+        
+        author_info <- bind_rows(author_info, current_entry)
+        
+      } else if (nrow(current_entry > 1)) { 
+        
+        # if multiple entries, only add name to list
+        author_info <- author_info %>% 
+          add_row(name = current_name)
+        
+      } else { 
+  
+        # if no entries, only add name to list
+        author_info <- author_info %>% 
+          add_row(name = current_name)
+          
+        }
+
+    }
+    
+    # clean up author info
+    author_info <- author_info %>% 
+      mutate(first_name = case_when(!is.na(middle_name) ~ paste0(first_name, " ", middle_name), 
+                                    T ~ first_name)) %>% 
+      select(-middle_name) %>% 
+      rename(is_missing = name)
+    
+    # if there are missing names, give a warning
+    if (author_info %>% filter(!is.na(is_missing)) %>% nrow() > 0) {
+      log_warn("There are possible errors in your author list.")
+    }
+    
+    
+    log_info("get_author_spreadsheet_info() complete")
+    print(author_info, n = nrow(author_info))
+    
+    return(author_info)
+    
+}
+
 
 update_landing_page_authors <- function(api_token, # this is your personal API token that you can get after signing into ess-dive
-                                         essdive_id, # this is the identifier number from the data package you want to update
-                                         author_df, # this is the df with the authors. Required cols: first_name, last_name, orcid, affiliation, email. Additional cols are okay (but will be dropped) and okay if there are NAs in orcid, affiliation, email cols
-                                         upload_site = c("main", "sandbox")) {
+                                        essdive_id, # this is the identifier number from the data package you want to update
+                                        author_df, # this is the df with the authors. Required cols: first_name, last_name, orcid, affiliation, email. Additional cols are okay (but will be dropped) and okay if there are NAs in orcid, affiliation, email cols
+                                        upload_site = c("main", "sandbox")) {
   
   # Objective: 
     # Update a landing page with new authors
@@ -114,8 +350,6 @@ update_landing_page_authors <- function(api_token, # this is your personal API t
       }
       
     }
-    
-    
     
   }
   
