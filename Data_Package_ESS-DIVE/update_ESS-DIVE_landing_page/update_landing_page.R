@@ -17,7 +17,7 @@ library(jsonlite) # for converting to json-ld file
 library(httr) # for uploading to the API
 
 # load functions
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/create-update-landing-page-authors/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/update_landing_page_coordinates.R")
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/create-update-landing-page-authors/Data_Package_ESS-DIVE/update_ESS-DIVE_landing_page/update_landing_page_authors.R")
 
 
 ### Updating Authors ###########################################################
