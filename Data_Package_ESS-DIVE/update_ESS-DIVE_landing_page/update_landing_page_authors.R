@@ -8,6 +8,9 @@
 # get_author_spreadsheet_info() uses those names to pull author metadata, 
 # update_landing_page_authors() then updates a landing page with author info. 
 
+# If updates are made to any of these functions, open and run
+# `test-update_landing_page_authors.R` to confirm all tests still pass.
+
 
 get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
   
