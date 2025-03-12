@@ -175,7 +175,7 @@ flmd <- flmd_skeleton %>%
           Standard = "N/A",
           Missing_Value_Codes = "N/A", 
           File_Path = NA_character_) %>% 
-  mutate(File_Path = case_when(File_Name %in% c("Myers-Pigg_2025_Thresholds_flmd.csv", "Myers-Pigg_2025_Thresholds_dd.csv", "readme_Myers-Pigg_2025_Thresholds.pdf") ~ "/Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package", # update file paths
+  mutate(File_Path = case_when(File_Name %in% c("Myers-Pigg_2025_Thresholds_flmd.csv", "Myers-Pigg_2025_Thresholds_dd.csv", "readme_Myers-Pigg_2025_Thresholds.pdf") ~ "/Myers-Pigg_2025_Thresholds_Manuscript_Data_Package", # update file paths
                                T ~ File_Path)) %>% 
   
   # join existing flmd definitions
@@ -351,11 +351,13 @@ headers <- data_package_data$headers %>%
 dd_with_header_counts <- dd %>% 
   left_join(headers, by = join_by("Column_or_Row_Name" == "header"))
 
+print(dd_with_header_counts)
+
 #### export ----
 
 # view files before exporting
-View(flmd_skeleton)
-View(dd_skeleton_with_header_counts)
+View(flmd)
+View(dd_with_header_counts)
 
 # write out flmd
 write_csv(flmd, paste0(out_dir, "/Myers-Pigg_2025_Thresholds_flmd.csv"), na = "")
