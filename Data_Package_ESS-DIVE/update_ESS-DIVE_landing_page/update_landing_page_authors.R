@@ -56,7 +56,7 @@ get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
     # add to df
     author_names <- tibble(name = extracted_text) %>% 
       filter(!is.na(name) & name != "") %>% # remove blanks
-      mutate(name = str_trim(name)) # strip white-space from beginning and ends
+      mutate(name = str_squish(name)) # strip white-space from beginning and ends and ensure there's only 1 space between words
     
     print(author_names, n = nrow(author_names))
     
