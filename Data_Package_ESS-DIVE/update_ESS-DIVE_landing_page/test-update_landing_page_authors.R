@@ -399,13 +399,115 @@ test_that("authors are imported correctly when there are extra spaces", {
 
 #### tests that function throws errors/warnings as expected ----
 
+
 # no names listed
+test_that("errors if no authors found", {
+  
+  # create ess-dive metadata file with no line (expected input)
+  essdive_metadata_template <- read_docx() %>% 
+    add_header_text() %>% 
+    add_footer_text()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- "ERROR. No names detected."
+  
+  # run function 
+  expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 
+               expected = expected_output)
+  
+  
+  # create ess-dive metadata file with empty line (expected input)
+  essdive_metadata_template <- read_docx() %>% 
+    add_header_text() %>% 
+    body_add_par("") %>% 
+    add_footer_text()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- "ERROR. No names detected."
+  
+  # run function 
+  expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 
+               expected = expected_output)
+  
+})
 
 # no start/end markers in docx
+test_that("errors if no start or end markers", {
+  
+  # create ess-dive metadata file with no end pattern (expected input)
+  essdive_metadata_template <- read_docx() %>% 
+    add_header_text()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- "ERROR. Start or end pattern not found, or they are in the wrong order."
+  
+  # run function 
+  expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 
+               expected = expected_output)
+  
+  
+  # create ess-dive metadata file with no pattern (expected input)
+  essdive_metadata_template <- read_docx()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- "ERROR. Start or end pattern not found, or they are in the wrong order."
+  
+  # run function 
+  expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 
+               expected = expected_output)
+  
+})
 
 # instructions or non-names included in docx
+test_that("errors if instructions are still included in file", {
+  
+  # create ess-dive metadata file with no end pattern (expected input)
+  essdive_metadata_template <- read_docx() %>% 
+    add_header_text() %>% 
+    add_default_creator_text() %>% 
+    add_footer_text()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- "ERROR. Data package instructions are still in document. Delete the instructions and try again."
+  
+  # run function 
+  expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 
+               expected = expected_output)
+  
+})
 
 # authors listed last, first
+test_that("errors if authors names are in wrong order (last, first)", {
+  
+  # create ess-dive metadata file with no end pattern (expected input)
+  essdive_metadata_template <- read_docx() %>% 
+    add_header_text() %>% 
+    body_add_par("Johnson, Alice M.") %>% 
+    body_add_par("Thompson, Charlotte") %>% 
+    add_footer_text()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- "ERROR. Commas detected in names; authors likely listed in incorrect format. Reformat to `first middle last` and try again. "
+  
+  # run function 
+  expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 
+               expected = expected_output)
+  
+})
+
+# authors listed as four names (e.g., John Michael David Smith)
 
 # docx file missing
 

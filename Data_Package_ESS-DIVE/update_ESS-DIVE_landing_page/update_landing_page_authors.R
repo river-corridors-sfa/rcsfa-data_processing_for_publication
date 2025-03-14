@@ -21,6 +21,19 @@ get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
     # All authors are listed on a new line
     # Authors are listed below the text "Creators:" and above the text "Start date:"
     # Only authors are listed in between those patterns (all instruction text is removed)
+    # Author names are written as space-separated words and can be formatted in one of 3 ways: 
+      # 1) first middle last
+      # 2) first last
+      # 3) last
+    # An author list can contain a mix of name formats
+    # Hyphenated words are treated as a single word
+    # If a comma is included in the author list, it's assumed that the format is <last, first> and thus throws an error
+    # first/middle/last name split is based on spaces and 
+      # 1 part names: treated as last name
+      # 2 part names: first word == first name, second word == last name
+      # 3 part names: first word == first name, second word == middle name, third word == last name
+      # 4+ part names: first word == first name, second word == middle name, last word == last name, all other words dropped
+    # If brackets [] are detected in author list, it's assumed the original instructions were not removed from the file and throws an error
   
   # Inputs: 
     # the absolute file path of the ess-dive metadata .docx file
@@ -51,6 +64,7 @@ get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
   
   # extract text between indices
   if (length(start_index) > 0 && length(end_index) > 0 && start_index < end_index) {
+    
     extracted_text <- docx_text[(start_index + 1):(end_index - 1)]
     
     # add to df
@@ -58,21 +72,28 @@ get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
       filter(!is.na(name) & name != "") %>% # remove blanks
       mutate(name = str_squish(name)) # strip white-space from beginning and ends and ensure there's only 1 space between words
     
-    print(author_names, n = nrow(author_names))
+    # if authors are present, split name into first/middle/last
     
-    # split names into first, middle, and last
-    authors <- author_names %>% 
-      mutate(name_split = str_split(name, " ")) %>% 
-      mutate(
-        first_name = map_chr(name_split, ~ ifelse(length(.x) > 1, .x[1], NA)),  # First name if available
-        middle_name = map_chr(name_split, ~ ifelse(length(.x) == 3, .x[2], NA)), # Middle name if three parts
-        last_name = map_chr(name_split, ~ ifelse(length(.x) > 1, last(.x), .x[1])) # Last name (or only name)
-      ) %>%
-      select(-name_split)  # Remove intermediate list column
-    
+    if (nrow(author_names > 0)) {
+      
+      print(author_names, n = nrow(author_names))
+      
+      # split names into first, middle, and last
+      authors <- author_names %>% 
+        mutate(name_split = str_split(name, " ")) %>% 
+        mutate(
+          first_name = map_chr(name_split, ~ ifelse(length(.x) > 1, .x[1], NA)),  # First name if available
+          middle_name = map_chr(name_split, ~ ifelse(length(.x) == 3, .x[2], NA)), # Middle name if three parts
+          last_name = map_chr(name_split, ~ ifelse(length(.x) > 1, last(.x), .x[1])) # Last name (or only name)
+        ) %>%
+        select(-name_split)  # Remove intermediate list column
+      
+    } else {
+      stop("ERROR. No names detected.")
+    }
     
   } else {
-    warning("Start or end pattern not found, or they are in the wrong order.")
+    stop("ERROR. Start or end pattern not found, or they are in the wrong order.")
   }
   
   log_info("get_authors_from_essdive_metadata() complete")
