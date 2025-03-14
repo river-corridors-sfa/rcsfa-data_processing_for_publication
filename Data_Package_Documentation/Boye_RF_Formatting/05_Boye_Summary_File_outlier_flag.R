@@ -402,6 +402,10 @@ data <- read_in_files(analyte_files, material = material)
 # combine all data dfs together + drop fake boyes and text flags
 combine <- combine_data(data)
 
+# for AV1, removing iron from 2.5 mL incubations (reps 4-6) before summarizing 
+
+combine <- combine  %>%
+  filter(!(str_detect(data_type, "Fe") & rep %in% c(4, 5, 6)))
 
 # ====================== remove outliers =======================================
 # assumptions: 
