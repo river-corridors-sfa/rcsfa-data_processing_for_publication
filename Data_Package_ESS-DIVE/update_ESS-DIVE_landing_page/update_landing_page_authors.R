@@ -99,6 +99,16 @@ get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
         ) %>%
         select(-name_split)  # Remove intermediate list column
       
+      
+      # warn the user if names with more than 4 parts were detected
+      if (any(str_count(author_names$name, " ") >= 3)) {
+        
+        warning("WARNING: When names with more than 3 parts were detected, 
+  only the first and last names were retained and any additional names were ignored.
+  Review the affected names and manually adjust them if necessary.")
+        
+      }
+      
     } else {
       stop("ERROR. No names detected.")
     }

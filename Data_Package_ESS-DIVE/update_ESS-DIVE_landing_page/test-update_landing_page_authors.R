@@ -399,7 +399,6 @@ test_that("authors are imported correctly when there are extra spaces", {
 
 #### tests that function throws errors/warnings as expected ----
 
-
 # no names listed
 test_that("errors if no authors found", {
   
@@ -469,7 +468,7 @@ test_that("errors if no start or end markers", {
 # instructions or non-names included in docx
 test_that("errors if instructions are still included in file", {
   
-  # create ess-dive metadata file with no end pattern (expected input)
+  # create ess-dive metadata file with instructions still in docx (expected input)
   essdive_metadata_template <- read_docx() %>% 
     add_header_text() %>% 
     add_default_creator_text() %>% 
@@ -489,7 +488,7 @@ test_that("errors if instructions are still included in file", {
 # authors listed last, first
 test_that("errors if authors names are in wrong order (last, first)", {
   
-  # create ess-dive metadata file with no end pattern (expected input)
+  # create ess-dive metadata file with names listed as last, first (expected input)
   essdive_metadata_template <- read_docx() %>% 
     add_header_text() %>% 
     body_add_par("Johnson, Alice M.") %>% 
@@ -508,16 +507,80 @@ test_that("errors if authors names are in wrong order (last, first)", {
 })
 
 # authors listed as four names (e.g., John Michael David Smith)
+test_that("warning if authors names include more than 3 parts", {
+  
+  # create ess-dive metadata file with names listed as last, first (expected input)
+  essdive_metadata_template <- read_docx() %>% 
+    add_header_text() %>% 
+    body_add_par("Johnson") %>% 
+    body_add_par("Charlotte Thompson") %>% 
+    body_add_par("John Michael David Smith") %>% 
+    add_footer_text()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- tibble(name = c("Johnson", 
+                                     "Charlotte Thompson", 
+                                     "John Michael David Smith"),
+                            first_name = c(NA_character_, "Charlotte", "John"),
+                            middle_name = NA_character_,
+                            last_name = c("Johnson", "Thompson", "Smith"))
+  
+  # run function 
+  expect_equal(object = suppressWarnings(get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx"))),
+               expected = expected_output)
+  expect_warning(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")),
+                 expected = "WARNING: When names with more than 3 parts were detected, 
+                 only the first and last names were retained and any additional names were ignored. 
+                 Review the affected names and manually adjust them if necessary.")
+  
+})
 
 # docx file missing
+test_that("errors if .docx input file isn't found", {
+  
+  # create ess-dive metadata with default template (expected input)
+  essdive_metadata_template <- read_docx() %>% 
+    add_header_text() %>% 
+    add_default_creator_text() %>% 
+    add_footer_text()
+  
+  print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # intentionally remove the file we just created
+  file.remove(paste0(temp_directory, "/essdive_metadata_template.docx"))
+  
+  # this is what the function should return
+  expected_output <- paste0("Error: could not find ", temp_directory, "/essdive_metadata_template.docx file")
+  
+  # run function
+  expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 
+               expected = expected_output)
+  
+})
 
 
 ### Tests for `get_author_spreadsheet_info()` ##################################
 
 #### tests that function runs as expected for typical inputs and edge cases ---- 
 
+# all names are in author spreadsheet
+
+# some names are in author spreadsheet
+
+# no names are in author spreadsheet
+
+# middle name in author spreadsheet, but not in ess-dive list
+
+# middle name in ess-dive list, but not in author spreadsheet
+
 
 #### tests that function throws errors/warnings as expected ----
+
+# author spreadsheet doesn't have required cols
+
+# 
 
 
 ### Tests for `update_landing_page_authors()` ##################################
