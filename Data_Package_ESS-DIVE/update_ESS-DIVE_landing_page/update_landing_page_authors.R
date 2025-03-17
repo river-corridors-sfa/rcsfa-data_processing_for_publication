@@ -72,18 +72,24 @@ get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
       filter(!is.na(name) & name != "") %>% # remove blanks
       mutate(name = str_squish(name)) # strip white-space from beginning and ends and ensure there's only 1 space between words
     
-    # if authors are present, split name into first/middle/last
-    
-    if (nrow(author_names > 0)) {
+    if (any(str_detect(author_names$name, "\\["))) {
+      # if starting bracket ("[") is detected author_names$names, then throw error
+      
+      stop("ERROR. Data package instructions are still in document. Delete the instructions and try again.")
+      
+    } else if (nrow(author_names > 0)) {
+      # else if authors are present, split name into first/middle/last
       
       print(author_names, n = nrow(author_names))
       
       # split names into first, middle, and last
-      authors <- author_names %>% 
-        mutate(name_split = str_split(name, " ")) %>% 
+      authors <- author_names %>%
+        mutate(name_split = str_split(name, " ")) %>%
         mutate(
-          first_name = map_chr(name_split, ~ ifelse(length(.x) > 1, .x[1], NA)),  # First name if available
-          middle_name = map_chr(name_split, ~ ifelse(length(.x) == 3, .x[2], NA)), # Middle name if three parts
+          first_name = map_chr(name_split, ~ ifelse(length(.x) > 1, .x[1], NA)),
+          # First name if available
+          middle_name = map_chr(name_split, ~ ifelse(length(.x) == 3, .x[2], NA)),
+          # Middle name if three parts
           last_name = map_chr(name_split, ~ ifelse(length(.x) > 1, last(.x), .x[1])) # Last name (or only name)
         ) %>%
         select(-name_split)  # Remove intermediate list column
