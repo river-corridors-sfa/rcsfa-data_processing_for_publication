@@ -499,7 +499,7 @@ test_that("errors if authors names are in wrong order (last, first)", {
   print(essdive_metadata_template, target = paste0(temp_directory, "/essdive_metadata_template.docx"))
   
   # this is what the function should return
-  expected_output <- "ERROR. Commas detected in names; authors likely listed in incorrect format. Reformat to `first middle last` and try again. "
+  expected_output <- "ERROR. Commas detected in names; authors likely listed in incorrect format. Reformat to `first middle last` and try again."
   
   # run function 
   expect_error(object = get_authors_from_essdive_metadata(essdive_metadata_file = paste0(temp_directory, "/essdive_metadata_template.docx")), 

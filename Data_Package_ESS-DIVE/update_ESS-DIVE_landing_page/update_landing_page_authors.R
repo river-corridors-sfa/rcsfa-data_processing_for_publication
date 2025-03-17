@@ -73,11 +73,16 @@ get_authors_from_essdive_metadata <- function(essdive_metadata_file) {
       mutate(name = str_squish(name)) # strip white-space from beginning and ends and ensure there's only 1 space between words
     
     if (any(str_detect(author_names$name, "\\["))) {
-      # if starting bracket ("[") is detected author_names$names, then throw error
+      # if starting bracket ("[") is detected author_names$name, then throw error
       
       stop("ERROR. Data package instructions are still in document. Delete the instructions and try again.")
       
-    } else if (nrow(author_names > 0)) {
+    } else if (any(str_detect(author_names$name, ","))) {
+      # else if comma (",") is detected in author_names$name, then throw error
+      
+      stop("ERROR. Commas detected in names; authors likely listed in incorrect format. Reformat to `first middle last` and try again.")
+      
+      } else if (nrow(author_names > 0)) {
       # else if authors are present, split name into first/middle/last
       
       print(author_names, n = nrow(author_names))
