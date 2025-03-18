@@ -1,6 +1,6 @@
 ### get_DPs_not_in_dd_database.R ###############################################
 # Date Created: 2024-05-01
-# Date Updaed: 2024-05-01
+# Date Updaed: 2025-03-18
 # Author: Bibi Powers-McCormack
 
 # Objective: 
@@ -18,8 +18,8 @@ get_DPs_not_in_dd_database <- function() {
   library(rlog)
   
   # read in secret folder file directories
-  manuscript_dp_folder <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED"
-  study_dp_folder <- "Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Study-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED"
+  manuscript_dp_folder <- "Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED"
+  study_dp_folder <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED"
   
   # read in DD database
   dd_database <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", show_col_types = F)
