@@ -625,7 +625,7 @@ test_that("names are correctly parsed when some are missing from author spreadsh
 })
 
 # no names in author spreadsheet
-test_that("errors if no names are found in author spreadsheet", {
+test_that("shows missing names if no names are found in author spreadsheet", {
   
   # create ess-dive metadata names (expected input)
   names_from_essdive_metadata <- tibble(name = c("Alice Marie Johnson", 
