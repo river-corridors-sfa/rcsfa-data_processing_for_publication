@@ -133,6 +133,7 @@ get_author_spreadsheet_info <- function(author_df, # df with 3 cols: first_name,
       # first, middle, and last
       # first, last
       # last
+    # The output will use the text from the spreadsheet (not the ESS-DIVE metadata file)
   
   # Inputs: 
     # df with 3 required cols (first_name, middle_name, last_name)
@@ -152,6 +153,27 @@ get_author_spreadsheet_info <- function(author_df, # df with 3 cols: first_name,
   # load author spreadsheet
   author_spreadsheet <- read_excel(author_info_file, trim_ws = T) %>% 
     clean_names()
+  
+  # function to check for required cols
+  check_required_columns <- function(df, required_cols) {
+    
+    missing_cols <- setdiff(required_cols, colnames(df))
+    
+    if (length(missing_cols) > 0) {
+      
+      stop("ERROR: The following required column(s) are missing: ",
+           paste(missing_cols, collapse = ", "), "  
+  Ensure all required columns are present, even if they contain NA values.")
+      
+    }
+    
+  }
+  
+  # check inputs
+  log_info("Checking `author_df` input")
+  check_required_columns(author_df, c("name", "first_name", "middle_name", "last_name"))
+  log_info("Checking `author_info_file` input")
+  check_required_columns(author_spreadsheet, c("first_name", "middle_name", "last_name"))
   
   
   ### Author lookup ############################################################
@@ -229,7 +251,8 @@ get_author_spreadsheet_info <- function(author_df, # df with 3 cols: first_name,
       middle_name = as.character(),
       last_name = as.character(),
       orcid = as.character(),
-      email = as.character()
+      email = as.character(),
+      institution = as.character()
     )
     
     # iterate through each name again

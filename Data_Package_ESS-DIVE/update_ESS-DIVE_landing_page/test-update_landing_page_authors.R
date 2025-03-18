@@ -29,13 +29,13 @@ library(devtools) # for sourcing in script
 library(jsonlite) # for converting to json-ld file
 library(httr) # for uploading to the API
 
-
-### Tests for `get_authors_from_essdive_metadata()` ############################
-
 # create temp testing env
 temp_directory <- tempdir()
 log_info(paste0("Opening temp directory: ", temp_directory))
 shell.exec(temp_directory)
+
+### Tests for `get_authors_from_essdive_metadata()` ############################
+
 
 # define docx defaults
 docx_default_text <- fp_text(font.family = "Calibri", font.size = 11)
@@ -566,22 +566,247 @@ test_that("errors if .docx input file isn't found", {
 #### tests that function runs as expected for typical inputs and edge cases ---- 
 
 # all names are in author spreadsheet
+test_that("names are correctly parsed when all are included in author spreadsheet", {
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Brieanne Forbes", 
+                                                 "Amy Goldman", 
+                                                 "James Stegen"),
+                                        first_name = c("Brieanne", "Amy", "James"),
+                                        middle_name = NA_character_,
+                                        last_name = c("Forbes", "Goldman", "Stegen"))
+  
+  
+  # this is what the function should return
+  expected_output <- tibble(is_missing = NA_character_,
+                            first_name = c("Brieanne", "Amy E.", "James C."),
+                            last_name = c("Forbes", "Goldman", "Stegen"),
+                            orcid = "xxxx-xxxx-xxxx-xxxx", 
+                            email = "first.last@pnnl.gov", 
+                            affiliation = "Pacific Northwest National Laboratory")
+  
+  # run function 
+  expect_equal(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx") %>% 
+                 mutate(orcid = "xxxx-xxxx-xxxx-xxxx", 
+                        email = "first.last@pnnl.gov"), 
+               expected = expected_output)
+  
+  
+})
 
 # some names are in author spreadsheet
+test_that("names are correctly parsed when some are missing from author spreadsheet", {
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Brieanne Forbes", 
+                                                 "Amy Goldman", 
+                                                 "James Stegen", 
+                                                 "Alice Johnson"),
+                                        first_name = c("Brieanne", "Amy", "James", "Alice"),
+                                        middle_name = NA_character_,
+                                        last_name = c("Forbes", "Goldman", "Stegen", "Johnson"))
+  
+  
+  # this is what the function should return
+  expected_output <- tibble(is_missing = c(NA_character_, NA_character_, NA_character_, "Alice Johnson"),
+                            first_name = c("Brieanne", "Amy E.", "James C.", NA_character_),
+                            last_name = c("Forbes", "Goldman", "Stegen", NA_character_),
+                            orcid = "xxxx-xxxx-xxxx-xxxx", 
+                            email = "first.last@pnnl.gov", 
+                            affiliation = c("Pacific Northwest National Laboratory", "Pacific Northwest National Laboratory", "Pacific Northwest National Laboratory", NA_character_))
+  
+  # run function 
+  expect_equal(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx") %>% 
+                 mutate(orcid = "xxxx-xxxx-xxxx-xxxx", 
+                        email = "first.last@pnnl.gov"), 
+               expected = expected_output)
+  
+  
+})
 
-# no names are in author spreadsheet
+# no names in author spreadsheet
+test_that("errors if no names are found in author spreadsheet", {
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Alice Marie Johnson", 
+                                                 "Benjamin Lee Carter", 
+                                                 "Charlotte Ann Thompson", 
+                                                 "Daniel James Rodriguez", 
+                                                 "Emily R. Martinez"),
+                                        first_name = c("Alice", "Benjamin", "Charlotte", "Daniel", "Emily"),
+                                        middle_name = c("Marie", "Lee", "Ann", "James", "R."),
+                                        last_name = c("Johnson", "Carter", "Thompson", "Rodriguez", "Martinez"))
+  
+  
+  # this is what the function should return
+  expected_output <- tibble(is_missing = c("Alice Marie Johnson", 
+                                           "Benjamin Lee Carter", 
+                                           "Charlotte Ann Thompson", 
+                                           "Daniel James Rodriguez", 
+                                           "Emily R. Martinez"),
+                            first_name = NA_character_,
+                            last_name = NA_character_,
+                            orcid = NA_character_,
+                            email = NA_character_,
+                            affiliation = NA_character_)
+  
+  # run function 
+  expect_equal(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"), 
+               expected = expected_output)
+})
 
 # middle name in author spreadsheet, but not in ess-dive list
+test_that("names are correctly parsed when middle names are in author spreadsheet but not in ess-dive list", {
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Brieanne Forbes", 
+                                                 "Amy Goldman", 
+                                                 "James Stegen"),
+                                        first_name = c("Brieanne", "Amy", "James"),
+                                        middle_name = NA_character_,
+                                        last_name = c("Forbes", "Goldman", "Stegen"))
+  
+  
+  # this is what the function should return
+  expected_output <- tibble(is_missing = NA_character_,
+                            first_name = c("Brieanne", "Amy E.", "James C."),
+                            last_name = c("Forbes", "Goldman", "Stegen"),
+                            orcid = "xxxx-xxxx-xxxx-xxxx", 
+                            email = "first.last@pnnl.gov", 
+                            affiliation = "Pacific Northwest National Laboratory")
+  
+  # run function 
+  expect_equal(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx") %>% 
+                 mutate(orcid = "xxxx-xxxx-xxxx-xxxx", 
+                        email = "first.last@pnnl.gov"), 
+               expected = expected_output)
+  
+  
+})
 
 # middle name in ess-dive list, but not in author spreadsheet
+test_that("names are correctly parsed when middle names are in author spreadsheet but not in ess-dive list", {
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Brieanne K. Forbes", 
+                                                 "Amy E. Goldman", 
+                                                 "James C. Stegen"),
+                                        first_name = c("Brieanne", "Amy", "James"),
+                                        middle_name = NA_character_,
+                                        last_name = c("Forbes", "Goldman", "Stegen"))
+  
+  
+  # this is what the function should return
+  expected_output <- tibble(is_missing = NA_character_,
+                            first_name = c("Brieanne", "Amy E.", "James C."),
+                            last_name = c("Forbes", "Goldman", "Stegen"),
+                            orcid = "xxxx-xxxx-xxxx-xxxx", 
+                            email = "first.last@pnnl.gov", 
+                            affiliation = "Pacific Northwest National Laboratory")
+  
+  # run function 
+  expect_equal(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx") %>% 
+                 mutate(orcid = "xxxx-xxxx-xxxx-xxxx", 
+                        email = "first.last@pnnl.gov"), 
+               expected = expected_output)
+  
+  
+})
 
 
 #### tests that function throws errors/warnings as expected ----
 
-# author spreadsheet doesn't have required cols
+# author df doesn't have required cols (first_name, middle_name, last_name)
+test_that("errors if author_df is missing required cols", {
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Brieanne Forbes", 
+                                                 "Amy Goldman", 
+                                                 "James Stegen"),
+                                        first_name = c("Brieanne", "Amy", "James"),
+                                        last_name = c("Forbes", "Goldman", "Stegen"))
+  
+  
+  # this is what the function should return
+  expected_output <- "ERROR: The following required column(s) are missing: middle_name
+                      Ensure all required columns are present, even if they contain NA values."
+  
+  # run function 
+  expect_error(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx") %>% 
+                 mutate(orcid = "xxxx-xxxx-xxxx-xxxx", 
+                        email = "first.last@pnnl.gov"), 
+               expected = expected_output)
+  
+  
+})
 
-# 
+# author spreadsheet doesn't have required cols (first_name, middle_name, last_name)
+test_that("errors if author_info_file is missing required cols", {
+  
+  # create author_info_file with a missing required col
+  author_spreadsheet <- tibble(first_name = c("Brieanne", "Amy", "James"),
+                               last_name = c("Forbes", "Goldman", "Stegen"),
+                               orcid = "xxxx-xxxx-xxxx-xxxx", 
+                               email = "first.last@pnnl.gov",
+                               institution = "Pacific Northwest National Laboratory")
+  
+  writexl::write_xlsx(author_spreadsheet, paste0(temp_directory, "/author_info.xlsx"))
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Brieanne Forbes", 
+                                                 "Amy Goldman", 
+                                                 "James Stegen"),
+                                        first_name = c("Brieanne", "Amy", "James"),
+                                        middle_name = NA_character_,
+                                        last_name = c("Forbes", "Goldman", "Stegen"))
+  
+  
+  # this is what the function should return
+  expected_output <- "ERROR: The following required column(s) are missing: middle_name
+                      Ensure all required columns are present, even if they contain NA values."
+  
+  # run function 
+  expect_error(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = paste0(temp_directory, "/author_info.xlsx")) %>% 
+                 mutate(orcid = "xxxx-xxxx-xxxx-xxxx", 
+                        email = "first.last@pnnl.gov"), 
+               expected = expected_output)
+  
+})
 
+# author spreadsheet file path not found
+test_that("errors if author_info_file is not found", {
+  
+  # create author_info_file with a missing required col
+  author_spreadsheet <- tibble(first_name = c("Brieanne", "Amy", "James"),
+                               last_name = c("Forbes", "Goldman", "Stegen"),
+                               orcid = "xxxx-xxxx-xxxx-xxxx", 
+                               email = "first.last@pnnl.gov",
+                               institution = "Pacific Northwest National Laboratory")
+  
+  writexl::write_xlsx(author_spreadsheet, paste0(temp_directory, "/author_info.xlsx"))
+  
+  # intentionally remove the file that was just created
+  file.remove(paste0(temp_directory, "/author_info.xlsx"))
+  
+  # create ess-dive metadata names (expected input)
+  names_from_essdive_metadata <- tibble(name = c("Brieanne Forbes", 
+                                                 "Amy Goldman", 
+                                                 "James Stegen"),
+                                        first_name = c("Brieanne", "Amy", "James"),
+                                        middle_name = NA_character_,
+                                        last_name = c("Forbes", "Goldman", "Stegen"))
+  
+  
+  # this is what the function should return
+  expected_output <- paste0("Error: `path` does not exist: `", temp_directory, "/author_info.xlsx`")
+  
+  # run function 
+  expect_error(object = get_author_spreadsheet_info(author_df = names_from_essdive_metadata, author_info_file = paste0(temp_directory, "/author_info.xlsx")) %>% 
+                 mutate(orcid = "xxxx-xxxx-xxxx-xxxx", 
+                        email = "first.last@pnnl.gov"), 
+               expected = expected_output)
+  
+})
 
 ### Tests for `update_landing_page_authors()` ##################################
 
