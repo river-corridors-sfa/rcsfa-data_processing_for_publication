@@ -1,7 +1,7 @@
 ### update_landing_page_authors.R ##############################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-03-06
-# Date Updated: 2025-03-06
+# Date Updated: 2025-03-17
 
 # This script contains 3 functions used to get author information for ESS-DIVE data packages. 
 # get_authors_from_essdive_metaata() gets the list of names, 

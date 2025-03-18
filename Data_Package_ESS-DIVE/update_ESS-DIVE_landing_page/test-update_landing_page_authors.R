@@ -1,7 +1,7 @@
 ### test-update_landing_page_authors.R #########################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-03-11
-# Date Updated: 2025-03-14
+# Date Updated: 2025-03-17
 
 # Objective: 
 # This script contains the tests for the functions in `update_landing_page_authors.R`.
