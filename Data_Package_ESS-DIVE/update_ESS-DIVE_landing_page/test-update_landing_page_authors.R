@@ -809,6 +809,8 @@ test_that("errors if author_info_file is not found", {
 })
 
 ### Tests for `update_landing_page_authors()` ##################################
+# 20250317 update from Bibi: No tests have been created for this function at this time. 
+# If any errors are encountered during execution, tests can be written during the debugging process to address specific issues.
 
 #### tests that function runs as expected for typical inputs and edge cases ---- 
 
