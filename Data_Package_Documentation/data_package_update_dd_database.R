@@ -57,6 +57,7 @@ ddd <- update_dd_database(upload_file_path = "C:/Users/powe419/OneDrive - PNNL/D
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Roebuck_2023_S19S_XRF_ICR_Manuscript_Data_Package/XRF_FTICR_Manuscript_Data_Package/XRF_ICR_Manuscript_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Zahura_2023_Postfire_Recovery_Manuscript_Data_Package/Postfire_recovery_dd.csv")
 ddd <- update_dd_database("Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/03_Manuscript-Data-Package-Folders/00_ARCHIVE-WHEN-PUBLISHED/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_2023_Bioenergetic_Modeling_Manuscript_Data_Package/Zheng_bioenergetic_modeling_dd.csv")
+ddd <- update_dd_database("Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Shi_2024_Ecosystem_Responses_To_Wildfires_Manuscript_Data_Package/Shi_Ecosystem_Responses_To_Wildfires_dd.csv")
 ddd <- update_dd_database()
 
 
