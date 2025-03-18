@@ -685,7 +685,7 @@ test_that("names are correctly parsed when middle names are in author spreadshee
 })
 
 # middle name in ess-dive list, but not in author spreadsheet
-test_that("names are correctly parsed when middle names are in author spreadsheet but not in ess-dive list", {
+test_that("names are correctly parsed when middle names are in ess-dive list but not in author spreadsheet", {
   
   # create ess-dive metadata names (expected input)
   names_from_essdive_metadata <- tibble(name = c("Brieanne K. Forbes", 
