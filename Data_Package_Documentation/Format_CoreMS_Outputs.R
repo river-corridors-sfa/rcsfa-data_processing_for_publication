@@ -18,7 +18,7 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 #insert the path of the data package folder
-dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package'
+dir <- 'Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package'
 
 # ============ set WD to the path of the data package ==========================
 
@@ -85,22 +85,19 @@ for (k in cal_files) {
 # ===============================  output files ================================
 
 for (m in output_files) {
-  
-  # output <- read_csv(m)%>%
-  #   rename_with(~ str_replace_all(.x, " ", "_")) %>% # replace all spaces in column names with underscores
-  #   rename( Mass = `m/z`,
-  #           Calibrated_Mass = `Calibrated_m/z`,
-  #           Calculated_Mass = `Calculated_m/z`,
-  #           S_N = `S/N`,
-  #           Error_ppm = `m/z_Error_(ppm)`,
-  #           Error_Score = `m/z_Error_Score`,
-  #           OtoC_ratio = `O/C`,
-  #           HtoC_ratio = `H/C`)%>%
-  #   mutate_all(function(x) if(is.numeric(x)) ifelse(is.na(x), -9999, x) else ifelse(is.na(x), 'N/A', x)) #replace na values with -9999 or N/A
-  #
+
   output <- read_csv(m)%>%
-    rename(OtoC_ratio = O_C,
-           HtoC_ratio = H_C)
+    rename_with(~ str_replace_all(.x, " ", "_")) %>% # replace all spaces in column names with underscores
+    rename( Mass = `m/z`,
+            Calibrated_Mass = `Calibrated_m/z`,
+            Calculated_Mass = `Calculated_m/z`,
+            S_N = `S/N`,
+            Error_ppm = `m/z_Error_(ppm)`,
+            Error_Score = `m/z_Error_Score`,
+            OtoC_ratio = `O/C`,
+            HtoC_ratio = `H/C`)%>%
+    mutate_all(function(x) if(is.numeric(x)) ifelse(is.na(x), -9999, x) else ifelse(is.na(x), 'N/A', x)) #replace na values with -9999 or N/A
+
   
   write_csv(output, m) # rewrite files with same name
   
