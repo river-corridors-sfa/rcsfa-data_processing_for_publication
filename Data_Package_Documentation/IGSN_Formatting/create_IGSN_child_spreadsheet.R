@@ -38,12 +38,12 @@ metadata_filepath <- file.choose()
 # metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/AV1_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/RC2_2022-2024_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
-user_code <- 'IEWDR' # this is for WHONDRS
-# user_code <- 'IEPRS'  # this is not for WHONDRS
+# user_code <- 'IEWDR' # this is for WHONDRS
+user_code <- 'IEPRS'  # this is not for WHONDRS
 
 # indicate if parent IGSNs exist
 parent_igsn_present <- T
@@ -55,7 +55,7 @@ parent_filepath <- "Z:\\IGSN\\AV1_IGSN_Site_Registered.xls"
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
 # materials_list <- c("water", "sediment", "filter")
-materials_list <- c("water", "sediment")
+materials_list <- c("water", "filter")
 
 
 ### Load data ##################################################################
@@ -80,25 +80,25 @@ if (parent_igsn_present == T) {
 print(colnames(metadata))
 
 # `Sample Name`
-a <- metadata$Sample_Name
+a <- metadata$Parent_ID
 
 # (name of sampling campaign) 'Comment'
-i <- 'EWEB Year 2'
+i <- 'RC2 Temporal Study'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Latitude_WGS1984
+j <- metadata$Latitude
 
 # 'Longitude (WGS 84)'
-k <- metadata$Longitude_WGS1984
+k <- metadata$Longitude
 
 # 'Primary physiographic feature'
 l <- 'stream'
 
 # 'Name of physiographic feature'
-m <- as.character(metadata$Locality)
+m <- metadata$Stream_Name
 
 # (site ID) 'Locality'
-n <- as.character(metadata$SiteID)
+n <- as.character(metadata$Site_ID)
 
 # 'Locality description'
 o <- 'In stream site'
@@ -109,7 +109,7 @@ p <- 'United States'
 
 # 'State/Province'
 q <- metadata$State
-q <- "Oregon"
+q <- "Washington"
 
 # 'City/Township'
 r <- metadata$City
@@ -121,10 +121,10 @@ s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
 t <- paste(metadata$Contact_First_Name, metadata$Contact_Last_Name)
-t <- metadata$Current_Archive_Contact
+t <- metadata$Field_Staff
 
 # 'Collection date'
-u <- as.character(metadata$Collection_Date)
+u <- as.character(metadata$Date)
 
 # 'Related URL'
 # v <- 'https://whondrs.pnnl.gov'
