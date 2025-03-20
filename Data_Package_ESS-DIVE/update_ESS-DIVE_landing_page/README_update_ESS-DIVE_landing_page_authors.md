@@ -6,7 +6,7 @@ Create a data frame with 5 (required) columns.
 
 | first_name                                                                          | last_name                                               | orcid                                                                   | affiliation                                                                   | email                                                    |
 | ----------------------------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `<chr>` The author's first name. Add middle names here too. This field is required. | `<chr>` The author's last name. This field is required. | `<num>` The author's ORICD number. If not applicable, leave empty (NA). | The author's institution or affiliation. If not applicable, leave empty (NA). | The author's email. If not applicable, leave empty (NA). |
+| `<chr>` The author's first name and (if applicable) middle names/initial. This field is required. | `<chr>` The author's last name. This field is required. | `<num>` The author's ORICD number. If not applicable, leave empty (NA). | The author's institution or affiliation. If not applicable, leave empty (NA). | The author's email. If not applicable, leave empty (NA). |
 | E.g., Joe                                                                           | Smith                                                   | 0000-0000-0000-1234                                                     | Pacific Northwest National Laboratory                                         | joe.smith@pnnl.gov                                       |
 
 ``` R
@@ -22,7 +22,7 @@ my_author_df <- tibble(
 
 ## About the function
 The `update_landing_page_authors()` function has 4 (required) arguments: 
-1. `api_token`: This is your personal token. Sign into to ESS-DIVE > My Settings > Authentication Token > Copy Token
+1. `api_token`: This is your personal token. Sign into to ESS-DIVE > My Settings > Authentication Token > Copy Token. It is recommended to add this into the console (rather than the script) so that your personal API token does not get saved within the script. 
 2. `essdive_id`: This is the identifier number from the data package you want to update. Get it from the ESS-DIVE landing page under the "General" section above the abstract (e.g., "ess-dive-e51251ad488b35f-20240522T205038891721")
 3. `author_df`: This is the data frame you created above with the columns: `first_name`, `last_name`, `orcid`, `affiliation`, and `email`. Additional columns in this data frame will be dropped. 
 4. `upload_site`: Indicate if you want to update a data package on the sandbox vs main site; options include c(`main`, `sandbox`)
