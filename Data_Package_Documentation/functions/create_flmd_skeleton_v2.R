@@ -231,8 +231,8 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
     # if the file is tabular (is .csv or .tsv)
     if (str_detect(current_file_name, "\\.csv$|\\.tsv$")) {
       
-      # update the standard with the CSV reporting format
-      current_standard <- "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021)"
+      # update the standard with the CSV reporting format (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+      current_standard <- "ESS-DIVE CSV v1"
       
       # update the header rows with NA
       current_column_or_row_name_position <- NA_real_
@@ -342,7 +342,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
       add_row(
         "File_Name" = "[INSERT FLMD FILE NAME]_flmd.csv",
         "File_Description" = "File-level metadata that lists and describes all of the files contained in the data package.",
-        "Standard" = "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021); ESS-DIVE Reporting Format for File-level Metadata (Velliquette et al. 2021)",
+        "Standard" = "ESS-DIVE CSV v1; ESS-DIVE FLMD v1",
         "Header_Rows" = 0,
         "Column_or_Row_Name_Position" = 1,
         "File_Path" = current_parent_directory
@@ -355,7 +355,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
       add_row(
         "File_Name" = "[INSERT DD FILE NAME]_dd.csv",
         "File_Description" = 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
-        "Standard" = "ESS-DIVE Reporting Format for Comma-separated Values (CSV) File Structure (Velliquette et al. 2021).",
+        "Standard" = "ESS-DIVE CSV v1",
         "Header_Rows" = 0,
         "Column_or_Row_Name_Position" = 1,
         "File_Path" = current_parent_directory
