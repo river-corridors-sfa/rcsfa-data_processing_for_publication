@@ -66,7 +66,7 @@ input_parameters <- list(
   # required file strings
   required_file_strings = list(flmd = ".*flmd\\.csv$", # file that ends with flmd.csv
                                 dd = ".*dd\\.csv$", # file that ends with dd.csv
-                                readme = "^readme.*\\.pdf$"), # .pdf file that begins with readme
+                                readme = "(?i).*readme.*\\.pdf$"), # .pdf file that includes case insensistive text "readme"
   
   # no special chrs
   special_chrs = "[^a-zA-Z0-9_\\.\\-]", # anything that is NOT alphanumeric character (uppercase and lowercase), underscore, dot, or hyphen is a special chr
