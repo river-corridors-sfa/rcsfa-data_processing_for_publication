@@ -439,8 +439,8 @@ tabular_report %>%
 # button to download table
 tabular_report %>% 
   download_this(output_name = paste0(basename(data_package_checks$input$inputs$directory), "_Tabualr_Data_Report"),
-                output_extension = ".xlsx",
-                button_label = "Download Table (.xlsx)",
+                output_extension = ".csv",
+                button_label = "Download Table (.csv)",
                 button_type = "default")
 
 ```
