@@ -129,6 +129,14 @@ test_that("no special characters are present in directory names", {
                expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
                                   "strongly recommended", TRUE, "no special characters", "example/directory", "none", "directory_name", "example.csv"))
   
+  expect_equal(object = check_for_no_special_chrs(input = "example/directory-name/with-hyphens", 
+                                                  invalid_chrs = input_parameters$special_chrs,
+                                                  data_checks_table = initialize_checks_df(),
+                                                  source = "directory_name",
+                                                  file = "example.csv"),
+               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
+                                  "strongly recommended", TRUE, "no special characters", "example/directory-name/with-hyphens", "none", "directory_name", "example.csv"))
+  
   # test for when there are special characters in input
   expect_equal(object = check_for_no_special_chrs(input = "example/directory name/with (spaces)", 
                                                   invalid_chrs = input_parameters$special_chrs,

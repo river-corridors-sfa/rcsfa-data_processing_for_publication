@@ -191,7 +191,7 @@ check_for_no_special_chrs <- function(input,
   
   # check for special characters
   has_special_chrs <-
-    length(grep(invalid_chrs, split_chrs)) > 0 # the ^ turns the allowed chrs into a negated chr which matches any chr not listed within allowed_chrs
+    sum(str_detect(split_chrs, invalid_chrs)) > 0 # the ^ turns the allowed chrs into a negated chr which matches any chr not listed within allowed_chrs
   
   # if the source is a file_name or column_name, an empty input will also fail
   if ((source %in% c("file_name", "column_header")) &&
