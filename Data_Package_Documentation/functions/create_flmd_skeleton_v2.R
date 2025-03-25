@@ -6,7 +6,13 @@
 
 ### FUNCTION ###################################################################
 
-create_flmd_skeleton <- function(directory, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F, query_header_info = T) {
+create_flmd_skeleton <- function(directory, 
+                                 add_placeholders = T, 
+                                 exclude_files = NA_character_, 
+                                 include_files = NA_character_, 
+                                 include_dot_files = F, 
+                                 query_header_info = T,
+                                 file_n_max = 100) {
   
   
   ### About the function #######################################################
@@ -14,11 +20,12 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   
   # Inputs: 
     # directory = string of the absolute folder file path. Required argument. 
+    # add_placeholds = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing
     # exclude_files = vector of files to exclude from within the dir. Optional argument; default is NA. 
     # include_files = vector of files to include from within the dir. Optional argument; default is NA. 
     # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
-    # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
     # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Optional argument; default is TRUE.  
+    # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
   
   # Outputs: 
     # flmd df that lists out all the provided files
@@ -74,15 +81,15 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   
   
   ### Prep Script ##############################################################
-  
-  
+
   # load libraries
   pacman::p_load(tidyverse, # cuz duh
                  rlog, # for logging documentation
                  fs) # for getting file extension
   
-  log_info("This function takes 6 arguments: 
+  log_info("This function takes 8 arguments: 
             - directory (required)
+            - add_placeholders (optional; default = T)
             - exclude_files (optional; default = NA)
             - include_files (optional; default = NA)
             - file_n_max (optional; default = 100)
@@ -128,34 +135,7 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   )
   
   log_info(paste0("Adding ", length(current_file_paths), " of the ", length(file_paths_all), " files to the flmd."))
-  
-  
-  ### check and ask to add flmd, dd, readme files ##############################
-  log_info("Checking for presence of flmd, dd, and readme files.")
-  
-  # check for presence of dd and flmd files
-  flmd_file_present <- any(str_detect(current_file_paths, "flmd.csv"))
-  dd_file_present <- any(str_detect(current_file_paths, "dd.csv"))
-  pdf_file_present <- any(str_detect(current_file_paths, "readme"))
-  
-  if (flmd_file_present == FALSE) {
-    user_input_add_flmd_file <- readline(prompt = "The flmd file is not present. Would you like to add a placeholder flmd to the flmd? (Y/N) ")
-  } else {
-    user_input_add_flmd_file <- "N"
-  }
-  
-  if (dd_file_present == FALSE ) {
-    user_input_add_dd_file <- readline(prompt = "The dd file is not present. Would you like to add a placeholder dd to the flmd? (Y/N) ")
-  } else {
-    user_input_add_dd_file <- "N"
-  }
-  
-  if (pdf_file_present == FALSE) {
-    user_input_add_readme_file <- readline(prompt = "The readme file is not present. Would you like to add a placeholder readme to the flmd? (Y/N) ")
-  } else {
-    user_input_add_readme_file <- "N"
-  }
-  
+
   
   ### check and ask to include header position info ############################
   count_csv_files <- sum(str_detect(current_file_paths, "\\.csv$"))
@@ -323,43 +303,49 @@ create_flmd_skeleton <- function(directory, exclude_files = NA_character_, inclu
   
   ### if user indicated, add readme, flmd, dd placeholders #####################
   
-  # adding readme file to flmd is user indicated Y
-  if (tolower(user_input_add_readme_file) == "y"){
-    current_flmd_skeleton <- current_flmd_skeleton %>% 
-      add_row(
-        "File_Name" = "readme_[INSERT README FILE NAME].pdf",
-        "File_Description" = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
-        "Standard" = "N/A",
-        "Header_Rows" = -9999,
-        "Column_or_Row_Name_Position" = -9999,
-        "File_Path" = current_parent_directory
+  if (add_placeholders == TRUE) {
+    log_info("Checking for presence of flmd, dd, and readme files.")
+    
+    # check for presence of dd and flmd files
+    flmd_file_present <- any(str_detect(current_file_paths, "flmd.csv"))
+    dd_file_present <- any(str_detect(current_file_paths, "dd.csv"))
+    readme_file_present <- any(str_detect(current_file_paths, "readme"))
+    
+    if (readme_file_present == FALSE) {
+      current_flmd_skeleton <- current_flmd_skeleton %>%
+        add_row(
+          "File_Name" = "readme_[INSERT README FILE NAME].pdf",
+          "File_Description" = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
+          "Standard" = "N/A",
+          "Header_Rows" = -9999,
+          "Column_or_Row_Name_Position" = -9999,
+          "File_Path" = current_parent_directory
         )
-  }
-  
-  # adding flmd file to flmd if user indicated Y
-  if (tolower(user_input_add_flmd_file) == "y") {
-    current_flmd_skeleton <- current_flmd_skeleton %>% 
-      add_row(
-        "File_Name" = "[INSERT FLMD FILE NAME]_flmd.csv",
-        "File_Description" = "File-level metadata that lists and describes all of the files contained in the data package.",
-        "Standard" = "ESS-DIVE CSV v1; ESS-DIVE FLMD v1",
-        "Header_Rows" = 0,
-        "Column_or_Row_Name_Position" = 1,
-        "File_Path" = current_parent_directory
-      )
-  }
-  
-  # adding dd file to flmd if user indicated Y
-  if (tolower(user_input_add_dd_file) == "y") {
-    current_flmd_skeleton <- current_flmd_skeleton %>% 
-      add_row(
-        "File_Name" = "[INSERT DD FILE NAME]_dd.csv",
-        "File_Description" = 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
-        "Standard" = "ESS-DIVE CSV v1",
-        "Header_Rows" = 0,
-        "Column_or_Row_Name_Position" = 1,
-        "File_Path" = current_parent_directory
-      )
+    }
+    
+    if (flmd_file_present == FALSE) {
+      current_flmd_skeleton <- current_flmd_skeleton %>%
+        add_row(
+          "File_Name" = "[INSERT FLMD FILE NAME]_flmd.csv",
+          "File_Description" = "File-level metadata that lists and describes all of the files contained in the data package.",
+          "Standard" = "ESS-DIVE CSV v1; ESS-DIVE FLMD v1",
+          "Header_Rows" = 0,
+          "Column_or_Row_Name_Position" = 1,
+          "File_Path" = current_parent_directory
+        )
+    }
+    
+    if (dd_file_present == FALSE) {
+      current_flmd_skeleton <- current_flmd_skeleton %>%
+        add_row(
+          "File_Name" = "[INSERT DD FILE NAME]_dd.csv",
+          "File_Description" = 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
+          "Standard" = "ESS-DIVE CSV v1",
+          "Header_Rows" = 0,
+          "Column_or_Row_Name_Position" = 1,
+          "File_Path" = current_parent_directory
+        )
+    }
   }
   
   ### sort flmd ################################################################
