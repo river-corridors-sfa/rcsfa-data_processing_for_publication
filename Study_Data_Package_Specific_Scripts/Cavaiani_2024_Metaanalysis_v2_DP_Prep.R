@@ -1,7 +1,7 @@
 ### Cavaiani_2024_Metaanalysis_v2_DP_Prep.R ####################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-03-19
-# Date Updated: 2025-03-19
+# Date Updated: 2025-03-24
 
 # Objective: 
   # Prepare data package files for Jake's v2 data package
@@ -110,9 +110,6 @@ print(dd_skeleton)
 dd_skeleton <- dd_skeleton %>% 
   select(-Term_Type)
 
-
-
-
 # update rows
 dd <- dd_skeleton %>%
   filter(!Column_or_Row_Name %in% c("Date_End", "Date_Start", "Term_Type")) %>% # remove columns dropped when updating flmd and dd columns
@@ -197,30 +194,35 @@ df_issues <- purrr::keep(data_package_data$data, names(data_package_data$data) %
 
 df_issues
 
-# # update classes based on previous exploration 
-# df_classes <- df_classes %>% 
-#   group_by(Column_or_Row_Name) %>% 
-#   mutate(file_count = n_distinct(Data_Type)) %>% 
-#   mutate(Data_Type = case_when(Column_or_Row_Name == "p_val" ~ "character", # there is one p_val that's chr, so changing all to text
-#                                T ~ Data_Type)) %>% 
-#   mutate(Data_Type = case_when(Data_Type == "character" ~ "text", 
-#                                T ~ Data_Type)) %>% 
-#   select(Column_or_Row_Name, Data_Type) %>% 
-#   distinct()
-# 
-# # join data type to dd
-# dd <- dd %>% 
-#   select(-Data_Type) %>% 
-#   left_join(df_classes, by = "Column_or_Row_Name") %>% 
-#   # full_join(dd_template, by = "Column_or_Row_Name") %>% # add flmd and dd rows info
-#   mutate(Unit = coalesce(Unit.y, Unit.x),
-#          Definition = coalesce(Definition.y, Definition.x),
-#          Data_Type = coalesce(Data_Type.y, Data_Type.x)) %>% 
-#   select(Column_or_Row_Name, Unit, Definition, Data_Type) %>% 
-#   distinct() %>% 
-#   arrange(Column_or_Row_Name)
-# 
-# dd
+# update classes based on previous exploration
+df_classes <- df_classes %>%
+  group_by(Column_or_Row_Name) %>%
+  mutate(file_count = n_distinct(Data_Type)) %>%
+  mutate(Data_Type = case_when(Column_or_Row_Name == "DOC" ~ "text; numeric", # this is mixed depending on the column
+                               Column_or_Row_Name == "Fire_year" ~ "text", # becomes text because some years a range is listed
+                               Column_or_Row_Name == "NO3" ~ "text; numeric", # this is mixed depending on the column
+                               Column_or_Row_Name == "STDEV_DOC" ~ "numeric", # uses N/A as missing value which made some say it was text but all reported values are numeric
+                               Column_or_Row_Name == "STER_DOC" ~ "numeric", # uses N/A as missing value which made some say it was text but all reported values are numeric
+                               Column_or_Row_Name == "STER_NO3" ~ "numeric", # uses N/A as missing value which made some say it was text but all reported values are numeric
+                               Column_or_Row_Name == "Time_Since_Fire" ~ "text; numeric", # sometimes ranges are listed
+                               Column_or_Row_Name == "Vegetation_year_pull" ~ "text; date", # sometimes ranges are listed
+                               Column_or_Row_Name == "burn_percentage" ~ "numeric", # uses N/A as missing value which made some say it was text but all reported values are numeric
+                               Column_or_Row_Name == "year" ~ "text; date",  # sometimes ranges are listed
+                               T ~ Data_Type)) %>%
+  mutate(Data_Type = case_when(Data_Type == "character" ~ "text",
+                               T ~ Data_Type)) %>%
+  select(Column_or_Row_Name, Data_Type) %>%
+  distinct()
+
+# join data type to dd
+dd <- dd %>%
+  select(-Data_Type) %>%
+  left_join(df_classes, by = "Column_or_Row_Name") %>%
+  select(Column_or_Row_Name, Unit, Definition, Data_Type) %>%
+  distinct() %>%
+  arrange(Column_or_Row_Name)
+
+dd
 
 # get file header counts
 headers <- data_package_data$headers %>%
@@ -233,13 +235,14 @@ headers <- data_package_data$headers %>%
 
 # join those counts to the dd
 dd_with_header_counts <- dd %>% 
-  left_join(headers, by = join_by("Column_or_Row_Name" == "header"))
+  left_join(headers, by = join_by("Column_or_Row_Name" == "header")) %>% 
+  arrange(Column_or_Row_Name)
 
 print(dd_with_header_counts)
 
-
-
-
+# export
+write_csv(flmd, file = paste0(out_directory, "/v2_Cavaiani_2024_Metaanalysis_flmd.csv"), na = "")
+write_csv(dd_with_header_counts, file = paste0(out_directory, "/v2_Cavaiani_2024_Metaanalysis_dd.csv"), na = "")
 
 
 
