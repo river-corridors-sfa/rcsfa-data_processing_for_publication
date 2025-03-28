@@ -6,16 +6,12 @@
 # indicating if the sample ID is duplicated. The user will need to remove any 
 # duplicated sample IDs before proceeding to next script. 
 #
-# Status: Complplete
-#
-# Notes: make qaqc after npoc prettier,  
-# TSS Does not have qaqc (remove qaqc file so it doesn't write the last one),
-# move ICR mapping into the RC folder and get methods codes, figure out METHODS DEVIATION COLUMN 
+# Status: Complete
 #
 # ==============================================================================
 #
-# Author: James Stegen, Vanessa Garayburu-Caruso, and Brieanne Forbes (WHONDRS)
-# 5 October 2022
+# Author: James Stegen, Vanessa Garayburu-Caruso, Maggi Laan, and Brieanne Forbes (WHONDRS)
+# 28 March 2025
 #
 # ==============================================================================
 
