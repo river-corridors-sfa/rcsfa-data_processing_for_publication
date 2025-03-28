@@ -92,13 +92,48 @@ load_tabular_data_from_flmd <- function(directory,
   
   log_info(paste0("Planning to load ", length(file_paths_tabular), " tabular files."))
   
-  
+  ### If all data don't have header info, load in data normally ----
   if (query_header_info == F) {
     
     # if the user indicated that all tabular files don't have header info, then set data start = 2 and header position = 1
     current_df_metadata <- current_df_metadata %>% 
       mutate(Header_Position = 1, 
              Data_Start_Row = 2)
+      
+    # initialize empty list to store the data
+    all_loaded_data <- list()
+  
+    # update tabular_only_metadata
+    current_tabular_only_metadata <- current_df_metadata %>% 
+      filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) # filter for only .csv and .tsv files
+    
+    # loop through metadata df
+    for (k in 1:nrow(current_tabular_only_metadata)) {
+      
+      # get k row
+      current_df_k_row <- current_tabular_only_metadata[k, ]
+      
+      # name the df the absolute file path
+      current_df_metadata_file_path_absolute <- current_tabular_only_metadata$File_Path_Absolute[k]
+      
+      log_info(paste0("Reading in tabular file ", k, " of ", nrow(current_tabular_only_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
+        
+      # use the data start to read in data (don't pull in columns and don't use comment = "#")
+      if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+        
+        # read in current file 
+        current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = T)
+        
+      } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
+        
+        # read in current file
+        current_df_data <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = T)
+      }
+      
+      # add new data to full list
+      all_loaded_data[[current_df_metadata_file_path_absolute]] <- current_df_data
+    
+    } # end of looping through metadata df
     
   } else { # otherwise use the flmd to begin to pull in header info and then prompt the user to gather the rest of the info
   
@@ -321,8 +356,7 @@ load_tabular_data_from_flmd <- function(directory,
     
   } # end of query_header_info != T
   
-  
-  
+
   
   # return all data
   output <- list(inputs = list(directory = directory,
