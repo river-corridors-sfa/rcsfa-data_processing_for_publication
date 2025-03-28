@@ -160,7 +160,7 @@ data_package_checks$data_checks %>%
                                 pass_check == FALSE ~ "FAILED")) %>%  
   mutate(value = case_when(value == ".*flmd\\.csv$" ~ "FLMD", 
                            value == ".*dd\\.csv$"  ~ "DD",
-                           value == "^readme.*\\.pdf$" ~ "readme")) %>% 
+                           value == "(?i).*readme.*\\.pdf$" ~ "readme")) %>% # .pdf file that includes case insensitive text "readme"
   mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
                                                                    pass_check == "FAILED" ~ "lightcoral"))) %>% 
   rename(required_file = value) %>% 
