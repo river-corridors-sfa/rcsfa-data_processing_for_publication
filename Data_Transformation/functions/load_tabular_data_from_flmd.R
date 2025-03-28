@@ -6,7 +6,13 @@
 
 ### load_tabular_data_file function ############################################
 
-load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files = NA_character_, include_files = NA_character_, file_n_max = 100, include_dot_files = F, query_header_info = T){
+load_tabular_data_from_flmd <- function(directory, 
+                                        flmd_df = NA, 
+                                        exclude_files = NA_character_, 
+                                        include_files = NA_character_, 
+                                        file_n_max = 100, 
+                                        include_dot_files = F, 
+                                        query_header_info = T){
   
   ### About the function #######################################################
   # Objective: Read in tabular data using the flmd to get file paths and header row info
@@ -35,7 +41,6 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     # it skips all rows that begin with a #
   
   # Status: initial draft complete
-    # possible enhancement: optional argument to specify if data are there are no header rows (with or without #), then read in without asking for input
   
   ### Prep script ##############################################################
   
@@ -255,9 +260,6 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     
     
   } # end of asking for data start row info
-    
-  } # end of query_header_info != T
-  
   
   ### Use data inputs to read in data ##########################################
   
@@ -275,10 +277,10 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     
     # get k row
     current_df_k_row <- current_tabular_only_metadata[k, ]
-  
+    
     # name the df the absolute file path
     current_df_metadata_file_path_absolute <- current_tabular_only_metadata$File_Path_Absolute[k]
-  
+    
     # use the df_metadata to get the column headers
     if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
       
@@ -296,7 +298,7 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
         unlist() %>% 
         as.character()
     }
-  
+    
     # use the data start to read in data (don't pull in columns and don't use comment = "#")
     if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
       
@@ -316,6 +318,11 @@ load_tabular_data_from_flmd <- function(directory, flmd_df = NA, exclude_files =
     all_loaded_data[[current_df_metadata_file_path_absolute]] <- current_df_data
     
   }
+    
+  } # end of query_header_info != T
+  
+  
+  
   
   # return all data
   output <- list(inputs = list(directory = directory,
