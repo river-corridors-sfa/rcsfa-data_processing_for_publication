@@ -240,6 +240,20 @@ dd <- dd_skeleton %>%
   arrange(Column_or_Row_Name) %>% 
   select(Column_or_Row_Name, Unit, Definition, Data_Type)
 
+# get file header counts
+headers <- data_package_data$headers %>%
+  mutate(file = basename(file)) %>% 
+  group_by(header) %>% 
+  summarise(header_count = n(),
+            files = toString(file)) %>% 
+  ungroup() %>% 
+  arrange(header, .locale = "en")
+
+# join those counts to the dd
+dd_with_header_counts <- dd %>% 
+  left_join(headers, by = join_by("Column_or_Row_Name" == "header")) %>% 
+  arrange(Column_or_Row_Name)
+
 
 #### export ----
 
