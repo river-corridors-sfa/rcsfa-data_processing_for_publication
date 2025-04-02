@@ -326,7 +326,7 @@ if (user_code == 'IEWDR') {
 if (user_code == "IEPRS") {
   header <- tibble('Object Type:'= as.character(),
                    'Individual Sample'= as.character(),
-                   'User Code:'= as.character(), 
+                   'SESAR Code:'= as.character(), 
                    'IEPRS' = as.character())
 }
 
