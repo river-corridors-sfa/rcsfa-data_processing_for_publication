@@ -3,11 +3,14 @@
   # Brieanne Forbes; brieanne.forbes@pnnl.gov
   # Bibi Powers-McCormack; bibi.powers-mccormack@pnnl.gov
 # Date Created: 2022-05-25 by Brieanne Forbes
-# Date Updated: 2023-11-13 by Bibi Powers-McCormack
+# Date Updated: 2025-04-02 by Bibi Powers-McCormack
 
 # 2023-11-13 Changes
   # Added code to check if parent IGSN DOI was included and if it wasn't to add the DOI prefix.
   # Fixed the script to work when multiple materials are included. Previous version assumed material was "water" and then duplicated for "filter". Script now runs script based on materials provided by user. 
+
+# 2025-04-02 Changes
+  # Fixed the script to work with the new header changes that SESAR implemented. The header was previously "User Code", but is now "SESAR Code".
 
 # Objective: Create the (.xls) spreadsheet needed to register child (sample) IGSNs from field metadata
   # Inputs: field_metadata, registered parent_IGSN .xls, user inputs
