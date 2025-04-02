@@ -38,7 +38,7 @@ metadata_filepath <- file.choose()
 # metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/RC2_2022-2024_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/EWEB_Study_v2_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
@@ -55,7 +55,7 @@ parent_filepath <- "Z:\\IGSN\\AV1_IGSN_Site_Registered.xls"
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
 # materials_list <- c("water", "sediment", "filter")
-materials_list <- c("water", "filter")
+materials_list <- c("water")
 
 
 ### Load data ##################################################################
@@ -80,32 +80,32 @@ if (parent_igsn_present == T) {
 print(colnames(metadata))
 
 # `Sample Name`
-a <- metadata$Parent_ID
+a <- metadata$Sample_Name
 
 # (name of sampling campaign) 'Comment'
-i <- 'RC2 Temporal Study'
+i <- 'EWEB'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Latitude
+j <- metadata$Latitude_WGS1984
 
 # 'Longitude (WGS 84)'
-k <- metadata$Longitude
+k <- metadata$Longitude_WGS1984
 
 # 'Primary physiographic feature'
 l <- 'stream'
 
 # 'Name of physiographic feature'
-m <- metadata$Stream_Name
+m <- metadata$Locality
 
 # (site ID) 'Locality'
-n <- as.character(metadata$Site_ID)
+n <- as.character(metadata$SiteID)
 
 # 'Locality description'
 o <- 'In stream site'
 o <- as.character(metadata$Location_Description)
 
 # 'Country'
-p <- 'United States'
+p <- metadata$Country
 
 # 'State/Province'
 q <- metadata$State
@@ -121,10 +121,10 @@ s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
 t <- paste(metadata$Contact_First_Name, metadata$Contact_Last_Name)
-t <- metadata$Field_Staff
+t <- metadata$Current_Archive_Contact
 
 # 'Collection date'
-u <- as.character(metadata$Date)
+u <- as.character(metadata$Collection_Date)
 
 # 'Related URL'
 # v <- 'https://whondrs.pnnl.gov'
@@ -330,6 +330,13 @@ if (user_code == "IEPRS") {
                    'IEPRS' = as.character())
 }
 
+output <- output %>% 
+  mutate(`Parent IGSN` = case_when(Locality == "E040" ~ "10.58052/IEPRS00X8", # some new samples were collected at sites that already had igsns registered
+                                 Locality == "E431" ~ "10.58052/IEPRS00XB",
+                                 Locality == "E390" ~ "10.58052/IEPRS001P",
+                                 Locality == "E410" ~ "10.58052/IEPRS001Q",
+                                 Locality == "E440" ~ "10.58052/IEPRS001S",
+                                 T ~ `Parent IGSN`))
 
 
 # Export IGSN file #############################################################
