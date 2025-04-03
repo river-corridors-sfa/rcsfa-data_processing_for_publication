@@ -28,15 +28,15 @@ dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
 RC <- 'RC2'
 
-study_code <- 'SPS'
+study_code <- 'RC2'
   
 material <- 'Water'
 
-hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
+hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
-typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Method_Typical_Codes.xlsx'
+typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx'
 
-colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Template_for_code/Boye_Template_Input.csv'
+colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/RC-SFA_ColumnHeader_Lookup.csv'
 
 # uncomment if data was run at EMSL
 # LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
@@ -74,6 +74,13 @@ for (file in files) {
     
     data <- data %>%
       select(-Randomized_ID)
+    
+  }
+  
+  if('Dilution_Factor' %in% colnames(data)){
+    
+    data <- data %>%
+      select(-Dilution_Factor)
     
   }
   

@@ -31,13 +31,13 @@ pnnl_user <-  'forb086'
 
 dir <- paste0('C:/Users/', pnnl_user, '/OneDrive - PNNL/Data Generation and Files/')
 
-RC <-  'RC4' # Options are RC2, RC3, or RC4
+RC <-  'RC2' # Options are RC2, RC3, or RC4
 
-study_code <-  'CM' 
+study_code <-  'RC2' 
 
-analysis <-  'NPOC_TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
+analysis <-  'TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
 
-analyte_code <- 'SED' # Options are ION, OCN, DIC, TSS
+analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
 
 qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
@@ -200,7 +200,6 @@ mapping_filtered <- combine_mapping %>%
   data_filtered <- combine_qaqc %>%
     filter(str_detect(Sample_ID, study_code)) %>%
     filter(str_detect(Sample_ID, analyte_code)) # filtering by analyte code should remove need for if statement below
-  # filter(str_detect(Sample_ID, 'SED'))
   
   
 # if(analysis == 'DIC'){
