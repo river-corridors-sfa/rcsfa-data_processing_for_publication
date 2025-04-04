@@ -3,11 +3,14 @@
   # Brieanne Forbes; brieanne.forbes@pnnl.gov
   # Bibi Powers-McCormack; bibi.powers-mccormack@pnnl.gov
 # Date Created: 2022-05-25 by Brieanne Forbes
-# Date Updated: 2023-11-13 by Bibi Powers-McCormack
+# Date Updated: 2025-04-02 by Bibi Powers-McCormack
 
 # 2023-11-13 Changes
   # Added code to check if parent IGSN DOI was included and if it wasn't to add the DOI prefix.
   # Fixed the script to work when multiple materials are included. Previous version assumed material was "water" and then duplicated for "filter". Script now runs script based on materials provided by user. 
+
+# 2025-04-02 Changes
+  # Fixed the script to work with the new header changes that SESAR implemented. The header was previously "User Code", but is now "SESAR Code".
 
 # Objective: Create the (.xls) spreadsheet needed to register child (sample) IGSNs from field metadata
   # Inputs: field_metadata, registered parent_IGSN .xls, user inputs
@@ -38,12 +41,12 @@ metadata_filepath <- file.choose()
 # metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/AV1_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/EWEB_Study_v2_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
-user_code <- 'IEWDR' # this is for WHONDRS
-# user_code <- 'IEPRS'  # this is not for WHONDRS
+# user_code <- 'IEWDR' # this is for WHONDRS
+user_code <- 'IEPRS'  # this is not for WHONDRS
 
 # indicate if parent IGSNs exist
 parent_igsn_present <- T
@@ -55,7 +58,7 @@ parent_filepath <- "Z:\\IGSN\\AV1_IGSN_Site_Registered.xls"
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
 # materials_list <- c("water", "sediment", "filter")
-materials_list <- c("water", "sediment")
+materials_list <- c("water")
 
 
 ### Load data ##################################################################
@@ -83,7 +86,7 @@ print(colnames(metadata))
 a <- metadata$Sample_Name
 
 # (name of sampling campaign) 'Comment'
-i <- 'EWEB Year 2'
+i <- 'EWEB'
 
 # 'Latitude (WGS 84)'
 j <- metadata$Latitude_WGS1984
@@ -95,7 +98,7 @@ k <- metadata$Longitude_WGS1984
 l <- 'stream'
 
 # 'Name of physiographic feature'
-m <- as.character(metadata$Locality)
+m <- metadata$Locality
 
 # (site ID) 'Locality'
 n <- as.character(metadata$SiteID)
@@ -105,11 +108,11 @@ o <- 'In stream site'
 o <- as.character(metadata$Location_Description)
 
 # 'Country'
-p <- 'United States'
+p <- metadata$Country
 
 # 'State/Province'
 q <- metadata$State
-q <- "Oregon"
+q <- "Washington"
 
 # 'City/Township'
 r <- metadata$City
@@ -319,17 +322,24 @@ if (user_code == 'IEWDR') {
   
   header <- tibble('Object Type:'= as.character(),
                    'Individual Sample'= as.character(),
-                   'User Code:'= as.character(), 
+                   'SESAR Code:'= as.character(), 
                    'IEWDR' = as.character())
 }
 
 if (user_code == "IEPRS") {
   header <- tibble('Object Type:'= as.character(),
                    'Individual Sample'= as.character(),
-                   'User Code:'= as.character(), 
+                   'SESAR Code:'= as.character(), 
                    'IEPRS' = as.character())
 }
 
+output <- output %>% 
+  mutate(`Parent IGSN` = case_when(Locality == "E040" ~ "10.58052/IEPRS00X8", # some new samples were collected at sites that already had igsns registered
+                                 Locality == "E431" ~ "10.58052/IEPRS00XB",
+                                 Locality == "E390" ~ "10.58052/IEPRS001P",
+                                 Locality == "E410" ~ "10.58052/IEPRS001Q",
+                                 Locality == "E440" ~ "10.58052/IEPRS001S",
+                                 T ~ `Parent IGSN`))
 
 
 # Export IGSN file #############################################################

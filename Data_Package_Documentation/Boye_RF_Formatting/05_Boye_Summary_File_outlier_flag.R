@@ -62,11 +62,11 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data"
 
-study_code <- 'SPS' # this is used to rename the output file
+study_code <- 'WHONDRS_AV1' # this is used to rename the output file
 
-material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
+material <- 'Sediment' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 
 # ====================== functions used in this script =========================
@@ -402,6 +402,10 @@ data <- read_in_files(analyte_files, material = material)
 # combine all data dfs together + drop fake boyes and text flags
 combine <- combine_data(data)
 
+# for AV1, removing iron from 2.5 mL incubations (reps 4-6) before summarizing 
+
+combine <- combine  %>%
+  filter(!(str_detect(data_type, "Fe") & rep %in% c(4, 5, 6)))
 
 # ====================== remove outliers =======================================
 # assumptions: 
@@ -461,7 +465,8 @@ indexed_summary_cols <- colnames(summary) %>%
                                                         "Total_Incubation_Time_Min",
                                                         "Number_Points_In_Respiration_Regression",
                                                         "Number_Points_Removed_Respiration_Regression",
-                                                        "DO_Concentration_At_Incubation_Time_Zero"
+                                                        "DO_Concentration_At_Incubation_Time_Zero",
+                                                   'FTICR-MS'
                                                         )))) %>% 
   ungroup() %>% 
   mutate(to_remove = case_when(to_remove == TRUE ~ TRUE)) %>% 
@@ -483,8 +488,8 @@ cat("Columns that are typically removed are indicated as 'TRUE' in the `to_remov
     View(indexed_summary_cols))
   
   response_1 <- readline(prompt = "Would you like to remove all of the indicated columns from the summary file (Y/N)? ")
-  response_2 <- readline(prompt = paste0("Which (additional) column(s) would you like to remove?, "\n", 
-                                          Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none: "))
+  response_2 <- readline(prompt = paste0("Which (additional) column(s) would you like to remove?",  "\n",
+                                          "Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none: "))
   
   
 } else {
@@ -544,7 +549,7 @@ if(sum(cols_to_remove) != 0){
   cat("\n")
   
   # drop the cols
-  test_summary <- drop_df_columns(df = summary, drop_indices = cols_to_remove)
+  summary <- drop_df_columns(df = summary, drop_indices = cols_to_remove)
   
 } else {
 
