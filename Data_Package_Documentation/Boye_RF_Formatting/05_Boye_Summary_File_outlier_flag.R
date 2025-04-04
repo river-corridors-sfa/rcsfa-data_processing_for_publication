@@ -14,7 +14,7 @@
 #
 # Author: Brieanne Forbes, brieanne.forbes@pnnl.gov 30 Sept 2022
 #
-# Updated 2024-12-26: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
+# Updated 2025-02-03: Bibi Powers-McCormack, bibi.powers-mccormack@pnnl.gov
 #
 # Status: complete 
 
@@ -46,6 +46,14 @@
 # OUTPUTS: 
   # a single summary file as a .csv to the user indicated `dir`
 
+# NOTES: 
+  # If any edits are made to this script, confirm that the tests in 
+  # `test-05_Boye_Summary_File_outlier_flag.R` still pass. 
+
+  # If you need to add new outliers (or see which outliers this script works with)
+  # see `test-05_Boye_Summary_File_outlier_flag.R`. Follow the commented
+  # directions in the test called "flags are correctly assigned".
+
 # ==============================================================================
 
 library(tidyverse)
@@ -54,11 +62,11 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/SFA_SpatialStudy_2021_SampleData_v3/v3_SFA_SpatialStudy_2021_SampleData"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data"
 
-study_code <- 'SPS' # this is used to rename the output file
+study_code <- 'WHONDRS_AV1' # this is used to rename the output file
 
-material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
+material <- 'Sediment' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 
 # ====================== functions used in this script =========================
@@ -96,7 +104,10 @@ read_in_files <- function(analyte_files, material) {
       # split out sample name
       separate(Sample_Name, into = c("parent_analyte", "rep"), sep = "-", remove = FALSE) %>%
       separate(parent_analyte, into = c("parent_id", "analyte"), sep = "_(?=[^_]+$)", remove = TRUE, extra = "merge") %>% 
-      
+    
+      # convert all to chr (temporarily - will convert back in later step)
+      mutate(across(everything(), as.character)) %>% 
+        
       # count number of reps
       group_by(parent_id) %>% 
       mutate(number_of_reps = n_distinct(rep)) %>% 
@@ -106,17 +117,17 @@ read_in_files <- function(analyte_files, material) {
       pivot_longer(cols = -group_cols(), # pivoting all cols that aren't grouped
                    names_to = "data_type", 
                    values_to = "data_value") %>% 
-      ungroup()
-    
-    # add to list
-    data_files[[current_file_name]] <- current_file
-    
-    
-    # read in headers
-    current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)
-    
-    # add to list
-    data_headers[[current_file_name]] <- current_headers
+        ungroup()
+      
+      # add to list
+      data_files[[current_file_name]] <- current_file
+      
+      
+      # read in headers
+      current_headers <- read_csv(analyte_files[i], skip = 2, n_max = 11, show_col_types = F)
+      
+      # add to list
+      data_headers[[current_file_name]] <- current_headers
     
   }
   
@@ -134,6 +145,68 @@ read_in_files <- function(analyte_files, material) {
   return(data)
   
 } # end of `read_in_files()` function
+
+
+combine_data <- function(data) {
+  
+  # inputs: 
+    # data = list of dfs saved as a sublist from the read_in_files function (data$data$dfs)
+  # outputs: 
+    # combine_data = long df of all data combined together
+  
+  # extract any values that have letters in them
+  data_with_letters <- bind_rows(data$data) %>% 
+    mutate(data_value = case_when(str_detect(data_value, "[A-Za-z]") ~ data_value, TRUE ~ NA)) %>% 
+    filter(!is.na(data_value)) %>% 
+    pull(data_value) %>% 
+    unique(.) %>% 
+    unlist()
+  
+  if (length(data_with_letters > 0)) {
+    
+    # show all character data values
+    cat("\n", "The above text values will be converted to NA. Okay to proceed?",
+        data_with_letters %>%
+          cat(., sep = "\n"))
+    
+    # ask if okay to convert all of those to NA
+    response <- readline(prompt = "(Y/N): ")
+    
+  } else {
+    response <- "Y"
+  }
+  
+  if (tolower(response) == "y") {
+    
+    combine_df <- bind_rows(data$data) %>% 
+      
+      # identify fake boye files and then remove them
+      mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
+      filter(is_fake_boye == FALSE | is.na(is_fake_boye)) %>% 
+      select(-is_fake_boye) %>% 
+      
+      # remove text flags
+      rowwise() %>% 
+      mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
+      mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
+      mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
+      select(-is_numeric) %>% 
+      ungroup()
+
+    return(combine_df) # returns df
+    
+  } else if (tolower(response) == "n") {
+    
+    warning("The `data_value` column must be numeric. Fix your data and try again.")
+    return(invisible(NULL)) # exits function
+    
+  } else {
+    
+    stop("The script is stopping due to an issue. Please check your input data and try again.")
+    
+  }
+  
+} # end of `combine_data()` function
 
 # function to assign flags
 assign_flags <- function(combine_df) {
@@ -275,7 +348,7 @@ drop_df_columns <- function(df, drop_indices) {
   
   # Display columns to be dropped
   message("The following columns will be dropped:")
-  print(df %>% select(all_of(drop_cols)))
+  print(df %>% select(all_of(drop_cols)) %>% str())
   
   # Ask for confirmation
   confirm <- readline(prompt = "Do you want to proceed? (Y/N): ")
@@ -305,8 +378,11 @@ drop_df_columns <- function(df, drop_indices) {
   # fake boye files have text in their data column that starts with "See_"
   # if an igsn column is present in the boye file, it will drop it
 
+# increases threshold for using scientific notation
+options(scipen = 999) # you can check your current scipen value wtih getOption("scipen"); the default is 0 and increasing it reduced the likelihood of scientific notation being used
+
 analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
-analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)]
+analyte_files <- analyte_files[!grepl('Mass_Volume',analyte_files)] # removing any file that says Mass_Volumne because sometimes those files also have the material type in them, but we don't want them included in the summary
 print(basename(analyte_files))
 
 # check if a summary file already exists - if it does, warn the user
@@ -323,21 +399,13 @@ data <- read_in_files(analyte_files, material = material)
   # fake boye files, identified by the presence of "See_" in the data value column are filtered out (the entire row removed)
   # all other text values (e.g., text flags) are converted to NA (the row is kept, but the value converted to NA)
 
-combine <- bind_rows(data$data) %>% 
-  
-  # identify fake boye files and then remove them
-  mutate(is_fake_boye = str_detect(data_value, "^See_")) %>% 
-  filter(is_fake_boye == FALSE) %>% 
-  select(-is_fake_boye) %>% 
-  
-  # remove text flags
-  rowwise() %>% 
-  mutate(is_numeric = case_when(str_detect(data_value, "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
-  mutate(data_value = case_when(is_numeric == FALSE ~ NA_character_, T ~ data_value)) %>% # anything flagged with a letter is converted to NA
-  mutate(data_value = as.numeric(data_value)) %>% # data_value col converted to numeric
-  select(-is_numeric) %>% 
-  ungroup()
+# combine all data dfs together + drop fake boyes and text flags
+combine <- combine_data(data)
 
+# for AV1, removing iron from 2.5 mL incubations (reps 4-6) before summarizing 
+
+combine <- combine  %>%
+  filter(!(str_detect(data_type, "Fe") & rep %in% c(4, 5, 6)))
 
 # ====================== remove outliers =======================================
 # assumptions: 
@@ -397,10 +465,13 @@ indexed_summary_cols <- colnames(summary) %>%
                                                         "Total_Incubation_Time_Min",
                                                         "Number_Points_In_Respiration_Regression",
                                                         "Number_Points_Removed_Respiration_Regression",
-                                                        "DO_Concentration_At_Incubation_Time_Zero"
+                                                        "DO_Concentration_At_Incubation_Time_Zero",
+                                                   'FTICR-MS'
                                                         )))) %>% 
   ungroup() %>% 
-  mutate(to_remove = case_when(to_remove == TRUE ~ TRUE))
+  mutate(to_remove = case_when(to_remove == TRUE ~ TRUE)) %>% 
+  mutate(to_remove = case_when(column_name %in% c("Field_Name", "Sample_Name", "Material", "Mean_Missing_Reps") ~ FALSE, T ~ to_remove)) %>% 
+  mutate(index = case_when(to_remove == FALSE ~ NA_integer_, T ~ index))
 
 # if any cols in summary match with cols we commonly remove, ask user if they'd like to remove those cols
 if ((indexed_summary_cols %>% 
@@ -413,11 +484,12 @@ if ((indexed_summary_cols %>%
   # remove default cols
   # remove additional cols
   # remove no cols
-cat("We often remove the following columns from the data package summary files. ", 
+cat("Columns that are typically removed are indicated as 'TRUE' in the `to_remove` column and 'FALSE' indicates the column cannot be removed. ", 
     View(indexed_summary_cols))
   
   response_1 <- readline(prompt = "Would you like to remove all of the indicated columns from the summary file (Y/N)? ")
-  response_2 <- readline(prompt = "Which (additional) column(s) would you like to remove? Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none. ")
+  response_2 <- readline(prompt = paste0("Which (additional) column(s) would you like to remove?",  "\n",
+                                          "Provide a comma-separated list of index numbers (e.g., '3, 5, 8'). Write '0' if none: "))
   
   
 } else {
@@ -426,7 +498,8 @@ cat("We often remove the following columns from the data package summary files. 
   View(indexed_summary_cols)
   cat("\n")
   
-  response_2 <- readline(prompt = "Would you like to remove any column(s) from the summary file? If so, provide a comma-separated list of index numbers (e.g., '3, 5, 8'); otherwise write '0' if none. ")
+  response_2 <- readline(prompt = paste0("Would you like to remove any column(s) from the summary file?", "\n", 
+                                          "If so, provide a comma-separated list of index numbers (e.g., '3, 5, 8'); otherwise write '0' if none: "))
   
 }
 
@@ -476,7 +549,7 @@ if(sum(cols_to_remove) != 0){
   cat("\n")
   
   # drop the cols
-  test_summary <- drop_df_columns(df = summary, drop_indices = cols_to_remove)
+  summary <- drop_df_columns(df = summary, drop_indices = cols_to_remove)
   
 } else {
 

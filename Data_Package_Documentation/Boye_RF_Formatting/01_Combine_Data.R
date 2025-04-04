@@ -6,16 +6,12 @@
 # indicating if the sample ID is duplicated. The user will need to remove any 
 # duplicated sample IDs before proceeding to next script. 
 #
-# Status: Complplete
-#
-# Notes: make qaqc after npoc prettier,  
-# TSS Does not have qaqc (remove qaqc file so it doesn't write the last one),
-# move ICR mapping into the RC folder and get methods codes, figure out METHODS DEVIATION COLUMN 
+# Status: Complete
 #
 # ==============================================================================
 #
-# Author: James Stegen, Vanessa Garayburu-Caruso, and Brieanne Forbes (WHONDRS)
-# 5 October 2022
+# Author: James Stegen, Vanessa Garayburu-Caruso, Maggi Laan, and Brieanne Forbes (WHONDRS)
+# 28 March 2025
 #
 # ==============================================================================
 
@@ -24,6 +20,7 @@ library(readxl)
 library(crayon)
 library(fs)
 library(lubridate)
+library(openxlsx)
 
 
 rm(list=ls(all=T))
@@ -32,17 +29,19 @@ rm(list=ls(all=T))
 
 pnnl_user <-  'forb086'
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
+dir <- paste0('C:/Users/', pnnl_user, '/OneDrive - PNNL/Data Generation and Files/')
 
-RC <-  'RC4' # Options are RC2, RC3, or RC4
+RC <-  'RC2' # Options are RC2, RC3, or RC4
 
-study_code <-  'AV1' 
+study_code <-  'RC2' 
 
-analysis <-  'NPOC_TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN 
+analysis <-  'TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
+
+analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
 
 qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
-git_hub_dir <-  "C:/Brieanne/GitHub/RC2_Temp/"
+git_hub_dir <-  "C:/GitHub/QAQC_scripts/Functions_for_statistics/"
 
 #coefficient of variation threshold
 cv <- 30
@@ -57,9 +56,9 @@ if(RC == 'RC3'){
 } else {
 
 mapping_file_dir <- paste0(dir, RC, '/', analysis, '/', '01_RawData/')
-qaqc_file_dir <- paste0(dir, RC, '/', analysis, '/', '03_ProcessedData/')
+qaqc_file_dir <- paste0(dir, RC, '/', analysis, '/', '03_ProcessedData')
 
-if (analysis == 'ION'){
+if (analysis == 'Ions'){
   
   data_file_dir <- paste0(dir, RC, '/', analysis, '/', '03_ProcessedData/')
   
@@ -88,7 +87,9 @@ dir_create(study_out_dir)
 
 mapping_files <- list.files(mapping_file_dir, pattern = 'Mapping', recursive = T, full.names = T)
 
-mapping_files <- mapping_files[ !grepl('Archive',mapping_files)]
+mapping_files <- mapping_files[ !grepl('Archive',mapping_files)] #for RC2 NPOC_TN, also need to remove .txt and SPE
+
+mapping_files <- mapping_files[ !grepl('txt',mapping_files)] # skipping txt files
 
 combine_mapping <- tibble('Study_Code' = as.character(), 
                    'Sample_ID' = as.character(), 
@@ -114,9 +115,13 @@ for (mapping_file in mapping_files) {
     
   } else {
     
-    mapping_data <-  read_excel(mapping_file, skip = 1, na = c('N/A', -9999)) %>%
+    mapping_data <-  read.xlsx(mapping_file, startRow = 2, na.strings = c('N/A', -9999), detectDates = FALSE) %>%
       mutate(Date = date) %>%
-      select(!contains('...'))
+      select(!contains('...')) %>% 
+      mutate(Method_Deviation = if("Method_Deviation" %in% names(.)) as.character(Method_Deviation) else NA_character_, 
+      Method_Notes = if("Method_Notes" %in% names(.)) as.character(Method_Notes) else NA_character_, 
+      Instrument_MakeModel = if("Instrument_MakeModel" %in% names(.)) as.character(Instrument_MakeModel) else NA_character_, 
+      Date_of_Run = if("Date_of_Run" %in% names(.)) as.Date(Date_of_Run, origin = "1899-12-30") else NA)
     
   }
   
@@ -129,7 +134,7 @@ for (mapping_file in mapping_files) {
   
   
   combine_mapping <- combine_mapping %>%
-    add_row(mapping_data)
+    bind_rows(mapping_data)
   
 }
   
@@ -137,14 +142,14 @@ for (mapping_file in mapping_files) {
 
 mapping_filtered <- combine_mapping %>%
   filter(str_detect(Sample_ID, study_code))%>%
-  # filter(str_detect(Sample_ID, 'SED'))
+  filter(str_detect(Sample_ID, analyte_code)) # analyte code should remove need for if statement below, but keeping for now
 
-if(analysis == 'DIC'){
-  
-  mapping_filtered <- mapping_filtered %>%
-    filter(str_detect(Sample_ID, 'DIC'))
-  
-}
+# if(analysis == 'DIC'){
+#   
+#   mapping_filtered <- mapping_filtered %>%
+#     filter(str_detect(Sample_ID, 'DIC'))
+#   
+# }
 
 # ============================== combine QAQC data =============================
   if(analysis != 'TSS'){
@@ -161,6 +166,7 @@ if(analysis == 'DIC'){
     }
 
   qaqc_files <- qaqc_files[ !grepl('Archive',qaqc_files)]
+  
   
   combine_qaqc <- read_csv(qaqc_files[1])%>%
     add_column(Date = 'date0') %>%
@@ -187,20 +193,21 @@ if(analysis == 'DIC'){
       mutate(Date = date,
              across(everything(), as.character))
     
-  }
+  } ## seems like this last else statement wouldn't really be doing anything because everything should be captured in first else statement?
   
   # ===================== filter data by study code and output =================
   
   data_filtered <- combine_qaqc %>%
-    filter(str_detect(Sample_ID, study_code))%>%
-  # filter(str_detect(Sample_ID, 'SED'))
-
-if(analysis == 'DIC'){
+    filter(str_detect(Sample_ID, study_code)) %>%
+    filter(str_detect(Sample_ID, analyte_code)) # filtering by analyte code should remove need for if statement below
   
-  data_filtered <- data_filtered %>%
-    filter(str_detect(Sample_ID, 'DIC'))
   
-}
+# if(analysis == 'DIC'){
+#   
+#   data_filtered <- data_filtered %>%
+#     filter(str_detect(Sample_ID, 'DIC'))
+#   
+# } 
   
   #file needed for summary stats code
   write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_', analysis, '_CombinedQAQC_', Sys.Date(), '_by_', pnnl_user, '.csv'))
@@ -254,6 +261,7 @@ if(analysis == 'DIC'){
   }
   
   # Export data
+  # wondering if starting at line 268, this is redundant since the data has already been read in/exported as CombinedQAQC document above?
   
   if (qaqc == 'N') {
     
@@ -268,18 +276,24 @@ if(analysis == 'DIC'){
       mutate(Methods_Deviation = str_remove_all(Methods_Deviation, 'NPOC_CV_030'),
              Methods_Deviation = str_remove_all(Methods_Deviation, 'NPOC_CV_30'),
              Methods_Deviation = if_else(Methods_Deviation == 'NPOC_CV_030',NA, Methods_Deviation),
-             Methods_Deviation = if_else(Methods_Deviation == 'NPOC_CV_30',NA, Methods_Deviation))
+             Methods_Deviation = if_else(Methods_Deviation == 'NPOC_CV_30',NA, Methods_Deviation)) %>%
+      mutate(Methods_Deviation = str_remove_all(Methods_Deviation, 'TN_CV_030'),
+             Methods_Deviation = str_remove_all(Methods_Deviation, 'TN_CV_30'),
+             Methods_Deviation = if_else(Methods_Deviation == 'TN_CV_030',NA, Methods_Deviation),
+             Methods_Deviation = if_else(Methods_Deviation == 'TN_CV_30',NA, Methods_Deviation))
 
   # ================================ combine data ==============================
   
-  data_files <- list.files(data_file_dir, pattern = 'Matched', recursive = T, full.names = T)
+ 
+      data_files <- list.files(data_file_dir, pattern = 'Matched', recursive = T, full.names = T)
+
   
   data_files <- data_files[ !grepl('Archive', data_files)]
   
   combine_data <- read_csv(data_files[1])%>%
     mutate(across(everything(), as.character)) %>%
     filter(is.na(Sample_ID)) %>%
-    add_column(Date = 'N/A', .before = 'Name')
+    add_column(Date = 'N/A', .before = 1)
   
   colnames(combine_data) <- str_remove(colnames(combine_data), '_and_blanks')
   
@@ -295,7 +309,7 @@ if(analysis == 'DIC'){
     matched_date <- str_extract(file_name, '([A-Za-z0-9]+)')
     
     data <- data %>%
-      add_column(Date = matched_date, .before = 'Name')
+      add_column(Date = matched_date, .before = 1)
     
     colnames(data) <- str_remove(colnames(data), '_and_blanks')
     
@@ -311,7 +325,7 @@ if(analysis == 'DIC'){
   
   qaqc_merge <- combine_data %>%
     filter(str_detect(Sample_ID, study_code))%>%
-    # filter(str_detect(Sample_ID, analysis))%>%
+    filter(str_detect(Sample_ID, analyte_code))%>%
     # select(-length(combine_data))%>%
     mutate(across(contains('per_'), as.numeric)) %>%
     full_join(mapping_filtered2, by = c('Date', 'Randomized_ID', 'Sample_ID', 'Dilution_Factor'))
@@ -326,7 +340,7 @@ if(analysis == 'DIC'){
   
   readline(prompt = 'Have the duplicates been removed? Write Y if ready to proceed. \nOtherwise dont write anything until ready to proceed.')
   
-  df <- read_csv(list.files(study_out_dir, 'Data_Check-for-duplicates', full.names = T)) %>%
+  df <- read_csv(list.files(study_out_dir, paste0(analysis, '_Data_Check-for-duplicates'), full.names = T)) %>%
     select(colnames(combine_data))
   
   
@@ -368,6 +382,10 @@ if(analysis == 'DIC'){
         df_stats$NPOC_outlier[loc] = "TRUE"
       }
     }
+    
+    df_stats = df_stats %>% 
+      mutate(flags = if_else(!is.na(flags) & is.na(NPOC_outlier), flags, if_else(!is.na(flags) & NPOC_outlier ==  TRUE, paste0(flags, "; NPOC_OUTLIER_000"), flags)))
+    
   }else if (analysis == "TN"){
 
     # =============================== TN QAQC ==================================
@@ -414,6 +432,9 @@ if(analysis == 'DIC'){
 
       }
     }
+    
+    df_stats = df_stats %>% 
+      mutate(flags = if_else(!is.na(flags) & is.na(TN.outlier), flags, if_else(!is.na(flags) & TN.outlier ==  TRUE, paste0(flags, "; TN_OUTLIER_000"), flags)))
 
   }else if (analysis == "DIC"){
     
@@ -462,6 +483,9 @@ if(analysis == 'DIC'){
         df_stats$DIC.outlier[loc] = "TRUE"
       }
     }
+    
+    df_stats = df_stats %>% 
+      mutate(flags = if_else(!is.na(flags) & is.na(DIC.outlier), flags, if_else(!is.na(flags) & DIC.outlier ==  TRUE, paste0(flags, "; DIC_OUTLIER_000"), flags)))
 
 
   }else if (analysis == "Ions"){
@@ -471,37 +495,42 @@ if(analysis == 'DIC'){
     source(paste0(git_hub_dir,"Stats_fun_v2.R"))
     df_stats = suppressWarnings(Stats_fun_v2(df))
     df_stats$flags = NA
+    
+    df_stats = df_stats %>% 
+      mutate(across(contains("_CV"), as.numeric))
+    
+    ## a lot of missing replicates for ions, so need to remove those before calculating
 
     for (i in 1:nrow(df_stats)){
-      if (is.numeric(df_stats$Ammonium_CV[i])== TRUE && df_stats$Ammonium_CV[i] >= cv){
-        df_stats$flags[i] = paste0("Ammonium_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Bromide_CV[i])== TRUE && is.na(df_stats$Bromide_CV[i])== FALSE && df_stats$Bromide_CV[i] >= cv){
-        df_stats$flags[i] = paste0(df_stats$flags[i],"; Bromide_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Calcium_CV[i])== TRUE && is.na(df_stats$Calcium_CV[i])== F && df_stats$Calcium_CV[i] >= cv){
+      if (is.na(df_stats$Ammonium_CV[i])== FALSE && df_stats$Ammonium_CV[i] >= cv){
+        df_stats$flags[i] = paste0(df_stats$flags[i],"; Ammonium_CV_",cv,"_Flag")}
+      if (is.na(df_stats$Bromide_CV[i])== FALSE && df_stats$Bromide_CV[i] >= cv){
+          df_stats$flags[i] = paste0(df_stats$flags[i],"; Bromide_CV_",cv,"_Flag")}
+      if (is.na(df_stats$Calcium_CV[i])== FALSE && df_stats$Calcium_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Calcium_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Chloride_CV[i])== TRUE && is.na(df_stats$Chloride_CV[i])== F && df_stats$Chloride_CV[i] >= cv){
+      if (is.na(df_stats$Chloride_CV[i])== FALSE && df_stats$Chloride_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Chloride_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Fluoride_CV[i])== TRUE && is.na(df_stats$Fluoride_CV[i])== F && df_stats$Fluoride_CV[i] >= cv){
-        df_stats$flags[i] = paste0(df_stats$flags[i],"; Floride_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Lithium_CV[i])== TRUE && is.na(df_stats$Lithium_CV[i])== F && df_stats$Lithium_CV[i] >= cv){
+      if (is.na(df_stats$Fluoride_CV[i])== FALSE && df_stats$Fluoride_CV[i] >= cv){
+        df_stats$flags[i] = paste0(df_stats$flags[i],"; Fluoride_CV_",cv,"_Flag")}
+      if (is.na(df_stats$Lithium_CV[i])== FALSE && df_stats$Lithium_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Lithium_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Magnesium_CV[i])== TRUE && is.na(df_stats$Magnesium_CV[i])== F && df_stats$Magnesium_CV[i] >= cv){
+      if (is.na(df_stats$Magnesium_CV[i])== FALSE && df_stats$Magnesium_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Magnesium_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Nitrate_CV[i])== TRUE && is.na(df_stats$Nitrate_CV[i])== F && df_stats$Nitrate_CV[i] >= cv){
+      if (is.na(df_stats$Nitrate_CV[i])== FALSE && df_stats$Nitrate_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Nitrate_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Nitrite_CV[i])== TRUE && is.na(df_stats$Nitrite_CV[i])== F && df_stats$Nitrite_CV[i] >= cv){
+      if (is.na(df_stats$Nitrite_CV[i])== FALSE && df_stats$Nitrite_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Nitrite_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Phosphate_CV[i])== TRUE && is.na(df_stats$Phosphate_CV[i])== F && df_stats$Phosphate_CV[i] >= cv){
+      if (is.na(df_stats$Phosphate_CV[i])== FALSE && df_stats$Phosphate_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Phosphate_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Potassium_CV[i])== TRUE && is.na(df_stats$Potassium_CV[i])== F && df_stats$Potassium_CV[i] >= cv){
+      if (is.na(df_stats$Potassium_CV[i])== FALSE && df_stats$Potassium_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Potassium_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Sodium_CV[i])== TRUE && is.na(df_stats$Sodium_CV[i])== F && df_stats$Sodium_CV[i] >= cv){
+      if (is.na(df_stats$Sodium_CV[i])== FALSE && df_stats$Sodium_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Sodium_CV_",cv,"_Flag")}
-      if (is.numeric(df_stats$Sulfate_CV[i])== TRUE && is.na(df_stats$Sulfate_CV[i])== F && df_stats$Sulfate_CV[i] >= cv){
+      if (is.na(df_stats$Sulfate_CV[i])== FALSE && df_stats$Sulfate_CV[i] >= cv){
         df_stats$flags[i] = paste0(df_stats$flags[i],"; Sulfate_CV_",cv,"_Flag")}
     }
-
-    # fixing NA in the flag
+    
+       # fixing NA in the flag
     df_stats$flags = gsub("NA; ", "", df_stats$flags)
     df_stats$flags = gsub("NA;", "", df_stats$flags)
     # Identify samples that are outliers based on the samples that are flagged
@@ -544,7 +573,26 @@ if(analysis == 'DIC'){
         }
 
       }
+      
+      
+      df_stats = df_stats %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Ammonium.outlier), flags, if_else(!is.na(flags) & Ammonium.outlier ==  TRUE, paste0(flags, "; NH4_OUTLIER_000"), flags))) %>% 
+      mutate(flags = if_else(!is.na(flags) & is.na(Bromide.outlier), flags, if_else(!is.na(flags) & Bromide.outlier ==  TRUE, paste0(flags, "; Br_OUTLIER_000"), flags))) %>% 
+      mutate(flags = if_else(!is.na(flags) & is.na(Calcium.outlier), flags, if_else(!is.na(flags) & Calcium.outlier ==  TRUE, paste0(flags, "; Ca_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Chloride.outlier), flags, if_else(!is.na(flags) & Chloride.outlier ==  TRUE, paste0(flags, "; Cl_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Fluoride.outlier), flags, if_else(!is.na(flags) & Fluoride.outlier ==  TRUE, paste0(flags, "; F_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Lithium.outlier), flags, if_else(!is.na(flags) & Lithium.outlier ==  TRUE, paste0(flags, "; Li_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Magnesium.outlier), flags, if_else(!is.na(flags) & Magnesium.outlier ==  TRUE, paste0(flags, "; Mg_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Nitrate.outlier), flags, if_else(!is.na(flags) & Nitrate.outlier ==  TRUE, paste0(flags, "; NO3_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Nitrite.outlier), flags, if_else(!is.na(flags) & Nitrite.outlier ==  TRUE, paste0(flags, "; NO2_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Phosphate.outlier), flags, if_else(!is.na(flags) & Phosphate.outlier ==  TRUE, paste0(flags, "; PO4_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Potassium.outlier), flags, if_else(!is.na(flags) & Potassium.outlier ==  TRUE, paste0(flags, "; K_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Sodium.outlier), flags, if_else(!is.na(flags) & Sodium.outlier ==  TRUE, paste0(flags, "; Na_OUTLIER_000"), flags))) %>% 
+        mutate(flags = if_else(!is.na(flags) & is.na(Sulfate.outlier), flags, if_else(!is.na(flags) & Sulfate.outlier ==  TRUE, paste0(flags, "; SO4_OUTLIER_000"), flags)))
+      
     }
+    
+    
   }else if (analysis == "NPOC_TN"){
     
     # ============================= NPOC-TN QAQC ===============================
@@ -640,6 +688,11 @@ if(analysis == 'DIC'){
         df_stats$TN.outlier[loc] = "TRUE"
       }
     }
+    
+    df_stats = df_stats %>% 
+      mutate(flags = if_else(!is.na(flags) & is.na(NPOC.outlier), flags, if_else(!is.na(flags) & NPOC.outlier ==  TRUE, paste0(flags, "; NPOC_OUTLIER_000"), flags))) %>% 
+      mutate(flags = if_else(!is.na(flags) & is.na(TN.outlier), flags, if_else(!is.na(flags) & TN.outlier ==  TRUE, paste0(flags, "; TN_OUTLIER_000"), flags)))
+    
   }
 
 
@@ -655,17 +708,16 @@ if(analysis == 'DIC'){
       full_join(flags, by=c('Sample_ID', 'Randomized_ID')) %>%
       mutate(flags = as.character(flags),
              Methods_Deviation = as.character(Methods_Deviation))%>%
+      mutate(Methods_Deviation = if_else(Methods_Deviation == "", NA, Methods_Deviation)) %>% 
       unite(Methods_Deviation,
-            c(Methods_Deviation, flags),
-            sep = '; ',
-            na.rm = T)%>%
+           c(Methods_Deviation, flags),
+          sep = '; ',
+            na.rm = T)%>% 
     mutate(Methods_Deviation = ifelse(Methods_Deviation == '', NA, Methods_Deviation))
     
     data_filtered_fixed <- data_filtered %>%
       select(-contains('outlier'), -Flags)%>%
       full_join(outliers)
-    
-    
     
     write_csv(data_filtered_fixed,paste0(study_out_dir,'/', study_code, '_', analysis, '_CombinedQAQC_', Sys.Date(), '_by_', pnnl_user, '.csv'))
     
@@ -712,7 +764,4 @@ if(analysis == 'DIC'){
 
   
   write_csv(final,  paste0(study_out_dir, '/', study_code, '_', analysis, '_Check_for_Duplicates_',Sys.Date(),'_by_', pnnl_user,'.csv'))
-  
- 
-  
   
