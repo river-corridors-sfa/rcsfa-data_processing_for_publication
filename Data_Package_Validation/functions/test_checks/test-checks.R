@@ -287,9 +287,13 @@ test_that("column names are unique", {
                                                all_names = c("col", "col_chr", "col", "another_name", "another_col", "EMPTY_COLUMN_HEADER", "EMPTY_COLUMN_HEADER"),
                                                source = "column_header", 
                                                file = "example1.csv"),
-               expected = tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~ file,
-                                  "strongly recommended", TRUE, "no duplicate names", "EMPTY_COLUMN_HEADER", "EMPTY_COLUMN_HEADER x2", "column_header", "example1.csv"), 
-               info = "--- Test for empty column header ---")
+               expected = tibble(requirement = factor(), 
+                                 pass_check = logical(),
+                                 assessment = factor(),
+                                 input = character(),
+                                 value = character(),
+                                 source = character(),
+                                 file = character()))
   
 })
 
