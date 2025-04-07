@@ -2,7 +2,7 @@
 title: "Data Package Checks Report"
 rmd_author: "Bibi Powers-McCormack"
 date_created: "2024-06-12"
-date_updated: "2025-02-07"
+date_updated: "2025-04-07"
 output: 
   html_document:
     toc: FALSE
@@ -11,7 +11,7 @@ output:
 
 This report was created on `r Sys.Date()` by `r report_author`.
 
-```{r, echo=FALSE}
+```{r summary, echo=FALSE}
 # see if the data package passed all checks
 
 # script inputs: 
@@ -66,7 +66,7 @@ The data quality checks help data packages comply with the best practices for ac
 - Recommended checks are suggested to pass before a data package will be published. Passing `strongly recommended` checks prepares your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool.  
 - The RC-SFA project expects that all Study Data Packages adhere to both `required` and `strongly recommended` checks. Manuscript Data Packages must adhere to the `required` checks and are encouraged to consider the `strongly recommended` checks.  
 
-```{r echo=FALSE}
+```{r overview, echo=FALSE}
 # display table of checks
 
 overview_table <- data_package_checks$data_checks_summary %>% 
@@ -131,7 +131,7 @@ overview_table %>%
 
 ### `includes required files`
 
-```{r echo=FALSE}
+```{r required-files-check, echo=FALSE}
 
 # determine if this check failed
 failed_includes_required_files <- data_package_checks$data_checks %>% 
@@ -151,7 +151,7 @@ In addition to your data files, we require a file-level metadata file (FLMD), da
 - **ESS-DIVE metadata**: This 4th file needs to be filled out to populate your data package landing page on ESS-DIVE; however, because the file will not be included in your data package there is not a check or file name requirement for it.  
 
 
-```{r echo=FALSE}
+```{r required-files, echo=FALSE}
 
 # show pie chart of all passed/failed files
 data_package_checks$data_checks %>% 
@@ -177,7 +177,7 @@ data_package_checks$data_checks %>%
 
 ### `no proprietary files` 
 
-```{r echo=FALSE}
+```{r proprietary-files-check, echo=FALSE}
 
 # determine if this check failed
 failed_no_proprietary_files <- data_package_checks$data_checks %>% 
@@ -190,7 +190,7 @@ failed_no_proprietary_files <- data_package_checks$data_checks %>%
 
 ESS-DIVE requests that all files are saved in a non-proprietary file format. While not exhaustive, this check confirms that the following common proprietary extensions are not included: `r input_parameters$non_proprietary_extensions`
 
-``` {r echo=FALSE, fig.align='center',  fig.width=12}
+``` {r proprietary-files, echo=FALSE, fig.align='center',  fig.width=12}
 
 # show bar chart of file extensions
 data_package_checks$data_checks %>% 
@@ -222,7 +222,7 @@ data_package_checks$data_checks %>%
 
 ### `no special characters` 
 
-```{r include=FALSE}
+```{r special-characters-check, include=FALSE}
 
 # determine if these checks failed
 failed_no_special_chrs <- data_package_checks$data_checks %>%
@@ -252,7 +252,7 @@ Special characters are not allowed in folder names, file names, or column header
 - **`no special characters` in column headers**: The only characters allowed in tabular column headers are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. It is recommended that columns begin with a letter.  
 - **`no empty column headers`**: Tabular data must be rectangular - each row should have the same number of columns and every column must have a column header. 
 
-```{r echo=FALSE, fig.align='center', fig.width=12}
+```{r special-characters, echo=FALSE, fig.align='center', fig.width=12}
 
 # show bar chart of files/folders with empty column headers and special chrs
 data_package_checks$data_checks %>% 
@@ -299,7 +299,7 @@ data_package_checks$data_checks %>%
 
 ### `no duplicate names` 
 
-```{r include=FALSE}
+```{r duplicate-names-check, include=FALSE}
 
 # determine if these checks failed
 failed_duplicate_names <- data_package_checks$data_checks %>%
@@ -315,7 +315,7 @@ failed_duplicate_names <- data_package_checks$data_checks %>%
 
 Column names should be unique within each file. Column names can be repeated across files if they share the same definition.
 
-```{r echo=FALSE, fig.align='center', fig.height=max(5, length(unique(data_package_checks$tabular_report$column_name)) * 0.2), fig.width=8}
+```{r duplicate-names, echo=FALSE, fig.align='center', fig.height=max(5, length(unique(data_package_checks$tabular_report$column_name)) * 0.2), fig.width=8}
 
 data_package_checks$tabular_report %>% 
   
@@ -350,7 +350,7 @@ data_package_checks$tabular_report %>%
 
 ### Tabular Data 
 
-```{r include = FALSE}
+```{r tabular-data-check, include = FALSE}
 
 # determine if there are missing or negative values
 
@@ -390,7 +390,7 @@ This table summarizes tabular files in your data package to enable you to review
 <br>  
   
 
-```{r echo=FALSE}
+```{r tabular-data, echo=FALSE}
 
 tabular_report <- data_package_checks$tabular_report %>% 
   select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>%   
@@ -474,7 +474,7 @@ The Overview Table and tabs above assess the quality of your data. If any of the
   
 <br>  
 
-```{r echo=FALSE}
+```{r failed-checks, echo=FALSE}
 
 if (data_package_checks$data_checks %>% filter(pass_check == FALSE) %>% nrow() == 0) {
   
@@ -532,7 +532,7 @@ data_package_checks$data_checks %>%
   
 <br>  
 
-```{r echo=FALSE}
+```{r passed-checks, echo=FALSE}
  data_package_checks$data_checks %>% 
     filter(pass_check == TRUE) %>% 
     mutate(input = paste0(source, ": ", input)) %>% 
@@ -549,7 +549,7 @@ data_package_checks$data_checks %>%
 ### Directory Tree {.tabset}
 
 Below is a list of all of your folders and files that were present when the report was generated.
-```{r, echo = FALSE}
+```{r dir-tree, echo = FALSE}
 dir_tree(data_package_checks$input$inputs$directory, recurse = T)
 ```
 
