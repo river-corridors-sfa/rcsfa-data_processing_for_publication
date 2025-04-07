@@ -41,7 +41,7 @@ metadata_filepath <- file.choose()
 # metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/EWEB_Study_v2_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/EWEB_Study_v2_IGSN_Samples_2_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
@@ -333,13 +333,6 @@ if (user_code == "IEPRS") {
                    'IEPRS' = as.character())
 }
 
-output <- output %>% 
-  mutate(`Parent IGSN` = case_when(Locality == "E040" ~ "10.58052/IEPRS00X8", # some new samples were collected at sites that already had igsns registered
-                                 Locality == "E431" ~ "10.58052/IEPRS00XB",
-                                 Locality == "E390" ~ "10.58052/IEPRS001P",
-                                 Locality == "E410" ~ "10.58052/IEPRS001Q",
-                                 Locality == "E440" ~ "10.58052/IEPRS001S",
-                                 T ~ `Parent IGSN`))
 
 
 # Export IGSN file #############################################################
