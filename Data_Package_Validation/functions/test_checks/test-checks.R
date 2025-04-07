@@ -10,17 +10,7 @@
   # 2. Open `checks.R` and run the `Checks Inputs` and `Checks Functions` chunks. 
   # 3. Return to this script and run this script. 
 
-# Status: in progress
-  # write out rest of testing data - use "bad_data" folder as an example
-  # write out tests for each function
-  # run tests and write down bugs at top of checks.R list
-  # go through bugs and use test script to attempt to solve
-  # test example data packages in study and manuscript data package folder
-  # as more errors come up, add examples to test_checks.R file
-  # repeat
-
-  # delete `create testing data` section? not sure if i need it? 
-  # update `status` section of this script
+# Status: complete
 
 ### Prep script ################################################################
 
@@ -28,56 +18,6 @@
 library(tidyverse)
 library(testthat)
 library(hms)
-
-
-# ### Create testing data ########################################################
-# 
-# testing_data <- list(
-#   # directory names with no errors
-#   directory_no_errors = c("folder1/foldera", "folder1/folderb", "folder_2", "folder3/foldera", "folder3/folderb", "folder3/folder-c"),
-#   
-#   # directory names with special characters
-#   directory_error_with_spaces = c("folder1/folder a", "folder1/folderb", "folder 2", "folder3/foldera", "folder 3/folder b", "folder3/folderc"),
-#   directory_error_with_specialchrs = c("folder1/folder$a", "folde?r1/folderb", "folder__2", "folder3/foldera", "folder3/folderb", "folder3/folderc"),
-#   
-#   # file names with no errors
-#   file_names_no_errors = c("data_file_1.csv", "data_file_2.csv", "data_file_3.csv", "script_1.R", "script_2.R"),
-#   
-#   # file name empty
-#   file_names_error_empty = c("data_file_1.csv", "data_file_2.csv", "data_file_3.csv", "", "script_1.R", "script_2.R"),
-#   
-#   # file names with special characters
-#   file_names_no_errors = c("data_file_1.csv", "data_file_$2.csv", "0123_data_file_3.csv", "script-1.R", "script_2+.R"),
-#   
-#   # file names with proprietary extensions
-#   file_names_no_errors = c("data_file_1.docx", "data_file_2.xlsx", "data_file_3.doc", "script_1.R", "script_2.R"),
-#   
-#   # file names with duplicates
-#   file_names_error_empty = c("data_file_1.csv", "data_file_2.csv", "data_file_2.csv", "", "script_1.R", "script_2.R"),
-#   
-#   # tabular data with no errors
-#   tabular_data_no_errors = tibble(col_chr = c("apple", "banana", "grape", "N/A", "", "kiwi", "melon", "berry", "peach", "plum"), # Character column
-#                                   col_num = c(1.1, 2.5, -9999, 4.2, 5.9, 6.3, 7.7, 8.1, NA, 10.5), # Numeric column
-#                                   col_log = c(TRUE, FALSE, TRUE, TRUE, FALSE, NA, FALSE, TRUE, FALSE, TRUE), # Logical column
-#                                   col_date = as.Date(c("2024-01-01", "2024-01-05", "2024-01-10", "2024-01-15", "2024-01-20", "2024-01-25", "2024-01-30", "2024-02-05", "2024-02-10", "2024-02-15")), # Date column
-#                                   col_mixed = as.character(c(10, "twenty", 30, "forty", 50, "N/A", 70, "eighty", 90, "one hundred")), # Mixed data (numeric and text)
-#                                   col_datetime = ymd_hms(c("2024-01-01 12:34:56", "2024-01-05 06:12:43", NA, "2024-01-15 18:45:12", "2024-01-20 23:59:59", "2024-01-25 08:30:15", "2024-01-30 09:25:32", "2024-02-05 21:16:18", "2024-02-10 11:11:11", "2024-02-15 16:45:50")), # Date-time column
-#                                   col_time = as_hms(c("12:00:00", "06:15:45", "14:30:25", "18:00:00", "23:45:00", "08:05:15", "09:15:00", "21:45:25", "11:59:59", "16:10:00"))), # Time-only column)
-#   
-#   # tabular data with column header special characters
-#   tabular_data_error_with_header_special_chrs = tibble(),
-#   
-#   # tabular data with column header empty
-#   tabular_data_error_with_header_empty = tibble(), 
-#   
-#   # tabular data with column header duplicates
-#   tabular_data_error_with_header_empty = tibble()
-#   
-#   # [add data for range report checks]
-#   
-#   
-# )
-
 
 ### Run tests ##################################################################
 
@@ -91,28 +31,28 @@ test_that("required file strings are present", {
                tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
                        "required", TRUE, "includes required files", "example_flmd.csv", ".*flmd\\.csv$", "all_file_names", "example_flmd.csv",
                        "required", TRUE, "includes required files", "example_dd.csv", ".*dd\\.csv$", "all_file_names", "example_dd.csv",
-                       "required", TRUE, "includes required files", "readme_example.pdf", "^readme.*\\.pdf$", "all_file_names", "readme_example.pdf"))
+                       "required", TRUE, "includes required files", "readme_example.pdf", "(?i).*readme.*\\.pdf$", "all_file_names", "readme_example.pdf"))
   
   # test for when readme, flmd, and dd are missing
   expect_equal(check_for_required_file_strings(input = c("example.csv", "example2.csv", "example3.csv"), required_file_strings = input_parameters$required_file_strings),
                tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
                        "required", FALSE, "includes required files", NA_character_, ".*flmd\\.csv$", "all_file_names", NA_character_,
                        "required", FALSE, "includes required files", NA_character_, ".*dd\\.csv$", "all_file_names", NA_character_,
-                       "required", FALSE, "includes required files", NA_character_, "^readme.*\\.pdf$", "all_file_names", NA_character_))
+                       "required", FALSE, "includes required files", NA_character_, "(?i).*readme.*\\.pdf$", "all_file_names", NA_character_))
   
   # test for when only flmd and dd are present
   expect_equal(check_for_required_file_strings(input = c("example.csv", "example_flmd.csv", "example_dd.csv"), required_file_strings = input_parameters$required_file_strings),
                tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
                        "required", TRUE, "includes required files", "example_flmd.csv", ".*flmd\\.csv$", "all_file_names", "example_flmd.csv",
                        "required", TRUE, "includes required files", "example_dd.csv", ".*dd\\.csv$", "all_file_names", "example_dd.csv",
-                       "required", FALSE, "includes required files", NA_character_, "^readme.*\\.pdf$", "all_file_names", NA_character_))
+                       "required", FALSE, "includes required files", NA_character_, "(?i).*readme.*\\.pdf$", "all_file_names", NA_character_))
   
   # test for when readme file doesn't begin with "readme"
   expect_equal(check_for_required_file_strings(input = c("example.csv", "example_flmd.csv", "example_readme.pdf", "example_dd.csv"), required_file_strings = input_parameters$required_file_strings),
                tribble(~requirement, ~pass_check, ~assessment, ~input, ~value, ~source, ~file,
                        "required", TRUE, "includes required files", "example_flmd.csv", ".*flmd\\.csv$", "all_file_names", "example_flmd.csv",
                        "required", TRUE, "includes required files", "example_dd.csv", ".*dd\\.csv$", "all_file_names", "example_dd.csv",
-                       "required", FALSE, "includes required files", NA_character_, "^readme.*\\.pdf$", "all_file_names", NA_character_))
+                       "required", TRUE, "includes required files", "example_readme.pdf", "(?i).*readme.*\\.pdf$", "all_file_names", "example_readme.pdf"))
   
 })
 
