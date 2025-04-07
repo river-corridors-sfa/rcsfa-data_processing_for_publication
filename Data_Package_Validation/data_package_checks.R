@@ -2,11 +2,14 @@
 
 # Objective: Use this script to run all data package checks.
 
-# This script walks you through the steps to download the data and run it
+# This script walks you through the steps to read in the data and run it
 # through the checks. It relies on `checks.R`, which is the script that
 # validates the data and produces tabular outputs. Those tabular outputs are
 # then read into the `checks_report.Rmd` file and creates the graphics and
 # visual report.
+
+# See data_package_checks_README.md for more details on how to run or update the
+# checks.
 
 
 ### User Inputs ################################################################
@@ -25,7 +28,6 @@ user_input_has_header_rows <- F
 ### Prep Script ################################################################
 # Directions: Run this chunk without modification.
 
-# load libraries
 library(here) # for setting wd at git repo
 library(tidyverse)
 library(rlog)
@@ -41,6 +43,7 @@ library(plotly) # for interactive graphs
 library(downloadthis) # for downloading tabular data report as .csv
 
 # set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
+here()
 setwd(here())
 getwd()
 
@@ -53,7 +56,7 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
 
 # confirm directory has files in it
-if (length(list.files(directory)) == 0) {
+if (length(list.files(directory, recursive = T)) == 0) {
   warning("Your directory has 0 files.")
 }
 
