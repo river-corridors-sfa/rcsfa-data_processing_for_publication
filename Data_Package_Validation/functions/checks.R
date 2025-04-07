@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2025-02-033
+# Date Updated: 2025-04-07
 # Author: Bibi Powers-McCormack
 
 # This script evaluates and then summarizes data quality checks that are
@@ -21,7 +21,9 @@
 # other scripts.
 
 # Inputs: 
-  # the main function in part 2 requires the output from the `load_tabular_data_from_flmd.R` script
+  # the main function `check_data_package()` in Part 3 requires the output from
+  # the `load_tabular_data_from_flmd.R` script. See the function for input
+  # details.
 
 # Outputs: 
   # All of the functions in Part 2 have this output: 
@@ -51,11 +53,7 @@
     # data_checks = a df that includes a detailed output of all the data checks
     # tabular_report = a df that provides a summary of each column including data types, row-level statistics, and potential quality issues
 
-# Status: in progress
-  # next steps: 
-    # clean up script
-    # turn part 3 into a function
-    # test functions on a couple of data packages
+# Status: complete
 
 
 ### Checks Inputs ##############################################################
@@ -665,11 +663,11 @@ check_data_package <- function(data_package_data, input_parameters = input_param
     
   # outputs
     # data_package_checks list
-      # list(input = data_package_data,       -> this is the data package provided as input
-      #      parameters = input_parameters,   -> this is the list of parameters provided as input that the checks rely on
-      #      data_checks_summary = list(),    -> this is the summarized results
-      #      data_checks = list(),            -> this is the complete raw list of all the checks
-      #      tabular_report = list())         -> this is the tabular range reports
+      # list(input = data_package_data,         -> this is the data package provided as input
+      #      parameters = input_parameters,     -> this is the list of parameters provided as input that the checks rely on
+      #      data_checks_summary = tibble(),    -> this is the summarized results
+      #      data_checks = tibble(),            -> this is the complete raw list of all the checks
+      #      tabular_report = tibble())         -> this is the tabular range reports
     
   ### Prepare the data to be checked ##########################################
   # initialize empty df for summary list of all checks
