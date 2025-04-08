@@ -1,22 +1,21 @@
 ### data_package_checks.R ######################################################
 
-# Objective: Use this script to run all data package checks.
+# Objective: Use this script to run data package checks.
 
-# This script walks you through the steps to read in the data and run it
-# through the checks. It relies on `checks.R`, which is the script that
-# validates the data and produces tabular outputs. Those tabular outputs are
-# then read into the `checks_report.Rmd` file and creates the graphics and
-# visual report.
+# This script walks you through the steps to read in the data and run it through
+# the checks. It relies on `checks.R`, which is the script that houses the
+# functions that validate the data and produce tabular outputs. Those tabular
+# outputs are then read into the `checks_report.Rmd` file to create the graphics
+# and visual report.
 
-# See data_package_checks_README.md for more details on how to run or update the
+# See README_data_package_checks.md for more details on how to run or update the
 # checks.
-
 
 ### User Inputs ################################################################
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Kassianov_2023_AML_Plumes_Manuscript_Data_Package/Kassianov_2023_AML_Plumes"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Cavaiani_2024_Metaanalysis/rc_sfa-rc-3-wenas-meta"
 
 # provide the name of the person running the checks
 report_author <- "Bibi Powers-McCormack"
