@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Chen_2024_YOLO_v2/v2_Chen_2024_YOLO"
+directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/RC2_TemporalStudy_2022-2024_SampleData"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Chen_2024_YOLO_v2/Archive"
+out_directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/RC2_TemporalStudy_2022-2024_SampleData"
   
 
 ### Prep Script ################################################################
@@ -72,15 +72,15 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 ### DP Specific Edits ##########################################################
 
-# # left join prelim dd to this dd
-# 
-# prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/v5_CM_SSS_dd.csv")
-# 
-# dd_skeleton <- dd_skeleton %>%
-#   select(Column_or_Row_Name) %>%
-#   left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
-#   arrange(Column_or_Row_Name)
-# 
+# left join prelim dd to this dd
+
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/v5_CM_SSS_dd.csv")
+
+dd_skeleton <- dd_skeleton %>%
+  select(Column_or_Row_Name) %>%
+  left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
+  arrange(Column_or_Row_Name)
+
 # # left join prelim flmd to this flmd
 # 
 # prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/v5_CM_SSS_flmd.csv") %>%
