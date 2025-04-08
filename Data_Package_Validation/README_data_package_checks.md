@@ -42,12 +42,19 @@ render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = 
 ### `data_package_checks.R`
 This is the script you will primarily interface with. It sources in all the functions and scripts mentioned above. After asking for data package specific inputs, it loads in your data package data, runs the checks, and then generates the html report. 
 ## existing limitations and considerations
-
-- relying on code to read in data
-- potential new features to add
-- see the assumptions at the top of each script or function for more
-- this was developed on a windows machine
-
+A few notes on the limitations of these data checks. 
+- For a more detailed list of assumptions made for each function or script, see the comments in the script. 
+- This pipeline was developed and tested on a Windows 10 machine with R version 4.3.1 "Beagle Scouts" and the following R packages: `tidyverse` v2.0.0,  `rlog` v0.1.0, `devtools` v2.4.5, `hms` v1.1.3, `fs` v1.6.2, `clipr` v0.8.0, `knitr` v1.4.3, `kableExtra` v1.4.0, `DT` v0.3.3, `rmarkdown` v2.2.3, `plotly` v4.10.4, `downloadthis` v.0.4.1
+- These data checks were designed to enhance compliance with ESS-DIVE reporting formats and Fusion database. 
+- The tabular range reports currently only work on .csv and .tsv file extensions. 
+- It relies on the output of `load_tabular_data_from_flmd()`. This function was built out to accommodate reading in files that have header info. This function and aspect of the data checks could be streamlined and made more efficient if all files did not have header rows. 
+- Any header rows that were removed in order to parse the tabular data are not included or accessed in the data checks. 
+- The checks focus on structural compliance (e.g., required fields, file presence), not content accuracy or domain-specific logic (e.g., biologically plausible values).
+- The pipeline may be slow or memory-intensive on very large datasets or directories with deeply nested files.
+- A few ideas for future enhancements: 
+	- Incorporating reporting format specific checks (e.g., FLMD checks that confirm the Standard matches the reporting format keywords).
+	- Sample name and rep checks that compare sample names across files. 
+	- A check that looks for lowercase, title case, and capital differences for column headers that share the same definition (e.g., Site_ID vs site_id)
 ## FAQs
 
 ### how to run data checks on a daily basis
