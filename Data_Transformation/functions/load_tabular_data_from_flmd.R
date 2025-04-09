@@ -149,7 +149,7 @@ load_tabular_data_from_flmd <- function(directory,
     current_flmd_df <- flmd_df %>%
       mutate(File_Path_Absolute = paste0(str_replace(File_Path, current_parent_directory, ""), "/", File_Name)) %>%  # removes parent dir and adds file name
       mutate(File_Path_Absolute = paste0(current_directory, File_Path_Absolute)) %>% # makes it absolute
-      mutate(Header_Rows = as.numeric(Header_Position),
+      mutate(Header_Rows = as.numeric(Header_Rows),
              Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>%  # make these numeric
       select(File_Name, Header_Position = Column_or_Row_Name_Position, File_Path_Absolute)
   
