@@ -44,7 +44,7 @@ your_upload_site <- "sandbox"
 
 ### Run function ###############################################################
 
-update_landing_page_coordinates(api_token = your_api_token,
+upload_landing_page_data(api_token = your_api_token,
                                 essdive_id = your_essdive_id,
                                 file_to_upload = your_data_file,
                                 upload_site = your_upload_site)
