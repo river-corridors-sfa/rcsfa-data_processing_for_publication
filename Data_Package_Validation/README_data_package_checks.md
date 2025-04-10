@@ -81,7 +81,7 @@ directory <- ""
 report_author <- ""
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "C:/Users/powe419/Downloads"
+report_out_dir <- ""
 
 # does the tabular files have header rows? (T/F)
 user_input_has_header_rows <- T
