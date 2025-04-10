@@ -14,11 +14,14 @@
 ### User Inputs ################################################################
 # Directions: Fill out the user inputs. Then run the chunk.
 
-# data package directory (do not include a "/" at the end)
+# data package directory (provide absolute directory; do not include a "/" at the end)
 directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Cavaiani_2024_Metaanalysis/rc_sfa-rc-3-wenas-meta"
 
 # provide the name of the person running the checks
 report_author <- "Bibi Powers-McCormack"
+
+# provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
+report_out_dir <- "C:/Users/powe419/Downloads"
 
 # the tabular files have header rows? (T/F)
 user_input_has_header_rows <- F
@@ -41,10 +44,10 @@ library(rmarkdown) # for rendering report
 library(plotly) # for interactive graphs
 library(downloadthis) # for downloading tabular data report as .csv
 
-# set working directory to this GitHub repo (rcsfa-data-processing-for-publication)
-here()
-setwd(here())
-getwd()
+# set working dir
+current_path <- rstudioapi::getActiveDocumentContext()$path
+setwd(dirname(current_path))
+setwd("./..")
 
 # load functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R") # note: will need to update this link after I merge branches
@@ -82,6 +85,7 @@ data_package_checks <- check_data_package(data_package_data = data_package_data,
 
 
 # 4. Generate report
-render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document")
-browseURL("./Data_Package_Validation/functions/checks_report.html")
+out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
+render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document", output_dir = report_out_dir, output_file = out_file)
+browseURL(paste0(report_out_dir, "/", out_file))
 
