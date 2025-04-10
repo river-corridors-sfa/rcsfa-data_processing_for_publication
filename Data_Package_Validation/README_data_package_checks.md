@@ -80,14 +80,19 @@ directory <- ""
 # provide the name of the person running the checks
 report_author <- ""
 
+# provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
+report_out_dir <- ""
+
 # does the tabular files have header rows? (T/F)
 user_input_has_header_rows <- T
 ```
 #### set your working directory and load libraries
-Copy this chunk into your script, fill in the location of your repo into the `setwd()` function, and then run this chunk. 
+Copy this chunk into your script, set your working directory, and then run this chunk. 
 ``` R
-# the render() function requires you to have the wd set
-setwd()
+# the render() function requires you to have the wd set to the rcsfa-data_processing_for_publication repo
+current_path <- rstudioapi::getActiveDocumentContext()$path
+setwd(dirname(current_path))
+setwd("./..")
 
 # load libraries - use `install.packages()` in the console if you don't have any
 library(tidyverse)
@@ -143,8 +148,9 @@ data_package_checks <- check_data_package(data_package_data = data_package_data,
 Copy this chunk into your script and run it without modification. It will output the html report into `~/Data_Package_Validation/functions`
 ``` R
 # 4. Generate report
-render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document")
-browseURL("./Data_Package_Validation/functions/checks_report.html")
+out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
+render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document", output_dir = report_out_dir, output_file = out_file)
+browseURL(paste0(report_out_dir, "/", out_file))
 ```
 ### how to approach trouble shooting if the code breaks
 1. Restart your R session and try again. 
