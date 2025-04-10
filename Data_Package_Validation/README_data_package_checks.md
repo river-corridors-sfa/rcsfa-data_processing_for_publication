@@ -3,7 +3,7 @@ This readme describes the background context, development, and use of the data p
 ## what and why data checks
 The idea for developing a system to computationally check a data package arose out of a desire to ensure data quality and consistency while reducing manual effort and human error when publishing data packages. 
 
-The data management team (Amy, Brie, Bibi) brainstormed a series of checks to build out. In brief, the data checks were developed to detect missing or unexpected values, identify anomalies, and check for standardized compliance with reporting format guidelines. 
+The data management team (Amy, Brie, Bibi) brainstormed a series of checks to build out. In brief, the data checks were developed to detect missing or unexpected values, identify anomalies, and check for standardized compliance with [ESS-DIVE reporting format](https://ess-dive.lbl.gov/data-reporting-formats/) guidelines. 
 
 However, the data checks are not intended to interpret the meaning of the data, assess scientific validity, fix issues that were detected, or replace human judgement. Authors and domain experts must still review the data and make context-specific decisions before publishing. 
 ## how the data checks were developed
