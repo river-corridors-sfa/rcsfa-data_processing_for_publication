@@ -54,9 +54,10 @@ x_recommended_failed <- failed_checks %>%
 > <p style='color: `r ifelse(x_required_failed > 0, "darkred", "green")`;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
 > <p style='color: `r ifelse(x_recommended_failed > 0, "darkred", "green")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` strongly recommended test(s).** </strong></p>
 
+Authors, domain experts, and the data management team must still review the data and make context-specific decisions, including confirming the correct **land and funding acknowledgements**, before publishing.  
 
 ## Did your data package pass? {.tabset}  
-The data quality checks help data packages comply with the best practices for accessibility and usability. The data checks are not intended to interpret the meaning of the data, assess scientific validity, fix issues that were detected, or replace human judgement. Authors, domain experts, and the data management team must still review the data and make context-specific decisions, including confirming the correct land and funding acknowledgements, before publishing.  
+The data quality checks help data packages comply with the best practices for accessibility and usability. The data checks are not intended to interpret the meaning of the data, assess scientific validity, fix issues that were detected, or replace human judgement.  
 
 **Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.**   
 
