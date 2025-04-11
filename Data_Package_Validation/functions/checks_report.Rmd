@@ -288,7 +288,7 @@ data_package_checks$data_checks %>%
   labs(x = "Assessment", 
        y = "Count of Files/Folders", 
        title = "Evaluation of Files and Folders with Special Characters",
-       subtitle = "Red indicates the presence of an error")
+       subtitle = "Red indicates the presence of a failed check")
 
 
 
@@ -369,8 +369,8 @@ data_are_negative <- data_package_checks$tabular_report %>%
 
 #### **Preview your tabular data:**
 
-> <p style='color: `r ifelse(data_are_missing > 0, "darkred", "green")`;'><strong> **Number of missing values in your data package: `r data_are_missing`**  </strong></p>  
-> <p style='color: `r ifelse(data_are_negative > 0, "darkred", "green")`;'><strong> **Number of negative values in your data package: `r data_are_negative`**  </strong></p>  
+> <p style='color: `r ifelse(data_are_missing > 0, "darkred", "green")`;'><strong> **Number of files with missing values in your data package: `r data_are_missing`**  </strong></p>  
+> <p style='color: `r ifelse(data_are_negative > 0, "darkred", "green")`;'><strong> **Number of files with negative values in your data package: `r data_are_negative`**  </strong></p>  
 
 This table summarizes tabular files in your data package to enable you to review each tabular data column for your own data quality concerns (e.g., anticipated ranges or avoiding negative values). Unlike the other tabs, this tab does not display discrete pass/fail data checks because the review enabled by this tab is based upon the individual data package needs as determined by the author/reviewer. It is up to you, as the data package author/reviewer, to check this table for any relevant data concerns. 
 
