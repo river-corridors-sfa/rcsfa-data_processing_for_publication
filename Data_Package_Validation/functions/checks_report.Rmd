@@ -106,7 +106,7 @@ overview_table <- data_package_checks$data_checks_summary %>%
                                 failed_files == 0 ~ "PASSED",
                                 T ~ NA_character_), .before = assessment) %>%
   arrange(requirement, pass_check) %>% 
-  select(pass_check, assessment, requirement, failed_files, passed_files)
+  select(pass_check, assessment, requirement, failed_files, passed_files) # have to keep requirement in this because pack_rows() needs it to create the table headers
   
 
 # make nice table
