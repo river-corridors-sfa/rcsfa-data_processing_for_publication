@@ -318,17 +318,6 @@ test_that("no empty column headers exist", {
   
 })
 
-
-#### checks summary ####
-
-test_that("checks only pass when all items meet the passing criteria", {
-  
-  
-  
-  
-})
-
-
 #### tabular data - range reports ####
 
 test_that("column type is identified as either character, numeric, logical, Date, hms, POSIXct, or mixed", {
@@ -416,5 +405,19 @@ test_that("numerical min and max ranges are correctly reported", {
   
   expect_equal(object = result, 
                expected = expected)
+  
+})
+
+
+#### check_data_package() ####
+
+test_that("check_data_package() checks", {
+  
+  # 2025-04-11 note from Bibi: I never wrote checks for the function
+  # (check_data_package()) that combines all the "check_for_..." functions.
+  # Leaving this space here to indicate that checks didn't exist, but
+  # could/should be developed in the future if changes need to be made to that
+  # function.
+
   
 })
