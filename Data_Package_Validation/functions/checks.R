@@ -286,6 +286,7 @@ check_for_unique_names <- function(input,
   # assumptions: 
     # this check will only be run on file_names or column_headers because you can't have duplicate directories
     # if the input isn't included in all_files the pass_check will result in NA
+    # this output may have duplicates in it; these are removed with distinct() in the check_data_package() function
   
   # confirm source input
   if (!source %in% c("file_name", "column_header")) {
