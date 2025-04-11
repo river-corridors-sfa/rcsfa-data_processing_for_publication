@@ -289,9 +289,38 @@ data_package_checks$data_checks %>%
        y = "Count of Files/Folders", 
        title = "Evaluation of Files and Folders with Special Characters",
        subtitle = "Red indicates the presence of a failed check")
+```
 
-
-
+``` {r show-special-characters, echo=FALSE, fig.align='center'}
+if (failed_no_special_chrs != 0) {
+  
+  # if there are special chrs, show which special chrs are present
+  data_package_checks$data_checks %>% 
+    filter(assessment == "no special characters", !pass_check) %>% 
+    distinct(source, value) %>% 
+    add_row(source = "file_name", 
+            value = "PLACEHOLDER") %>% 
+    add_row(source = "column_header", 
+            value = "PLACEHOLDER") %>% 
+    add_row(source = "directory_name", 
+            value = "PLACEHOLDER") %>% 
+    mutate(has_special = TRUE) %>% 
+    pivot_wider(
+      names_from = source,
+      values_from = has_special,
+      values_fill = FALSE
+    ) %>% 
+    filter(value != "PLACEHOLDER") %>% 
+    rename(special_character = value) %>% 
+  mutate(across(-special_character, ~ ifelse(. == TRUE, 
+                                             '<span style="color:darkred;">X</span>', 
+                                             ""))) %>% 
+    select(special_character, directory_name, file_name, column_header) %>% 
+  kable("html", escape = FALSE, align = "c") %>% 
+  kable_styling("striped", full_width = FALSE) %>% 
+  column_spec(1:4, extra_css = "border: 0.5px solid #ccc; text-align: center;")
+  
+}
 
 
 ```
