@@ -77,14 +77,14 @@ if (has_flmd == T) {
   data_package_flmd <- NA 
   }
 
+
 # 2. Load data
 data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows)
 
-# preview data
+# preview data - this shows all the tabular data you loaded in so you can quickly check if it loaded in correctly without having to poke around in the nested lists
 invisible(lapply(names(data_package_data$tabular_data), function(name) {
   cat("\n--- Data Preview of", name, "---\n")
   glimpse(data_package_data$tabular_data[[name]])
-  print(data_package_data$tabular_data[[name]])
 }))
 
 
