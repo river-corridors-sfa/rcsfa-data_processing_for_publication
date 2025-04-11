@@ -423,6 +423,9 @@ create_range_report <- function(input_df,
     # num_negative_rows (num)
   # missing_value_codes = a vector of all values that you want to convert to NA
   
+  # assumptions
+    # currently not set up to handle factors (because those are very R specific and we're assuming data are read in from csv/tsv files)
+  
   data_tabular_report <- report_table
   
   # loop through each column in the df
@@ -464,9 +467,9 @@ create_range_report <- function(input_df,
     
     # get column type
     current_column_type <- current_column %>% 
-      pull(1) %>% 
-      class() %>% 
-      head(1)
+      pull(1) %>% # extracts the first col as a vector
+      class() %>% # gets the class of the vector - e.g., "numeric", "character", c("POSIXct", "POSIXt")
+      head(1) # because class() might return multiple classes, this grabs just the first one - e.g., class(as.POSIXct("2022-01-01")) returns c("POSIXct", "POSIXt")
     
     # set defaults
     current_min <- NA_character_
