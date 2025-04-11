@@ -426,7 +426,7 @@ create_range_report <- function(input_df,
   data_tabular_report <- report_table
   
   # loop through each column in the df
-  for (k in 1:length(input_df)) {
+  for (k in seq_along(input_df)) {
     
     # get current column
     current_column <- input_df[k]
