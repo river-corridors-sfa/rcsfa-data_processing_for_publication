@@ -306,10 +306,6 @@ check_for_unique_names <- function(input,
       # if input is listed more than once, duplicates exist
       has_duplicate_name <- TRUE
       
-    } else if (name_count <= 0) {
-      # if input is not included in the all_names, then check is not applicable
-      has_duplicate_name <- NA_real_
-      
     } else {
       # otherwise, duplicates do NOT exist
       has_duplicate_name <- FALSE
