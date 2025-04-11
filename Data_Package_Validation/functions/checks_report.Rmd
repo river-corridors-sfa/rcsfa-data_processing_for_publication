@@ -74,7 +74,7 @@ overview_table <- data_package_checks$data_checks_summary %>%
   select(pass_check, assessment, source, requirement, file_count) %>% 
 
   # add this row in to make sure both passed and failed categories exist 
-  bind_rows(tibble(pass_check = c(TRUE, FALSE), file_count = c(0, 0))) %>% 
+  add_row(pass_check = c(TRUE, FALSE), file_count = c(0, 0)) %>% 
 
   # make table wide
   mutate(pass_check_files = case_when(pass_check == FALSE ~ "failed_files", 
