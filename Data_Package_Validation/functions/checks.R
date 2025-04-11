@@ -812,7 +812,7 @@ check_data_package <- function(data_package_data, input_parameters = input_param
                                               report_table = data_tabular_report, 
                                               missing_value_codes = input_parameters$missing_value_codes)
       
-    } # end of loop through all tabular files
+    } # end of loop through current tabular file
     
   } # end of loop through all files
 
@@ -827,11 +827,10 @@ check_data_package <- function(data_package_data, input_parameters = input_param
   data_checks_summary <- data_checks_output %>% 
     mutate(file = case_when(assessment == "includes required files" ~ value, # add value into file for this check so it's able to count files correctly
                             T ~ file)) %>% 
-    group_by(requirement, pass_check, assessment, source) %>% 
     summarise(values = str_c(unique(value), collapse = ", "),
               file_count = length(unique(file)),
-              files = str_c(unique(file), collapse = ", ")) %>% 
-    ungroup() %>% 
+              files = str_c(unique(file), collapse = ", "),
+              .by = c(requirement, pass_check, assessment, source)) %>% 
     mutate(requirement = factor(requirement, levels = c("required", "strongly recommended", "recommended", "optional"), ordered = TRUE),
           source = factor(source, levels = c("all_file_names", "directory_name", "file_name", "column_header"), ordered = TRUE)) %>%
     arrange(requirement, pass_check, source, .locale = "en")
