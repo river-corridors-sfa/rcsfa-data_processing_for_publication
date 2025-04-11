@@ -1,6 +1,6 @@
 ### checks.R ###################################################################
 # Date Created: 2024-06-20
-# Date Updated: 2025-04-07
+# Date Updated: 2025-04-11
 # Author: Bibi Powers-McCormack
 
 # This script evaluates and then summarizes data quality checks that are
@@ -54,6 +54,7 @@
     # tabular_report = a df that provides a summary of each column including data types, row-level statistics, and potential quality issues
 
 # Status: complete
+  # Reviewed by Brie Forbes on 2025-04-10
 
 
 ### Checks Inputs ##############################################################
@@ -201,7 +202,7 @@ check_for_no_special_chrs <- function(input,
     special_characters <- "none"
     
   } else {
-    # get the special character values
+    # get the special character values - this becomes a chr vector with each special chr listed out (e.g., special_characters <- c("%", "#", "&"))
     special_characters <-
       grep(invalid_chrs, split_chrs, value = TRUE)
     
@@ -210,7 +211,7 @@ check_for_no_special_chrs <- function(input,
   }
     
   
-  
+  # this adds a new row for however many special_characters there are (e.g., if an input has 2 special chrs, it will add 2 rows to data_checks_table)
   data_checks_table <- data_checks_table %>% 
     add_row(
       requirement = "strongly recommended", 
