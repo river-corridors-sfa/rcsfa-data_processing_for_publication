@@ -697,7 +697,7 @@ check_data_package <- function(data_package_data, input_parameters = input_param
   # this chunk loops through every file and conducts file and column header level checks
     
 
-  for (i in 1:length(all_files_absolute)) {
+  for (i in seq_along(all_files_absolute)) {
     
     #### get inputs ##############################################################
     # get current absolute file path
