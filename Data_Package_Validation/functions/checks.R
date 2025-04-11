@@ -350,6 +350,7 @@ check_for_empty_column_headers <- function(input,
    # standard checks df
   # assumptions: 
     # this check will only be run on column_headers
+    # this function was made specifically to work within check_data_package() - load_tabular_data_from_flmd() keeps the original column names. However, the check_data_package() function in the "get inputs" section renames all empty column headers to "EMPTY_COLUMN_HEADER" to create a searchable identifier so this function can check it
   
   # confirm source input
   if (!source %in% c("column_header")) {
@@ -728,7 +729,7 @@ check_data_package <- function(data_package_data, input_parameters = input_param
         # find indices of unnamed cols
         empty_col_indices <- which(is.na(colnames(current_df)))
         
-        # Rename the unnamed columns
+        # Rename the unnamed columns - this renames any empty cols "EMPTY_COLUMN_HEADER". Originally I wasn't sure if it would allow duplicates, so I wrote the commented out code that uses an index to name it. Leaving it here in case it's needed in the future
         # colnames(current_df)[empty_col_indices] <- paste0("unnamed_col_", seq_along(empty_col_indices))
         colnames(current_df)[empty_col_indices] <- "EMPTY_COLUMN_HEADER"
         
