@@ -23,8 +23,13 @@ report_author <- "Bibi Powers-McCormack"
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
 report_out_dir <- "C:/Users/powe419/Downloads"
 
-# the tabular files have header rows? (T/F)
+# do the tabular files have header rows? (T/F)
 user_input_has_header_rows <- F
+
+# do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
+has_flmd <- F
+# if T, then provide the absolute file path of the existing flmd file
+flmd_path <- ""
 
 
 ### Prep Script ################################################################
@@ -51,7 +56,6 @@ setwd("./..")
 
 # load functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R") # note: will need to update this link after I merge branches
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R") # note: will need to update this link after I merge branches
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/data_checks_v2/Data_Package_Validation/functions/checks.R") # note: will need to update this link after I merge branches
 
 ### Run Functions ##############################################################
@@ -62,12 +66,16 @@ if (length(list.files(directory, recursive = T)) == 0) {
   warning("Your directory has 0 files.")
 }
 
-# 1. Load flmd
-data_package_flmd <- create_flmd_skeleton(directory = directory, query_header_info = user_input_has_header_rows) %>% 
+# 1. Load flmd if applicable
+if (has_flmd == T) {
+  data_package_flmd <- read_csv(flmd_path) %>% 
   # convert to R's NA
   mutate(across(everything(), ~ case_when(. == -9999 ~ NA, 
                                           . == "N/A" ~ NA,
                                           TRUE ~ .)))
+} else if (has_flmd == F) {
+  data_package_flmd <- NA 
+  }
 
 # 2. Load data
 data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows)
