@@ -1,0 +1,587 @@
+---
+title: "Data Package Checks Report"
+rmd_author: "Bibi Powers-McCormack"
+date_created: "2024-06-12"
+date_updated: "2025-04-07"
+output: 
+  html_document:
+    toc: FALSE
+    theme: simplex
+---
+
+This report was created on `r Sys.Date()` by `r report_author`.
+
+```{r summary, echo=FALSE}
+# see if the data package passed all checks
+
+# script inputs: 
+  # requires `output` list from the check_data_package() function
+
+# get total number of checks
+all_checks_summary <- data_package_checks$data_checks_summary %>% 
+  select(requirement, assessment, source) %>% 
+  distinct()
+
+# see if any failed
+failed_checks <- data_package_checks$data_checks_summary %>% 
+  select(requirement, assessment, source, pass_check) %>% 
+  filter(pass_check == FALSE)
+
+y_required_total <- all_checks_summary %>% 
+  filter(requirement == "required") %>% 
+  count() %>% 
+  pull(n)
+
+x_required_failed <- failed_checks %>% 
+  filter(requirement == "required") %>% 
+  count() %>% 
+  pull(n)
+
+y_recommended_total <- all_checks_summary %>% 
+  filter(requirement == "strongly recommended") %>% 
+  count() %>% 
+  pull(n)
+
+x_recommended_failed <- failed_checks %>% 
+  filter(requirement == "strongly recommended") %>% 
+  count() %>% 
+  pull(n)
+
+```
+
+<p style='color: black;'> Data Package: **`r basename(data_package_checks$input$inputs$directory)`** </p>
+  
+> <p style='color: `r ifelse(x_required_failed > 0, "darkred", "green")`;'><strong>**Your data package passed `r y_required_total - x_required_failed` of `r y_required_total` required test(s).**  </strong></p>
+> <p style='color: `r ifelse(x_recommended_failed > 0, "darkred", "green")`;'><strong>**Your data package passed `r y_recommended_total - x_recommended_failed` of `r y_recommended_total` strongly recommended test(s).** </strong></p>
+
+Authors, domain experts, and the data management team must still review the data and make context-specific decisions, including confirming the correct **land and funding acknowledgements**, before publishing.  
+
+## Did your data package pass? {.tabset}  
+The data quality checks help data packages comply with the best practices for accessibility and usability. The data checks are not intended to interpret the meaning of the data, assess scientific validity, fix issues that were detected, or replace human judgement.  
+
+**Review any flagged items in the visualizations or tables, make corrections as needed (e.g., add missing files, replace proprietary files, rename columns, or remove duplicates), and re-run the checks to confirm compliance.**   
+
+
+### Overview {.tabset}
+- Required checks are required to pass before a data package will be published.  
+- Recommended checks are suggested to pass before a data package will be published. Passing `strongly recommended` checks prepares your data package to be included into ESS-DIVE's Fusion Database, allowing your data and scripts to be searchable within the deep dive API search tool.  
+- The RC-SFA project expects that all Study Data Packages adhere to both `required` and `strongly recommended` checks. Manuscript Data Packages must adhere to the `required` checks and are encouraged to consider the `strongly recommended` checks.  
+
+```{r overview, echo=FALSE}
+# display table of checks
+
+overview_table <- data_package_checks$data_checks_summary %>% 
+  select(pass_check, assessment, source, requirement, file_count) %>% 
+
+  # add this row in to make sure both passed and failed categories exist 
+  add_row(pass_check = c(TRUE, FALSE), file_count = c(0, 0)) %>% 
+
+  # make table wide
+  mutate(pass_check_files = case_when(pass_check == FALSE ~ "failed_files", 
+                                      pass_check == TRUE ~ "passed_files", 
+                                      T ~ NA_character_)) %>% 
+  
+  
+  pivot_wider(names_from = pass_check_files, values_from = file_count, values_fill = list(failed_files = 0, passed_files = 0)) %>%
+
+
+  group_by(assessment, requirement, source) %>%
+  summarise(across(c(failed_files, passed_files), ~sum(.x, na.rm = TRUE)), .groups = "drop") %>% 
+  
+  # remove that extra NA row
+  filter(!is.na(assessment)) %>% 
+  
+  # pretty up text
+  mutate(assessment = case_when(assessment == "includes required files" ~ "includes required metadata files: FLMD, DD, readme",
+                                assessment == "no duplicate names" & source == "column_header" ~ "no duplicate column headers within files",
+                                assessment == "no proprietary files" & source == "file_name" ~ "no proprietary files",
+                                assessment == "no special characters" & source == "column_header" ~ "no special characters in column headers",
+                                assessment == "no special characters" & source == "file_name" ~ "no special characters in file names",
+                                assessment == "no special characters" & source == "directory_name" ~ "no special characters in folder names",
+                                T ~ assessment)) %>% 
+
+  # prep pass_check colors
+  rowwise() %>% 
+  mutate(pass_check = case_when(failed_files > 0 ~ "FAILED", 
+                                failed_files == 0 ~ "PASSED",
+                                T ~ NA_character_), .before = assessment) %>%
+  arrange(requirement, pass_check) %>% 
+  select(pass_check, assessment, requirement, failed_files, passed_files) # have to keep requirement in this because pack_rows() needs it to create the table headers
+  
+
+# make nice table
+overview_table %>% 
+  select(-requirement) %>% 
+  mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen", # add colors on PASSED/FAILED checks
+                                                                  pass_check == "FAILED" ~ "lightcoral"))) %>% 
+  mutate(failed_files = cell_spec(failed_files, background = case_when(failed_files > 0 ~ "lightcoral",
+                                                                       T ~ ""))) %>% 
+  kable("html", escape = FALSE, row.names = TRUE, align = c("c", "l", "c", "c", "c")) %>% # decide left, center, or right justification for each col
+  kable_styling("striped", full_width = FALSE, position = "center") %>% # add stripes to rows and position table in center of page
+  row_spec(which(overview_table$pass_check == "PASSED"), color = "gray") %>% # make passed checks in gray
+  row_spec(which(overview_table$pass_check == "FAILED"), color = "black", bold = T) %>% # make failed checks in bold black
+  
+  # add headers for requirement
+  pack_rows("Required Checks", 1, sum(overview_table$requirement == "required"), label_row_css = "background-color: #e6e6e6; color: #000000;") %>%
+  pack_rows("Strongly Recommended Checks", sum(overview_table$requirement == "required") + 1, nrow(overview_table), label_row_css = "background-color: #e6e6e6; color: #000000;")
+
+
+```
+
+---
+
+### `includes required files`
+
+```{r required-files-check, echo=FALSE}
+
+# determine if this check failed
+failed_includes_required_files <- data_package_checks$data_checks %>% 
+  filter(assessment == "includes required files" & pass_check == FALSE) %>% 
+  count() %>% 
+  pull()
+
+```
+> <p style='color: `r ifelse(failed_includes_required_files > 0, "darkred", "green")`;'><strong> **Your data package is missing `r failed_includes_required_files` required file(s).** </strong></p>
+
+
+In addition to your data files, we require a file-level metadata file (FLMD), data dictionary (DD), and readme in each data package. Proprietary files should be converted to non-proprietary options (e.g., .docx are converted to .pdf). To improve interoperability with ESS-DIVE's tools, these three file have specific file naming conventions.  
+
+- **readme**: File name must begin with `readme` and end with `.pdf`. You may append anything between `readme` and `.pdf`, but we recommend the text matches your data package folder name. Ex: "readme_Smith_2005_Wildfire_Impacts.csv".  
+- **FLMD**: File name must end with `flmd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name. Ex: "Smith_2005_Wildfire_Impacts_flmd.csv".  
+- **DD**: File name must end with `dd.csv`. You may prepend anything to the beginning, but we recommend the text matches your data package folder name. Ex: "Smith_2005_Wildfire_Impacts_dd.csv".  
+- **ESS-DIVE metadata**: This 4th file needs to be filled out to populate your data package landing page on ESS-DIVE; however, because the file will not be included in your data package there is not a check or file name requirement for it.  
+
+
+```{r required-files, echo=FALSE}
+
+# show pie chart of all passed/failed files
+data_package_checks$data_checks %>% 
+  filter(assessment == "includes required files") %>% 
+  select(pass_check, value, input) %>% 
+  mutate(input = case_when(is.na(input) ~ "file not found", T ~ input)) %>% 
+  rename(file = input) %>% 
+  mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
+                                pass_check == FALSE ~ "FAILED")) %>%  
+  mutate(value = case_when(value == ".*flmd\\.csv$" ~ "FLMD", 
+                           value == ".*dd\\.csv$"  ~ "DD",
+                           value == "(?i).*readme.*\\.pdf$" ~ "readme")) %>% # .pdf file that includes case insensitive text "readme"
+  mutate(pass_check = cell_spec(pass_check, background = case_when(pass_check == "PASSED" ~ "lightgreen",
+                                                                   pass_check == "FAILED" ~ "lightcoral"))) %>% 
+  rename(required_file = value) %>% 
+  kable("html", escape = FALSE) %>% 
+  kable_styling("striped", full_width = FALSE)
+
+```
+
+---
+
+
+### `no proprietary files` 
+
+```{r proprietary-files-check, echo=FALSE}
+
+# determine if this check failed
+failed_no_proprietary_files <- data_package_checks$data_checks %>% 
+  filter(assessment == "no proprietary files") %>% 
+  filter(pass_check == FALSE) %>% 
+  count() %>% 
+  pull()
+```
+> <p style='color: `r ifelse(failed_no_proprietary_files > 0, "darkred", "green")`;'><strong> **Your data package has `r failed_no_proprietary_files` proprietary file(s).**  </strong></p>
+
+ESS-DIVE requests that all files are saved in a non-proprietary file format. While not exhaustive, this check confirms that the following common proprietary extensions are not included: `r input_parameters$non_proprietary_extensions`
+
+``` {r proprietary-files, echo=FALSE, fig.align='center',  fig.width=12}
+
+# show bar chart of file extensions
+data_package_checks$data_checks %>% 
+  filter(assessment == "no proprietary files") %>% 
+  select(pass_check, input) %>% 
+  mutate(extension = tools::file_ext(input)) %>% 
+  mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
+                                pass_check == FALSE ~ "FAILED")) %>% 
+  group_by(extension, pass_check) %>% 
+  summarise(extension_count = n(), .groups = "drop") %>% 
+  
+  ggplot(., aes(x = extension, y = extension_count, fill = pass_check, text = paste("files:", extension_count))) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = extension_count), vjust = -0.5) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
+    theme_minimal() +
+    scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+    theme(panel.grid.minor = element_blank()) +
+    labs(x = "File Extension", 
+         y = "Count of Files", 
+         title = "Evaluation of File Extensions",
+         subtitle = "Red indicates the presence of proprietary files")
+
+  
+```
+
+---
+
+### `no special characters` 
+
+```{r special-characters-check, include=FALSE}
+
+# determine if these checks failed
+failed_no_special_chrs <- data_package_checks$data_checks %>%
+  filter(assessment == "no special characters") %>% 
+  filter(pass_check == "FALSE") %>% 
+  count(source, pass_check) %>% 
+  summarise(n = sum(n)) %>% 
+  pull()
+
+failed_no_empty_column_headers <- data_package_checks$data_checks %>% 
+  filter(assessment == "no empty column headers") %>% 
+  filter(pass_check == "FALSE") %>% 
+  count(source, pass_check) %>% 
+  summarise(n = sum(n)) %>% 
+  pull()
+
+```
+
+
+> <p style='color: `r ifelse(failed_no_special_chrs > 0, "darkred", "green")`;'><strong> **Your data package has `r failed_no_special_chrs` special characters error(s).**  </strong></p>  
+> <p style='color: `r ifelse(failed_no_empty_column_headers > 0, "darkred", "green")`;'><strong> **Your data package has `r failed_no_empty_column_headers` empty column header(s).**  </strong></p>  
+
+Special characters are not allowed in folder names, file names, or column headers and will cause the check to fail.  
+
+- **`no special characters` in directory names**: The only characters allowed in folder names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
+- **`no special characters` in file names**: The only characters allowed in file names are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens.  
+- **`no special characters` in column headers**: The only characters allowed in tabular column headers are lowercase letters, uppercase letters, numbers, underscores, periods, and hyphens. It is recommended that columns begin with a letter.  
+- **`no empty column headers`**: Tabular data must be rectangular - each row should have the same number of columns and every column must have a column header. 
+
+```{r special-characters, echo=FALSE, fig.align='center', fig.width=12}
+
+# show bar chart of files/folders with empty column headers and special chrs
+data_package_checks$data_checks %>% 
+  filter(assessment == "no empty column headers" | assessment == "no special characters") %>%  
+  select(assessment, source, pass_check, file) %>% 
+  
+  # rename assessment
+  mutate(assessment = case_when(assessment == "no special characters" ~ paste0(source, "_with_special_chrs"), 
+                            assessment == "no empty column headers" ~ paste0("empty_", source), 
+                            T ~ source)) %>% 
+  mutate(assessment = str_replace_all(assessment, "_", " ")) %>% 
+  mutate(assessment = factor(assessment, levels = c("directory name with special chrs", 
+                                                    "file name with special chrs", 
+                                                    "column header with special chrs", 
+                                                    "empty column header"))) %>% 
+  
+  distinct() %>% 
+  group_by(file, assessment) %>% 
+  summarise(pass_check = !any(!pass_check), .groups = "drop") %>% # collapsing so if a file has some cols that pass and others that don't it counts the file as having failed the check
+  group_by(pass_check, assessment) %>% 
+  summarise(file_count = n(), .groups = "drop") %>% 
+  mutate(pass_check = case_when(pass_check == TRUE ~ "PASSED",
+                                pass_check == FALSE ~ "FAILED")) %>% 
+  
+  ggplot(., aes(x = assessment, y = file_count, fill = pass_check, text = paste("files:", file_count))) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = file_count), position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = c("FAILED" = "darkred", "PASSED" = "grey")) +
+  theme_minimal() +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  theme(panel.grid.minor = element_blank()) +
+  labs(x = "Assessment", 
+       y = "Count of Files/Folders", 
+       title = "Evaluation of Files and Folders with Special Characters",
+       subtitle = "Red indicates the presence of a failed check")
+```
+
+``` {r show-special-characters, echo=FALSE, fig.align='center'}
+if (failed_no_special_chrs != 0) {
+  
+  # if there are special chrs, show which special chrs are present
+  data_package_checks$data_checks %>% 
+    filter(assessment == "no special characters", !pass_check) %>% 
+    distinct(source, value) %>% 
+    add_row(source = "file_name", 
+            value = "PLACEHOLDER") %>% 
+    add_row(source = "column_header", 
+            value = "PLACEHOLDER") %>% 
+    add_row(source = "directory_name", 
+            value = "PLACEHOLDER") %>% 
+    mutate(has_special = TRUE) %>% 
+    pivot_wider(
+      names_from = source,
+      values_from = has_special,
+      values_fill = FALSE
+    ) %>% 
+    filter(value != "PLACEHOLDER") %>% 
+    rename(special_character = value) %>% 
+  mutate(across(-special_character, ~ ifelse(. == TRUE, 
+                                             '<span style="color:darkred;">X</span>', 
+                                             ""))) %>% 
+    select(special_character, directory_name, file_name, column_header) %>% 
+  kable("html", escape = FALSE, align = "c",
+        caption = "Cells marked with an 'X' in the table below indicate the presence of a special character") %>% 
+  kable_styling("striped", full_width = FALSE) %>% 
+  column_spec(1:4, extra_css = "border: 0.5px solid #ccc; text-align: center;")
+  
+}
+
+
+```
+
+---
+
+### `no duplicate names` 
+
+```{r duplicate-names-check, include=FALSE}
+
+# determine if these checks failed
+failed_duplicate_names <- data_package_checks$data_checks %>%
+  filter(assessment == "no duplicate names") %>% 
+  filter(pass_check == FALSE) %>% 
+  select(file) %>% 
+  distinct() %>% 
+  count() %>% 
+  pull(n)
+
+```
+> <p style='color: `r ifelse(failed_duplicate_names > 0, "darkred", "green")`;'><strong> **Your data package has `r failed_duplicate_names` file(s) that contain duplicate column names.**  </strong></p>  
+
+Column names should be unique within each file. Column names can be repeated across files if they share the same definition.
+
+```{r duplicate-names, echo=FALSE, fig.align='center', fig.height=max(5, length(unique(data_package_checks$tabular_report$column_name)) * 0.2), fig.width=8}
+
+data_package_checks$tabular_report %>% 
+  
+  # remove empty col headers
+  filter(column_name != "EMPTY_COLUMN_HEADER") %>% 
+  
+  group_by(file_name, column_name) %>%
+  summarise(column_counts_within_files = as.integer(n()), .groups = "drop") %>%
+  group_by(column_name) %>% 
+  mutate(column_counts_between_files = as.integer(n())) %>% 
+  mutate(pass_check = case_when(column_counts_within_files > 1 ~ "FAILED", 
+                                column_counts_between_files > 1 ~ "WARNING", 
+                                T ~ "PASSED")) %>% 
+  ungroup() %>% 
+  mutate(column_name = factor(column_name, levels = rev(sort(unique(column_name))))) %>% 
+
+  ggplot(aes(x = column_name, y = column_counts_within_files, fill = pass_check)) +
+    geom_bar(stat = "identity", position = "stack") +
+    scale_fill_manual(values = c("FAILED" = "darkred", "WARNING" = "#e3a84f","PASSED" = "grey")) +
+    scale_y_continuous(breaks = scales::pretty_breaks()) +
+    labs(x = "Column Name", 
+         y = "Count", 
+         title = "Column names across all files",
+         subtitle = paste0("Red (failed) = column name appears more than once within the same file.", "\n", "Orange (warning) = column name appears more than once across files.")) +
+    theme_minimal() +
+    theme(panel.grid.minor = element_blank()) +
+    coord_flip()
+
+```
+
+---
+
+### Tabular Data 
+
+```{r tabular-data-check, include = FALSE}
+
+# determine if there are missing or negative values
+
+data_are_missing <- data_package_checks$tabular_report %>% 
+  filter(num_missing_rows > 0) %>% 
+  count() %>% 
+  pull()
+
+data_are_negative <- data_package_checks$tabular_report %>% 
+  filter(num_negative_rows > 0) %>% 
+  count() %>% 
+  pull()
+
+```
+
+#### **Preview your tabular data:**
+
+> <p style='color: `r ifelse(data_are_missing > 0, "darkred", "green")`;'><strong> **Number of files with missing values in your data package: `r data_are_missing`**  </strong></p>  
+> <p style='color: `r ifelse(data_are_negative > 0, "darkred", "green")`;'><strong> **Number of files with negative values in your data package: `r data_are_negative`**  </strong></p>  
+
+This table summarizes tabular files in your data package to enable you to review each tabular data column for your own data quality concerns (e.g., anticipated ranges or avoiding negative values). Unlike the other tabs, this tab does not display discrete pass/fail data checks because the review enabled by this tab is based upon the individual data package needs as determined by the author/reviewer. It is up to you, as the data package author/reviewer, to check this table for any relevant data concerns. 
+
+<details>
+  <summary>Each row in the table represents a single column from a tabular data file. Click to expand/collapse column definitions.</summary>
+- **`file_name`** = The name of the file where the column is found.  
+- **`column_name`** = The name of the column within the file.  
+- **`column_type`** = The data type of the column (e.g., character, numeric, logical, mixed, etc.)  
+- **`num_rows`** = The total number of rows in the column.  
+- **`num_unique_rows`** = The number of unique values present in the column. If this number is the same as `num_rows`, then all values are unique. If this number is less than `num_rows`, then there are duplicate values within the column.    
+- **`num_missing_values`** = The count of missing values in the column. **Check for missing data (the value should be 0 unless missing values are expected).**  
+- **`num_negative_values`** = The count of values less than 0 in the column (if column type is numeric or mixed).  
+- **`range_min`** = The minimum value in the column (if column is not character or logical). **If applicable, validate numeric ranges to ensure realistic values.**  
+- **`range_max`** = The maximum value in the column (if column is not character or logical). **If applicable, validate numeric ranges to ensure realistic values.**  
+- **`data_preview`** = A sampled preview of the top five most frequent values in the column, with the counts for each.  
+</details>
+  
+<br>  
+  
+
+```{r tabular-data, echo=FALSE}
+
+tabular_report <- data_package_checks$tabular_report %>% 
+  select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>%   
+  # reorder
+  rename(num_missing_values = num_missing_rows,
+         num_negative_values = num_negative_rows,
+         data_preview = top_counts) %>% 
+
+  # convert to UTF-8 encoding
+  mutate(across(where(is.character), ~iconv(., to = "UTF-8")))
+
+tabular_report %>% 
+  # convert dbl to int and chr to fct
+   mutate(across(
+    .cols = everything(),
+    .fns = ~ {
+      if (is.double(.)) {
+        as.integer(.)
+      } else if (is.character(.)) {
+        as.factor(.)
+      } else {
+        .
+      }
+    }
+  )) %>% 
+  
+  
+    datatable(options = list(autoWidth = TRUE,
+                     scrollX = TRUE,
+                     columnDefs = list(list(width = '100%', targets = "_all"),
+                                       # hover text for top_counts
+                                       list(targets = 9,  # Index of the column (0-based) where you don't want text wrapping
+                                            render = JS("function(data, type, row, meta) { return '<div style=\"white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\" title=\"' + data + '\">' + data + '</div>';
+           }"
+        )))),
+      rownames = F,
+      filter = "top",
+      class = "stripe row-border") %>% 
+  
+  # color missing values red
+      formatStyle(c("num_missing_values", "num_negative_values"), # Column to apply the style
+                  color = styleInterval(0, c(NA, 'red'))  # Highlight cells with value > 0 in red
+                  ) %>% 
+  
+  # add column lines
+  formatStyle(columns = c("file_name", "column_name", "column_type", "num_rows", "num_unique_rows", "num_missing_values",
+                          "num_negative_values", "range_min", "range_max", "data_preview"), border = '0.1px solid #e6e6e6')
+
+# button to download table
+tabular_report %>% 
+  download_this(output_name = paste0(basename(data_package_checks$input$inputs$directory), "_Tabualr_Data_Report"),
+                output_extension = ".csv",
+                button_label = "Download Table (.csv)",
+                button_type = "default")
+
+```
+
+---
+
+
+## Detailed Report {.tabset}
+
+The Overview Table and tabs above assess the quality of your data. If any of the data checks failed, use the `Failed Checks` tab below to identify the actions you can take to troubleshoot specific problems. 
+
+1. Start with Overview Table (above). Focus on checks where `pass_check == "FAILED"` to locate critical issues first.  
+2. Then use the "Failed Checks" tab (below) to review the actions you can take to address the issue.    
+3. Correct the issues in your data files based, then re-run the checks to ensure all issues have been resolved.   
+
+### Failed Checks {.tabset}
+
+<br>
+
+<details>
+  <summary>Each row in the table represents a failed check. Click to expand/collapse column definitions.</summary>
+- **`assessment`** = Describes the type of data validation or check being performed.  
+- **`action`** = Specifies the action or change required to resolve the issue.  
+- **`requirement`** = Indicates the level of importance or necessity for addressing the issue.   
+- **`input`** = Refers to the specific input text that caused the check to fail.   
+- **`file`** = Lists the file that contains the issue, providing context for where the problem exists.  
+</details>
+  
+<br>  
+
+```{r failed-checks, echo=FALSE}
+
+if (data_package_checks$data_checks %>% filter(pass_check == FALSE) %>% nrow() == 0) {
+  
+  cat("You have no failed data package checks.")
+  
+} else {
+  
+data_package_checks$data_checks %>% 
+    filter(pass_check == FALSE) %>%
+    rowwise() %>% 
+  
+    
+    # add action column
+    mutate(action = case_when(assessment == "includes required files" & str_detect(value, "flmd") ~ "Add a FLMD to your data package.",
+                              assessment == "includes required files" & str_detect(value, "dd") ~ "Add a DD to your data package.",
+                              assessment == "includes required files" & str_detect(value, "readme") ~ "Add a readme to your data package.",
+                              assessment == "no proprietary files" ~ paste0("Convert `", input, "` into a non-proprietary format."), 
+                              assessment == "no special characters" & source == "column_header" ~ paste0("Remove special characters (`", value, "`) from the column header `", input, "` in `", file, "`."), 
+                              assessment == "no special characters" & source == "file_name" ~ paste0("Remove special characters (`", value, "`) from the file name `", input, "`."), 
+                              assessment == "no special characters" & source == "directory_name" ~ paste0("Remove special characters (`", value, "`) from the folder name `", input, "`."), 
+                              assessment == "no duplicate names" & source == "column_header" ~ paste0("The column header `", input, "` appears more than once in `", file, "`. Remove or rename column headers so there are no duplicates."), 
+                              assessment == "no empty column headers" & source == "column_header" ~ paste0("Add a header to the unnamed column in `", file, "`."),
+                              T ~ ""
+                              )) %>% 
+    
+  # edit input
+    mutate(input = paste0(source, ": ", input)) %>% 
+    mutate(input = case_when(assessment == "includes required files" & input == "all_file_names: NA" ~ "file not found", 
+                             T ~ input)) %>% 
+  
+    select(assessment, action, requirement, input, file) %>%
+    mutate(across(c(assessment, action, requirement, input, file), as.factor)) %>% 
+      datatable(rownames = F,
+              filter = "top", 
+              class = "stripe")
+}
+
+
+
+```
+
+---
+
+### Passed Checks {.tabset}
+
+<br>
+
+<details>
+  <summary>Each row in the table represents a passed check. Click to expand/collapse column definitions.</summary>
+- **`assessment`** = Describes the type of data validation or check being performed.  
+- **`requirement`** = Indicates the level of importance or necessity of the assessment passing.   
+- **`input`** = Refers to the specific input text that was evaluated.   
+- **`file`** = Lists the file that was evaluated, providing context for the assessment.    
+</details>
+  
+<br>  
+
+```{r passed-checks, echo=FALSE}
+ data_package_checks$data_checks %>% 
+    filter(pass_check == TRUE) %>% 
+    mutate(input = paste0(source, ": ", input)) %>% 
+    select(assessment, requirement, input, file) %>% 
+    mutate(across(c(assessment, requirement, input, file), as.factor)) %>% 
+      datatable(rownames = F,
+              filter = "top", 
+              class = "stripe")
+
+```
+
+---
+
+### Directory Tree {.tabset}
+
+Below is a list of all of your folders and files that were present when the report was generated.
+```{r dir-tree, echo = FALSE}
+dir_tree(data_package_checks$input$inputs$directory, recurse = T)
+```
+
+---
