@@ -62,11 +62,11 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/RC2_TemporalStudy_2022-2024_SampleData"
 
-study_code <- 'WHONDRS_AV1' # this is used to rename the output file
+study_code <- 'RC2_2022-2024' # this is used to rename the output file
 
-material <- 'Sediment' # the material entered here is how the data files are located and the keyword that's used in the sample name
+material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 
 # ====================== functions used in this script =========================
@@ -401,11 +401,6 @@ data <- read_in_files(analyte_files, material = material)
 
 # combine all data dfs together + drop fake boyes and text flags
 combine <- combine_data(data)
-
-# for AV1, removing iron from 2.5 mL incubations (reps 4-6) before summarizing 
-
-combine <- combine  %>%
-  filter(!(str_detect(data_type, "Fe") & rep %in% c(4, 5, 6)))
 
 # ====================== remove outliers =======================================
 # assumptions: 
