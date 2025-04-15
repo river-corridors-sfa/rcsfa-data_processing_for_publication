@@ -316,7 +316,8 @@ if (failed_no_special_chrs != 0) {
                                              '<span style="color:darkred;">X</span>', 
                                              ""))) %>% 
     select(special_character, directory_name, file_name, column_header) %>% 
-  kable("html", escape = FALSE, align = "c") %>% 
+  kable("html", escape = FALSE, align = "c",
+        caption = "Cells marked with an 'X' in the table below indicate the presence of a special character") %>% 
   kable_styling("striped", full_width = FALSE) %>% 
   column_spec(1:4, extra_css = "border: 0.5px solid #ccc; text-align: center;")
   
