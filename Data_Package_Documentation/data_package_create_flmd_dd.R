@@ -74,23 +74,32 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 # left join prelim dd to this dd
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/v5_CM_SSS_dd.csv")
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/prelim_dd.csv")
+
+prelim_add_cols <- 
 
 dd_skeleton <- dd_skeleton %>%
   select(Column_or_Row_Name) %>%
   left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
-  arrange(Column_or_Row_Name)
+  add_row(prelim_dd %>%
+            anti_join(dd_skeleton, by = c("Column_or_Row_Name")) %>%
+            arrange(Column_or_Row_Name)) %>% # add row names 
+  arrange(Column_or_Row_Name) 
 
-# # left join prelim flmd to this flmd
-# 
-# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/v5_CM_SSS_flmd.csv") %>%
-#   select(-File_Path)
-# 
+
+
+# left join prelim flmd to this flmd
+
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/prelim_flmd.csv")
+
 # flmd_skeleton <- flmd_skeleton %>%
 #   select(File_Name, File_Path) %>%
 #   left_join(prelim_flmd, by = c("File_Name")) %>%
 #   select(-File_Path, File_Path)
 
+
+flmd_skeleton <- prelim_flmd %>%
+  add_row(flmd_skeleton %>% filter(str_detect(File_Name, 'Summary')) %>% select(-contains('Date')))
 
 
 ### Export #####################################################################
