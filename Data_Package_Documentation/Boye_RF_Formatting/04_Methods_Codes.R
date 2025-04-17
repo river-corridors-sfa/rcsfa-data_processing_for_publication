@@ -29,7 +29,7 @@ study_code <- 'RC2'
 
 # ================================= Build dir ================================
 # boye_dir <- paste0(dir, RC, '/Boye_Files/', study_code, '/')
-boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/RC2_TemporalStudy_2022-2024_SampleData'
+boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SampleData_v3/v3_RC2_TemporalStudy_2021-2022_SampleData/New folder'
 
 typical_codes <- paste0(dir, 'Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx')
   
