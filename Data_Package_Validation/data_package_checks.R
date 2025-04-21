@@ -61,7 +61,7 @@ setwd("./..")
 
 # load functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R") # note: will need to update this link after I merge branches
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/data_checks_v2/Data_Package_Validation/functions/checks.R") # note: will need to update this link after I merge branches
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
