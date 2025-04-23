@@ -36,7 +36,7 @@ library(rlog)
 # create testing data
 
 # the outlier values are manually pulled from Methods_Deviation_Codes (MethodsID_DataProcessing tab): https://pnnl.sharepoint.com/:x:/r/teams/Lab-FieldTeam/Shared%20Documents/Data%20Generation%20and%20Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Method_Deviation_Codes.xlsx?d=wfca78e071aa849c89a155dcd6501f37e&csf=1&web=1&e=UFWlwO&nav=MTVfezc2QUM2MTg0LUQ2QzUtNDE0My1BRTY2LTAzOEZBQzA5MDlCM30
-Methods_Deviation_outlier_options <- c("Br_OUTLIER_000", "C_OUTLIER_000", "Ca_OUTLIER_000", "Cl_OUTLIER_000", "DIC_OUTLIER_000", "F_OUTLIER_000", "K_OUTLIER_000", "Li_OUTLIER_000", "Mg_OUTLIER_000", "N_OUTLIER_000", "Na_OUTLIER_000", "NH4_OUTLIER_000", "NO2_OUTLIER_000", "NO3_OUTLIER_000", "NPOC_OUTLIER_000", "PO4_OUTLIER_000", "Rate_OUTLIER_000", "SFE_OUTLIER_000", "SO4_OUTLIER_000", "TN_OUTLIER_000")
+Methods_Deviation_outlier_options <- c("Br_OUTLIER_000", "C_OUTLIER_000", "Ca_OUTLIER_000", "Cl_OUTLIER_000", "DIC_OUTLIER_000", "F_OUTLIER_000", "K_OUTLIER_000", "Li_OUTLIER_000", "Mg_OUTLIER_000", "N_OUTLIER_000", "Na_OUTLIER_000", "NH4_OUTLIER_000", "NO2_OUTLIER_000", "NO3_OUTLIER_000", "NPOC_OUTLIER_000", "PO4_OUTLIER_000", "Rate_OUTLIER_000", "SFE_OUTLIER_000", "SO4_OUTLIER_000", "TN_OUTLIER_000", "Aggregate_OUTLIER_000")
 
 
 create_wide_testing_data <- function(outlier_options, set_seed = 637) {
@@ -174,7 +174,12 @@ create_wide_testing_data <- function(outlier_options, set_seed = 637) {
                          Percent_Coarse_Sand = runif(length(outlier_options), min = 0, max = 1),
                          Percent_Tot_Sand = runif(length(outlier_options), min = 0, max = 1),
                          Percent_Silt = runif(length(outlier_options), min = 0, max = 1),
-                         Percent_Clay = runif(length(outlier_options), min = 0, max = 1)) %>% 
+                         Percent_Clay = runif(length(outlier_options), min = 0, max = 1),
+                         `Aggregate_Fraction_53-125um_g_per_g` = runif(length(outlier_options), min = 0, max = 1),
+                         `Aggregate_Fraction_125-250um_g_per_g` = runif(length(outlier_options), min = 0, max = 1),
+                         `Aggregate_Fraction_250um-2mm_g_per_g` = runif(length(outlier_options), min = 0, max = 1),
+                         `Aggregate_Fraction_2-6mm_g_per_g` = runif(length(outlier_options), min = 0, max = 1),
+                         `Aggregate_Fraction_Total_g_per_g` = runif(length(outlier_options), min = 0, max = 1)) %>% 
     mutate(across(where(is.numeric), ~ round(., 5)))
   
   return(testing_data)
@@ -243,6 +248,7 @@ test_that("flags are correctly assigned", {
                                (Methods_Deviation == "Rate_OUTLIER_000" & data_type %in% c("Respiration_Rate_mg_DO_per_L_per_H", "Mean_WithOutliers_Respiration_Rate_mg_DO_per_L_per_H", "StDev_WithOutliers_Respiration_Rate_mg_DO_per_L_per_H", "Mean_OutliersRemoved_Respiration_Rate_mg_DO_per_L_per_H", "StDev_OutliersRemoved_Respiration_Rate_mg_DO_per_L_per_H", "Respiration_Rate_mg_DO_per_kg_per_H", "Mean_WithOutliers_Respiration_Rate_mg_DO_per_kg_per_H", "StDev_WithOutliers_Respiration_Rate_mg_DO_per_kg_per_H", "Mean_OutliersRemoved_Respiration_Rate_mg_DO_per_kg_per_H", "StDev_OutliersRemoved_Respiration_Rate_mg_DO_per_kg_per_H")) ~ "_Rate_",
                                (Methods_Deviation == "SFE_OUTLIER_000" & data_type %in% c("")) ~ "_SFE_",
                                (Methods_Deviation == "SO4_OUTLIER_000" & data_type %in% c("X00945_SO4_mg_per_L_as_SO4")) ~ "_SO4_",
+                               (Methods_Deviation == "Aggregate_OUTLIER_000" & data_type %in% c("Aggregate_Fraction_53-125um_g_per_g", "Aggregate_Fraction_125-250um_g_per_g", "Aggregate_Fraction_250um-2mm_g_per_g", "Aggregate_Fraction_2-6mm_g_per_g", "Aggregate_Fraction_Total_g_per_g")) ~ "_Aggregate_",
                                (Methods_Deviation == "TN_OUTLIER_000" & data_type %in% c("X00602_TN_mg_per_L_as_N", "Extractable_TN_mg_per_kg", "Extractable_TN_mg_per_L")) ~ "_TN_")) %>% 
     select(colnames(result))
 
