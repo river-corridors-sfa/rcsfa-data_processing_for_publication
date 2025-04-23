@@ -1,6 +1,6 @@
 ### upload_landing_page_data.R #################################################
 # Date Created: 2025-04-10
-# Date Updated: 2025-04-10
+# Date Updated: 2025-04-23
 # Author: Bibi Powers-McCormack
 
 
@@ -40,6 +40,19 @@ upload_landing_page_data <- function(api_token, # this is your personal API toke
   library(glue)
   library(httr) # for uploading to the API
   library(jsonlite) # for converting between JSON-ld
+  
+  
+  
+  ### Verify inputs ############################################################
+  
+  # confirm the user only provided a single file
+  if (length(file_to_upload) != 1) {
+    log_fatal("The file you provided could not be processed. 
+              file_to_upload must be a single character string (e.g., file_to_upload = 'C:/Users/abc123/Desktop/data.zip').
+              If you have multiple files, call the function separately for each one.")
+    stop("Function terminating.")
+  }
+  
   
   # apply ess-dive site given input (options: "https://api-sandbox.ess-dive.lbl.gov" OR "https://api.ess-dive.lbl.gov")
   if (upload_site == "main") {
