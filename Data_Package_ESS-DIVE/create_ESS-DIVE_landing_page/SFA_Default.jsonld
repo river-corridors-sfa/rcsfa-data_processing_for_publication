@@ -99,12 +99,12 @@
                           "propertyID": "ess-dive",
                           "value": "d12f558e-bcc7-44ca-8f16-6a37b0dae7f4"
                           },
-                 "name": "River Corridor and Watershed Biogeochemistry SFA",
+                 "name": "River Corridor Hydro-biogeochemistry from Molecular to Multi-Basin Scales SFA",
                  "member": {
                     "@id": "https://orcid.org/0000-0003-0490-6451",
-                    "givenName": "Timothy D.",
-                    "familyName": "Scheibe",
-			        "email": "tim.scheibe@pnnl.gov",
+                    "givenName": "James C.",
+                    "familyName": "Stegen",
+			        "email": "james.stegen@pnnl.gov",
 			        "jobTitle": "Principal Investigator",
                     "affiliation": "Pacific Northwest National Laboratory"
                 }

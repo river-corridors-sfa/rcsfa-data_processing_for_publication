@@ -152,7 +152,7 @@ uploading_script = function(script_path,json_input,Author_Info,package_path,docx
   if(length(Project_info)==1){
     Project_Info=Project_info  #"River Corridor and Watershed Biogeochemistry SFA" #Project_info
   } else{
-    Project_Info="River Corridor and Watershed Biogeochemistry SFA" #paste(Project_info,sep="",collapse = "/")
+    Project_Info="River Corridor Hydro-biogeochemistry from Molecular to Multi-Basin Scales SFA" #paste(Project_info,sep="",collapse = "/")
   }
 
   PI_Name<- strsplit(PI_info," ") [[1]]
@@ -202,7 +202,7 @@ uploading_script = function(script_path,json_input,Author_Info,package_path,docx
   
   
   # change project ID based on ptoject title
-  if (!grepl('River Corridor and Watershed Biogeochemistry SFA', My$provider$name, fixed = FALSE)){
+  if (!grepl('River Corridor Hydro-biogeochemistry from Molecular to Multi-Basin Scales SFA', My$provider$name, fixed = FALSE)){
     project_list <- gsheet2tbl('https://docs.google.com/spreadsheets/d/179SOyv42wXbP4owWZtUg3RqhW9dPOyENYcVYuUCcqwg/edit#gid=1921074133')
     project_id <-project_list$`Project ID`[grep(My$provider$name,project_list$`Project Title`)] 
     if (length(project_id)==0){
