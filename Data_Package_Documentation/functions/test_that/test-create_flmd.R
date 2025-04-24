@@ -81,37 +81,60 @@ test_that("expected typical inputs", {
 
 })
   
-  # get_flmd_rows() returns a tibble that adds placeholders when placeholder_rows_to_add = T
+  # get_flmd_rows() returns a tibble that adds placeholders when placeholder_rows_to_add = c("readme", "flmd", "dd")
   # get_flmd_rows() uses the dp_keyword to name placeholders
   # get_flmd_rows() includes include files
   # get_flmd_rows() excludes exclude files
-  # get_flmd_rows() excludes exclude files
   
-    
-  # directory
-  data_package_dir <- create_test_dir()
-  
-  # this is what the function should return
-  
-  # run function
-  expect_equal(object = get_flmd_rows(directory = data_package_dir), 
-               expected = expected_output)
-  
-
-
 # expected edge cases
-  # returns empty tibble if there are no files
+test_that("expected edge cases", {})
+  # get_flmd_rows() includes . files when include_dot_files = T
+  # get_flmd_rows() returns empty tibble if there are no files
 
 # expected warnings
-  # warns when removing excluded files
+test_that("expected warnings", {})
+  # get_flmd_rows() warns when removing excluded files
+  # get_flmd_rows() warns if placeholder_rows_to_add input is not in controlled vocab
 
 # expected errors
-  # errors if directory doesn't exist
-  # errors if required files (directory and dp_keyword) aren't provided
+test_that("expected errors", {})
+  # get_flmd_rows() errors if directory doesn't exist
+  # get_flmd_rows() errors if required inputs (directory and dp_keyword) aren't provided
 
 
 
+### tests for get_flmd_cols() ##################################################
 
+# expected typical inputs
+test_that("expected typical inputs", {
+  
+  
+  
+})
+
+# expected edge cases
+test_that("expected edge cases", {})
+
+# expected warnings
+test_that("expected warnings", {})
+
+# expected errors
+test_that("expected errors", {})
+
+
+### tests for get_flmd_cells() ##################################################
+
+# expected typical inputs
+test_that("expected typical inputs", {})
+
+# expected edge cases
+test_that("expected edge cases", {})
+
+# expected warnings
+test_that("expected warnings", {})
+
+# expected errors
+test_that("expected errors", {})
 
 
 
