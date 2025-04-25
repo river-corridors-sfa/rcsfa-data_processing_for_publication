@@ -18,7 +18,7 @@ library(testthat) # for testing
 library(fs) # for temp dir creation
 
 # load functions
-source("./Data_Package_Documentation/functions/create_flmd.R.R")
+source("./Data_Package_Documentation/functions/create_flmd.R")
 
 # create temporary testing directory
 create_test_dir <- function(root = tempdir()) {
@@ -58,14 +58,16 @@ create_test_dir <- function(root = tempdir()) {
   return(base_dir)
 }
 
-system(paste("open", shQuote(create_test_dir()))) # open on mac
-shell.exec(create_test_dir()) # open on windows
+# system(paste("open", shQuote(create_test_dir()))) # open on mac
+# shell.exec(create_test_dir()) # open on windows
 
 
 ### tests for get_flmd_rows() ##################################################
 
 # expected typical inputs
 test_that("expected typical inputs", {
+  
+  data_package_dir <- create_test_dir()
   
   # get_flmd_rows() returns a tibble
   expect_s3_class(get_flmd_rows(directory = data_package_dir), "tbl_df")
@@ -108,9 +110,19 @@ test_that("expected errors", {})
 # expected typical inputs
 test_that("expected typical inputs", {
   
+  data_package_dir <- create_test_dir()
+  flmd <- get_flmd_rows(data_package_dir)
   
+  # get_flmd_cols() returns a tibble where nrow() == nrow(flmd_base)
+  expect_equal(object = get_flmd_cols(flmd_base = flmd) %>% nrow(),
+               expected = flmd %>% nrow())
+  
+  # get_flmd_cols() returns a tibble where ncol() = cols_to_add + 2
+  
+  # get_flmd_cols() returns a tibble that must include columns File_Name and File_Path
   
 })
+
 
 # expected edge cases
 test_that("expected edge cases", {})

@@ -36,7 +36,7 @@ get_flmd_rows <- function(directory, # required
   
   ### Prep script ##############################################################
   library(tidyverse)
-  
+  library(rlog)
   
   ### validate inputs ##########################################################
   
@@ -88,6 +88,44 @@ get_flmd_rows <- function(directory, # required
   return(flmd_base)
  
                           
-}
+} # end get_flmd_rows()
+  
+
+
+### get_flmd_cols() function ###################################################
+
+get_flmd_cols <- function(flmd_base, # required
+                          cols_to_add = c("Definition", "Standard", "Missing_Value_Codes", "Column_or_Row_Position", "Header_Rows")) { # optional
+  
+  ### About the function #######################################################
+  # GWT
+  
+  # Inputs: 
+  
+  # Outputs: 
+  
+  # Assumptions: 
+  
+  # Status: 
+  
+  # Examples: 
   
   
+  ### Prep script ##############################################################
+  library(tidyverse)
+  library(rlog)
+  
+  ### validate inputs ##########################################################
+  
+  
+  ### prepare return ###########################################################
+  return(flmd_base)
+  
+  
+} # end fet_flmd_cols()
+
+
+
+
+
+
