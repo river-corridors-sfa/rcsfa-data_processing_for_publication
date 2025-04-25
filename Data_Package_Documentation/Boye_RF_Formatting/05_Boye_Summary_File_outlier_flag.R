@@ -61,13 +61,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-# dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/RC2_TemporalStudy_2022-2024_SampleData"
+dir <- "Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package/Sample_Data/New folder"
 
-study_code <- 'RC2_2022-2024' # this is used to rename the output file
+study_code <- 'WHONDRS_MEL' # this is used to rename the output file
 
-material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
-
+material <- 'Soil' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 # ====================== functions used in this script =========================
 
