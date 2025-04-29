@@ -1,7 +1,7 @@
 ### test-create_flmd.R #########################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-04-24
-# Date Updated: 2025-04-24
+# Date Updated: 2025-04-29
 
 # Objective
 
@@ -41,12 +41,12 @@ create_test_dir <- function(root = tempdir()) {
   
   readr::write_csv(
     tibble::tibble(id = 1:3, value = c(40, 50, 60)),
-    file.path(base_dir, "data", "file_b.csv")
+    file.path(base_dir, "file_flmd.csv")
   )
   
   readr::write_csv(
     tibble::tibble(id = 1:3, value = c(70, 80, 90)),
-    file.path(base_dir, "data", "file_c.csv")
+    file.path(base_dir, "file_dd.csv")
   )
   
   # R script in scripts/
@@ -78,8 +78,8 @@ test_that("expected typical inputs", {
   
   # get_flmd_rows() returns a tibble that includes all files in dir
   expect_equal(object = get_flmd_rows(directory = data_package_dir), 
-               expected = tibble(File_Name = c("readme_example_data_package.pdf", "file_a.csv", "file_b.csv", "file_c.csv", "01_script.R"),
-                                 File_Path = c("/example_data_package", "/example_data_package/data", "/example_data_package/data", "/example_data_package/data", "/example_data_package/scripts")))
+               expected = tibble(File_Name = c("readme_example_data_package.pdf", "file_flmd.csv", "file_dd.csv", "file_a.csv", "01_script.R"),
+                                 File_Path = c("/example_data_package", "/example_data_package", "/example_data_package", "/example_data_package/data", "/example_data_package/scripts")))
 
 })
   
@@ -112,23 +112,37 @@ test_that("expected typical inputs", {
   
   data_package_dir <- create_test_dir()
   flmd <- get_flmd_rows(data_package_dir)
+  my_flmd_cols <- c("Definition", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position")
   
   # get_flmd_cols() returns a tibble where nrow() == nrow(flmd_base)
   expect_equal(object = get_flmd_cols(flmd_base = flmd) %>% nrow(),
                expected = flmd %>% nrow())
   
   # get_flmd_cols() returns a tibble where ncol() = cols_to_add + 2
-  my_flmd_cols <- c("Definition", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Position")
   expect_equal(object = get_flmd_cols(flmd_base = flmd, cols_to_add = my_flmd_cols) %>% ncol(), 
                expected = length(my_flmd_cols) + 2)
   
   # get_flmd_cols() returns a tibble that must include columns File_Name and File_Path
-  expected_result = get_flmd_cols(flmd_base = flmd, cols_to_add = my_flmd_cols)
-  expect_true(all(c("File_Name", "File_Path") %in% names(expected_result)))
+  result = get_flmd_cols(flmd_base = flmd, cols_to_add = my_flmd_cols)
+  expect_true(all(c("File_Name", "File_Path") %in% names(result)))
   
   # get_flmd_cols() returns a tibble where the new columns have the correct class
+  result <- get_flmd_cols(flmd_base = flmd, cols_to_add = my_flmd_cols)
   
-  
+  expect_equal(object = class(result$File_Name), 
+               expected = "character")
+  expect_equal(object = class(result$Definition), 
+               expected = "character")
+  expect_equal(object = class(result$Standard), 
+               expected = "character")
+  expect_equal(object = class(result$Missing_Value_Codes), 
+               expected = "character")
+  expect_equal(object = class(result$Header_Rows), 
+               expected = "numeric")
+  expect_equal(object = class(result$Column_or_Row_Name_Position), 
+               expected = "numeric")
+  expect_equal(object = class(result$File_Path), 
+               expected = "character")
 })
 
 
@@ -152,12 +166,33 @@ test_that("expected errors", {})
 ### tests for get_flmd_cells() ##################################################
 
 # expected typical inputs
-test_that("expected typical inputs", {})
-  # If the input vector cols_to_populate includes "Standard", then populate the Standard column with "ESS-DIVE CSV v1" if the File_Name file extension is ".csv" or ".tsv"
-  # If the input vector cols_to_populate includes "Standard", then populate the Standard column with "ESS-DIVE FLMD v1; ESS-DIVE CSV v1" if the File_Name ends with "*flmd.csv"
-  # If the input vector cols_to_populate includes "Standard", then populate the Standard column with "N/A" if the file extension is not ".csv" or ".tsv"
-  # If the input vector cols_to_populate includes "Missing_Value_Codes", then populate the Missing_Value_Codes column with '"-9999"; "N/A"; "": NA"' if the File_Name file extension is ".csv" or ".tsv
-  # If the input vector cols_to_populate includes "Missing_Value_Codes", then populate the Missing_Value_Codes column with "N/A" if the File_Name file extension is NOT ".csv" or ".tsv
+test_that("expected typical inputs", {
+  
+  data_package_dir <- create_test_dir()
+  my_flmd_base <- get_flmd_rows(data_package_dir)
+  my_flmd <- get_flmd_cols(flmd_base = my_flmd_base)
+  my_flmd_cols <- c("Definition", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position")
+  
+  # If the input vector cols_to_populate includes "Standard"..., 
+  # ... then populate the Standard column with "ESS-DIVE CSV v1" if the File_Name file extension is ".csv" or ".tsv"
+  # ... then populate the Standard column with "ESS-DIVE FLMD v1; ESS-DIVE CSV v1" if the File_Name ends with "*flmd.csv" or "*dd.csv"
+  # ... then populate the Standard column with "N/A" if the file extension is not ".csv" or ".tsv"
+  
+  expect_equal(object = get_flmd_cells(flmd_base = my_flmd, cols_to_populate = my_flmd_cols) %>% select(File_Name, Standard),
+               expected = tibble(File_Name = c("readme_example_data_package.pdf", "file_flmd.csv", "file_dd.csv", "file_a.csv", "01_script.R"),
+                                 Standard = c("N/A", "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", "ESS-DIVE CSV v1", "N/A")))
+  
+  # If the input vector cols_to_populate includes "Misisng_Value_Codes"..., 
+  # ... then populate the Missing_Value_Codes column  with '"-9999"; "N/A"; "": NA"' if the File_Name file extension is ".csv" or ".tsv
+  # ... then populate the Missing-Value_Codes column with "N/A" if the file extension is not ".csv" or ".tsv"
+  
+  expect_equal(object = get_flmd_cells(flmd_base = my_flmd, cols_to_populate = my_flmd_cols) %>% select(File_Name, Missing_Value_Codes),
+               expected = tibble(File_Name = c("readme_example_data_package.pdf", "file_flmd.csv", "file_dd.csv", "file_a.csv", "01_script.R"),
+                                 Missing_Value_Codes = c("N/A", '"-9999"; "N/A"; "": NA"', '"-9999"; "N/A"; "": NA"', '"-9999"; "N/A"; "": NA"', "N/A")))
+  
+})
+
+
 
   # For Column_or_Row_Position...
   # For Header_Rows...
