@@ -95,7 +95,7 @@ get_flmd_rows <- function(directory, # required
 ### get_flmd_cols() function ###################################################
 
 get_flmd_cols <- function(flmd_base, # required
-                          cols_to_add = c("Definition", "Standard", "Missing_Value_Codes", "Column_or_Row_Position", "Header_Rows")) { # optional
+                          cols_to_add = c("Definition", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Position")) { # optional
   
   ### About the function #######################################################
   # GWT
@@ -117,6 +117,17 @@ get_flmd_cols <- function(flmd_base, # required
   
   ### validate inputs ##########################################################
   
+  
+  
+  ### add columns to flmd ######################################################
+  for (col in cols_to_add) {
+    flmd_base[[col]] <- NA
+  }
+    
+  ### sort cols ################################################################
+  flmd <- flmd_base %>% 
+    select(File_Name, all_of(cols_to_add), File_Path)
+    
   
   ### prepare return ###########################################################
   return(flmd_base)

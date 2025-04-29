@@ -118,20 +118,35 @@ test_that("expected typical inputs", {
                expected = flmd %>% nrow())
   
   # get_flmd_cols() returns a tibble where ncol() = cols_to_add + 2
+  my_flmd_cols <- c("Definition", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Position")
+  expect_equal(object = get_flmd_cols(flmd_base = flmd, cols_to_add = my_flmd_cols) %>% ncol(), 
+               expected = length(my_flmd_cols) + 2)
   
   # get_flmd_cols() returns a tibble that must include columns File_Name and File_Path
+  expected_result = get_flmd_cols(flmd_base = flmd, cols_to_add = my_flmd_cols)
+  expect_true(all(c("File_Name", "File_Path") %in% names(expected_result)))
+  
+  # get_flmd_cols() returns a tibble where the new columns have the correct class
+  
   
 })
 
 
 # expected edge cases
 test_that("expected edge cases", {})
+  # Returns a tibble when a subset of the required columns names are included
+
+  # Returns the unchanged input tibble if no columns are specified
 
 # expected warnings
 test_that("expected warnings", {})
+  # If the cols_to_add input vector is not part of the controlled vocab, then warn the user that the column will not be added
+
+  # If the input vector does not include all default cols, then warn the user that some of the required columns will noto be included
 
 # expected errors
 test_that("expected errors", {})
+  # If the flmd_base input vector does not include the columns File_Name and File_Path, then error and terminate the script
 
 
 ### tests for get_flmd_cells() ##################################################
