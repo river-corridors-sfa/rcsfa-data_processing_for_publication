@@ -153,12 +153,23 @@ test_that("expected errors", {})
 
 # expected typical inputs
 test_that("expected typical inputs", {})
+  # If the input vector cols_to_populate includes "Standard", then populate the Standard column with "ESS-DIVE CSV v1" if the File_Name file extension is ".csv" or ".tsv"
+  # If the input vector cols_to_populate includes "Standard", then populate the Standard column with "ESS-DIVE FLMD v1; ESS-DIVE CSV v1" if the File_Name ends with "*flmd.csv"
+  # If the input vector cols_to_populate includes "Standard", then populate the Standard column with "N/A" if the file extension is not ".csv" or ".tsv"
+  # If the input vector cols_to_populate includes "Missing_Value_Codes", then populate the Missing_Value_Codes column with '"-9999"; "N/A"; "": NA"' if the File_Name file extension is ".csv" or ".tsv
+  # If the input vector cols_to_populate includes "Missing_Value_Codes", then populate the Missing_Value_Codes column with "N/A" if the File_Name file extension is NOT ".csv" or ".tsv
+
+  # For Column_or_Row_Position...
+  # For Header_Rows...
 
 # expected edge cases
 test_that("expected edge cases", {})
+  # Returns the unchanged input tibble if no columns are specified
 
 # expected warnings
 test_that("expected warnings", {})
+  # If a column from cols_to_populate isn't in flmd_base, then warn the user that the column is missing from the DF and won't be populated
+  # If tabular files are present, then warn the user that the Boye and Goldman standards (if applicable) need to be manually added to the flmd
 
 # expected errors
 test_that("expected errors", {})

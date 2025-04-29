@@ -130,10 +130,10 @@ get_flmd_cols <- function(flmd_base, # required
     
   
   ### prepare return ###########################################################
-  return(flmd_base)
+  return(flmd)
   
   
-} # end fet_flmd_cols()
+} # end get_flmd_cols()
 
 
 
