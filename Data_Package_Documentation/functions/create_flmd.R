@@ -1,4 +1,4 @@
-### create_flmd_skeleton.R ################################################
+### create_flmd.R ##############################################################
 # Date Created: 2024-06-14
 # Date Updated: 2025-04-29
 # Author: Bibi Powers-McCormack
@@ -6,14 +6,15 @@
 
 ### FUNCTION ###################################################################
 
-create_flmd_skeleton <- function(directory, 
-                                 add_columns = c("Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position"), # enter FALSE if you don't want any added
-                                 add_placeholders = T, 
-                                 exclude_files = NA_character_, 
-                                 include_files = NA_character_, 
-                                 include_dot_files = F, 
-                                 query_header_info = T,
-                                 file_n_max = 100) {
+create_flmd <- function(directory, 
+                        dp_keyword, 
+                        add_columns = c("File_Description", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position"), 
+                        add_placeholders = T, 
+                        exclude_files = NA_character_, 
+                        include_files = NA_character_, 
+                        include_dot_files = F, 
+                        query_header_info = T,
+                        file_n_max = 100) {
   
   
   ### About the function #######################################################
@@ -48,6 +49,14 @@ create_flmd_skeleton <- function(directory,
   # Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
   # Brie informally reviewed on 2024-06-24 (see issue #17)
   # Bibi updated the script on 2025-03-25 and it will need to go through review again. 
+  
+    # TASKS
+    # write tests for current script
+    # add ability to add header info based on boye and goldman files
+    # refactor
+    # update examples
+    # update header documentation
+    # update log_info text about inputs
   
   # Examples
   
@@ -86,23 +95,28 @@ create_flmd_skeleton <- function(directory,
   ### Prep Script ##############################################################
   
   # load libraries
-  pacman::p_load(tidyverse, # cuz duh
-                 rlog, # for logging documentation
-                 fs) # for getting file extension
+  library(tidyverse) # cuz duh
+  library(rlog) # for logging documentation
+  library(fs) # for getting file extension
   
-  log_info("This function takes 8 arguments: 
+  log_info("This function takes 9 arguments: 
             - directory (required)
-            - add_columns (optional; default = 'Standard', 'Missing_Value_Codes', 'Header_Rows', 'Column_or_Row_Name_Position')
-            - add_placeholders (optional; default = T)
+            - dp_keyword (required)
+            - add_columns (required; default = 'File_Description', Standard', 'Missing_Value_Codes', 'Header_Rows', 'Column_or_Row_Name_Position')
+            - add_placeholders (required; default = T)
             - exclude_files (optional; default = NA)
             - include_files (optional; default = NA)
             - file_n_max (optional; default = 100)
             - include_dot_files (optional; default = F)
-            - query_header_info (optoina; default = F)
+            - query_header_info (optoinal; default = T)
            
            It returns a FLMD with the following column headers: 
            -  File_Name and File_Description, plus any additional columns you included in the add_columns argument
   Open the function to see argument definitions, function assumptions, and examples.")
+  
+  ### Validate Inputs ##########################################################
+  
+  
   
   ### List Files ###############################################################
   
@@ -144,29 +158,12 @@ create_flmd_skeleton <- function(directory,
   
   ### add columns as indicated by user argument ################################
   
-  
-  #### missing value codes ----
-  if ("Missing_Value_Codes" %in% add_columns) {
-    
-    current_flmd_skeleton <- current_flmd_skeleton %>% 
-      mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ '"N/A"; "-9999"; ""; "NA"',
-                                             T ~ "N/A"))
-  }
-  
-  #### standard ----
-  if ("Standard" %in% add_columns) {
-    
-    current_flmd_skeleton <- current_flmd_skeleton %>% 
-      mutate(Standard = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # update the standard with the CSV reporting format (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
-                                  T ~ "N/A"))
-  }
-  
   #### header rows and column or row position ----
   # check if there are tabular files and query_header_info = T
   count_csv_files <- sum(str_detect(current_file_paths, "\\.csv$"))
   count_tsv_files <- sum(str_detect(current_file_paths, "\\.tsv$"))
   
-  if (count_csv_files > 0 | count_tsv_files > 0) {
+  if (count_csv_files > 0 || count_tsv_files > 0) {
     
     log_info(paste0("There are ", count_csv_files, " csv file(s) and ", count_tsv_files, " tsv file(s)."))
     
@@ -213,6 +210,7 @@ create_flmd_skeleton <- function(directory,
                                        T ~ ""),
                Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
                                                        T ~ ""))
+      
       
       # filter for tabular data
       tabular_files <- current_flmd_skeleton %>% 
@@ -280,6 +278,21 @@ create_flmd_skeleton <- function(directory,
   }
   
   
+  #### missing value codes ----
+  if ("Missing_Value_Codes" %in% add_columns) {
+    
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ '"N/A"; "-9999"; ""; "NA"',
+                                             T ~ "N/A"))
+  }
+  
+  #### standard ----
+  if ("Standard" %in% add_columns) {
+    
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      mutate(Standard = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # update the standard with the CSV reporting format (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+                                  T ~ "N/A"))
+  }
   
   #### add placeholder readme, flmd, dd rows if indicated ######################
   

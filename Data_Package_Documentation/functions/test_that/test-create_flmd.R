@@ -1,6 +1,6 @@
 # test-create_flmd_skeleton_v2.R ###############################################
 # Author: Bibi Powers-McCormack
-# Date Created: 2025-04-29
+# Date Created: 2025-04-24
 # Date Updated: 2025-04-29
 
 # Objective
@@ -63,7 +63,63 @@ create_test_dir <- function(root = tempdir()) {
 
 
 ### expected typical inputs ####################################################
+test_that("expected typical inputs", {
+  
+  my_data_package_dir <- create_test_dir()
+  
+  # returns a tibble
+  expect_s3_class(create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F), "tbl_df")
+  
+  # returns a tibble that must include columns File_Name and File_Path
+  result = create_flmd(directory = data_package_dir, query_header_info = F)
+  expect_true(all(c("File_Name", "File_Path") %in% names(result)))
+  
+  # returns a tibble that includes all files in dir
+  expect_equal(object = create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F) %>% select(File_Name, File_Path), 
+               expected = tibble(File_Name = c("readme_example_data_package.pdf", "file_flmd.csv", "file_dd.csv", "file_a.csv", "01_script.R"),
+                                 File_Path = c("/example_data_package", "/example_data_package", "/example_data_package", "/example_data_package/data", "/example_data_package/scripts")))
+  
+  # returns a tibble where ncol() = cols_to_add + 2
+  expect_equal(object = create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F) %>% ncol(), 
+               expected = length(my_flmd_cols) + 2)
+  
+  # returns a tibble where the new columns have the correct class
+  result <- create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  
+  expect_equal(object = class(result$File_Name), 
+               expected = "character")
+  expect_equal(object = class(result$File_Description), 
+               expected = "character")
+  expect_equal(object = class(result$Standard), 
+               expected = "character")
+  expect_equal(object = class(result$Missing_Value_Codes), 
+               expected = "character")
+  expect_equal(object = class(result$Header_Rows), 
+               expected = "numeric")
+  expect_equal(object = class(result$Column_or_Row_Name_Position), 
+               expected = "numeric")
+  expect_equal(object = class(result$File_Path), 
+               expected = "character")
+  
+  # returns a tibble that adds placeholders when placeholder_rows_to_add = c("readme", "flmd", "dd")
+  
+  # Uses the dp_keyword input to name the placeholders
+  
+  # Includes included files
+  
+  # Excludes excluded files
+  
+  # If the input vector `add_columns` includes "Standard"..., 
+  # ... then populate the Standard column with "ESS-DIVE CSV v1" if the File_Name file extension is ".csv" or ".tsv"
+  # ... then populate the Standard column with "ESS-DIVE FLMD v1; ESS-DIVE CSV v1" if the File_Name ends with "*flmd.csv" or "*dd.csv"
+  # ... then populate the Standard column with "N/A" if the file extension is not ".csv" or ".tsv"
+    # based on https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv
 
+  # If the input vector `add_columns` includes "Misisng_Value_Codes"..., 
+  # ... then populate the Missing_Value_Codes column  with '"-9999"; "N/A"; "": NA"' if the File_Name file extension is ".csv" or ".tsv
+  # ... then populate the Missing-Value_Codes column with "N/A" if the file extension is not ".csv" or ".tsv"
+  
+})
 
 ### expected edge cases ########################################################
 
@@ -72,27 +128,6 @@ create_test_dir <- function(root = tempdir()) {
 
 
 ### expected errors ############################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
