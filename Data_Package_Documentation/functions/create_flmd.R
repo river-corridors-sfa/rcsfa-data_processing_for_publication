@@ -204,13 +204,15 @@ create_flmd <- function(directory,
     # if user indicated to go through header info, then proceed to ask for header info
     if (query_header_info == T) {
       
-      # add -9999 to non-tabular
       current_flmd_skeleton <- current_flmd_skeleton %>% 
+        # add -9999 to non-tabular
         mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
                                        T ~ ""),
                Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
-                                                       T ~ ""))
-      
+                                                       T ~ "")) %>% 
+        
+        # add new (temporary) column
+        mutate(header_format = NA_real_)
       
       # filter for tabular data
       tabular_files <- current_flmd_skeleton %>% 
@@ -240,25 +242,34 @@ create_flmd <- function(directory,
         # show file
         View(current_tabular_file)
         
-        # run function
-        user_inputs <- ask_user_input()
+        # ask what type of header format
+        user_reply <- as.numeric(readline(prompt = cat("What type of header info is present? 0 = none; 1 = Boye; 2 = Goldman; 3 = other")))
         
-        # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
-        while(user_inputs$current_column_or_row_name_position < 0 | user_inputs$current_header_row <0) {
-          
-          log_info("Asking for user input again because previous input included an invalid (negative) value. ")
-          
+        if (user_reply == 3) {
+          # run function
           user_inputs <- ask_user_input()
+          
+          # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
+          while(user_inputs$current_column_or_row_name_position < 0 | user_inputs$current_header_row <0) {
+            
+            log_info("Asking for user input again because previous input included an invalid (negative) value. ")
+            
+            user_inputs <- ask_user_input()
+            
+          }
+          
+          # pull results out of list
+          current_column_or_row_name_position <- user_inputs$current_column_or_row_name_position
+          current_header_row <- user_inputs$current_header_row
+      
+          # add to flmd
+          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_header_row
+          current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_column_or_row_name_position
           
         }
         
-        # pull results out of list
-        current_column_or_row_name_position <- user_inputs$current_column_or_row_name_position
-        current_header_row <- user_inputs$current_header_row
-        
-        # add to flmd
-        current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_header_row
-        current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_column_or_row_name_position
+        # update header row type
+        current_flmd_skeleton$header_format[current_flmd_skeleton$absolute_path == current_file_absolute] <- user_reply
         
       }
       
