@@ -1,3 +1,118 @@
+# test-create_flmd_skeleton_v2.R ###############################################
+# Author: Bibi Powers-McCormack
+# Date Created: 2025-04-29
+# Date Updated: 2025-04-29
+
+# Objective
+
+# Directions
+
+
+### Prep Script ################################################################
+
+# load libraries
+library(tidyverse)
+library(rlog)
+library(devtools) # for sourcing in functions
+library(testthat) # for testing
+library(fs) # for temp dir creation
+
+# load functions
+source("./Data_Package_Documentation/functions/create_flmd.R")
+
+# create temporary testing directory
+create_test_dir <- function(root = tempdir()) {
+  # Create root data package directory
+  base_dir <- file.path(root, "example_data_package")
+  fs::dir_create(base_dir)
+  
+  # Create subdirectories
+  fs::dir_create(file.path(base_dir, "data"))
+  fs::dir_create(file.path(base_dir, "scripts"))
+  
+  # Create example files with optional content
+  readr::write_lines("This is a PDF placeholder.", file.path(base_dir, "readme_example_data_package.pdf"))
+  
+  # Data file in data/
+  readr::write_csv(
+    tibble::tibble(id = 1:3, value = c(10, 20, 30)),
+    file.path(base_dir, "data", "file_a.csv")
+  )
+  
+  readr::write_csv(
+    tibble::tibble(id = 1:3, value = c(40, 50, 60)),
+    file.path(base_dir, "file_flmd.csv")
+  )
+  
+  readr::write_csv(
+    tibble::tibble(id = 1:3, value = c(70, 80, 90)),
+    file.path(base_dir, "file_dd.csv")
+  )
+  
+  # R script in scripts/
+  readr::write_lines(
+    c("# Example R script", "print('Hello world')"),
+    file.path(base_dir, "scripts", "01_script.R")
+  )
+  
+  return(base_dir)
+}
+
+# system(paste("open", shQuote(create_test_dir()))) # open on mac
+# shell.exec(create_test_dir()) # open on windows
+
+
+### expected typical inputs ####################################################
+
+
+### expected edge cases ########################################################
+
+
+### expected warnings ##########################################################
+
+
+### expected errors ############################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### test-create_flmd.R #########################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-04-24

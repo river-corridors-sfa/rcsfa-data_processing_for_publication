@@ -1,47 +1,111 @@
-### create_flmd.R ##############################################################
-# Author: Bibi Powers-McCormack
-# Date Created: 2025-04-24
+### create_flmd_skeleton.R ################################################
+# Date Created: 2024-06-14
 # Date Updated: 2025-04-29
-
-# Objective
-
-# Assumptions
+# Author: Bibi Powers-McCormack
 
 
-### get_flmd_rows() function ###################################################
+### FUNCTION ###################################################################
 
-get_flmd_rows <- function(directory, # required
-                          dp_keyword, # required
-                          include_files = NA, # optional 
-                          exclude_files = NA, # optional 
-                          include_dot_files = F, # optional
-                          placeholder_rows_to_add = c("readme", "flmd", "dd")) { # optional
+create_flmd_skeleton <- function(directory, 
+                                 add_columns = c("Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position"), # enter FALSE if you don't want any added
+                                 add_placeholders = T, 
+                                 exclude_files = NA_character_, 
+                                 include_files = NA_character_, 
+                                 include_dot_files = F, 
+                                 query_header_info = T,
+                                 file_n_max = 100) {
+  
   
   ### About the function #######################################################
-  # GWT
+  # Objective: Create an flmd with all the columns filled out, except for the File_Description
   
   # Inputs: 
+  # directory = string of the absolute folder file path. Required argument. 
+  # add_columns = choose which columns you want included in the flmd (File_Name and File_Path will always be included). 
+  # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing
+  # exclude_files = vector of files to exclude from within the dir. Optional argument; default is NA. 
+  # include_files = vector of files to include from within the dir. Optional argument; default is NA. 
+  # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
+  # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Optional argument; default is TRUE.  
+  # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
   
   # Outputs: 
+  # flmd df that lists out all the provided files
+  # columns include: "File_Name", "File_Description", "File_Path", plus any optional columns "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position"
   
   # Assumptions: 
-    # The script first filters by include_files, then removes exclude_files, then adds placeholders.
-    # Files listed in exclude_files will be removed, even if they're also included in include_files.
-    # File Paths begin with "/"
+  # Counts skip all rows that begin with a #
+  # If column_or_row_name_position in the correct place, the value is 1
+  # If there are no header_rows, the value is 0
+  # If there are tabular data and user decides to not populate header row info, then those cells populate with ""
+  # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
+  # Tabular data is only data where the file extension is .csv or .tsv
+  # Tabular data is a single data matrix
+  # Tabular data files are organized with column headers (not row headers)
+  # Tabular data can have header rows above and/or below the column headers
+  # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
   
-  # Status: 
+  # Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
+  # Brie informally reviewed on 2024-06-24 (see issue #17)
+  # Bibi updated the script on 2025-03-25 and it will need to go through review again. 
   
-  # Examples: 
+  # Examples
+  
+  # # 1) example where you want to include all files in a given directory in your flmd
+  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
+  # 
+  # # 2) example where you don't want to include a file in an archive folder
+  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                 exclude_files = "archive/archived_file.csv")
+  # 
+  # # 3) example where you don't want to include all files in an archive folder
+  # archived_files <- list.files(path = paste0(directory, "/archive"), recursive = T, full.names = T) %>% # use list.files() to gather the (relative) names of all archived files
+  #                   str_remove(., paste0(directory, "/")) 
+  # 
+  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                 exclude_files = archived_files)
+  # 
+  # # 4) example where you have 2 files with header rows and 98 without
+  # # you can split the data and import it separately; this allows the user to not have to enter row header info on the 98 files that are regularly structured
+  # files_with_headers <- c("folder/of/data/with/header/rows/file_1.csv", # first create a vector of all relative file paths that have header rows
+  #                         "folder/of/data/with/header/rows/file_2.csv")
+  # 
+  # flmd_df_with_headers <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                             include_files = files_with_headers) # this loads in only the 2 files with headers. Select "A" when asked for `user_input_add_header_info`
+  # 
+  # flmd_df_without_headers <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
+  #                                                 exclude_files = files_with_headers) # this loads all the remaining files. Select "F" when asked for `user_input_add_header_info`
+  # 
+  # flmd_df <- bind_rows(flmd_df_with_headers, # now combine the two dfs to create your complete flmd.
+  #                      flmd_df_without_headers) 
+  # 
+  # # After exporting, manually replace all NAs with column_or_row_name_position = 1 and header_rows = 0 for the remaining 98 files without header rows
+  # # You may also need to reorder the files
   
   
-  ### Prep script ##############################################################
-  library(tidyverse)
-  library(rlog)
+  ### Prep Script ##############################################################
   
-  ### validate inputs ##########################################################
+  # load libraries
+  pacman::p_load(tidyverse, # cuz duh
+                 rlog, # for logging documentation
+                 fs) # for getting file extension
   
+  log_info("This function takes 8 arguments: 
+            - directory (required)
+            - add_columns (optional; default = 'Standard', 'Missing_Value_Codes', 'Header_Rows', 'Column_or_Row_Name_Position')
+            - add_placeholders (optional; default = T)
+            - exclude_files (optional; default = NA)
+            - include_files (optional; default = NA)
+            - file_n_max (optional; default = 100)
+            - include_dot_files (optional; default = F)
+            - query_header_info (optoina; default = F)
+           
+           It returns a FLMD with the following column headers: 
+           -  File_Name and File_Description, plus any additional columns you included in the add_columns argument
+  Open the function to see argument definitions, function assumptions, and examples.")
   
-  ### list files ###############################################################
+  ### List Files ###############################################################
+  
   # get parent directory
   current_parent_directory <- sub(".*/", "/", directory)
   
@@ -50,15 +114,20 @@ get_flmd_rows <- function(directory, # required
   file_paths_all <- list.files(directory, recursive = T, full.names = T, all.files = include_dot_files)
   current_file_paths <- file_paths_all
   
-  # filter to only keep included files
-  if (any(!is.na(include_files))) {
-    current_file_paths <- file_paths_all[file_paths_all %in% file.path(directory, include_files)]
-  }
-  
   # remove excluded files
   if (any(!is.na(exclude_files))) {
+    
     current_file_paths <- file_paths_all[!file_paths_all %in% file.path(directory, exclude_files)]
+    
   }
+  
+  # filter to only keep included files
+  if (any(!is.na(include_files))) {
+    
+    current_file_paths <- file_paths_all[file_paths_all %in% file.path(directory, include_files)]
+    
+  }
+  
   
   log_info(paste0("Adding ", length(current_file_paths), " of the ", length(file_paths_all), " files to the flmd."))
   
@@ -66,16 +135,215 @@ get_flmd_rows <- function(directory, # required
   ### add rows to flmd #########################################################
   
   # initialize df with file names and paths
-  flmd_base <- tibble(absolute_path = current_file_paths) %>% 
+  current_flmd_skeleton <- tibble(absolute_path = current_file_paths) %>% 
     mutate(File_Name = basename(absolute_path),
            File_Path = paste0(current_parent_directory, "/", fs::path_rel(absolute_path, start = directory)),
-           File_Path = str_remove(File_Path, paste0("/", File_Name))) %>% 
-    select(File_Name, File_Path)
+           File_Path = str_remove(File_Path, paste0("/", File_Name)),
+           File_Description = NA_character_)
+  
+  
+  ### add columns as indicated by user argument ################################
+  
+  
+  #### missing value codes ----
+  if ("Missing_Value_Codes" %in% add_columns) {
+    
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ '"N/A"; "-9999"; ""; "NA"',
+                                             T ~ "N/A"))
+  }
+  
+  #### standard ----
+  if ("Standard" %in% add_columns) {
+    
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      mutate(Standard = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # update the standard with the CSV reporting format (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+                                  T ~ "N/A"))
+  }
+  
+  #### header rows and column or row position ----
+  # check if there are tabular files and query_header_info = T
+  count_csv_files <- sum(str_detect(current_file_paths, "\\.csv$"))
+  count_tsv_files <- sum(str_detect(current_file_paths, "\\.tsv$"))
+  
+  if (count_csv_files > 0 | count_tsv_files > 0) {
+    
+    log_info(paste0("There are ", count_csv_files, " csv file(s) and ", count_tsv_files, " tsv file(s)."))
+    
+    # function to ask for header row info
+    ask_user_input <- function() {
+      
+      # ask if there is more than just the data matrix present
+      user_input_has_header_rows <- readline(prompt = "Are header rows present (either above or below the column headers)? (Y/N) ")
+      
+      if (tolower(user_input_has_header_rows) == "y") {
+        
+        # ask location of column header
+        user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
+        current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
+        
+        # ask location of first data row
+        user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? "))
+        
+        # calculate header_row
+        current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
+        
+        # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct position (not 0)
+        current_column_or_row_name_position <- current_column_or_row_name_position + 1
+        
+        user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
+        
+        
+      } else {
+        
+        # if there is only a single data matrix/data doesn't have header rows, then col header is in row 1 and data headers = 0
+        user_inputs <- list(current_column_or_row_name_position = 1, current_header_row = 0)
+        
+      }
+      
+      return(user_inputs)
+    }
+    
+    # if user indicated to go through header info, then proceed to ask for header info
+    if (query_header_info == T) {
+      
+      # add -9999 to non-tabular
+      current_flmd_skeleton <- current_flmd_skeleton %>% 
+        mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
+                                       T ~ ""),
+               Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
+                                                       T ~ ""))
+      
+      # filter for tabular data
+      tabular_files <- current_flmd_skeleton %>% 
+        filter(str_detect(File_Name, "\\.csv$|\\.tsv$")) %>% 
+        pull(absolute_path)
+      
+      # loop through tabular files
+      for (i in 1:length(tabular_files)) {
+        
+        # get current file path
+        current_file_absolute <- tabular_files[i]
+        
+        if (str_detect(current_file_absolute, "\\.csv$")) {
+          
+          # read in current file
+          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
+          
+        } else if (str_detect(current_file_absolute, "\\.tsv$")) {
+          
+          # read in current file
+          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
+          
+        }
+        
+        log_info(paste0("Viewing tabular file ", i, " of ", length(tabular_files), ": ", basename(current_file_absolute)))
+        
+        # show file
+        View(current_tabular_file)
+        
+        # run function
+        user_inputs <- ask_user_input()
+        
+        # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
+        while(user_inputs$current_column_or_row_name_position < 0 | user_inputs$current_header_row <0) {
+          
+          log_info("Asking for user input again because previous input included an invalid (negative) value. ")
+          
+          user_inputs <- ask_user_input()
+          
+        }
+        
+        # pull results out of list
+        current_column_or_row_name_position <- user_inputs$current_column_or_row_name_position
+        current_header_row <- user_inputs$current_header_row
+        
+        # add to flmd
+        current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_header_row
+        current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_column_or_row_name_position
+        
+      }
+      
+      
+    } else {
+      
+      log_info("Header_Rows and Column_or_Row_Name_Position are not being calculated. 
+  Tabular files will be left empty and all other files will be automatically populated with '-9999'.")
+      
+      current_flmd_skeleton <- current_flmd_skeleton %>% 
+        mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
+                                       T ~ ""),
+               Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
+                                                       T ~ ""))
+    }
+    
+  }
+  
+  
+  
+  #### add placeholder readme, flmd, dd rows if indicated ######################
+  
+  if (add_placeholders == TRUE) {
+    log_info("Checking for presence of flmd, dd, and readme files.")
+    
+    # check for presence of dd and flmd files
+    flmd_file_present <- any(str_detect(current_file_paths, "flmd.csv"))
+    dd_file_present <- any(str_detect(current_file_paths, "dd.csv"))
+    readme_file_present <- any(str_detect(current_file_paths, "readme"))
+    
+    if (readme_file_present == FALSE) {
+      log_info("Adding placeholder row for readme.")
+      current_flmd_skeleton <- current_flmd_skeleton %>%
+        add_row(
+          "File_Name" = "readme_[INSERT README FILE NAME].pdf",
+          "File_Description" = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
+          "Standard" = "N/A",
+          "Missing_Value_Codes" = '"N/A"; "-9999"; ""; "NA"',
+          "Header_Rows" = "-9999",
+          "Column_or_Row_Name_Position" = "-9999",
+          "File_Path" = current_parent_directory
+        )
+    }
+    
+    if (flmd_file_present == FALSE) {
+      log_info("Adding placeholder row for FLMD.")
+      current_flmd_skeleton <- current_flmd_skeleton %>%
+        add_row(
+          "File_Name" = "[INSERT FLMD FILE NAME]_flmd.csv",
+          "File_Description" = "File-level metadata that lists and describes all of the files contained in the data package.",
+          "Standard" = "ESS-DIVE CSV v1; ESS-DIVE FLMD v1",
+          "Missing_Value_Codes" = '"N/A"; "-9999"; ""; "NA"',
+          "Header_Rows" = "0",
+          "Column_or_Row_Name_Position" = "1",
+          "File_Path" = current_parent_directory
+        )
+    }
+    
+    if (dd_file_present == FALSE) {
+      log_info("Adding placeholder row for DD.")
+      current_flmd_skeleton <- current_flmd_skeleton %>%
+        add_row(
+          "File_Name" = "[INSERT DD FILE NAME]_dd.csv",
+          "File_Description" = 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
+          "Standard" = "ESS-DIVE CSV v1",
+          "Missing_Value_Codes" = '"N/A"; "-9999"; ""; "NA"',
+          "Header_Rows" = "0",
+          "Column_or_Row_Name_Position" = "1",
+          "File_Path" = current_parent_directory
+        )
+    }
+  }
+  
+  
   
   ### sort flmd ################################################################
   
+  # select the columns indicated by user
+  current_flmd_skeleton <- current_flmd_skeleton %>% 
+    select(File_Name, File_Description, any_of(add_columns), File_Path)
+  
   # sort rows by readme, flmd, dd, and then by File_Path and File_Name
-  flmd_base <- flmd_base %>% 
+  current_flmd_skeleton <- current_flmd_skeleton %>% 
     mutate(sort_order = case_when(grepl("readme", File_Name, ignore.case = T) ~ 1,
                                   grepl("flmd.csv", File_Name, ignore.case = T) ~ 2, 
                                   grepl("dd.csv", File_Name, ignore.case = T) ~ 3,
@@ -83,136 +351,10 @@ get_flmd_rows <- function(directory, # required
     arrange(sort_order, File_Path, File_Name) %>% 
     select(-sort_order)
   
-  ### prepare return ###########################################################
-  log_info("get_flmd_rows() complete.")
-  return(flmd_base)
- 
-                          
-} # end get_flmd_rows()
   
-
-
-### get_flmd_cols() function ###################################################
-
-get_flmd_cols <- function(flmd_base, # required
-                          cols_to_add = c("Definition", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position")) { # optional
+  ### return filled out skeleton ###############################################
   
-  ### About the function #######################################################
-  # GWT
-  
-  # Inputs: 
-  
-  # Outputs: 
-  
-  # Assumptions: 
-  
-  # Status: 
-  
-  # Examples: 
-  
-  
-  ### Prep script ##############################################################
-  library(tidyverse)
-  library(rlog)
-  
-  ### validate inputs ##########################################################
-  
-  
-  
-  ### add columns to flmd ######################################################
-  for (col in cols_to_add) {
-    flmd_base[[col]] <- NA
-  }
-  
-  # update columns #############################################################
-  
-  # convert col classes
-  flmd_base <- flmd_base %>% 
-    mutate(across(any_of(c("File_Name", "Definition", "Standard", "Missing_Value_Codes", "File_Path")), as.character)) %>% 
-    mutate(across(any_of(c("Header_Rows", "Column_or_Row_Name_Position")), as.numeric))
-    
-  # sort cols
-  flmd <- flmd_base %>% 
-    select(File_Name, all_of(cols_to_add), File_Path)
-  
-  ### prepare return ###########################################################
-  log_info("get_flmd_cols() complete.")
-  return(flmd)
-  
-  
-  
-} # end get_flmd_cols()
-
-
-### get_flmd_cells() function ##################################################
-
-get_flmd_cells <- function(flmd_base, #required
-                           cols_to_populate = c("Definition", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position")) {
-  
-  ### About the function #######################################################
-  # GWT
-  
-  # Inputs: 
-  
-  # Outputs: 
-  
-  # Assumptions: 
-   # we are using standards based on the Nov 2024 list: https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/38fc54dbcc3c01fa6f2b57488884c88e21e67380/RF_FLMD_Standard_Terms.csv
-  
-  # Status: 
-  
-  # Examples: 
-  
-  
-  ### Prep script ##############################################################
-  library(tidyverse)
-  library(rlog)
-  
-  ### validate inputs ##########################################################
-  
-  ### update cells #############################################################
-  if ("Standard" %in% cols_to_populate) {
-    
-    log_info("Populating 'Standard' column.")
-    
-    # adding "ESS-DIVE FLMD v1" to flmd and dd
-    # adding "ESS-DIVE CSV v1" to all csv or tsv files
-    # filling in the rest with "N/A"
-    flmd <- flmd_base %>% 
-      mutate(Standard = case_when(str_detect(File_Name, "flmd\\.csv$") | str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1",
-                                  str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1",
-                                  T ~ "N/A"))
-  }
-  
-  if ("Missing_Value_Codes" %in% cols_to_populate) {
-    
-    log_info("Populating 'Missing_Value_Codes' column.")
-    
-    flmd <- flmd %>% 
-      mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ '"-9999"; "N/A"; "": NA"',
-                                  T ~ "N/A"))
-  }
-  
-  if ("Header_Rows" %in% cols_to_populate || "Column_or_Row_Name_Position" %in% cols_to_populate) {
-    
-    log_info("Populating header info columns.")
-    
-    
-    
-    
-    
-    
-  }
-  
-  
-  # prepare return #############################################################
-  log_info("get_flmd_cells() complete.")
-  return(flmd)
-  
+  log_info("create_flmd_skeleton complete.")
+  return(current_flmd_skeleton)
   
 }
-
-
-
-
-
