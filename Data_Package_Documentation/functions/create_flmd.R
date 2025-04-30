@@ -266,12 +266,41 @@ create_flmd <- function(directory,
           current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_header_row
           current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_column_or_row_name_position
           
+        } # end of user_reply == 3
+        
+        if (user_reply == 1) {
+          
+          # extract header row info from boye file
+          boye_row_info <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", col_names = F, show_col_types = F, n_max = 2) %>% 
+            slice(2) %>% 
+            pull(2)
+          
+          # add to flmd
+          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- boye_row_info
+          
+          
         }
         
         # update header row type
         current_flmd_skeleton$header_format[current_flmd_skeleton$absolute_path == current_file_absolute] <- user_reply
         
       }
+      
+      current_flmd_skeleton %>% 
+        mutate(Header_Rows = case_when(header_format == 0 ~ "1", # no header rows
+                                       header_format == 2 ~ "1", # goldman
+                                       T ~ Header_Rows)) %>% 
+        mutate(Column_or_Row_Name_Position = case_when(header_format == 0 ~ "1", # no header rows
+                                                       header_format == 1 ~ "1", # boye
+                                                       header_format == 2 ~ "1", # goldman
+                                                       T ~ Column_or_Row_Name_Position))
+      # update boye files
+      
+      
+      # update goldman files
+      
+      
+      # update files without header info
       
       
     } else {
