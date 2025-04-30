@@ -66,25 +66,26 @@ create_test_dir <- function(root = tempdir()) {
 test_that("expected typical inputs", {
   
   my_data_package_dir <- create_test_dir()
+  my_flmd_cols <- c("File_Description", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position")
   
   # returns a tibble
-  expect_s3_class(create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F), "tbl_df")
+  expect_s3_class(create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F), "tbl_df")
   
   # returns a tibble that must include columns File_Name and File_Path
-  result = create_flmd(directory = data_package_dir, query_header_info = F)
+  result = create_flmd(directory = my_data_package_dir, query_header_info = F)
   expect_true(all(c("File_Name", "File_Path") %in% names(result)))
   
   # returns a tibble that includes all files in dir
-  expect_equal(object = create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F) %>% select(File_Name, File_Path), 
+  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F) %>% select(File_Name, File_Path), 
                expected = tibble(File_Name = c("readme_example_data_package.pdf", "file_flmd.csv", "file_dd.csv", "file_a.csv", "01_script.R"),
                                  File_Path = c("/example_data_package", "/example_data_package", "/example_data_package", "/example_data_package/data", "/example_data_package/scripts")))
   
   # returns a tibble where ncol() = cols_to_add + 2
-  expect_equal(object = create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F) %>% ncol(), 
+  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F) %>% ncol(), 
                expected = length(my_flmd_cols) + 2)
   
   # returns a tibble where the new columns have the correct class
-  result <- create_flmd(directory = data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  result <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
   
   expect_equal(object = class(result$File_Name), 
                expected = "character")

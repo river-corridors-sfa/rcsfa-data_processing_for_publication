@@ -45,6 +45,7 @@ create_flmd <- function(directory,
   # Tabular data files are organized with column headers (not row headers)
   # Tabular data can have header rows above and/or below the column headers
   # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
+  # Boye files have a ".csv" file extension
   
   # Status: Complete. Awaiting testing after confirmation about formatting from ESS-DIVE
   # Brie informally reviewed on 2024-06-24 (see issue #17)
