@@ -58,6 +58,7 @@ create_flmd <- function(directory,
     # update examples
     # update header documentation
     # update log_info text about inputs
+    # add notes about how header row calculations are done
   
   # Examples
   
