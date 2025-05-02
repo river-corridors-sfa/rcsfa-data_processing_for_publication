@@ -8,7 +8,10 @@
 # Directions
 
 
+
 ### Prep Script ################################################################
+
+rm(list=ls(all=T))
 
 # load libraries
 library(tidyverse)
@@ -17,46 +20,16 @@ library(devtools) # for sourcing in functions
 library(testthat) # for testing
 library(fs) # for temp dir creation
 
+# set wd
+current_path <- rstudioapi::getActiveDocumentContext()$path
+setwd(dirname(current_path))
+setwd("../../..")
+
 # load functions
 source("./Data_Package_Documentation/functions/create_flmd.R")
 
-# create temporary testing directory
-create_test_dir <- function(root = tempdir()) {
-  # Create root data package directory
-  base_dir <- file.path(root, "example_data_package")
-  fs::dir_create(base_dir)
-  
-  # Create subdirectories
-  fs::dir_create(file.path(base_dir, "data"))
-  fs::dir_create(file.path(base_dir, "scripts"))
-  
-  # Create example files with optional content
-  readr::write_lines("This is a PDF placeholder.", file.path(base_dir, "readme_example_data_package.pdf"))
-  
-  # Data file in data/
-  readr::write_csv(
-    tibble::tibble(id = 1:3, value = c(10, 20, 30)),
-    file.path(base_dir, "data", "file_a.csv")
-  )
-  
-  readr::write_csv(
-    tibble::tibble(id = 1:3, value = c(40, 50, 60)),
-    file.path(base_dir, "file_flmd.csv")
-  )
-  
-  readr::write_csv(
-    tibble::tibble(id = 1:3, value = c(70, 80, 90)),
-    file.path(base_dir, "file_dd.csv")
-  )
-  
-  # R script in scripts/
-  readr::write_lines(
-    c("# Example R script", "print('Hello world')"),
-    file.path(base_dir, "scripts", "01_script.R")
-  )
-  
-  return(base_dir)
-}
+# source in testing data
+source("./Data_Package_Documentation/functions/test_that/example_data_for_flmd_dd_tests.R")
 
 # system(paste("open", shQuote(create_test_dir()))) # open on mac
 # shell.exec(create_test_dir()) # open on windows
