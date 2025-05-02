@@ -39,7 +39,6 @@ source("./Data_Package_Documentation/functions/test_that/example_data_for_flmd_d
 test_that("expected typical inputs", {
   
   my_data_package_dir <- create_test_dir()
-  my_flmd_cols <- c("File_Description", "Standard", "Missing_Value_Codes", "Header_Rows", "Column_or_Row_Name_Position")
   
   # returns a tibble
   expect_s3_class(create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F), "tbl_df")
