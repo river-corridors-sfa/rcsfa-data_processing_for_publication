@@ -41,24 +41,24 @@ metadata_filepath <- file.choose()
 # metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/EWEB_Study_v2_IGSN_Samples_2_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/MEL_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
-# user_code <- 'IEWDR' # this is for WHONDRS
-user_code <- 'IEPRS'  # this is not for WHONDRS
+user_code <- 'IEWDR' # this is for WHONDRS
+# user_code <- 'IEPRS'  # this is not for WHONDRS
 
 # indicate if parent IGSNs exist
-parent_igsn_present <- T
-# parent_igsn_present <- F
+# parent_igsn_present <- T
+parent_igsn_present <- F
 
 # if parent_igsn_presnt == T, select the registered sites (parent IGSN) .xls file (either use file.choose to select file or change filepath manually); skip if not applicable
 parent_filepath <- file.choose()
-parent_filepath <- "Z:\\IGSN\\AV1_IGSN_Site_Registered.xls"
+# parent_filepath <- ""
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
-# materials_list <- c("water", "sediment", "filter")
-materials_list <- c("water")
+# materials_list <- c("water", "sediment", "filter", "soil") # soil assumes no other material and is not appended to parent ID
+materials_list <- c("soil")
 
 
 ### Load data ##################################################################
@@ -83,55 +83,56 @@ if (parent_igsn_present == T) {
 print(colnames(metadata))
 
 # `Sample Name`
-a <- metadata$Sample_Name
+a <- metadata$Parent_ID
 
 # (name of sampling campaign) 'Comment'
-i <- 'EWEB'
+i <- 'WHONDRS MONet Collaboration'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Latitude_WGS1984
+j <- metadata$Latitude
 
 # 'Longitude (WGS 84)'
-k <- metadata$Longitude_WGS1984
+k <- metadata$Longitude
 
 # 'Primary physiographic feature'
-l <- 'stream'
+# l <- 'stream'
+l <- ''
 
 # 'Name of physiographic feature'
-m <- metadata$Locality
+# m <- metadata$Locality
+m <- ''
 
 # (site ID) 'Locality'
-n <- as.character(metadata$SiteID)
+n <- as.character(metadata$Site_Name)
 
 # 'Locality description'
-o <- 'In stream site'
-o <- as.character(metadata$Location_Description)
+# o <- 'In stream site'
+o <- ''
 
 # 'Country'
-p <- metadata$Country
+p <- 'United States'
 
 # 'State/Province'
 q <- metadata$State
-q <- "Washington"
+# q <- "Washington"
 
 # 'City/Township'
 r <- metadata$City
-r <- ""
+# r <- ""
 
 # 'Field program/cruise'
-# s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
-s <- 'US Department of Energy River Corridor Science Focus Area'
+s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
+# s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
-t <- paste(metadata$Contact_First_Name, metadata$Contact_Last_Name)
-t <- metadata$Current_Archive_Contact
+t <- 'James Stegen'
 
 # 'Collection date'
-u <- as.character(metadata$Collection_Date)
+u <- as.character(metadata$Sample_Date)
 
 # 'Related URL'
-# v <- 'https://whondrs.pnnl.gov'
-v <- 'https://www.pnnl.gov/projects/river-corridor'
+v <- 'https://whondrs.pnnl.gov'
+# v <- 'https://www.pnnl.gov/projects/river-corridor'
 
 # Related URL Type
 w <- 'regular URL'
@@ -184,6 +185,21 @@ g_filter <- 'grab'
 
 # `Collection method description`
 h_filter <- '0.22 micron filter used for collecting filtered surface water samples and preserved with "RNAlater" for future microbial analysis'
+
+### User Inputs 5: material - soil #############################################
+
+# Fill in inputs for soil
+# `Material`
+e_soil <- 'Soil'
+
+# `Field name (informal classification)`
+f_soil <- 'Soil core'
+
+# `Collection method`
+g_soil <- ''
+
+# `Collection method description`
+h_soil <- ''
 
 
 ### Generate IGSN file #########################################################
@@ -285,6 +301,19 @@ if ("filter" %in% materials_list) {
     rbind(output_filter)
 }
 
+# generate filter
+if ("soil" %in% materials_list) {
+  output_filter <- output_general %>% 
+    mutate(e = e_soil, # add material
+           f = f_soil, # add field name
+           g = g_soil, # add collection method
+           h = h_soil) # add collection method description
+  
+  # add to output
+  output <- output %>% 
+    rbind(output_filter)
+}
+
 
 ### Clean final IGSN file ######################################################
 
@@ -342,3 +371,4 @@ write_csv(header, outdir)
 write_csv(output, outdir, append = TRUE, col_names = TRUE)
 
 shell.exec(outdir)
+
