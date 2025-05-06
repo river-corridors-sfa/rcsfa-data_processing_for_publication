@@ -17,16 +17,16 @@ rm(list=ls(all=T))
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (provide absolute directory; do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package/rcsfa-RC3-BSLE_P"
+directory <- "C:/Brieanne/GitHub/rcsfa-RC3-EWEB-BPCAs/data-packages/MCSN/MCSN_Data_Package"
 
 # provide the name of the person running the checks
-report_author <- "Bibi Powers-McCormack"
+report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package"
+report_out_dir <- "C:/Brieanne/GitHub/rcsfa-RC3-EWEB-BPCAs/data-packages/MCSN"
 
 # do the tabular files have header rows? (T/F)
-user_input_has_header_rows <- F
+user_input_has_header_rows <- T
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
 has_flmd <- F
