@@ -702,7 +702,8 @@ check_data_package <- function(data_package_data, input_parameters = input_param
   data_checks_output <- check_for_no_special_chrs(input = root_dir_name,
                                                   invalid_chrs = input_parameters$special_chrs,
                                                   source = "directory_name",
-                                                  file = root_dir_name)
+                                                  file = root_dir_name, 
+                                                  data_checks_table = data_checks_output)
 
 
   ### Loop through and run checks on each file ###################################
