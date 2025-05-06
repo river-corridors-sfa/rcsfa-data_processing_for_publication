@@ -77,7 +77,8 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 # read in prelim
 prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package/Archive/prelim_Barnes_2023_BSLE_P_Gradient_flmd.csv", skip = 1) %>% 
-  mutate(File_Path = str_replace(File_Path, "rcsfa-RC3-BSLE_P", "Barnes_2024_BSLE_P_Gradient")) # fix parent folder 
+  mutate(File_Path = str_replace(File_Path, "rcsfa-RC3-BSLE_P", "Barnes_2024_BSLE_P_Gradient"),
+         File_Path = str_replace(File_Path, "_Manuscript_Data_Package", "")) # fix parent folder 
   
 
 flmd_skeleton_populated <- flmd_skeleton %>% 
@@ -89,6 +90,8 @@ flmd_skeleton_populated <- flmd_skeleton %>%
   filter(!str_detect(File_Path, "/rcsfa-RC3-BSLE_P/.git"),
          !File_Name %in% c(".gitignore", "README.md", "lock_file", "LICENSE")) %>% # remove git files
   mutate(File_Path = str_replace(File_Path, "rcsfa-RC3-BSLE_P", "Barnes_2024_BSLE_P_Gradient")) %>% # fix parent folder
+  select(File_Name, File_Path) %>% 
+  left_join(prelim_flmd, by = c("File_Name", "File_Path")) %>% 
   mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.(csv|tsv)$") ~ '"N/A"; "-9999"; ""; "NA"',
                                          T ~ "N/A")) %>% # add missing value codes for .csv files
   mutate(Standard = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # add standard for FLMD
@@ -99,6 +102,8 @@ flmd_skeleton_populated <- flmd_skeleton %>%
                                T ~ File_Name)) %>% 
   mutate(File_Description = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "File-level metadata that lists and describes all of the files contained in the data package.", # add definitions for flmd and dd
                                       str_detect(File_Name, "_dd\\.csv$") ~ 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
+                                      File_Name == "workflow_readme.md" ~ "Documentation on how to reproduce the workflow and analyses in this data package.", 
+                                      File_Name == "published_data_readme.md" ~ "Instructions for accessing, downloading, and formatting the publicly available data referenced in this data package.", 
                                       T ~ File_Description)) %>% 
   add_row(File_Name = "readme_Barnes_2024_BSLE_P_Gradient.pdf", # add readme row
           File_Description = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
