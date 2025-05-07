@@ -1,7 +1,7 @@
-# test-create_flmd_skeleton_v2.R ###############################################
+# test-create_dd.R #############################################################
 # Author: Bibi Powers-McCormack
-# Date Created: 2025-04-24
-# Date Updated: 2025-04-29
+# Date Created: 2025-05-02
+# Date Updated: 2025-05-02
 
 # Objective
 
@@ -26,7 +26,7 @@ library(testthat) # for testing
 library(fs) # for temp dir creation
 
 # load functions
-source("./Data_Package_Documentation/functions/create_flmd.R")
+source("./Data_Package_Documentation/functions/create_dd.R")
 
 # source in testing data
 source("./Data_Package_Documentation/functions/test_that/example_data_for_flmd_dd_tests.R")
@@ -46,65 +46,16 @@ test_that("expected typical inputs", {
   add_example_goldman(my_data_package_dir)
   
   # returns a tibble
-  expect_s3_class(create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F), "tbl_df")
   
   # returns a tibble that must include required cols
-  result = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
-  expect_true(all(c("File_Name", "File_Description", "Standard", "Header_Rows", "Column_or_Row_Name_Position", "File_Path") %in% names(result)))
-  
-  # returns a tibble that includes all files in dir
-  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F) %>% select(File_Name, File_Path), 
-               expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "01_script.R"),
-                                 File_Path = c("/example_data_package/data", "/example_data_package/data", "/example_data_package/data", "/example_data_package/data", "/example_data_package/scripts")))
-  
+ 
+  # returns a tibble that includes all headers
+ 
   # returns a tibble where the columns have the correct class
-  result <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
   
-  expect_equal(object = class(result$File_Name), 
-               expected = "character")
-  expect_equal(object = class(result$File_Description), 
-               expected = "character")
-  expect_equal(object = class(result$Standard), 
-               expected = "character")
-  expect_equal(object = class(result$Header_Rows), 
-               expected = "numeric")
-  expect_equal(object = class(result$Column_or_Row_Name_Position), 
-               expected = "numeric")
-  expect_equal(object = class(result$File_Path), 
-               expected = "character")
+  # returns a tibble that adds placeholders when placeholder_rows_to_add = T
   
-  # returns a tibble that adds placeholders when placeholder_rows_to_add = T and uses the dp_keyword input to name the placeholders
-  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = T) %>% select(File_Name, File_Path),
-               expected = tibble(File_Name = c("readme_example_data_package.pdf", "example_data_package_flmd.csv", "example_data_package_dd.csv", "example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "01_script.R"),
-                                 File_Path = c("/example_data_package", "/example_data_package", "/example_data_package", "/example_data_package/data", "/example_data_package/data", "/example_data_package/data", "/example_data_package/data", "/example_data_package/scripts")))
-  
-  # includes included files
-  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F, include_files = c("data/file_b.csv", "data/example_boye.csv")) %>% select(File_Name, File_Path), 
-               expected = tibble(File_Name = c("example_boye.csv", "file_b.csv"),
-                                 File_Path = c("/example_data_package/data", "/example_data_package/data")))
-  
-   # excludes excluded files
-  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F, exclude_files = c("data/file_b.csv", "data/example_boye.csv")) %>% select(File_Name, File_Path), 
-               expected = tibble(File_Name = c("example_goldman.csv", "file_a.csv", "01_script.R"),
-                                 File_Path = c("/example_data_package/data", "/example_data_package/data", "/example_data_package/scripts")))
-  
-  # populates the Standard column based on https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv
-    # populates the Standard column with "ESS-DIVE CSV v1" if the File_Name file extension is ".csv" or ".tsv"
-    # populates the Standard column with "ESS-DIVE FLMD v1; ESS-DIVE CSV v1" if the File_Name ends with "*flmd.csv" or "*dd.csv"
-    # populates the Standard column with "N/A" if the file extension is not ".csv" or ".tsv"
-  
-  # populates the Header_Rows column based on ...
-    # if no headers... then == 1
-    # if boye... then == 
-    # if goldman... then == 
-    # if other... then == 
-  
-  # populates the Column_or_Row_Name column based on ...
-    # if no headers... then == 1
-    # if boye... then == 
-    # if goldman... then == 
-    # if other... then == 
-  
+  # populates Missing_Value_Codes column  with '"-9999"; "N/A"; "": NA"'
   
 })
 
@@ -211,34 +162,34 @@ test_that("expected typical inputs", {
   
   # get_flmd_rows() returns a tibble with 2 columns (File_Name and File_Path)
   expect_named(object = get_flmd_rows(directory = data_package_dir), 
-              expected = c("File_Name", "File_Path"))
+               expected = c("File_Name", "File_Path"))
   
   # get_flmd_rows() returns a tibble that includes all files in dir
   expect_equal(object = get_flmd_rows(directory = data_package_dir), 
                expected = tibble(File_Name = c("readme_example_data_package.pdf", "file_flmd.csv", "file_dd.csv", "file_a.csv", "01_script.R"),
                                  File_Path = c("/example_data_package", "/example_data_package", "/example_data_package", "/example_data_package/data", "/example_data_package/scripts")))
-
+  
 })
-  
-  # get_flmd_rows() returns a tibble that adds placeholders when placeholder_rows_to_add = c("readme", "flmd", "dd")
-  # get_flmd_rows() uses the dp_keyword to name placeholders
-  # get_flmd_rows() includes include files
-  # get_flmd_rows() excludes exclude files
-  
+
+# get_flmd_rows() returns a tibble that adds placeholders when placeholder_rows_to_add = c("readme", "flmd", "dd")
+# get_flmd_rows() uses the dp_keyword to name placeholders
+# get_flmd_rows() includes include files
+# get_flmd_rows() excludes exclude files
+
 # expected edge cases
 test_that("expected edge cases", {})
-  # get_flmd_rows() includes . files when include_dot_files = T
-  # get_flmd_rows() returns empty tibble if there are no files
+# get_flmd_rows() includes . files when include_dot_files = T
+# get_flmd_rows() returns empty tibble if there are no files
 
 # expected warnings
 test_that("expected warnings", {})
-  # get_flmd_rows() warns when removing excluded files
-  # get_flmd_rows() warns if placeholder_rows_to_add input is not in controlled vocab
+# get_flmd_rows() warns when removing excluded files
+# get_flmd_rows() warns if placeholder_rows_to_add input is not in controlled vocab
 
 # expected errors
 test_that("expected errors", {})
-  # get_flmd_rows() errors if directory doesn't exist
-  # get_flmd_rows() errors if required inputs (directory and dp_keyword) aren't provided
+# get_flmd_rows() errors if directory doesn't exist
+# get_flmd_rows() errors if required inputs (directory and dp_keyword) aren't provided
 
 
 
@@ -284,19 +235,19 @@ test_that("expected typical inputs", {
 
 # expected edge cases
 test_that("expected edge cases", {})
-  # Returns a tibble when a subset of the required columns names are included
+# Returns a tibble when a subset of the required columns names are included
 
-  # Returns the unchanged input tibble if no columns are specified
+# Returns the unchanged input tibble if no columns are specified
 
 # expected warnings
 test_that("expected warnings", {})
-  # If the cols_to_add input vector is not part of the controlled vocab, then warn the user that the column will not be added
+# If the cols_to_add input vector is not part of the controlled vocab, then warn the user that the column will not be added
 
-  # If the input vector does not include all default cols, then warn the user that some of the required columns will noto be included
+# If the input vector does not include all default cols, then warn the user that some of the required columns will noto be included
 
 # expected errors
 test_that("expected errors", {})
-  # If the flmd_base input vector does not include the columns File_Name and File_Path, then error and terminate the script
+# If the flmd_base input vector does not include the columns File_Name and File_Path, then error and terminate the script
 
 
 ### tests for get_flmd_cells() ##################################################
@@ -330,17 +281,17 @@ test_that("expected typical inputs", {
 
 
 
-  # For Column_or_Row_Position...
-  # For Header_Rows...
+# For Column_or_Row_Position...
+# For Header_Rows...
 
 # expected edge cases
 test_that("expected edge cases", {})
-  # Returns the unchanged input tibble if no columns are specified
+# Returns the unchanged input tibble if no columns are specified
 
 # expected warnings
 test_that("expected warnings", {})
-  # If a column from cols_to_populate isn't in flmd_base, then warn the user that the column is missing from the DF and won't be populated
-  # If tabular files are present, then warn the user that the Boye and Goldman standards (if applicable) need to be manually added to the flmd
+# If a column from cols_to_populate isn't in flmd_base, then warn the user that the column is missing from the DF and won't be populated
+# If tabular files are present, then warn the user that the Boye and Goldman standards (if applicable) need to be manually added to the flmd
 
 # expected errors
 test_that("expected errors", {})

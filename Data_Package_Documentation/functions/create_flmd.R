@@ -52,9 +52,6 @@ create_flmd <- function(directory,
     # Bibi updated the script on 2025-03-25 and it will need to go through review again. 
   
     # TASKS
-      # redefine inputs (remove add_columns)
-      # redefine outputs (remove Missing_Value_Codes)
-      # create example data
       # write tests for current script
       # refactor
       # add ability to add header info based on boye and goldman files
@@ -105,19 +102,19 @@ create_flmd <- function(directory,
   library(rlog) # for logging documentation
   library(fs) # for getting file extension
   
-  log_info("This function takes 8 arguments: 
-            - directory (required)
-            - dp_keyword (required)
-            - add_placeholders (required; default = T)
-            - exclude_files (optional; default = NA)
-            - include_files (optional; default = NA)
-            - file_n_max (optional; default = 100)
-            - include_dot_files (optional; default = F)
-            - query_header_info (optoinal; default = T)
-           
-           It returns a FLMD with the following column headers: 
-           -  File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, File_Path
-  Open the function to see argument definitions, function assumptions, and examples.")
+  # log_info("This function takes 8 arguments: 
+  #           - directory (required)
+  #           - dp_keyword (required)
+  #           - add_placeholders (required; default = T)
+  #           - exclude_files (optional; default = NA)
+  #           - include_files (optional; default = NA)
+  #           - file_n_max (optional; default = 100)
+  #           - include_dot_files (optional; default = F)
+  #           - query_header_info (optoinal; default = T)
+  #          
+  #          It returns a FLMD with the following column headers: 
+  #          -  File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, File_Path
+  # Open the function to see argument definitions, function assumptions, and examples.")
   
   ### Validate Inputs ##########################################################
   
@@ -233,12 +230,12 @@ create_flmd <- function(directory,
         if (str_detect(current_file_absolute, "\\.csv$")) {
           
           # read in current file
-          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
+          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max, col_names = F)
           
         } else if (str_detect(current_file_absolute, "\\.tsv$")) {
           
           # read in current file
-          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max)
+          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max, col_names = F)
           
         }
         
@@ -325,7 +322,7 @@ create_flmd <- function(directory,
   
   #### add standard ----
     
-    current_flmd_skeleton <- current_flmd_skeleton %>% 
+  current_flmd_skeleton <- current_flmd_skeleton %>% 
       mutate(Standard = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # update the standard with the CSV reporting format (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
                                   T ~ "N/A"))
   
@@ -383,8 +380,10 @@ create_flmd <- function(directory,
   
   ### sort flmd ################################################################
   
-  # select the columns indicated by user
+  # fix class type
   current_flmd_skeleton <- current_flmd_skeleton %>% 
+    mutate(Header_Rows = as.numeric(Header_Rows)) %>% 
+    mutate(Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>% 
     select(File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, File_Path)
   
   # sort rows by readme, flmd, dd, and then by File_Path and File_Name
