@@ -6,8 +6,8 @@
 
 ### FUNCTION ###################################################################
 
-create_flmd <- function(directory, 
-                        dp_keyword, 
+create_flmd <- function(directory, # required
+                        dp_keyword = "data_package", 
                         add_placeholders = T, 
                         exclude_files = NA_character_, 
                         include_files = NA_character_, 
@@ -23,6 +23,7 @@ create_flmd <- function(directory,
   
   # Inputs: 
     # directory = string of the absolute folder file path. Required argument. 
+    # dp_keyword = string of the data package name; this will be used to name the placeholders. Optional argument; default is "data_package".
     # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is TRUE.
     # exclude_files = vector of files (relative file path + file name) to exclude from within the dir. Optional argument; default is NA. 
     # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA. 
@@ -155,7 +156,9 @@ create_flmd <- function(directory,
     mutate(File_Name = basename(absolute_path),
            File_Path = paste0(current_parent_directory, "/", fs::path_rel(absolute_path, start = directory)),
            File_Path = str_remove(File_Path, paste0("/", File_Name)),
-           File_Description = NA_character_)
+           File_Description = NA_character_,
+           Standard = NA_character_, 
+           header_format = NA) # temporary column
   
   
   ### add columns as indicated by user argument ################################
@@ -201,7 +204,7 @@ create_flmd <- function(directory,
       }
       
       return(user_inputs)
-    }
+    } # end of ask_user_input function
     
     # if user indicated to go through header info, then proceed to ask for header info
     if (query_header_info == T) {
@@ -211,10 +214,7 @@ create_flmd <- function(directory,
         mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
                                        T ~ ""),
                Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
-                                                       T ~ "")) %>% 
-        
-        # add new (temporary) column
-        mutate(header_format = NA_real_)
+                                                       T ~ ""))
       
       # filter for tabular data
       tabular_files <- current_flmd_skeleton %>% 
@@ -247,6 +247,9 @@ create_flmd <- function(directory,
         # ask what type of header format
         user_reply <- as.numeric(readline(prompt = cat("What type of header info is present? 0 = none; 1 = Boye; 2 = Goldman; 3 = other")))
         
+        # update header row type
+        current_flmd_skeleton$header_format[current_flmd_skeleton$absolute_path == current_file_absolute] <- user_reply
+        
         if (user_reply == 3) {
           # run function
           user_inputs <- ask_user_input()
@@ -269,43 +272,34 @@ create_flmd <- function(directory,
           current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_column_or_row_name_position
           
         } # end of user_reply == 3
+      
         
+        # use header_format to update header_rows and column_or_row_name position cols
         if (user_reply == 1) {
           
           # extract header row info from boye file
-          boye_row_info <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", col_names = F, show_col_types = F, n_max = 2) %>% 
+          boye_row_info <- read_csv(current_file_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = 2) %>% 
             slice(2) %>% 
             pull(2)
           
           # add to flmd
           current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- boye_row_info
           
-          
-        }
+        } # end of user_reply = 1
         
-        # update header row type
-        current_flmd_skeleton$header_format[current_flmd_skeleton$absolute_path == current_file_absolute] <- user_reply
         
-      }
+      } # end of loop through tabular files
       
-      current_flmd_skeleton %>% 
+      # update remaining header_rows and column_or_row_name position based on header_format
+      current_flmd_skeleton <- current_flmd_skeleton %>% 
         mutate(Header_Rows = case_when(header_format == 0 ~ "1", # no header rows
                                        header_format == 2 ~ "1", # goldman
-                                       T ~ Header_Rows)) %>% 
+                                       T ~ Header_Rows)) %>% # user input
         mutate(Column_or_Row_Name_Position = case_when(header_format == 0 ~ "1", # no header rows
                                                        header_format == 1 ~ "1", # boye
                                                        header_format == 2 ~ "1", # goldman
-                                                       T ~ Column_or_Row_Name_Position))
-      # update boye files
-      
-      
-      # update goldman files
-      
-      
-      # update files without header info
-      
-      
-    } else {
+                                                       T ~ Column_or_Row_Name_Position)) # user input
+    } else { # if query_header_info != T
       
       log_info("Header_Rows and Column_or_Row_Name_Position are not being calculated. 
   Tabular files will be left empty and all other files will be automatically populated with '-9999'.")
@@ -315,15 +309,20 @@ create_flmd <- function(directory,
                                        T ~ ""),
                Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
                                                        T ~ ""))
-    }
+    } # end of query_header_info != T
     
-  }
+  } # end of if tabular files exist
   
   
   #### add standard ----
+  # update the standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
     
-  current_flmd_skeleton <- current_flmd_skeleton %>% 
-      mutate(Standard = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # update the standard with the CSV reporting format (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+  current_flmd_skeleton <- current_flmd_skeleton %>%
+      mutate(Standard = case_when(header_format == "1" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
+                                  header_format == "2" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
+                                  str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
+                                  str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
+                                  str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
                                   T ~ "N/A"))
   
   #### add placeholder readme, flmd, dd rows if indicated ######################
@@ -356,7 +355,7 @@ create_flmd <- function(directory,
           "File_Name" = paste0(dp_keyword, "_flmd.csv"),
           "File_Description" = "File-level metadata that lists and describes all of the files contained in the data package.",
           "Standard" = "ESS-DIVE FLMD v1; ESS-DIVE CSV v1",
-          "Header_Rows" = "0",
+          "Header_Rows" = "1",
           "Column_or_Row_Name_Position" = "1",
           "File_Path" = current_parent_directory
         )
@@ -369,7 +368,7 @@ create_flmd <- function(directory,
           "File_Name" = paste0(dp_keyword, "_dd.csv"),
           "File_Description" = 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
           "Standard" = "ESS-DIVE FLMD v1; ESS-DIVE CSV v1",
-          "Header_Rows" = "0",
+          "Header_Rows" = "1",
           "Column_or_Row_Name_Position" = "1",
           "File_Path" = current_parent_directory
         )

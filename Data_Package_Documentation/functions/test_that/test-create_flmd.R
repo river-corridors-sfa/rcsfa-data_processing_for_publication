@@ -83,7 +83,7 @@ test_that("expected typical inputs", {
                expected = tibble(File_Name = c("example_boye.csv", "file_b.csv"),
                                  File_Path = c("/example_data_package/data", "/example_data_package/data")))
   
-   # excludes excluded files
+  # excludes excluded files
   expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F, exclude_files = c("data/file_b.csv", "data/example_boye.csv")) %>% select(File_Name, File_Path), 
                expected = tibble(File_Name = c("example_goldman.csv", "file_a.csv", "01_script.R"),
                                  File_Path = c("/example_data_package/data", "/example_data_package/data", "/example_data_package/scripts")))
@@ -92,7 +92,20 @@ test_that("expected typical inputs", {
     # populates the Standard column with "ESS-DIVE CSV v1" if the File_Name file extension is ".csv" or ".tsv"
     # populates the Standard column with "ESS-DIVE FLMD v1; ESS-DIVE CSV v1" if the File_Name ends with "*flmd.csv" or "*dd.csv"
     # populates the Standard column with "N/A" if the file extension is not ".csv" or ".tsv"
+  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = T) %>% select(File_Name, Standard),
+               expected = tibble(File_Name = c("readme_example_data_package.pdf", "example_data_package_flmd.csv", "example_data_package_dd.csv", "example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "01_script.R")) %>% 
+                 mutate(Standard = case_when(File_Name %in% c("readme_example_data_package.pdf", "01_script.R") ~ "N/A",
+                                             File_Name %in% c("example_data_package_flmd.csv", "example_data_package_dd.csv") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1",
+                                             File_Name %in% c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv") ~ "ESS-DIVE CSV v1")))
   
+  # populates Boye and Goldman standards only if query_header_info = T
+  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = T, add_placeholders = T) %>% select(File_Name, Standard),
+               expected = tibble(File_Name = c("readme_example_data_package.pdf", "example_data_package_flmd.csv", "example_data_package_dd.csv", "example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "01_script.R")) %>% 
+                 mutate(Standard = case_when(File_Name %in% c("readme_example_data_package.pdf", "01_script.R") ~ "N/A",
+                                             File_Name %in% c("example_data_package_flmd.csv", "example_data_package_dd.csv") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1",
+                                             File_Name %in% c("file_a.csv", "file_b.csv") ~ "ESS-DIVE CSV v1",
+                                             File_Name %in% c("example_boye.csv") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1",
+                                             File_Name %in% c("example_goldman.csv") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1")))
   # populates the Header_Rows column based on ...
     # if no headers... then == 1
     # if boye... then == 
@@ -104,7 +117,6 @@ test_that("expected typical inputs", {
     # if boye... then == 
     # if goldman... then == 
     # if other... then == 
-  
   
 })
 
