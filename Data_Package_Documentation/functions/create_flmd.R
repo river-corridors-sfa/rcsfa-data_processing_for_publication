@@ -181,7 +181,7 @@ create_flmd <- function(directory, # required
       if (tolower(user_input_has_header_rows) == "y") {
         
         # ask location of column header
-        user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 0 if in the correct place) ")
+        user_input_column_or_row_name_position <- readline(prompt = "What line has the column headers? (Enter 1 if in the correct place) ")
         current_column_or_row_name_position <- as.numeric(user_input_column_or_row_name_position)
         
         # ask location of first data row
@@ -189,9 +189,6 @@ create_flmd <- function(directory, # required
         
         # calculate header_row
         current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
-        
-        # now increment up the column_or_row_name_position by 1 because reporting format says to use 1 if headers are in the correct position (not 0)
-        current_column_or_row_name_position <- current_column_or_row_name_position + 1
         
         user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
         

@@ -92,6 +92,7 @@ test_that("expected typical inputs", {
     # populates the Standard column with "ESS-DIVE CSV v1" if the File_Name file extension is ".csv" or ".tsv"
     # populates the Standard column with "ESS-DIVE FLMD v1; ESS-DIVE CSV v1" if the File_Name ends with "*flmd.csv" or "*dd.csv"
     # populates the Standard column with "N/A" if the file extension is not ".csv" or ".tsv"
+  
   expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = T) %>% select(File_Name, Standard),
                expected = tibble(File_Name = c("readme_example_data_package.pdf", "example_data_package_flmd.csv", "example_data_package_dd.csv", "example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "01_script.R")) %>% 
                  mutate(Standard = case_when(File_Name %in% c("readme_example_data_package.pdf", "01_script.R") ~ "N/A",
@@ -107,17 +108,27 @@ test_that("expected typical inputs", {
                                              File_Name %in% c("example_boye.csv") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1",
                                              File_Name %in% c("example_goldman.csv") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1")))
   # populates the Header_Rows column based on ...
-    # if no headers... then == 1
-    # if boye... then == 
-    # if goldman... then == 
-    # if other... then == 
+    # if no headers... then == 1 (Header_Rows are the number of rows above the row the data start on, including the column names but excluding any row that begins with "#")
+    # if boye... then == the number indicated in cell B2 (after #Header_Rows)
+    # if goldman... then == 1
+    # if other... then == user input - 1 (because the user gives the row the start start on and Header_Rows = data_start - 1)
   
-  # populates the Column_or_Row_Name column based on ...
-    # if no headers... then == 1
-    # if boye... then == 
-    # if goldman... then == 
-    # if other... then == 
+  # add another data file
+  add_example_data_with_header_rows(my_data_package_dir)
   
+  # test with 1 boye, 1 goldman, 1 normal, 1 with a header row below col names
+  expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = T, add_placeholders = F) %>% select(File_Name, Header_Rows), 
+               expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "01_script.R"), 
+                                 Header_Rows = c(5, 1, 1, 1, 1, -9999)))
+  
+  # populates the Column_or_Row_Name_Position column based on ...
+    # if no headers... then == 1 (index starts at the column header row, not the row the data start on)
+    # if boye... then == 1
+    # if goldman... then == 1
+    # if other... then == user input (because read_csv is reading in without col names, the col names end up being on row 1)
+  # expect_equal(object = create_flmd(),
+  #              expected = )
+  # 
 })
 
 ### expected edge cases ########################################################

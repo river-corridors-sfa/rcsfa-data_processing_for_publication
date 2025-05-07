@@ -162,6 +162,20 @@ add_example_data <- function(directory){
   
 }
 
+# add csv with header row below column name
+add_example_data_with_header_rows <- function(directory){
+  
+  
+  write_csv(tibble(
+    Name = c("HEADER ROW", "Alice", "Bob", "Charlie"),
+    Score = c(NA, 85.5, 92.0, 78.3),
+    Passed = Score >= 80), 
+    file.path(directory, "data", "file_c.csv"))
+  
+  log_info("add_example_data_with_header_rows() complete")
+  
+}
+
 
 # add script
 add_example_script <- function(directory){
