@@ -14,7 +14,7 @@
 library(fs)
 
 # user input is a directory
-directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2/Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package"
+directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2/v2_Butler_2024_WT_WRF_Hydro"
 
 # user input for out dir
 out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2"
@@ -32,7 +32,7 @@ writeLines(tree_output, paste0(out_directory, "/", Sys.Date(), "_directory_tree.
 library(tidyverse)
 v1_dir <- "Q:/Published_Manuscript_DP_Archive/Butler_2024_WT_WRF_Hydro/Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package"
 
-v2_dir <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2/Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package"
+v2_dir <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2/v2_Butler_2024_WT_WRF_Hydro"
 
 v1_files <- list.files(v1_dir, recursive = T)
 
@@ -88,24 +88,11 @@ v2_headers %>%
   view() # will need to clean up those output files that have the blanks in them
 
 
-### create flmd ################################################################
+### create flmd and dd #########################################################
 
-library(tidyverse)
-library(devtools)
-
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/database_v2/Data_Package_Documentation/functions/create_flmd_skeleton_v2.R")
+# I did this in the main data_package_create_flmd_dd.R script
 
 
-v2_dir <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2/v2_Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package"
-
-flmd_skeleton <- create_flmd_skeleton(directory = v2_dir,
-                                      add_placeholders = T, 
-                                      query_header_info = F)
-
-
-### create dd ##################################################################
-
-library(tidyverse)
 
 
 
