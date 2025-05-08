@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2/v2_Butler_2024_WT_WRF_Hydro"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/BP PNNL/PROJECTS/Data Package RC-1 Manuscript Zach Butler WRF-Hydro v2/v2_Butler_2024_WT_WRF_Hydro"
+out_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo"
   
 
 ### Prep Script ################################################################
@@ -73,11 +73,12 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 
 ### DP Specific Edits ##########################################################
 
+library(readxl)
+
 # join to prelim flmd ----
 
 # read in prelim
-prelim_flmd <- read_csv("Q:/Published_Manuscript_DP_Archive/Butler_2024_WT_WRF_Hydro/Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package/Butler_2024_WT_WRF_Hydro_flmd.csv") %>% 
-  mutate(File_Path = str_replace(File_Path, "Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package", "v2_Butler_2024_WT_WRF_Hydro"))
+prelim_flmd <- read_excel("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Barton_2025_Coastal_Fires_Levo/CoastalFires_FLMD.xlsx")
   
 
 flmd_skeleton_populated <- flmd_skeleton %>% 
@@ -86,25 +87,28 @@ flmd_skeleton_populated <- flmd_skeleton %>%
   select(-Date_Start, -Date_End) %>% 
   
 # update rows
+  filter(!str_detect(File_Path, "/CoastalFiresLevo/.git"),
+         !File_Name %in% c(".gitignore", "README.md", "lock_file", "LICENSE", ".Rhistory")) %>% # remove git files
   select(File_Name, File_Path) %>% 
-  left_join(prelim_flmd, by = c("File_Name", "File_Path")) %>% 
+  left_join(prelim_flmd, by = c("File_Name")) %>% 
   mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.(csv|tsv)$") ~ '"N/A"; "-9999"; ""; "NA"',
                                          T ~ "N/A")) %>% # add missing value codes for .csv files
   mutate(Standard = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # add standard for FLMD
                               str_detect(File_Name, "\\.(csv|tsv)$") ~ "ESS-DIVE CSV v1", # add standard for .csv files
                               T ~ "N/A")) %>% 
-  mutate(File_Name = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "v2_Butler_2024_WT_WRF_Hydro_flmd.csv", # rename flmd and dd
-                               str_detect(File_Name, "_dd\\.csv$") ~ "v2_Butler_2024_WT_WRF_Hydro_dd.csv",
+  mutate(File_Name = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "Barton_2025_Coastal_Fires_Levo_flmd.csv", # rename flmd and dd
+                               str_detect(File_Name, "_dd\\.csv$") ~ "Barton_2025_Coastal_Fires_Levo_dd.csv",
                                T ~ File_Name)) %>% 
   mutate(File_Description = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "File-level metadata that lists and describes all of the files contained in the data package.", # add definitions for flmd and dd
                                       str_detect(File_Name, "_dd\\.csv$") ~ 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
                                       T ~ File_Description)) %>% 
-  add_row(File_Name = "v2_readme_Butler_2024_WT_WRF_Hydro.pdf", # add readme row
+  add_row(File_Name = "readme_Barton_2025_Coastal_Fires_Levo.pdf", # add readme row
           File_Description = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
           Standard = "N/A",
           Missing_Value_Codes = "N/A", 
           File_Path = NA_character_) %>% 
-  mutate(File_Path = case_when(File_Name %in% c("v2_Butler_2024_WT_WRF_Hydro_flmd.csv", "v2_Butler_2024_WT_WRF_Hydro_dd.csv", "v2_readme_Butler_2024_WT_WRF_Hydro.pdf") ~ "/v2_Butler_2024_WT_WRF_Hydro", # update file paths
+  mutate(File_Path = str_replace(string = File_Path, pattern = "CoastalFiresLevo", replacement = "Barton_2025_Coastal_Fires_Levo")) %>% 
+  mutate(File_Path = case_when(File_Name %in% c("Barton_2025_Coastal_Fires_Levo_flmd.csv", "Barton_2025_Coastal_Fires_Levo_dd.csv", "readme_Barton_2025_Coastal_Fires_Levo.pdf") ~ "/Barton_2025_Coastal_Fires_Levo", # update file paths
                                T ~ File_Path)) %>% 
   select(File_Name, File_Description, Standard, Missing_Value_Codes, File_Path) %>%
   
@@ -120,8 +124,20 @@ flmd_skeleton_populated <- flmd_skeleton %>%
 # join to prelim dd ----
 
 # read in prelim
-prelim_dd <- read_csv("Q:/Published_Manuscript_DP_Archive/Butler_2024_WT_WRF_Hydro/Butler_2024_WT_WRF_Hydro_Manuscript_Data_Package/Butler_2024_WT_WRF_Hydro_dd.csv") %>% 
-  select(Column_or_Row_Name, Unit, Definition, Data_Type)
+prelim_dd <- read_excel("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Barton_2025_Coastal_Fires_Levo/CoastalFires_DataDictionary.xlsx") %>% 
+  rename(Column_or_Row_Name = Name) %>% 
+  mutate(Data_Type = NA_character_)
+
+dd_template <- tribble(~Column_or_Row_Name, ~Unit, ~Definition, ~Data_Type,
+                       "File_Name",	"N/A",	"Name of files in the data package.", "text",
+                       "File_Description",	"N/A",	"A brief description of the files in the data package.",	"text",
+                       "Standard",	"N/A",	"ESS-DIVE Reporting Format or other standard applied to the data file.",	"text",
+                       "Missing_Value_Codes",	"N/A",	'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. The recommendation for numeric data is "-9999" and for character data is "N/A".',	"text",
+                       "File_Path",	"N/A",	"File path within the data package.",	"text",
+                       "Column_or_Row_Name",	"N/A",	"Column or row headers from each csv file in the dataset.",	"text",
+                       "Unit",	"N/A",	"Unit of measurement that applies to a given column or row in the data package.",	"text",
+                       "Definition",	"N/A",	"Description of the information in a given column or row in the dataset.",	"text",
+                       "Data_Type",	"N/A",	"Type of data (numeric; text; date; time; datetime).",	"text")
   
 dd_skeleton_populated <- dd_skeleton %>% 
 # update columns
@@ -131,9 +147,11 @@ dd_skeleton_populated <- dd_skeleton %>%
   select(Column_or_Row_Name) %>%
   left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
   arrange(Column_or_Row_Name) %>% 
-  select(Column_or_Row_Name, Unit, Definition, Data_Type) 
+  select(Column_or_Row_Name, Unit, Definition, Data_Type) %>% 
 
 # update rows
+  add_row(dd_template) %>% 
+  arrange(tolower(Column_or_Row_Name))
 
 ### Export #####################################################################
 # Directions: 
