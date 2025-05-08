@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo"
+directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/v2_RC2_TemporalStudy_2021-2022_SensorData"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo"
+out_directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/v2_RC2_TemporalStudy_2021-2022_SensorData"
   
 
 ### Prep Script ################################################################
@@ -53,7 +53,345 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 
 # 1. Load data
 # for excluding or including files, write the relative path from the directory, without slash in the beginning
-data_package_data <- load_tabular_data(directory)
+data_package_data <- load_tabular_data(directory,
+                                       exclude_files = c("BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-05-06.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-05-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-05-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-06-17.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-06-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-07-08.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-07-15.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-07-22.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-07-29.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-08-12.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-08-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-09-16.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-09-23.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-09-30.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-10-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-10-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-10-21.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-10-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-11-04.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-11-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-12-02.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2021-12-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2022-01-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2022-01-27.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2022-02-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2022-03-01.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2022-03-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2022-03-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T02_Mabton_2022-04-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-04-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-05-06.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-05-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-05-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-06-03.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-06-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-06-17.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-06-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-07-08.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-07-15.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-07-22.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-07-29.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-08-12.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-08-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-09-16.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-09-23.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-09-30.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-10-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-10-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-10-21.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-10-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-11-04.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-11-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-12-02.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2021-12-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2022-01-27.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2022-02-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2022-03-01.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2022-03-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2022-03-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T03_Union_Gap_2022-04-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-04-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-04-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-05-06.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-05-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-05-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-06-03.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-06-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-06-17.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-06-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-07-08.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-07-15.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-07-22.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-07-29.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-08-12.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-08-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-09-23.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-09-30.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-10-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-10-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-10-21.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-10-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-11-04.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-11-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2021-12-02.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2022-03-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T05P_Little_Naches_2022-03-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-04-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-04-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-05-06.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-05-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-05-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-06-03.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-06-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-06-17.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-06-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-07-08.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-07-15.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-07-22.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-07-29.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-08-12.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-08-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-09-16.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-09-23.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-09-30.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-10-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-10-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-10-21.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-10-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-11-04.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-11-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2021-12-02.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2022-03-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T06_American_River_2022-04-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-05-06.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-05-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-05-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-06-03.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-06-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-06-17.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-06-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-07-08.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-07-15.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-07-22.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-07-29.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-08-12.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-08-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-09-16.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-09-23.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-09-30.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-10-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-10-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-10-21.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-10-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-11-04.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-11-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-12-02.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2021-12-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2022-01-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2022-01-27.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2022-02-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2022-03-01.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2022-03-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2022-03-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T07_Kiona_2022-04-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T41_Naches_Craig_Road_1_2021-04-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-04-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-05-06.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-05-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-05-20.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-06-03.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-06-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-06-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-07-08.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-07-15.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-07-22.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-07-29.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-08-12.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-08-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-09-16.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-09-23.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-09-30.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-10-07.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-10-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-10-21.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-10-28.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-11-04.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-11-18.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-12-02.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2021-12-13.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2022-02-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2022-03-01.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2022-03-10.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2022-03-24.csv",
+                                                         "BarotrollAtmData/Data/BarotrollAtm_T42_Naches_Craig_Road_2_2022-04-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-04-28.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-05-06.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-05-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-05-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-05-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-06-03.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-06-17.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-06-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-07-15.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-07-22.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-07-29.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-08-12.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-08-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-09-16.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-09-23.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-09-30.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-10-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-10-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-10-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-11-04.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-11-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2021-12-02.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2022-01-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2022-01-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2022-02-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2022-03-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T02_Mabton_2022-04-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-04-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-04-28.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-05-06.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-05-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-05-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-05-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-06-03.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-06-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-06-17.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-06-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-07-15.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-07-22.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-07-29.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-08-12.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-08-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-09-16.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-09-23.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-09-30.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-10-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-10-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-10-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-11-04.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-11-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2021-12-02.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2022-01-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2022-02-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2022-03-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T03_Union_Gap_2022-04-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-04-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-04-28.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-05-06.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-05-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-05-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-05-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-06-03.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-06-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-06-17.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-06-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-07-15.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-07-22.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-07-29.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-08-12.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-08-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-09-23.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-09-30.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-10-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-10-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-10-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-11-04.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-11-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2021-12-02.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2022-03-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T05P_Little_Naches_2022-04-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-04-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-04-28.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-05-06.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-05-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-05-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-05-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-06-03.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-06-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-06-17.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-06-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-07-15.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-07-22.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-07-29.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-08-12.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-08-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-09-16.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-09-23.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-09-30.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-10-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-10-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-10-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-11-04.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-11-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2021-12-02.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2022-03-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T06_American_River_2022-04-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-04-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-04-28.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-05-06.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-05-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-05-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-05-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-06-03.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-06-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-06-17.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-06-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-07-15.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-07-22.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-07-29.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-08-12.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-08-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-09-16.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-09-23.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-09-30.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-10-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-10-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-10-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-11-04.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-11-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-12-02.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2021-12-30.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2022-01-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2022-01-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2022-02-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2022-03-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T07_Kiona_2022-04-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T41_Naches_Craig_Road_1_2021-04-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T41_Naches_Craig_Road_1_2021-06-17.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-04-28.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-05-06.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-05-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-05-20.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-05-27.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-06-03.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-06-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-06-17.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-06-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-07-15.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-07-22.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-07-29.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-08-12.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-08-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-09-16.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-09-23.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-09-30.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-10-07.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-10-13.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-10-21.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-11-04.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-11-18.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2021-12-02.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2022-02-10.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2022-03-24.csv",
+                                                         "MantaRiverData/Data/MantaRiver_T42_Naches_Craig_Road_2_2022-04-07.csv"))
 
 
 # 2a. create dd skeleton
@@ -72,86 +410,32 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 # flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
 
 ### DP Specific Edits ##########################################################
+# left join prelim dd to this dd
 
-library(readxl)
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/RC2_Sensor_dd.csv") %>%
+  rename(Column_or_Row_Name = Name,
+         Term_Type = Type) %>%
+  select(-Column_Long_Name)
 
-# join to prelim flmd ----
-
-# read in prelim
-prelim_flmd <- read_excel("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Barton_2025_Coastal_Fires_Levo/CoastalFires_FLMD.xlsx")
-  
-
-flmd_skeleton_populated <- flmd_skeleton %>% 
-  
-# update columns
-  select(-Date_Start, -Date_End) %>% 
-  
-# update rows
-  filter(!str_detect(File_Path, "/CoastalFiresLevo/.git"),
-         !File_Name %in% c(".gitignore", "README.md", "lock_file", "LICENSE", ".Rhistory")) %>% # remove git files
-  select(File_Name, File_Path) %>% 
-  left_join(prelim_flmd, by = c("File_Name")) %>% 
-  mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.(csv|tsv)$") ~ '"N/A"; "-9999"; ""; "NA"',
-                                         T ~ "N/A")) %>% # add missing value codes for .csv files
-  mutate(Standard = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # add standard for FLMD
-                              str_detect(File_Name, "\\.(csv|tsv)$") ~ "ESS-DIVE CSV v1", # add standard for .csv files
-                              T ~ "N/A")) %>% 
-  mutate(File_Name = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "Barton_2025_Coastal_Fires_Levo_flmd.csv", # rename flmd and dd
-                               str_detect(File_Name, "_dd\\.csv$") ~ "Barton_2025_Coastal_Fires_Levo_dd.csv",
-                               T ~ File_Name)) %>% 
-  mutate(File_Description = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "File-level metadata that lists and describes all of the files contained in the data package.", # add definitions for flmd and dd
-                                      str_detect(File_Name, "_dd\\.csv$") ~ 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
-                                      T ~ File_Description)) %>% 
-  add_row(File_Name = "readme_Barton_2025_Coastal_Fires_Levo.pdf", # add readme row
-          File_Description = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
-          Standard = "N/A",
-          Missing_Value_Codes = "N/A", 
-          File_Path = NA_character_) %>% 
-  mutate(File_Path = str_replace(string = File_Path, pattern = "CoastalFiresLevo", replacement = "Barton_2025_Coastal_Fires_Levo")) %>% 
-  mutate(File_Path = case_when(File_Name %in% c("Barton_2025_Coastal_Fires_Levo_flmd.csv", "Barton_2025_Coastal_Fires_Levo_dd.csv", "readme_Barton_2025_Coastal_Fires_Levo.pdf") ~ "/Barton_2025_Coastal_Fires_Levo", # update file paths
-                               T ~ File_Path)) %>% 
-  select(File_Name, File_Description, Standard, Missing_Value_Codes, File_Path) %>%
-  
-  # sort rows by readme, flmd, dd, and then by File_Path, File_Name
-  mutate(sort_order = case_when(grepl("readme_Butler", File_Name, ignore.case = F) ~ 1,
-                                grepl("flmd.csv", File_Name, ignore.case = T) ~ 2, 
-                                grepl("dd.csv", File_Name, ignore.case = T) ~ 3,
-                                T ~ 4)) %>% 
-  arrange(sort_order, File_Path, File_Name) %>% 
-  select(-sort_order)
-
-
-# join to prelim dd ----
-
-# read in prelim
-prelim_dd <- read_excel("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Barton_2025_Coastal_Fires_Levo/CoastalFires_DataDictionary.xlsx") %>% 
-  rename(Column_or_Row_Name = Name) %>% 
-  mutate(Data_Type = NA_character_)
-
-dd_template <- tribble(~Column_or_Row_Name, ~Unit, ~Definition, ~Data_Type,
-                       "File_Name",	"N/A",	"Name of files in the data package.", "text",
-                       "File_Description",	"N/A",	"A brief description of the files in the data package.",	"text",
-                       "Standard",	"N/A",	"ESS-DIVE Reporting Format or other standard applied to the data file.",	"text",
-                       "Missing_Value_Codes",	"N/A",	'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. The recommendation for numeric data is "-9999" and for character data is "N/A".',	"text",
-                       "File_Path",	"N/A",	"File path within the data package.",	"text",
-                       "Column_or_Row_Name",	"N/A",	"Column or row headers from each csv file in the dataset.",	"text",
-                       "Unit",	"N/A",	"Unit of measurement that applies to a given column or row in the data package.",	"text",
-                       "Definition",	"N/A",	"Description of the information in a given column or row in the dataset.",	"text",
-                       "Data_Type",	"N/A",	"Type of data (numeric; text; date; time; datetime).",	"text")
-  
-dd_skeleton_populated <- dd_skeleton %>% 
-# update columns
-  filter(!Column_or_Row_Name %in% c("Date_End", "Date_Start", "Term_Type")) %>% # remove columns dropped when updating flmd and dd columns
-  
-  # join existing dd cols
+dd_skeleton <- dd_skeleton %>%
   select(Column_or_Row_Name) %>%
   left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
-  arrange(Column_or_Row_Name) %>% 
-  select(Column_or_Row_Name, Unit, Definition, Data_Type) %>% 
+  arrange(Column_or_Row_Name) 
 
-# update rows
-  add_row(dd_template) %>% 
-  arrange(tolower(Column_or_Row_Name))
+
+
+# left join prelim flmd to this flmd
+
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/RC2_Sensor_flmd.csv")%>%
+  select(-File_Path)
+
+flmd_skeleton <- flmd_skeleton %>%
+  select(File_Name, File_Path) %>%
+  mutate(File_Name = str_remove(File_Name, 'v2_')) %>%
+  left_join(prelim_flmd, by = c("File_Name")) %>%
+  select(-File_Path, File_Path)
+
+
 
 ### Export #####################################################################
 # Directions: 
