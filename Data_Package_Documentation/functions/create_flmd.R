@@ -1,7 +1,62 @@
 ### create_flmd.R ##############################################################
 # Date Created: 2024-06-14
-# Date Updated: 2025-05-07
+# Date Updated: 2025-05-09
 # Author: Bibi Powers-McCormack
+
+
+### FUNCITON: get_files() ######################################################
+
+get_files <- function(directory, # required
+                      exclude_files = NA_character_, 
+                      include_files = NA_character_,
+                      include_dot_files = F) {
+  
+  # Given a directory, when get_files() is run, then the function will return a
+  # df with 4 columns: absolute_dir, parent_dir, relative_dir, and file
+  
+  ### List Files ###############################################################
+  
+  # get parent directory
+  current_parent_directory <- sub(".*/", "/", directory)
+  
+  # get all file paths
+  log_info("Getting file paths from directory.")
+  file_paths_all <- list.files(directory, recursive = T, full.names = T, all.files = include_dot_files)
+  current_file_paths <- file_paths_all
+  
+  # remove excluded files
+  if (any(!is.na(exclude_files))) {
+    
+    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(directory, exclude_files)]
+    
+  }
+  
+  # filter to only keep included files
+  if (any(!is.na(include_files))) {
+    
+    current_file_paths <- file_paths_all[file_paths_all %in% file.path(directory, include_files)]
+    
+  }
+  
+  log_info(paste0("Adding ", length(current_file_paths), " of ", length(file_paths_all), " files."))
+  
+  ### Add Files ################################################################
+  
+  # add all files to df
+  files <- tibble(all = current_file_paths) %>% 
+    mutate(absolute_dir = str_remove(all, str_c(current_parent_directory, ".*$")),
+           parent_dir = current_parent_directory,
+           relative_dir = str_remove(dirname(all), absolute_dir) %>% 
+             str_remove(paste0("^", parent_dir)),
+           file = basename(all)) %>% 
+    select(-all)
+  
+  ### Return df ################################################################
+  log_info("get_files() complete.")
+  return(files)
+  
+}
+
 
 
 ### FUNCTION ###################################################################
@@ -54,6 +109,7 @@ create_flmd <- function(directory, # required
   
     # TASKS
       # write tests for current script
+      # refactor to use get_files() for reading in data
       # refactor to add warnings
   
       # update examples
