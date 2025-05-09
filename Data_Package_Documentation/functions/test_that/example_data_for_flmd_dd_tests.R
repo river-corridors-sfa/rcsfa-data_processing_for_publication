@@ -93,22 +93,25 @@ add_example_dd <- function(directory){
 add_example_boye <- function(directory){
   
   tribble(
-    ~V1,               ~V2,         ~V3,                                                            ~V4,                ~V5,                                ~V6,                          ~V7,
-    "#Columns",        "6",         NA,                                                             NA,                 NA,                                 NA,                          NA,
-    "#Header_Rows",    "5",         NA,                                                             NA,                 NA,                                 NA,                          NA,
-    "Field_Name",     "Sample_Name", "Material",                                                  "imidacloprid",     "MethodID_Analysis_imidacloprid",   "Analysis_Detection_Limit_imidacloprid", "Notes_imidacloprid",
-    "Unit",            "N/A",       "N/A",                                                          "microgram_per_liter", "N/A",                            "N/A",                        "N/A",
-    "Unit_Basis",      "N/A",       "N/A",                                                          "molecular_weight", "N/A",                               "N/A",                        "N/A",
-    "Analysis_Precision", "-9999", "-9999",                                                        "-9999",            "-9999",                            "-9999",                     "-9999",
-    "Data_Status",     "N/A",       "N/A",                                                          "QAQC_final",       "N/A",                               "N/A",                        "N/A",
-    "#Start_Data",     "M42_2007",  "liquid environmental material: liquid water: surface water",   "0.16",             "OMK57",                            "0.08",                      "N/A",
-    "N/A",             "M42_2008",  "liquid environmental material: liquid water: surface water",   "-9999",            "OMK57",                            "0.2",                       "Below detection limit",
-    "N/A",             "M42_2009",  "liquid environmental material: liquid water: surface water",   "0.13",             "OMK59",                            "0.003",                     "Methodology and detection limit change",
-    "N/A",             "M42_2010",  "liquid environmental material: liquid water: surface water",   "0.09",             "OMK59",                            "0.003",                     "N/A",
-    "N/A",             "M42_2011",  "liquid environmental material: liquid water: surface water",   "0.18",             "OMK59",                            "0.001",                     "N/A",
-    "N/A",             "M42_2012",  "liquid environmental material: liquid water: surface water",   "0.14",             "OMK59",                            "0.002",                     "N/A",
-    "#End_Data",       NA,          NA,                                                             NA,                 NA,                                 NA,                          NA
-  ) %>% 
+    ~V1,                   ~V2,             ~V3,               ~V4,                            ~V5,                            ~V6,
+    "#Columns",            "6",             NA,                NA,                             NA,                             NA,
+    "#Header_Rows",        "5",             NA,                NA,                             NA,                             NA,
+    "Field_Name",          "Sample_Name",   "Material",        "00681_NPOC_mg_per_L_as_C",     "00602_TN_mg_per_L_as_N",       "Methods_Deviation",
+    "Unit",                "N/A",           "N/A",             "milligrams_per_liter",         "milligrams_per_liter",         "N/A",
+    "Unit_Basis",          "N/A",           "N/A",             "as_dissolvable_Carbon",        "as_dissolvable_Nitrogen",      "N/A",
+    "MethodID_Analysis",   "N/A",           "N/A",             "NPOC_T_AN_000",                "TN_T_AN_000",                  "N/A",
+    "MethodID_Inspection", "N/A",           "N/A",             "NPOC_T_IN_000",                "TN_T_IN_000",                  "N/A",
+    "MethodID_Storage",    "N/A",           "N/A",             "NPOC_T_ST_000",                "TN_T_ST_000",                  "N/A",
+    "MethodID_Preservation","N/A",          "N/A",             "NPOC_T_PRES_000",              "TN_T_PRES_000",                "N/A",
+    "MethodID_Preparation","N/A",           "N/A",             "NPOC_T_PREP_000",              "TN_T_PREP_000",                "N/A",
+    "MethodID_DataProcessing","N/A",        "N/A",             "NPOC_T_DP_000",                "TN_T_DP_000",                  "N/A",
+    "Analysis_DetectionLimit","-9999",      "-9999",           "0.09",                         "0.01",                         "N/A",
+    "Analysis_Precision",  "-9999",         "-9999",           "-9999",                        "-9999",                        "N/A",
+    "Data_Status",         "N/A",           "N/A",             "ready_to_use",                 "ready_to_use",                 "N/A",
+    "#Start_Data",         "SSS001_OCN-1",  "Liquid>aqueous",  "0.94",                         "TN_Below_0.1_ppm_Standard|0.05_ppm_Raw_Not_Corrected|0.05_ppm_Final_Corrected", "DTL_003",
+    "N/A",                 "SSS001_OCN-2",  "Liquid>aqueous",  "1.03",                         "TN_Below_0.1_ppm_Standard|0.05_ppm_Raw_Not_Corrected|0.05_ppm_Final_Corrected", "DTL_003"
+  )
+  %>% 
     write_csv(., na = "", col_names = F, 
                 file.path(directory, "data", "example_boye.csv"))
   
