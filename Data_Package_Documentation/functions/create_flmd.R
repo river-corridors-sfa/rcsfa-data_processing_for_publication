@@ -1,6 +1,6 @@
 ### create_flmd.R ##############################################################
 # Date Created: 2024-06-14
-# Date Updated: 2025-04-29
+# Date Updated: 2025-05-07
 # Author: Bibi Powers-McCormack
 
 
@@ -36,8 +36,8 @@ create_flmd <- function(directory, # required
   
   # Assumptions: 
     # Counts skip all rows that begin with a #
-    # If column_or_row_name_position in the correct place, the value is 1
-    # If there are no header_rows, the value is 0
+    # If column_or_row_name_position in the correct place (i.e., there are no header rows), the value is 1
+    # If there are no header_rows, the value is 1
     # If there are tabular data and user decides to not populate header row info, then those cells populate with ""
     # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
     # Tabular data is data where the file extension is .csv or .tsv
@@ -54,8 +54,7 @@ create_flmd <- function(directory, # required
   
     # TASKS
       # write tests for current script
-      # refactor
-      # add ability to add header info based on boye and goldman files
+      # refactor to add warnings
   
       # update examples
       # update header documentation
@@ -394,7 +393,7 @@ create_flmd <- function(directory, # required
   
   ### return filled out skeleton ###############################################
   
-  log_info("create_flmd_skeleton complete.")
+  log_info("create_flmd() complete.")
   return(current_flmd_skeleton)
   
 }

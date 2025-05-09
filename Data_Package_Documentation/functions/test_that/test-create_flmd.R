@@ -1,7 +1,7 @@
 # test-create_flmd_skeleton_v2.R ###############################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-04-24
-# Date Updated: 2025-04-29
+# Date Updated: 2025-05-08
 
 # Objective
 
@@ -73,7 +73,7 @@ test_that("expected typical inputs", {
   expect_equal(object = class(result$File_Path), 
                expected = "character")
   
-  # returns a tibble that adds placeholders when placeholder_rows_to_add = T and uses the dp_keyword input to name the placeholders
+  # returns a tibble that adds placeholders when add_placeholders = T and uses the dp_keyword input to name the placeholders
   expect_equal(object = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = T) %>% select(File_Name, File_Path),
                expected = tibble(File_Name = c("readme_example_data_package.pdf", "example_data_package_flmd.csv", "example_data_package_dd.csv", "example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "01_script.R"),
                                  File_Path = c("/example_data_package", "/example_data_package", "/example_data_package", "/example_data_package/data", "/example_data_package/data", "/example_data_package/data", "/example_data_package/data", "/example_data_package/scripts")))
