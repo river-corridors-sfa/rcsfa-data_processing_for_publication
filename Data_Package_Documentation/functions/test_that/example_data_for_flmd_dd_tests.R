@@ -96,7 +96,7 @@ add_example_boye <- function(directory){
     ~V1,               ~V2,         ~V3,                                                            ~V4,                ~V5,                                ~V6,                          ~V7,
     "#Columns",        "6",         NA,                                                             NA,                 NA,                                 NA,                          NA,
     "#Header_Rows",    "5",         NA,                                                             NA,                 NA,                                 NA,                          NA,
-    "Column_Name",     "Sample_Name", "Material",                                                  "imidacloprid",     "MethodID_Analysis_imidacloprid",   "Analysis_Detection_Limit_imidacloprid", "Notes_imidacloprid",
+    "Field_Name",     "Sample_Name", "Material",                                                  "imidacloprid",     "MethodID_Analysis_imidacloprid",   "Analysis_Detection_Limit_imidacloprid", "Notes_imidacloprid",
     "Unit",            "N/A",       "N/A",                                                          "microgram_per_liter", "N/A",                            "N/A",                        "N/A",
     "Unit_Basis",      "N/A",       "N/A",                                                          "molecular_weight", "N/A",                               "N/A",                        "N/A",
     "Analysis_Precision", "-9999", "-9999",                                                        "-9999",            "-9999",                            "-9999",                     "-9999",

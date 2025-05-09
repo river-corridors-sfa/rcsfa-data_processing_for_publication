@@ -26,6 +26,7 @@ library(testthat) # for testing
 library(fs) # for temp dir creation
 
 # load functions
+source("./Data_Package_Documentation/functions/create_flmd.R")
 source("./Data_Package_Documentation/functions/create_dd.R")
 
 # source in testing data
@@ -45,17 +46,44 @@ test_that("expected typical inputs", {
   add_example_boye(my_data_package_dir)
   add_example_goldman(my_data_package_dir)
   
+  my_flmd <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  
   # returns a tibble
+  expect_s3_class(create_dd(directory = my_data_package_dir, flmd = my_flmd), "tbl_df")
   
   # returns a tibble that must include required cols
- 
-  # returns a tibble that includes all headers
+  result = create_dd(directory = my_data_package_dir, flmd = my_flmd)
+  expect_true(all(c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Missing_Value_Code") %in% names(result)))
  
   # returns a tibble where the columns have the correct class
+  result <- create_dd(directory = my_data_package_dir, flmd = my_flmd)
+  
+  expect_equal(object = class(result$Column_or_Row_Name), 
+               expected = "character")
+  expect_equal(object = class(result$Unit), 
+               expected = "character")
+  expect_equal(object = class(result$Definition), 
+               expected = "character")
+  expect_equal(object = class(result$Data_Type), 
+               expected = "character")
+  expect_equal(object = class(result$Missing_Value_Code), 
+               expected = "character")
   
   # returns a tibble that adds placeholders when placeholder_rows_to_add = T
+  expect_equal(object = create_dd(directory = my_data_package_dir, flmd = my_flmd, add_boye_headers = T) %>% select(Column_or_Row_Name), 
+               expected = tibble(Column_or_Row_Name = c("Unit", "Unit_Basis", "MethodID_Analysis", "MethodID_Inspection", "MethodID_Storage", "MethodID_Preservation", "MethodID_Preparation", "MethodID_DataProcessing", "Analysis_DetectionLimit", "Analysis_Precision", "Data_Status")))
   
-  # populates Missing_Value_Codes column  with '"-9999"; "N/A"; "": NA"'
+  # populates Missing_Value_Code column  with '"-9999"; "N/A"; "": NA"'
+  expect_equal(object = create_dd(directory = my_data_package_dir, flmd = my_flmd, add_boye_headers = T) %>% select(Missing_Value_Code) %>% unique() %>% pull(), 
+               expected = '"N/A"; "-9999"; ""; "NA"')
+  
+  # returns a tibble with all column headers
+  
+  
+  # if FLMD is not provided (it's NA and not a tibble), then it assumes data are
+  # read in where header_rows = 1 and column_or_row_name_position = 1
+  
+  
   
 })
 
@@ -66,6 +94,48 @@ test_that("expected typical inputs", {
 
 
 ### expected errors ############################################################
+
+
+
+
+my_data_package_dir
+
+test_file <- "/private/var/folders/d6/4f4_84915p70pj00fr84zdz40000gn/T/RtmpxNK92W/example_data_package/data/file_c.csv"
+test_file <- "/private/var/folders/d6/4f4_84915p70pj00fr84zdz40000gn/T/RtmpxNK92W/example_data_package/data/example_boye.csv"
+test_Column_or_Row_Name_Position <- 1
+read_csv(test_file, col_names = F, comment = "#", n_max = test_Column_or_Row_Name_Position) %>% 
+  slice(test_Column_or_Row_Name_Position) %>% 
+  pivot_longer(everything(), values_to = "Column_or_Row_Name") %>% 
+  select(Column_or_Row_Name)
+
+
+
+  
+  
+read_lines(test_file) %>% 
+  pull(1)
+
+
+line <- read_lines(test_file, skip_empty_rows = FALSE)[test_Column_or_Row_Name_Position]
+strsplit(line, ",")[[1]] %>% tibble(cols = .)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
