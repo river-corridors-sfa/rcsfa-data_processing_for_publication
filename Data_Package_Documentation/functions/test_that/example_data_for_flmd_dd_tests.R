@@ -110,8 +110,7 @@ add_example_boye <- function(directory){
     "Data_Status",         "N/A",           "N/A",             "ready_to_use",                 "ready_to_use",                 "N/A",
     "#Start_Data",         "SSS001_OCN-1",  "Liquid>aqueous",  "0.94",                         "TN_Below_0.1_ppm_Standard|0.05_ppm_Raw_Not_Corrected|0.05_ppm_Final_Corrected", "DTL_003",
     "N/A",                 "SSS001_OCN-2",  "Liquid>aqueous",  "1.03",                         "TN_Below_0.1_ppm_Standard|0.05_ppm_Raw_Not_Corrected|0.05_ppm_Final_Corrected", "DTL_003"
-  )
-  %>% 
+  ) %>% 
     write_csv(., na = "", col_names = F, 
                 file.path(directory, "data", "example_boye.csv"))
   
