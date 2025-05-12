@@ -10,10 +10,10 @@
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (do not include a "/" at the end)
-directory <- "C:/Brieanne/GitHub/rcsfa-RC3-EWEB-BPCAs/data-packages/MCSN/MCSN_Data_Package"
+directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package/rcsfa-RC3-BSLE_P/Barnes_2024_BSLE_P_Gradient"
 
 # directory where you want the dd and flmd to be written out to (do not include a "/" at the end)
-out_directory <- "C:/Brieanne/GitHub/rcsfa-RC3-EWEB-BPCAs/data-packages/MCSN/MCSN_Data_Package"
+out_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package/rcsfa-RC3-BSLE_P/Barnes_2024_BSLE_P_Gradient"
   
 
 ### Prep Script ################################################################
@@ -53,132 +53,7 @@ source("./Data_Transformation/functions/rename_column_headers.R")
 
 # 1. Load data
 # for excluding or including files, write the relative path from the directory, without slash in the beginning
-data_package_data <- load_tabular_data(directory,
-                                       exclude_files = c("FTICR_Data/Blank1_20230611-r1_p5.xml",
-                                                         "FTICR_Data/Blank1_20230611-r2_p5.xml",
-                                                         "FTICR_Data/Blank1_20230926-r1_p5.xml",
-                                                         "FTICR_Data/Blank1_20230926-r2_p5.xml",
-                                                         "FTICR_Data/Blank2_20230611-r1_p5.xml",
-                                                         "FTICR_Data/Blank2_20230611-r2_p5.xml",
-                                                         "FTICR_Data/Blank2_20230926-r1_p5.xml",
-                                                         "FTICR_Data/Blank2_20230926-r2_p5.xml",
-                                                         "FTICR_Data/Blank3_20230926-r1_p5.xml",
-                                                         "FTICR_Data/Blank3_20230926-r2_p5.xml",
-                                                         "FTICR_Data/Blank4_20230926-r1_p5.xml",
-                                                         "FTICR_Data/Blank4_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN009_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN009_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN010_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN010_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN013_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN013_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN014_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN014_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN016_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN016_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN017_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN017_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN019_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN019_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN027_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN027_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN028_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN028_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN029_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN030_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN030_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN032_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN032_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN033_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN034_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN034_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN035_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN035_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN036_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN036_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN037_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN037_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN038_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN038_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN043_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN043_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN044_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN044_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN045_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN045_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN046_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN046_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN048_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN048_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN049_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN049_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN051_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN051_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN052_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN052_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN053_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN053_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN054_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN054_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN055_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN055_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN056_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN056_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN056_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN056_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN057_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN057_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN058_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN058_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN058_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN058_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN059_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN059_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN062_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN062_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN065_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN065_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN066_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN066_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN067_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN069_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN069_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN071_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN074_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN075_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN076_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN078_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN080_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN083_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN083_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN084_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN084_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN088_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN088_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN088_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN088_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN089_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN089_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN090_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN090_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN091_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN091_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN092_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN092_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN092_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN092_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN119_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN119_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN120_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN125_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN125_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN126_20230926-r1_p5.xml",
-                                                         "FTICR_Data/MCSN126_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN132_20230926-r2_p5.xml",
-                                                         "FTICR_Data/MCSN137_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN137_20230611-r2_p5.xml",
-                                                         "FTICR_Data/MCSN138_20230611-r1_p5.xml",
-                                                         "FTICR_Data/MCSN138_20230611-r2_p5.xml"))
+data_package_data <- load_tabular_data(directory)
 
 
 # 2a. create dd skeleton
@@ -197,30 +72,75 @@ flmd_skeleton <- create_flmd_skeleton(data_package_data$file_paths_relative)
 # flmd_skeleton_populated <- query_flmd_database(flmd_skeleton)
 
 ### DP Specific Edits ##########################################################
-# left join prelim dd to this dd
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/RC2_Sensor_dd.csv") %>%
-  rename(Column_or_Row_Name = Name,
-         Term_Type = Type) %>%
-  select(-Column_Long_Name)
+# join to prelim flmd ----
 
-dd_skeleton <- dd_skeleton %>%
+# read in prelim
+prelim_flmd <- read_csv("C:/Users/powe419/Desktop/bpowers_github_repos/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package/rcsfa-RC3-BSLE_P/Barnes_2024_BSLE_P_Gradient/Barnes_2024_BSLE_P_Gradient_flmd.csv")
+
+
+flmd_skeleton_populated <- flmd_skeleton %>% 
+  
+  # update columns
+  select(-Date_Start, -Date_End) %>% 
+  
+  # update rows
+  filter(!str_detect(File_Path, "/rcsfa-RC3-BSLE_P/.git"),
+         !File_Name %in% c(".gitignore", "README.md", "lock_file", "LICENSE")) %>% # remove git files
+  select(File_Name, File_Path) %>% 
+  left_join(prelim_flmd, by = c("File_Name", "File_Path")) %>% 
+  mutate(Missing_Value_Codes = case_when(str_detect(File_Name, "\\.(csv|tsv)$") ~ '"N/A"; "-9999"; ""; "NA"',
+                                         T ~ "N/A")) %>% # add missing value codes for .csv files
+  mutate(Standard = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # add standard for FLMD
+                              str_detect(File_Name, "\\.(csv|tsv)$") ~ "ESS-DIVE CSV v1", # add standard for .csv files
+                              T ~ "N/A")) %>% 
+  mutate(File_Description = case_when(str_detect(File_Name, "_flmd\\.csv$") ~ "File-level metadata that lists and describes all of the files contained in the data package.", # add definitions for flmd and dd
+                                      str_detect(File_Name, "_dd\\.csv$") ~ 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
+                                      File_Name == "workflow_readme.md" ~ "Documentation on how to reproduce the workflow and analyses in this data package.", 
+                                      File_Name == "published_data_readme.md" ~ "Instructions for accessing, downloading, and formatting the publicly available data referenced in this data package.", 
+                                      File_Name == "XANES_Spectra_Merging.Rmd" ~ "File containing the code used to merge XANES spectra by eV using Athena normalized .xmu files.",
+                                      File_Name == "LCF_Package_P_Fits.Rmd" ~ "File containing the code used to perform the initial XANES linear combination fits to identify the composition of P within samples.",
+                                      T ~ File_Description)) %>% 
+  add_row(File_Name = "readme_Barnes_2024_BSLE_P_Gradient.pdf", # add readme row
+          File_Description = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
+          Standard = "N/A",
+          Missing_Value_Codes = "N/A", 
+          File_Path = NA_character_) %>% 
+  mutate(File_Path = case_when(File_Name %in% c("Barnes_2024_BSLE_P_Gradient_flmd.csv", "Barnes_2024_BSLE_P_Gradient_dd.csv", "readme_Barnes_2024_BSLE_P_Gradient.pdf") ~ "/Barnes_2024_BSLE_P_Gradient", # update file paths
+                               T ~ File_Path)) %>% 
+  select(File_Name, File_Description, Standard, Missing_Value_Codes, File_Path) %>%
+  
+  # sort rows by readme, flmd, dd, and then by File_Path, File_Name
+  mutate(sort_order = case_when(grepl("readme_Barnes", File_Name, ignore.case = F) ~ 1,
+                                grepl("flmd.csv", File_Name, ignore.case = T) ~ 2, 
+                                grepl("dd.csv", File_Name, ignore.case = T) ~ 3,
+                                T ~ 4)) %>% 
+  arrange(sort_order, File_Path, File_Name) %>% 
+  select(-sort_order)
+
+
+# join to prelim dd ----
+
+# read in prelim
+prelim_dd <- read_csv("C:/Users/powe419/Desktop/bpowers_github_repos/Barnes_2024_BSLE_P_Gradient_Manuscript_Data_Package/rcsfa-RC3-BSLE_P/Barnes_2024_BSLE_P_Gradient/Barnes_2024_BSLE_P_Gradient_dd.csv") %>% 
+  select(Column_or_Row_Name, Unit, Definition, Data_Type)
+
+dd_skeleton_populated <- dd_skeleton %>% 
+  # update columns
+  filter(!Column_or_Row_Name %in% c("Date_End", "Date_Start", "Term_Type")) %>% # remove columns dropped when updating flmd and dd columns
+  
+  # join existing dd cols
   select(Column_or_Row_Name) %>%
   left_join(prelim_dd, by = c("Column_or_Row_Name")) %>%
-  arrange(Column_or_Row_Name) 
-
-
-
-# left join prelim flmd to this flmd
-
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/RC2_Sensor_flmd.csv")%>%
-  select(-File_Path)
-
-flmd_skeleton <- flmd_skeleton %>%
-  select(File_Name, File_Path) %>%
-  mutate(File_Name = str_remove(File_Name, 'v2_')) %>%
-  left_join(prelim_flmd, by = c("File_Name")) %>%
-  select(-File_Path, File_Path)
+  arrange(Column_or_Row_Name) %>% 
+  select(Column_or_Row_Name, Unit, Definition, Data_Type) %>% 
+  
+  # update rows
+  mutate(Data_Type = case_when(Column_or_Row_Name %in% c("Column_or_Row_Name", "Data_Type", "Standard","Missing_Value_Codes", "Parent_ID", "Sample_Name") ~ "text", 
+                               T ~ Data_Type),
+         Unit = case_when(tolower(Unit) %in% c("energy_electronvolt", "elevtronvolts", "electronvolts") ~ "electronvolt",
+                          Unit %in% c("parts_per_million") ~ "parts per million", 
+                          T ~ Unit))
 
 
 
