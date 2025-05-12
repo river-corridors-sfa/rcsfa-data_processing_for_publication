@@ -17,13 +17,13 @@ rm(list=ls(all=T))
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (provide absolute directory; do not include a "/" at the end)
-directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo"
+directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Butler_2024_WT_WRF_Hydro_v2/v2_Butler_2024_WT_WRF_Hydro"
 
 # provide the name of the person running the checks
 report_author <- "Bibi Powers-McCormack"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Barton_2025_Coastal_Fires_Levo"
+report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Butler_2024_WT_WRF_Hydro_v2"
 
 # do the tabular files have header rows? (T/F)
 user_input_has_header_rows <- F
