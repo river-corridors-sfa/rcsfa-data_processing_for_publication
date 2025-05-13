@@ -9,6 +9,7 @@
 create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_dir, relative_dir, and file
                       flmd_df = NA, 
                       add_boye_headers = F, 
+                      add_flmd_dd_headers = F,
                       include_filenames = F) {
   
   
@@ -21,6 +22,7 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
     # files_df = df with 4 cols: absolute_dir, parent_dir, relative_dir, and file
     # flmd_df = df with at least these cols: File_Name, Column_or_Row_Name_Position, File_Path
     # add_boye_headers = T/F where the user should select T if they want placeholder rows for Boye header rows. Optional argument; default is FALSE.
+    # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
     # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
   
   # Outputs: 
@@ -185,11 +187,12 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
            associated_files = files_flmd_join) %>% 
     
     # add DD cols
-    mutate(Unit = NA_character_, 
-           Definition = NA_character_, 
+    mutate(Unit = NA_character_,
+           Definition = NA_character_,
            Data_Type = NA_character_,
-           Missing_Value_Code = '"N/A"; "-9999"; ""; "NA"') %>% 
-    select(Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code, associated_files)
+           Missing_Value_Code = '"N/A"; "-9999"; ""; "NA"',
+           header_count = 1) %>%
+    select(Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code, header_count, associated_files)
   
   
   ### Add boye headers #########################################################
@@ -210,29 +213,73 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
                                 "Analysis_Precision", "N/A",	"Precision of the data values.",	"numeric", '"N/A"; "-9999"; ""; "NA"', "boye template", 
                                 "Data_Status", "N/A",	"State of data readiness for publication and use.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template")
     
+    # add rows 
     dd_skeleton <- dd_skeleton %>% 
-      add_row(boye_header_rows)
+      bind_rows(boye_header_rows)
     
   }
+  
+  ### Add FLMD and DD headers  #################################################
+  # adds FLMD and DD headers if the user indicates it
+  if (add_flmd_dd_headers == T) {
+    
+    # flmd headers
+    flmd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Missing_Value_Code, ~associated_files, 
+                                        "File_Name", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "File_Description", "N/A",  "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Standard", "N/A","placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Header_Rows", "N/A", "placeholder definition", "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Column_or_Row_Name_Position", "N/A", "placeholder definition", "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "File_Path", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template")
+    
+    # dd headers
+    dd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Missing_Value_Code, ~associated_files, 
+                                      "Column_or_Row_Name", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
+                                      "Unit",  "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
+                                      "Definition", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
+                                      "Data_Type", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
+                                      "Missing_Value_Code", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template")
+    
+    
+    # add rows
+    dd_skeleton <- dd_skeleton %>% 
+      bind_rows(flmd_placeholder_entires) %>% 
+      bind_rows(dd_placeholder_entires)
+  
+  }
+  
   
   ### Clean up #################################################################
   
   dd_skeleton <- dd_skeleton %>% 
-    # add associated file info
-    group_by(Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code) %>% 
-    summarise(header_count = n(), 
-              associated_files = paste(associated_files, collapse = ", "),
-              .groups = "drop") %>% 
+  # consolidate if placeholders resulted in duplicate row entries
+  group_by(Column_or_Row_Name) %>%
+    summarize(
+      # for columns that should have consistent values within groups, take first non-NA
+      Unit = first(na.omit(Unit)),
+      Definition = first(na.omit(Definition)),
+      Data_Type = first(na.omit(Data_Type)),
+      Missing_Value_Code = first(na.omit(Missing_Value_Code)),
+      # for associated_files, concatenate with comma separator
+      header_count = sum(header_count, na.rm = TRUE), 
+      associated_files = paste(associated_files, collapse = ", "),
+      .groups = "drop"
+    ) %>%
+    # if all values were NA for each column then it will return character(0), this converts it back to NA
+    mutate(across(c(Unit, Definition, Data_Type, Missing_Value_Code), 
+                  ~case_when(length(.) == 0 ~ NA_character_,
+                             TRUE ~ .))) %>% 
     
     # alphabetize
     arrange(tolower(Column_or_Row_Name))
+  
   
   # if include_filenames == F, then drop cols
   if (include_filenames == F) {
     
     dd_skeleton <- dd_skeleton %>% 
-      select(Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code) %>% 
-      unique()
+      select(Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code)
+    
   }
   
   
@@ -240,9 +287,6 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
   
   log_info("create_dd() complete.")
   return(dd_skeleton)
-  
-  
-  
   
 }
   
