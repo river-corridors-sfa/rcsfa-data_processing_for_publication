@@ -225,20 +225,20 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
     
     # flmd headers
     flmd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Missing_Value_Code, ~associated_files, 
-                                        "File_Name", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "File_Description", "N/A",  "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "Standard", "N/A","placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "Header_Rows", "N/A", "placeholder definition", "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "Column_or_Row_Name_Position", "N/A", "placeholder definition", "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "File_Path", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template")
+                                        "File_Name", "N/A", "Name of files in the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "File_Description", "N/A",  "A brief description of the files in the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Standard", "N/A","ESS-DIVE Reporting Format (https://ess-dive.lbl.gov/data-reporting-formats/) or other standard applied to the data file.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Header_Rows", "N/A", 'The sum of column or rows that are before the start of the data. This count assumes the numbering begins at 1, excludes columns or rows that begin with "#", and includes the column or row that the header names are on. For example, if the file has column headers but does not have any header rows, then this value is 1. Our data is typically oriented in columns, so this field indicates the number of rows before the start of the data.', "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Column_or_Row_Name_Position", "N/A", 'The column or row number that contains the header names (i.e., column name or row name). The count assumes the numbering begins at 1 and excludes columns or rows that begin with "#". Our data is typically oriented in columns, so this field indicates the row the column names are on.', "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "File_Path", "N/A", "File path within the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template")
     
     # dd headers
     dd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Missing_Value_Code, ~associated_files, 
-                                      "Column_or_Row_Name", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
-                                      "Unit",  "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
-                                      "Definition", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
-                                      "Data_Type", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
-                                      "Missing_Value_Code", "N/A", "placeholder definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template")
+                                      "Column_or_Row_Name", "N/A", "Column or row headers from each tabular file (csv or tsv) in the dataset.", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
+                                      "Unit",  "N/A", "Unit of measurement that applies to a given column or row in the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
+                                      "Definition", "N/A", "Description of the information in a given column or row in the dataset.definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
+                                      "Data_Type", "N/A", "Type of data (numeric; text; date; time; datetime).", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
+                                      "Missing_Value_Code", "N/A", 'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. In most cases, the missing value code for numeric data is "-9999" and for character data is "N/A". Some files also use a missing value format specific to when a data value is below the limit of detection or above/below the standard curve. For these cases: a text string is included in the format "[data type]_*|*_Raw_Not_Corrected|*_Final_Corrected" in which the asterisks are the denoted individual data values. See the associated methods deviation (DTL_003) description for more details.', "text", '"N/A"; "-9999"; ""; "NA"', "dd template")
     
     
     # add rows
