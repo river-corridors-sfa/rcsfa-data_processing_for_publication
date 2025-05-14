@@ -66,48 +66,82 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
   
   # does files_df have required cols?
   
-  # does flmd_df have required cols? 
+  # are add_boye_headers, add_flmd_dd_headers, and include_file_names logical?
   
-  # are add_boye_headers and include_file_names logical?
+  # is the flmd present? 
+    # this checks if the flmd is present. if it is, then it makes sure that the
+    # flmd has the required cols and then checks to see if it can join to the
+    # files_df. If the FLMD isn't provided (= NA) then it warns the user that it
+    # will attempt to read in headers
   
-  # are the tabular files in the flmd and files the same? 
-  tabular_flmd <- flmd_df %>% 
-    mutate(files_flmd_join = paste0(File_Path, "/", File_Name)) %>% 
-    filter(str_detect(File_Name, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
-    select(files_flmd_join, Column_or_Row_Name_Position) 
-  
-  tabular_files <- files_df %>% 
-    filter(str_detect(file, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
-    mutate(files_flmd_join = paste0(parent_dir, relative_dir, "/", file))
-  
-  # are the files listed in the files_df and flmd_df the same?
-  are_equal <- setequal(tabular_files$files_flmd_join, tabular_flmd$files_flmd_join)
-  
-  if (are_equal == F) {
+  if (is.data.frame(flmd_df)) {
     
-    # show the files in files_df but NOT in flmd
-    log_info("Tabular files in the FLMD, but NOT in your directory: ")
-    setdiff(tabular_flmd$files_flmd_join, tabular_files$files_flmd_join) %>% 
-      tibble(missing_from_directory = .) %>% 
-      print()
+    # if yes...
     
-    log_info("Tabular files in your directory, but NOT in the FLMD: ")
-    setdiff(tabular_files$files_flmd_join, tabular_flmd$files_flmd_join) %>% 
-      tibble(missing_from_flmd = .) %>% 
-      print()
-    
-    # if the files dirs don't match the flmd, warn user
-    log_warn("There is a discrepency between the tabular files in your directory and the FLMD. Do you want to proceed?: ")
-    
-    user_prompt_to_proceed <- readline(prompt = "Y/N?: ")
-    
-    if (tolower(user_prompt_to_proceed) != "y") {
+    # does flmd_df have required cols?
+    flmd_required_cols <- c("File_Name", "Column_or_Row_Name_Position", "File_Path")
+                            
+    if (!all(flmd_required_cols %in% names(flmd_df))) {
       
-      stop("Function terminating.")
-      
-    }
+      # if the flmd is missing required cols, error
+      stop("FLMD is missing required columns: ", paste(setdiff(flmd_required_cols, names(flmd_df)), collapse = ", "))
+    } # end of checking flmd required cols
     
-  }
+    # are the tabular files in the flmd and files the same? 
+    tabular_flmd <- flmd_df %>% 
+      mutate(files_flmd_join = paste0(File_Path, "/", File_Name)) %>% 
+      filter(str_detect(File_Name, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
+      select(files_flmd_join, Column_or_Row_Name_Position) 
+    
+    tabular_files <- files_df %>% 
+      filter(str_detect(file, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
+      mutate(files_flmd_join = paste0(parent_dir, relative_dir, "/", file))
+    
+    # are the files listed in the files_df and flmd_df the same?
+    are_equal <- setequal(tabular_files$files_flmd_join, tabular_flmd$files_flmd_join)
+    
+    if (are_equal == F) {
+      
+      # show the files in files_df but NOT in flmd
+      log_info("Tabular files in the FLMD, but NOT in your directory: ")
+      setdiff(tabular_flmd$files_flmd_join, tabular_files$files_flmd_join) %>% 
+        tibble(missing_from_directory = .) %>% 
+        print()
+      
+      log_info("Tabular files in your directory, but NOT in the FLMD: ")
+      setdiff(tabular_files$files_flmd_join, tabular_flmd$files_flmd_join) %>% 
+        tibble(missing_from_flmd = .) %>% 
+        print()
+      
+      # if the files dirs don't match the flmd, warn user
+      log_warn("There is a discrepency between the tabular files in your directory and the FLMD. Do you want to proceed?: ")
+      
+      user_prompt_to_proceed <- readline(prompt = "Y/N?: ")
+      
+      if (tolower(user_prompt_to_proceed) != "y") {
+        
+        stop("Function terminating.")
+        
+      } # end of quitting if user prompt indicates to
+      
+    } # end of if flmd and files equal
+    
+    } else { 
+      
+      # if no, create (fake) flmd and fill with placeholder values where header_rows = 1 and column_or_row_name_position = 1
+      log_warn("An FLMD was not provided. The function assumes headers are on the first row.")
+      
+      tabular_files <- files_df %>% 
+        filter(str_detect(file, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
+        mutate(files_flmd_join = paste0(parent_dir, relative_dir, "/", file))
+      
+      tabular_flmd <- tabular_files %>% 
+        mutate(Column_or_Row_Name_Position = 1) %>% 
+        select(files_flmd_join, Column_or_Row_Name_Position) 
+      
+    } # end of checking flmd presence
+    
+  
 
     
   ### Join files_df with FLMD ##################################################
