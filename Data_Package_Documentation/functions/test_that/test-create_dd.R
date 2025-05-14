@@ -1,7 +1,7 @@
 # test-create_dd.R #############################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-05-02
-# Date Updated: 2025-05-02
+# Date Updated: 2025-05-13
 
 # Objective
 
@@ -70,9 +70,9 @@ test_that("expected typical inputs", {
   expect_equal(object = class(result$Missing_Value_Code),
                expected = "character")
 
-  # returns a tibble that adds placeholders when placeholder_rows_to_add = T
-  expect_equal(object = create_dd(files_df = my_files, flmd = my_flmd, add_boye_headers = T, include_filenames = T) %>% filter(associated_files == "boye template") %>% select(Column_or_Row_Name),
-               expected = tibble(Column_or_Row_Name = c("Analysis_DetectionLimit", "Analysis_Precision", "Data_Status", "MethodID_Analysis", "MethodID_DataProcessing", "MethodID_Inspection", "MethodID_Preparation", "MethodID_Preservation", "MethodID_Storage", "Unit", "Unit_Basis")))
+  # returns a tibble that adds placeholders when add_boye_headers = T and add_flmd_dd_headers = T
+  expect_equal(object = create_dd(files_df = my_files, flmd = my_flmd, add_boye_headers = T, add_flmd_dd_headers = T, include_filenames = T) %>% filter(str_detect(associated_files, "\\bboye template\\b|\\bflmd template\\b|\\bdd template\\b")) %>% select(Column_or_Row_Name),
+               expected = tibble(Column_or_Row_Name = c("Analysis_DetectionLimit", "Analysis_Precision", "Column_or_Row_Name", "Column_or_Row_Name_Position", "Data_Status", "Data_Type", "Definition", "File_Description", "File_Name", "File_Path", "Header_Rows", "MethodID_Analysis", "MethodID_DataProcessing", "MethodID_Inspection", "MethodID_Preparation", "MethodID_Preservation", "MethodID_Storage", "Missing_Value_Code", "Standard", "Unit", "Unit_Basis")))
 
   # populates Missing_Value_Code column  with '"-9999"; "N/A"; "": NA"'
   expect_equal(object = create_dd(files_df = my_files, flmd = my_flmd, add_boye_headers = T) %>% select(Missing_Value_Code) %>% unique() %>% pull(),
@@ -88,6 +88,8 @@ test_that("expected typical inputs", {
   
   # if FLMD is not provided (it's NA and not a tibble), then it assumes data are
   # read in where header_rows = 1 and column_or_row_name_position = 1
+  expect_equal(object, 
+               expected)
   
   
 })
@@ -99,6 +101,10 @@ test_that("expected typical inputs", {
 
 
 ### expected errors ############################################################
+
+
+
+
 
 
 
