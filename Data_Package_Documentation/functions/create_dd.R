@@ -6,7 +6,7 @@
 
 ### FUNCTION: create_dd() ######################################################
 
-create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_dir, relative_dir, and file
+create_dd <- function(files_df, 
                       flmd_df = NA, 
                       add_boye_headers = F, 
                       add_flmd_dd_headers = F,
@@ -19,8 +19,8 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
       # Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code
   
   # Inputs: 
-    # files_df = df with 4 cols: absolute_dir, parent_dir, relative_dir, and file
-    # flmd_df = df with at least these cols: File_Name, Column_or_Row_Name_Position, File_Path
+    # files_df = df with at least these 4 cols: absolute_dir, parent_dir, relative_dir, and file. Required argument. 
+    # flmd_df = df with at least these 3 cols: File_Name, Column_or_Row_Name_Position, File_Path. Optional argument; default is NA. 
     # add_boye_headers = T/F where the user should select T if they want placeholder rows for Boye header rows. Optional argument; default is FALSE.
     # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
     # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
@@ -65,14 +65,36 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
   ### Validate Inputs ##########################################################
   
   # does files_df have required cols?
+  files_required_cols <- c("absolute_dir", "parent_dir", "relative_dir", "file")
   
-  # are add_boye_headers, add_flmd_dd_headers, and include_file_names logical?
+  if (!all(files_required_cols %in% names(files_df))) {
+    
+    # if files_df is missing required cols, error
+    log_error(paste0("files_df is missing required column: ", setdiff(files_required_cols, names(files_df))))
+    stop("Function terminating.")
+  } # end of checking files required cols
+  
+  # are add_boye_headers, add_flmd_dd_headers, and include_filenames logical?
+  if (!is.logical(add_boye_headers) || length(add_boye_headers) != 1) {
+    log_error("add_boye_headers must be a single logical value (TRUE or FALSE)")
+    stop("Function terminating.")
+  }
+  
+  if (!is.logical(add_flmd_dd_headers) || length(add_flmd_dd_headers) != 1) {
+    log_error("add_flmd_dd_headers must be a single logical value (TRUE or FALSE)")
+    stop("Function terminating.")
+  }
+  
+  if (!is.logical(include_filenames) || length(include_filenames) != 1) {
+    log_error("include_filenames must be a single logical value (TRUE or FALSE)")
+    stop("Function terminating.")
+  }
   
   # is the flmd present? 
     # this checks if the flmd is present. if it is, then it makes sure that the
     # flmd has the required cols and then checks to see if it can join to the
     # files_df. If the FLMD isn't provided (= NA) then it warns the user that it
-    # will attempt to read in headers
+    # will attempt to read in headers by assuming headers are on the first row
   
   if (is.data.frame(flmd_df)) {
     
@@ -84,7 +106,8 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
     if (!all(flmd_required_cols %in% names(flmd_df))) {
       
       # if the flmd is missing required cols, error
-      stop("FLMD is missing required columns: ", paste(setdiff(flmd_required_cols, names(flmd_df)), collapse = ", "))
+      log_error(paste0("flmd_df is missing required column: ", setdiff(flmd_required_cols, names(flmd_df))))
+      stop("Function terminating.")
     } # end of checking flmd required cols
     
     # are the tabular files in the flmd and files the same? 
