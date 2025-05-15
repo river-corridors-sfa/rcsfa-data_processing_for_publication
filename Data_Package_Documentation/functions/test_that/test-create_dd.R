@@ -1,7 +1,7 @@
 # test-create_dd.R #############################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-05-02
-# Date Updated: 2025-05-13
+# Date Updated: 2025-05-14
 
 # Objective
 
@@ -98,6 +98,25 @@ test_that("expected typical inputs", {
 })
 
 ### expected edge cases ########################################################
+
+test_that("expected edge cases", {
+  
+  # create data
+  my_data_package_dir <- create_test_dir()
+  add_example_data(my_data_package_dir)
+  add_example_script(my_data_package_dir)
+  add_example_boye(my_data_package_dir)
+  add_example_goldman(my_data_package_dir)
+  
+  my_files <- get_files(directory = my_data_package_dir)
+  my_flmd <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  
+  
+  # returns 2 additional columns (header_count and associated_files) if include_filenames = T
+  expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, include_filenames = T) %>% names(.), 
+               expected = c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Missing_Value_Code", "header_count", "associated_files"))
+  
+})
 
 
 ### expected warnings ##########################################################
