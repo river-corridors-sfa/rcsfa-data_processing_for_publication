@@ -114,7 +114,7 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
         print()
       
       # if the files dirs don't match the flmd, warn user
-      log_warn("There is a discrepency between the tabular files in your directory and the FLMD. Do you want to proceed?: ")
+      log_warn("There is a discrepency between your tabular files and the FLMD. Do you want to proceed?: ")
       
       user_prompt_to_proceed <- readline(prompt = "Y/N?: ")
       
@@ -122,7 +122,10 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
         
         stop("Function terminating.")
         
-      } # end of quitting if user prompt indicates to
+      } else {# end of quitting if user prompt indicates to
+        warning("Created the DD after user acknowledged possible discrepency between tabular files and FLMD.")
+        
+      } # end of warning 
       
     } # end of if flmd and files equal
     
@@ -130,6 +133,7 @@ create_dd <- function(files_df, # required df with 4 cols: absolute_dir, parent_
       
       # if no, create (fake) flmd and fill with placeholder values where header_rows = 1 and column_or_row_name_position = 1
       log_warn("An FLMD was not provided. The function assumes headers are on the first row.")
+      warning("Created the DD assuming headers are on the first row.")
       
       tabular_files <- files_df %>% 
         filter(str_detect(file, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
