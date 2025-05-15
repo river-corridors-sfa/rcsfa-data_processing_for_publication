@@ -355,8 +355,11 @@ create_flmd <- function(files_df, # required
                                                        T ~ Column_or_Row_Name_Position)) # user input
     } else { # if query_header_info != T
       
-      log_info("Header_Rows and Column_or_Row_Name_Position are not being calculated. 
-  Tabular files will be populated with NA and all other files will be automatically populated with '-9999'.")
+      log_warn("
+  Header_Rows and Column_or_Row_Name_Position are not being calculated. 
+  Tabular files will be populated with NA and all other files will be automatically populated with '-9999'.
+  
+  Boye and Goldman Standards are not being added. If applicable, they will need to be manually added to the FLMD by the user.")
       
       current_flmd_skeleton <- current_flmd_skeleton %>% 
         mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
