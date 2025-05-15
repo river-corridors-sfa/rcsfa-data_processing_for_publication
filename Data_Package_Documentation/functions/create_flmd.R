@@ -1,7 +1,9 @@
 ### create_flmd.R ##############################################################
 # Date Created: 2024-06-14
-# Date Updated: 2025-05-09
+# Date Updated: 2025-05-15
 # Author: Bibi Powers-McCormack
+
+# This script contains the functions for creating FLMDs. 
 
 
 ### FUNCITON: get_files() ######################################################
@@ -11,8 +13,24 @@ get_files <- function(directory, # required
                       include_files = NA_character_,
                       include_dot_files = F) {
   
-  # Given a directory, when get_files() is run, then the function will return a
-  # df with 4 columns: absolute_dir, parent_dir, relative_dir, and file
+  # Objective: Given a directory, when get_files() is run, then the function
+  # will return a df with 5 columns: all, absolute_dir, parent_dir, relative_dir, and
+  # file
+  
+  # Inputs: 
+    # directory = string of the absolute folder file path. Required argument. 
+    # exclude_files = vector of files (relative file path + file name) to exclude from within the dir. Optional argument; default is NA. 
+    # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA. 
+    # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE.  
+  
+  # Outputs: 
+    # df with 5 columns: all, absolute_dir, parent_dir, relative_dir, file
+  
+  # Assumptions: 
+    # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
+  
+  # Examples: 
+  
   
   ### List Files ###############################################################
   
@@ -48,8 +66,7 @@ get_files <- function(directory, # required
            parent_dir = current_parent_directory,
            relative_dir = str_remove(dirname(all), absolute_dir) %>% 
              str_remove(paste0("^", parent_dir)),
-           file = basename(all)) %>% 
-    select(-all)
+           file = basename(all))
   
   ### Return df ################################################################
   log_info("get_files() complete.")
@@ -61,7 +78,7 @@ get_files <- function(directory, # required
 
 ### FUNCTION ###################################################################
 
-create_flmd <- function(directory, # required
+create_flmd <- function(files_df, # required
                         dp_keyword = "data_package", 
                         add_placeholders = T, 
                         exclude_files = NA_character_, 
@@ -72,18 +89,18 @@ create_flmd <- function(directory, # required
   
   
   ### About the function #######################################################
-  # Objective:
-    # Create an flmd with the following columns: 
-      # File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, File_Path
+  
+  # Objective: Given files_df (a df with 4 columns: all, absolute_dir, parent_dir,
+  # relative_dir, file), when create_flmd() is run, then the function will
+  # return an FLMD with the cols: File_Name, File_Description, Standard,
+  # Header_Rows, Column_or_Row_Name_Position, File_Path. It will do its best to
+  # populate as many values as it can.
   
   # Inputs: 
-    # directory = string of the absolute folder file path. Required argument. 
+    # files_df = df with at least these 5 cols: all, absolute_dir, parent_dir, relative_dir, and file. Required argument. 
     # dp_keyword = string of the data package name; this will be used to name the placeholders. Optional argument; default is "data_package".
     # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is TRUE.
-    # exclude_files = vector of files (relative file path + file name) to exclude from within the dir. Optional argument; default is NA. 
-    # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA. 
-    # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
-    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F is on NERSC. Optional argument; default is TRUE.  
+    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is TRUE.  
     # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
     
   # Outputs: 
@@ -93,13 +110,12 @@ create_flmd <- function(directory, # required
     # Counts skip all rows that begin with a #
     # If column_or_row_name_position in the correct place (i.e., there are no header rows), the value is 1
     # If there are no header_rows, the value is 1
-    # If there are tabular data and user decides to not populate header row info, then those cells populate with ""
+    # If there are tabular data and user decides to not populate header row info, then those cells populate with NA
     # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
     # Tabular data is data where the file extension is .csv or .tsv
     # Tabular data is a single data matrix
     # Tabular data files are organized with column headers (not row headers)
     # Tabular data can have header rows above and/or below the column headers
-    # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
     # Boye files have a ".csv" file extension
     # If add_placeholders = T, only adds respective placeholders if "readme", "flmd.csv", or "dd.csv" aren't already located in the data package
   
@@ -158,70 +174,35 @@ create_flmd <- function(directory, # required
   library(rlog) # for logging documentation
   library(fs) # for getting file extension
   
-  # log_info("This function takes 8 arguments: 
-  #           - directory (required)
-  #           - dp_keyword (required)
-  #           - add_placeholders (required; default = T)
-  #           - exclude_files (optional; default = NA)
-  #           - include_files (optional; default = NA)
-  #           - file_n_max (optional; default = 100)
-  #           - include_dot_files (optional; default = F)
-  #           - query_header_info (optoinal; default = T)
-  #          
-  #          It returns a FLMD with the following column headers: 
-  #          -  File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, File_Path
-  # Open the function to see argument definitions, function assumptions, and examples.")
-  
   ### Validate Inputs ##########################################################
   
   
   
-  ### List Files ###############################################################
-  
-  # get parent directory
-  current_parent_directory <- sub(".*/", "/", directory)
-  
-  # get all file paths
-  log_info("Getting file paths from directory.")
-  file_paths_all <- list.files(directory, recursive = T, full.names = T, all.files = include_dot_files)
-  current_file_paths <- file_paths_all
-  
-  # remove excluded files
-  if (any(!is.na(exclude_files))) {
-    
-    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(directory, exclude_files)]
-    
-  }
-  
-  # filter to only keep included files
-  if (any(!is.na(include_files))) {
-    
-    current_file_paths <- file_paths_all[file_paths_all %in% file.path(directory, include_files)]
-    
-  }
-  
-  
-  log_info(paste0("Adding ", length(current_file_paths), " of the ", length(file_paths_all), " files to the flmd."))
-  
   
   ### add rows to flmd #########################################################
   
+  # get parent directory
+  current_parent_directory <- files_df %>% 
+    distinct(parent_dir) %>% 
+    pull()
+  
+  log_info(paste0("Adding ", nrow(files_df), " files to the flmd."))
+  
   # initialize df with file names and paths
-  current_flmd_skeleton <- tibble(absolute_path = current_file_paths) %>% 
-    mutate(File_Name = basename(absolute_path),
-           File_Path = paste0(current_parent_directory, "/", fs::path_rel(absolute_path, start = directory)),
-           File_Path = str_remove(File_Path, paste0("/", File_Name)),
-           File_Description = NA_character_,
-           Standard = NA_character_, 
-           header_format = NA) # temporary column
-  
-  
+  current_flmd_skeleton <- files_df %>% 
+    mutate(File_Name = file,
+           File_Path = paste0(parent_dir, relative_dir),
+           File_Description = NA_character_, 
+           Standard = NA_character_,
+           header_format = NA) %>% # temporary column
+    select(File_Name, File_Description, Standard, File_Path, header_format, all)
+    
   ### add columns as indicated by user argument ################################
   
   #### header rows and column or row position ----
   # check if there are tabular files and query_header_info = T
-  count_csv_files <- sum(str_detect(current_file_paths, "\\.csv$"))
-  count_tsv_files <- sum(str_detect(current_file_paths, "\\.tsv$"))
+  count_csv_files <- sum(str_detect(files_df$file, "\\.csv$"))
+  count_tsv_files <- sum(str_detect(files_df$file, "\\.tsv$"))
   
   if (count_csv_files > 0 || count_tsv_files > 0) {
     
@@ -271,7 +252,7 @@ create_flmd <- function(directory, # required
       # filter for tabular data
       tabular_files <- current_flmd_skeleton %>% 
         filter(str_detect(File_Name, "\\.csv$|\\.tsv$")) %>% 
-        pull(absolute_path)
+        pull(all)
       
       # loop through tabular files
       for (i in 1:length(tabular_files)) {
@@ -300,7 +281,7 @@ create_flmd <- function(directory, # required
         user_reply <- as.numeric(readline(prompt = cat("What type of header info is present? 0 = none; 1 = Boye; 2 = Goldman; 3 = other")))
         
         # update header row type
-        current_flmd_skeleton$header_format[current_flmd_skeleton$absolute_path == current_file_absolute] <- user_reply
+        current_flmd_skeleton$header_format[current_flmd_skeleton$all == current_file_absolute] <- user_reply
         
         if (user_reply == 3) {
           # run function
@@ -320,8 +301,8 @@ create_flmd <- function(directory, # required
           current_header_row <- user_inputs$current_header_row
       
           # add to flmd
-          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_header_row
-          current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$absolute_path == current_file_absolute] <- current_column_or_row_name_position
+          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$all == current_file_absolute] <- current_header_row
+          current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$all == current_file_absolute] <- current_column_or_row_name_position
           
         } # end of user_reply == 3
       
@@ -335,7 +316,7 @@ create_flmd <- function(directory, # required
             pull(2)
           
           # add to flmd
-          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$absolute_path == current_file_absolute] <- boye_row_info
+          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$all == current_file_absolute] <- boye_row_info
           
         } # end of user_reply = 1
         
@@ -358,9 +339,9 @@ create_flmd <- function(directory, # required
       
       current_flmd_skeleton <- current_flmd_skeleton %>% 
         mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
-                                       T ~ ""),
+                                       T ~ NA),
                Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
-                                                       T ~ ""))
+                                                       T ~ NA))
     } # end of query_header_info != T
     
   } # end of if tabular files exist
@@ -383,9 +364,9 @@ create_flmd <- function(directory, # required
     log_info("Checking for presence of flmd, dd, and readme files.")
     
     # check for presence of dd and flmd files
-    flmd_file_present <- any(str_detect(current_file_paths, "flmd.csv"))
-    dd_file_present <- any(str_detect(current_file_paths, "dd.csv"))
-    readme_file_present <- any(str_detect(current_file_paths, "readme"))
+    flmd_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "flmd.csv"))
+    dd_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "dd.csv"))
+    readme_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "readme"))
     
     if (readme_file_present == FALSE) {
       log_info("Adding placeholder row for readme.")

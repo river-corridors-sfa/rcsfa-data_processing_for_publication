@@ -19,7 +19,7 @@ create_dd <- function(files_df,
       # Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code
   
   # Inputs: 
-    # files_df = df with at least these 4 cols: absolute_dir, parent_dir, relative_dir, and file. Required argument. 
+    # files_df = df with at least these 5 cols: all, absolute_dir, parent_dir, relative_dir, and file. Required argument. 
     # flmd_df = df with at least these 3 cols: File_Name, Column_or_Row_Name_Position, File_Path. Optional argument; default is NA. 
     # add_boye_headers = T/F where the user should select T if they want placeholder rows for Boye header rows. Optional argument; default is FALSE.
     # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
@@ -163,8 +163,6 @@ create_dd <- function(files_df,
         select(files_flmd_join, Column_or_Row_Name_Position) 
       
     } # end of checking flmd presence
-    
-  
 
     
   ### Join files_df with FLMD ##################################################
