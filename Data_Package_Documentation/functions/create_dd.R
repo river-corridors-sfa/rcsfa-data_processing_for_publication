@@ -126,12 +126,12 @@ create_dd <- function(files_df,
     if (are_equal == F) {
       
       # show the files in files_df but NOT in flmd
-      log_info("Tabular files in the FLMD, but NOT in your directory: ")
+      log_warn("Tabular files in the FLMD, but NOT in your directory: ")
       setdiff(tabular_flmd$files_flmd_join, tabular_files$files_flmd_join) %>% 
         tibble(missing_from_directory = .) %>% 
         print()
       
-      log_info("Tabular files in your directory, but NOT in the FLMD: ")
+      log_warn("Tabular files in your directory, but NOT in the FLMD: ")
       setdiff(tabular_files$files_flmd_join, tabular_flmd$files_flmd_join) %>% 
         tibble(missing_from_flmd = .) %>% 
         print()
@@ -145,10 +145,7 @@ create_dd <- function(files_df,
         
         stop("Function terminating.")
         
-      } else {# end of quitting if user prompt indicates to
-        warning("Created the DD after user acknowledged possible discrepency between tabular files and FLMD.")
-        
-      } # end of warning 
+      } # end of quitting if user prompt indicates to
       
     } # end of if flmd and files equal
     
@@ -156,7 +153,6 @@ create_dd <- function(files_df,
       
       # if no, create (fake) flmd and fill with placeholder values where header_rows = 1 and column_or_row_name_position = 1
       log_warn("An FLMD was not provided. The function assumes headers are on the first row.")
-      warning("Created the DD assuming headers are on the first row.")
       
       tabular_files <- files_df %>% 
         filter(str_detect(file, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
