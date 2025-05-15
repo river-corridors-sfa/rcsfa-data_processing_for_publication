@@ -27,7 +27,8 @@ get_files <- function(directory, # required
     # df with 5 columns: all, absolute_dir, parent_dir, relative_dir, file
   
   # Assumptions: 
-    # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
+    # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed.
+    # if you use both include and exclude options, only the files listed in include will be kept; the exclude list will be ignored.
   
   # Examples: 
   
@@ -47,12 +48,16 @@ get_files <- function(directory, # required
     
     current_file_paths <- file_paths_all[!file_paths_all %in% file.path(directory, exclude_files)]
     
+    log_warn(paste0("Excluding ", length(file_paths_all) - length(current_file_paths), " file(s)."))
+    
   }
   
   # filter to only keep included files
   if (any(!is.na(include_files))) {
     
     current_file_paths <- file_paths_all[file_paths_all %in% file.path(directory, include_files)]
+    
+    log_warn(paste0("Including only the ", length(current_file_paths), " file(s) listed in the `include_file` input."))
     
   }
   
@@ -80,11 +85,8 @@ get_files <- function(directory, # required
 
 create_flmd <- function(files_df, # required
                         dp_keyword = "data_package", 
-                        add_placeholders = T, 
-                        exclude_files = NA_character_, 
-                        include_files = NA_character_, 
-                        include_dot_files = F, 
-                        query_header_info = T,
+                        add_placeholders = F, 
+                        query_header_info = F,
                         file_n_max = 100) {
   
   
@@ -99,8 +101,8 @@ create_flmd <- function(files_df, # required
   # Inputs: 
     # files_df = df with at least these 5 cols: all, absolute_dir, parent_dir, relative_dir, and file. Required argument. 
     # dp_keyword = string of the data package name; this will be used to name the placeholders. Optional argument; default is "data_package".
-    # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is TRUE.
-    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is TRUE.  
+    # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is FALSE.
+    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is FALSE.  
     # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
     
   # Outputs: 
@@ -130,8 +132,8 @@ create_flmd <- function(files_df, # required
   
       # update examples
       # update header documentation
-      # update log_info text about inputs
       # add notes about how header row calculations are done
+      # update create_flmd_dd main script
   
   # Examples
   
@@ -176,8 +178,27 @@ create_flmd <- function(files_df, # required
   
   ### Validate Inputs ##########################################################
   
+  # does files_df have required cols?
+  files_required_cols <- c("all", "absolute_dir", "parent_dir", "relative_dir", "file")
+  
+  if (!all(files_required_cols %in% names(files_df))) {
+    
+    # if files_df is missing required cols, error
+    log_error(paste0("files_df is missing required column: ", setdiff(files_required_cols, names(files_df))))
+    stop("Function terminating.")
+  } # end of checking files required cols
   
   
+  # are add_placeholders and query_header_info logical?
+  if (!is.logical(add_placeholders) || length(add_placeholders) != 1) {
+    log_error("add_placeholders must be a single logical value (TRUE or FALSE)")
+    stop("Function terminating.")
+  }
+  
+  if (!is.logical(query_header_info) || length(query_header_info) != 1) {
+    log_error("query_header_info must be a single logical value (TRUE or FALSE)")
+    stop("Function terminating.")
+  }
   
   ### add rows to flmd #########################################################
   
@@ -335,7 +356,7 @@ create_flmd <- function(files_df, # required
     } else { # if query_header_info != T
       
       log_info("Header_Rows and Column_or_Row_Name_Position are not being calculated. 
-  Tabular files will be left empty and all other files will be automatically populated with '-9999'.")
+  Tabular files will be populated with NA and all other files will be automatically populated with '-9999'.")
       
       current_flmd_skeleton <- current_flmd_skeleton %>% 
         mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 

@@ -42,14 +42,9 @@ create_dd <- function(files_df,
   # Status: In progress.  
   
   # TASKS
-    # write tests for current script
-    # write MVP
-    # refactor
-      # validate inputs
-    
-    # update examples
-    # update header documentation
-    # update log_info text about inputs
+    # update script documentation at top of this script
+      # add examples
+    # update script documentation at top of test script
     # add notes about how header row calculations are done
     
   # Examples
@@ -65,7 +60,7 @@ create_dd <- function(files_df,
   ### Validate Inputs ##########################################################
   
   # does files_df have required cols?
-  files_required_cols <- c("absolute_dir", "parent_dir", "relative_dir", "file")
+  files_required_cols <- c("all", "absolute_dir", "parent_dir", "relative_dir", "file")
   
   if (!all(files_required_cols %in% names(files_df))) {
     

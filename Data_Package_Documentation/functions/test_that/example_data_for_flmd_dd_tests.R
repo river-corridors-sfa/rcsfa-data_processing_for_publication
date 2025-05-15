@@ -190,3 +190,11 @@ add_example_script <- function(directory){
   log_info("add_example_script() complete")
 }
 
+# add dot files
+add_example_dot_files <- function(directory){
+  
+  file.create(file.path(directory, ".hidden_file_a.txt"))
+  file.create(file.path(directory, ".hidden_file_b.txt"))
+  
+  log_info("add_example_dot_files() complete")
+}
