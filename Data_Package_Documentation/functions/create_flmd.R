@@ -129,27 +129,24 @@ create_flmd <- function(files_df, # required
     # flmd df with the columns: "File_Name", "File_Description", "Standard", "Header_Rows", "Column_or_Row_Name_Position", "File_Path"
   
   # Assumptions: 
-    # Counts skip all rows that begin with a #
-    # If column_or_row_name_position in the correct place (i.e., there are no header rows), the value is 1
-    # If there are no header_rows, the value is 1
-    # If there are tabular data and user decides to not populate header row info, then those cells populate with NA
-    # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position
+    # Counts skip all rows that begin with a # - doing this because ESS-DIVE told us that's how the fusion DB reads in files
+    # If column_or_row_name_position in the correct place (i.e., there are no header rows), the value is 1 - calculations based on https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/flmd_quick_guide.md#column-or-row-name-position
+    # If there are no header_rows, the value is 1 - calculations based on https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/flmd_quick_guide.md#header-rows
+    # If there are tabular data and user decides to not populate header row info, then those cells populate with NA - leaving blank so the user knows to populate
+    # Any non-tabular data gets -9999 for header_rows and column_or_row_name_position to follow missing value code formatting guidelines
     # Tabular data is data where the file extension is .csv or .tsv
     # Tabular data is a single data matrix
     # Tabular data files are organized with column headers (not row headers)
     # Tabular data can have header rows above and/or below the column headers
     # Boye files have a ".csv" file extension
-    # If add_placeholders = T, only adds respective placeholders if "readme", "flmd.csv", or "dd.csv" aren't already located in the data package
+    # If add_placeholders = T, only adds respective placeholders if "readme", "flmd.csv", or "dd.csv" aren't already located in the data package - warning: this will exclude the readme if another readme (e.g., workflow_readme.pdf) is present
+    # Adds Standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+    # Hard codes in placeholder rows - edit code below if descriptions or other values change
   
-  # Status: In progress. Refactoring and testing, also awaiting confirmation about formatting from ESS-DIVE
+  # Status: Complete. Awaiting review. 
     # Brie informally reviewed on 2024-06-24 (see issue #17)
     # Bibi updated the script on 2025-03-25 and it will need to go through review again. 
-  
-    # TASKS
-      # update examples
-      # update header documentation
-      # add notes about how header row calculations are done
-      # update create_flmd_dd main script
+    # Bibi refactored and updated the script on 2025-05-16. 
   
   # Examples: 
   

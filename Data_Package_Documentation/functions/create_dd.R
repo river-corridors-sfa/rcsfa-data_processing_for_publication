@@ -30,22 +30,14 @@ create_dd <- function(files_df,
       # additional optional cols (if include_filenames = T): header_count, associated_files
   
   # Assumptions: 
-    # Counts skip all rows that begin with a #
-    # If column_or_row_name_position in the correct place (i.e., there are no header rows), the value is 1
-    # If there are no header_rows, the value is 1
+    # Counts skip all rows that begin with a # - doing this because ESS-DIVE told us that's how the fusion DB reads in files
+    # Reads in column header rows based on ESS-DIVE calculations - https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/flmd_quick_guide.md#column-or-row-name-position
     # Tabular data is data where the file extension is .csv or .tsv
     # Tabular data files are organized with column headers (not row headers)
-    # Tabular data can have header rows above and/or below the column headers
-    # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed
     # Boye files have a ".csv" file extension
+    # Hard codes in placeholder headers - edit code below if descriptions or other values change
     
-  # Status: In progress.  
-  
-  # TASKS
-    # update script documentation at top of this script
-      # add examples
-    # update script documentation at top of test script
-    # add notes about how header row calculations are done
+  # Status: Complete. Awaiting review. 
     
   # Examples: 
   
