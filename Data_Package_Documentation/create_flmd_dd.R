@@ -5,10 +5,10 @@
   # Create a DD with the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code
 
 # Directions: 
-  # 1. Fill out user inputs
-  # 2. Run the following sections (you do not need to edit the code): Prep Script, Get Files, Create FLMD, Create DD
+  # 1. Fill out user inputs; then run the chunk. 
+  # 2. Run the following chunks (you do not need to edit the code): Prep Script, Get Files, Create FLMD, Create DD
   # 3. Optionally, add code into the "Data Package Specific Edits" section if needed
-  # 4. Run the "Export" section (you do not need to edit the code)
+  # 4. Run the "Export" chunk (you do not need to edit the code)
 
 
 ### USER INPUTS ################################################################
@@ -62,7 +62,10 @@ library(rlog)
 library(fs)
 library(devtools)
 
-# load functions
+# load functions - keeping these here until the PR is approved; once approved, we can use the below github urls instead
+current_path <- rstudioapi::getActiveDocumentContext()$path
+setwd(dirname(current_path))
+setwd("../.")
 source("./Data_Package_Documentation/functions/create_flmd.R")
 source("./Data_Package_Documentation/functions/create_dd.R")
 
@@ -73,7 +76,7 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 ### Get Files ##################################################################
 
-my_files <- get_files(files_df = my_directory, 
+my_files <- get_files(directory = my_directory, 
                       exclude_files = user_exclude_files, 
                       include_files = user_include_files, 
                       include_dot_files = F)
