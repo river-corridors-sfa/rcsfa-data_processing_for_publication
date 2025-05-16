@@ -1,17 +1,26 @@
 # test-create_dd.R #############################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-05-02
-# Date Updated: 2025-05-14
+# Date Updated: 2025-05-16
 
-# Objective
+# Objective:
+# Verify that `create_dd()` behaves as expected under a variety of conditions.
+# This includes checking that the function makes sure it has the correct inputs,
+# returns the correct output, and is able to handle edge cases, warnings, and
+# errors. This script sets up temporary test files and directories, runs the
+# tests, and cleans up after itself to ensure consistent test behavior.
 
-# Directions
-
+# Directions: 
+# Whenever you make changes to `create_dd()`, rerun this script to ensure all
+# existing tests still pass. Add new tests as needed to verify that your updates
+# work as expected and haven't broken any existing functionality.
 
 
 ### Prep Script ################################################################
 
+# clear global env and restart R session
 rm(list=ls(all=T))
+rstudioapi::restartSession()
 
 # set wd
 current_path <- rstudioapi::getActiveDocumentContext()$path
