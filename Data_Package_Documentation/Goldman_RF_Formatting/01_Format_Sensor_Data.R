@@ -23,27 +23,29 @@ rm(list=ls(all=T))
 
 # =========================== User inputs ======================================
 
-data_dir <- "C:/Users/forb086/OneDrive - PNNL/Spatial Study 2022/09_HOBO/03_ProcessedData/"
+data_dir <- "Z:/RC3/00_Schneider_Springs_Fire_2023/07_HOBO/03_ProcessedData/SSF_HOBO_Summary.csv"
 
-# must match header row sensor column (except the "_summary")
+# must match header row sensor column (do not include "_summary")
 sensor <- 'hobo'
 
 # indicate if this is a summary file, if so the script will find headers with "_summary" appended
-summary <- 'N' 
+summary <- 'Y' 
 
-study_code <- 'SSS'
+study_code <- 'SSF'
 
-out_dir <- 'C:/Users/forb086/OneDrive - PNNL/Spatial Study 2022/09_HOBO/04_PublishReadyData/'
+out_dir <- 'Z:/RC3/00_Schneider_Springs_Fire_2023/07_HOBO/04_PublishReadyData/'
 
-out_name_format <- '{out_dir}/v2_{Parent_ID}_Water_Press_Temp.csv'
+out_name_format <- '{out_dir}/v2_{Parent_ID}_Water_Press_Temp-{location}.csv'
+# out_name_format <- '{out_dir}/v2_{study_code}_Water_Press_Temp_Summary.csv'
+
 
 # indicator of different method IDs that can be found in the file name. Could be 
 # a list of site IDs or left blank if only one method ID. 
-# group1 <- c('S31', 'S55N', 'S57', 'S56N', 'S50P', 'T07', 'T02', 'T03', 'T42', 'S58', 'S24', 'U20', 'W20', 'S34R', 'S36', 'S32', 'S41R', 'S43', 'W10', 'S54', 'S49R', 'S51', 'S22RR', 'S23', 'S29')
-# group1_ID <- 'Minidot_04'
-# 
-# group2 <- c('S63', 'S30R', 'S53', 'S52', 'S45', 'S10', 'S04', 'S08', 'S03', 'T05P', 'S15', 'S42', 'S47R', 'C21', 'S48R', 'S18R', 'S17R', 'S39', 'S38', 'S37', 'S11', 'S02', 'S01')
-# group2_ID <- 'Minidot_03'
+group1 <- c('S01', 'S02', 'S08', 'S10', 'S11', 'S47R', 'T05P', 'S54', 'S03', 'S29', 'S58', 'T41')
+group1_ID <- 'Minidot_Hobo_01'
+
+group2 <- c('S04', 'S10', 'S15', 'S03', 'S29')
+group2_ID <- 'Minidot_Hobo_02'
 
 # group1 <- c('S18R', 'S29', 'S34R', 'S39', 'S42', 'S48R', 'S56N', 'T05P', 'W10')
 # group1_ID <- 'TreeRope_01'
@@ -56,19 +58,19 @@ out_name_format <- '{out_dir}/v2_{Parent_ID}_Water_Press_Temp.csv'
 # 
 # inst_methods_dir <- '~/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Installation_Methods.xlsx'
 
-headers_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Sensor_Header_Rows.xlsx'
+headers_dir <- "C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Sensor_Header_Rows.xlsx"
 
-inst_methods_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Installation_Methods.xlsx'
+inst_methods_dir <- "C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Installation_Methods.xlsx"
 
 # ===================== list files in dir and loop =============================
 
-if(summary == 'Y'){
+if(summary == 'Y' & str_detect(data_dir, '.csv') == T){
   
   data_files <- data_dir
 
-} else if (str_detect(data_dir, '.csv') == T) {
+} else if (summary == 'Y') {
   
-  data_files <- data_dir
+  data_files <- list.files(data_dir, 'Summary', full.names = T)
   
 } else {
 
@@ -215,6 +217,12 @@ for (data_file in data_files) {
     
   }
   
+  if('Notes' %in% colnames(data)){
+    
+    data_colnames <- data_colnames[ !grepl('Notes',data_colnames)]
+    
+  }
+  
   check <- headers == data_colnames
   
   if('FALSE' %in% check | is_empty(check)){
@@ -234,9 +242,10 @@ for (data_file in data_files) {
     distinct()%>%
     pull()
 
-  # location <- unlist(str_split(data_file, '-'))[5] %>%
-  #   str_remove(., '.csv')
-
+  if(study_code == 'SSF'){
+  location <- unlist(str_split(data_file, '-'))[2] %>%
+    str_remove(., '.csv')
+}
   
   out_name <- glue(out_name_format)
   
@@ -259,3 +268,4 @@ for (data_file in data_files) {
   }
 
 }
+
