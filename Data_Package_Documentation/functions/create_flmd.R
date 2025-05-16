@@ -32,6 +32,19 @@ get_files <- function(directory, # required
   
   # Examples: 
   
+  # 1) example that includes all files in a given directory
+    # my_files <- get_files(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
+
+  # 2) example that excludes a single file in an archive folder
+    # my_files <- get_files(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory", 
+    #                       exclude_files = "archive/archived_file.csv")
+
+  # 3) example that excludes multiple files from an archive folder
+    # my_directory <- "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory"
+    # archived_files <- list.files(path = paste0(my_directory, "/archive"), recursive = T, full.names = T) %>% # use list.files() to gather the (relative) names of all archived files
+    #                   str_remove(., paste0(my_directory, "/"))
+    # my_files <- get_files(directory = my_directory,
+    #                       exclude_files = archived_files)
   
   ### Prep Script ##############################################################
   
@@ -138,38 +151,15 @@ create_flmd <- function(files_df, # required
       # add notes about how header row calculations are done
       # update create_flmd_dd main script
   
-  # Examples
+  # Examples: 
   
-  # # 1) example where you want to include all files in a given directory in your flmd
-  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
-  # 
-  # # 2) example where you don't want to include a file in an archive folder
-  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
-  #                                 exclude_files = "archive/archived_file.csv")
-  # 
-  # # 3) example where you don't want to include all files in an archive folder
-  # archived_files <- list.files(path = paste0(directory, "/archive"), recursive = T, full.names = T) %>% # use list.files() to gather the (relative) names of all archived files
-  #                   str_remove(., paste0(directory, "/")) 
-  # 
-  # flmd_df <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
-  #                                 exclude_files = archived_files)
-  # 
-  # # 4) example where you have 2 files with header rows and 98 without
-  # # you can split the data and import it separately; this allows the user to not have to enter row header info on the 98 files that are regularly structured
-  # files_with_headers <- c("folder/of/data/with/header/rows/file_1.csv", # first create a vector of all relative file paths that have header rows
-  #                         "folder/of/data/with/header/rows/file_2.csv")
-  # 
-  # flmd_df_with_headers <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
-  #                                             include_files = files_with_headers) # this loads in only the 2 files with headers. Select "A" when asked for `user_input_add_header_info`
-  # 
-  # flmd_df_without_headers <- create_flmd_skeleton(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory",
-  #                                                 exclude_files = files_with_headers) # this loads all the remaining files. Select "F" when asked for `user_input_add_header_info`
-  # 
-  # flmd_df <- bind_rows(flmd_df_with_headers, # now combine the two dfs to create your complete flmd.
-  #                      flmd_df_without_headers) 
-  # 
-  # # After exporting, manually replace all NAs with column_or_row_name_position = 1 and header_rows = 0 for the remaining 98 files without header rows
-  # # You may also need to reorder the files
+  # 1) example that includes all files in a given directory in your flmd, adds an flmd, dd, and readme placeholders, and uses a prompting window to ask the user for header row info
+    # my_flmd <- create_flmd(files_df = get_files(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory"), 
+    #                        dp_keyword = "example_data_package", add_placeholders = T, query_header_info = T)
+  
+  # 2) example that does the same as example 1 but formatted differently
+    # my_files <- get_files(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
+    # my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", add_placeholders = T, query_header_info = T)
   
   
   ### Prep Script ##############################################################

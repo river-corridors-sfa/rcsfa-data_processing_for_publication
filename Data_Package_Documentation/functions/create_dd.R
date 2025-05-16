@@ -47,8 +47,13 @@ create_dd <- function(files_df,
     # update script documentation at top of test script
     # add notes about how header row calculations are done
     
-  # Examples
+  # Examples: 
   
+  # 1) example that includes all headers from the files listed in my_files in your dd and also lists the files each header is associated with
+    # my_files <- get_files(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
+    # my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", add_placeholders = T, query_header_info = T)
+    # my_dd <- create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = F, add_flmd_dd_headers = F, include_filenames = T)
+    
   
   ### Prep Script ##############################################################
   
