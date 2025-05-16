@@ -18,7 +18,7 @@ get_files <- function(directory, # required
   # file
   
   # Inputs: 
-    # directory = string of the absolute folder file path. Required argument. 
+    # directory = string of the absolute folder file path; do not include "/" at end. Required argument. 
     # exclude_files = vector of files (relative file path + file name) to exclude from within the dir. Optional argument; default is NA. 
     # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA. 
     # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE.  
@@ -32,6 +32,13 @@ get_files <- function(directory, # required
   
   # Examples: 
   
+  
+  ### Prep Script ##############################################################
+  
+  # load libraries
+  library(tidyverse) # cuz duh
+  library(rlog) # for logging documentation
+  library(fs) # for getting file extension
   
   ### List Files ###############################################################
   
@@ -100,7 +107,7 @@ create_flmd <- function(files_df, # required
   
   # Inputs: 
     # files_df = df with at least these 5 cols: all, absolute_dir, parent_dir, relative_dir, and file. Required argument. 
-    # dp_keyword = string of the data package name; this will be used to name the placeholders. Optional argument; default is "data_package".
+    # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files. Optional argument; default is "data_package".
     # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is FALSE.
     # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is FALSE.  
     # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
@@ -126,10 +133,6 @@ create_flmd <- function(files_df, # required
     # Bibi updated the script on 2025-03-25 and it will need to go through review again. 
   
     # TASKS
-      # write tests for current script
-      # refactor to use get_files() for reading in data
-      # refactor to add warnings
-  
       # update examples
       # update header documentation
       # add notes about how header row calculations are done
