@@ -10,6 +10,10 @@
   # 3. Optionally, add code into the "Data Package Specific Edits" section if needed
   # 4. Run the "Export" chunk (you do not need to edit the code)
 
+# If you need to edit the functions `get_files()`, `create_flmd()`, or
+# `create_dd()`, refer to test-create_flmd() and test-create_dd() to ensure that
+# your updates work as expected and haven't broken any existing functionality.
+
 
 ### USER INPUTS ################################################################
 
