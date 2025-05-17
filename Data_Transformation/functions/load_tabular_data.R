@@ -21,10 +21,15 @@ load_tabular_data <- function(files_df,
     # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
     
   # Outputs: 
-    # a list that has
-    # directory
-    # vector of absolute file paths, filtered down based on exclude/include inputs
-    # list of each tabular data file
+    # a hierarchical list(inputs, outputs, tabular_data): 
+    # inputs = a list that includes the input to this function
+      # input$directory = the directory extracted from files_df
+      # input$files_df = the output from the `get_files()` function 
+      # input$flmd_df = the output from the `get_flmd()` function 
+    # outputs = a list
+      # outputs$header_row_info = a df that lists out each file, the row the column headers are on, and the row the data start - this is what's used to read in the data
+      # outputs$filtered_file_paths = a vector of absolute file paths from files_df
+    # tabular_data = a list of all the tabular data read in as data frames
   
   # Assumptions: 
     # data will be pulled based on files_df (not the files listed in flmd_df)
@@ -33,7 +38,7 @@ load_tabular_data <- function(files_df,
     # the data are organized with column headers (not row headers)
     # data files can have header rows above and/or below the column headers
   
-  # Status: in progress
+  # Status: complete. awaiting review. 
   
   ### Prep script ##############################################################
   
