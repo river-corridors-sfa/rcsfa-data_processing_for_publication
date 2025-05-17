@@ -1,31 +1,25 @@
-### load_tabular_data_from_flmd.R ###############################################
+### load_tabular_data.R ########################################################
 # Date Created: 2024-04-19
-# Date Updated: 2025-02-20
+# Date Updated: 2025-06-16
 # Author: Bibi Powers-McCormack
 
 
 ### load_tabular_data_file function ############################################
 
-load_tabular_data_from_flmd <- function(directory, 
-                                        flmd_df = NA, 
-                                        exclude_files = NA_character_, 
-                                        include_files = NA_character_, 
-                                        file_n_max = 100, 
-                                        include_dot_files = F, 
-                                        query_header_info = T){
+load_tabular_data <- function(files_df, 
+                              flmd_df = NA, 
+                              query_header_info = F,
+                              file_n_max = 100){
   
   ### About the function #######################################################
   # Objective: Read in tabular data using the flmd to get file paths and header row info
   
   # Inputs: 
-    # directory (the absolute directory up until the path provided in the flmd)
-    # flmd df (the return of the create_flmd_skeleton.R function)
-    # exclude files (relative file paths to not include)
-    # include files (relative file paths of files to include)
-    # file_n_max = number of rows to load in. Optional argument; default is 100. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
-    # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE. 
-    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Optional argument; default is TRUE.  
-  
+    # files_df = df with at least these 5 cols: all, absolute_dir, parent_dir, relative_dir, and file. Required argument. 
+    # flmd_df = df with at least these 3 cols: File_Name, Column_or_Row_Name_Position, File_Path. Optional argument; default is NA. 
+    # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is FALSE.  
+    # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
+    
   # Outputs: 
     # a list that has
     # directory
@@ -33,14 +27,13 @@ load_tabular_data_from_flmd <- function(directory,
     # list of each tabular data file
   
   # Assumptions: 
-    # data will be pulled based on directory (including any files not listed in flmd)
+    # data will be pulled based on files_df (not the files listed in flmd_df)
     # only data with .csv or .tsv file extensions will be read in
     # the tabular data is a single data matrix
     # the data are organized with column headers (not row headers)
     # data files can have header rows above and/or below the column headers
-    # it skips all rows that begin with a #
   
-  # Status: initial draft complete
+  # Status: in progress
   
   ### Prep script ##############################################################
   
@@ -49,72 +42,69 @@ load_tabular_data_from_flmd <- function(directory,
   library(rlog)
   library(fs)
   
-  # load user inputs
-  current_directory <- directory
-  current_flmd_df <- flmd_df
-  current_exclude_files <- exclude_files
-  current_include_files <- include_files
-  
-  ### List Files ###############################################################
+  ### Validate Inputs ##########################################################
   
   # get parent directory
-  current_parent_directory <- sub(".*/", "/", current_directory)
+  current_parent_directory <- files_df %>% 
+    distinct(parent_dir) %>% 
+    pull()
   
-  # get all file paths
-  log_info("Getting file paths from directory.")
-  file_paths_all <- list.files(current_directory, recursive = T, full.names = T, all.files = include_dot_files)
-  current_file_paths <- file_paths_all
+  # get current directory
+  current_directory <- files_df %>% 
+    distinct(absolute_dir) %>% 
+    pull()
   
-  # remove excluded files
-  if (any(!is.na(current_exclude_files))) {
+  # does files_df have required cols?
+  files_required_cols <- c("all", "absolute_dir", "parent_dir", "relative_dir", "file")
+  
+  if (!all(files_required_cols %in% names(files_df))) {
     
-    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(current_directory, current_exclude_files)]
-    
+    # if files_df is missing required cols, error
+    log_error(paste0("files_df is missing required column: ", setdiff(files_required_cols, names(files_df))))
+    stop("Function terminating.")
+  } # end of checking files required cols
+  
+  # is query_header_info logical?
+  if (!is.logical(query_header_info) || length(query_header_info) != 1) {
+    log_error("query_header_info must be a single logical value (TRUE or FALSE)")
+    stop("Function terminating.")
   }
   
-  # filter to only keep included files
-  if (any(!is.na(current_include_files))) {
-    
-    current_file_paths <- file_paths_all[file_paths_all %in% file.path(current_directory, current_include_files)]
-    
-  }
   
-  # filter for only .csv and .tsv files
-  file_paths_tabular <- current_file_paths[str_detect(file_paths_all, "\\.tsv$|\\.csv$")]
+  ### Prepare tabular files ####################################################
   
+  # get tabular files
+  file_paths_tabular <- files_df %>% 
+    filter(str_detect(file, "\\.tsv$|\\.csv$")) %>% 
+    pull(all)
   
   # initialize df with file names
-  current_df_metadata <- tibble(
-    "File_Name" = basename(current_file_paths),
-    "File_Path_Absolute" = current_file_paths) %>% 
+  tabular_metadata <- tibble(
+    "File_Name" = basename(file_paths_tabular),
+    "File_Path_Absolute" = file_paths_tabular) %>% 
     mutate("Header_Position" = NA_real_,
            "Data_Start_Row" = NA_real_)
   
   log_info(paste0("Planning to load ", length(file_paths_tabular), " tabular files."))
   
-  ### If all data don't have header info, load in data normally ----
   if (query_header_info == F) {
     
     # if the user indicated that all tabular files don't have header info, then set data start = 2 and header position = 1
-    current_df_metadata <- current_df_metadata %>% 
+    tabular_metadata <- tabular_metadata %>% 
       mutate(Header_Position = 1, 
              Data_Start_Row = 2)
     
     # initialize empty list to store the data
     all_loaded_data <- list()
     
-    # update tabular_only_metadata
-    current_tabular_only_metadata <- current_df_metadata %>% 
-      filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) # filter for only .csv and .tsv files
-    
     # loop through metadata df
-    for (k in 1:nrow(current_tabular_only_metadata)) {
+    for (k in 1:nrow(tabular_metadata)) {
       
       # get k row
-      current_df_k_row <- current_tabular_only_metadata[k, ]
+      current_df_k_row <- tabular_metadata[k, ]
       
       # name the df the absolute file path
-      current_df_metadata_file_path_absolute <- current_tabular_only_metadata$File_Path_Absolute[k]
+      current_df_metadata_file_path_absolute <- tabular_metadata$File_Path_Absolute[k]
       
       log_info(paste0("Reading in tabular file ", k, " of ", nrow(current_tabular_only_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
       
@@ -143,19 +133,30 @@ load_tabular_data_from_flmd <- function(directory,
     
     if (is.data.frame(flmd_df)) {
       
+      # if yes...
+      
+      # does flmd_df have required cols?
+      flmd_required_cols <- c("File_Name", "Column_or_Row_Name_Position", "File_Path")
+      
+      if (!all(flmd_required_cols %in% names(flmd_df))) {
+        
+        # if the flmd is missing required cols, error
+        log_error(paste0("flmd_df is missing required column: ", setdiff(flmd_required_cols, names(flmd_df))))
+        stop("Function terminating.")
+      } # end of checking flmd required cols
+      
       log_info("Matching up flmd with files in directory.")
       
       # clean up flmd by fixing file path and selecting only certain cols
       current_flmd_df <- flmd_df %>%
-        mutate(File_Path_Absolute = paste0(str_replace(File_Path, current_parent_directory, ""), "/", File_Name)) %>%  # removes parent dir and adds file name
-        mutate(File_Path_Absolute = paste0(current_directory, File_Path_Absolute)) %>% # makes it absolute
+        mutate(File_Path_Absolute = paste0(current_directory, File_Path, "/", File_Name)) %>%
         mutate(Header_Rows = as.numeric(Header_Rows),
-               Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>%  # make these numeric
+               Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>% 
         select(File_Name, Header_Position = Column_or_Row_Name_Position, File_Path_Absolute)
       
       # check for difference between the dir and flmd
-      files_not_in_flmd <- setdiff(current_file_paths, current_flmd_df$File_Path_Absolute)
-      files_not_in_dir <- setdiff(current_flmd_df$File_Path_Absolute, current_file_paths)
+      files_not_in_flmd <- setdiff(files_df$all, current_flmd_df$File_Path_Absolute)
+      files_not_in_dir <- setdiff(current_flmd_df$File_Path_Absolute, files_df$all)
       
       if (length(files_not_in_flmd) > 0) {
         log_warn(paste0("The following file is in the directory but NOT in the flmd: ", basename(files_not_in_flmd)))
@@ -170,7 +171,7 @@ load_tabular_data_from_flmd <- function(directory,
         mutate(Header_Position = coalesce(Header_Position.x, Header_Position.y)) %>% 
         select(File_Name, Header_Position, Data_Start_Row, File_Path_Absolute)
       
-    }  # end of if flmd_df exists
+    } # end of if flmd_df exists
     
     ### Get header_position for any remaining files ##############################
     
@@ -361,15 +362,17 @@ load_tabular_data_from_flmd <- function(directory,
   
   
   # return all data
-  output <- list(inputs = list(directory = directory,
-                               flmd_df = flmd_df,
-                               exclude_files = exclude_files,
-                               include_files = include_files),
+  output <- list(inputs = list(directory = current_directory,
+                               files_df = files_df,
+                               flmd_df = flmd_df),
                  outputs = list(header_row_info = current_df_metadata,
-                                filtered_file_paths = current_file_paths),
+                                filtered_file_paths = files_df$all),
                  tabular_data = all_loaded_data)
   
   log_info("load_tabular_data_from_flmd complete.")
   return(output)
   
 }
+  
+  
+  
