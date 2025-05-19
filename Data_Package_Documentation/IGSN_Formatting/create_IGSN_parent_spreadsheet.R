@@ -110,13 +110,13 @@ if (user_code == 'IEWDR') {
 
 header <- tibble('Object Type:'= as.character(),
                  'Site'= as.character(),
-                 'User Code:'= as.character(), 
+                 'SESAR Code:'= as.character(), 
                  'IEWDR' = as.character())
 } else {
   
   header <- tibble('Object Type:'= as.character(),
                    'Site'= as.character(),
-                   'User Code:'= as.character(), 
+                   'SESAR Code:'= as.character(), 
                    'IEPRS' = as.character())
 }
 
