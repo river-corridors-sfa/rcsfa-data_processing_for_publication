@@ -83,7 +83,7 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 my_files <- get_files(directory = my_directory, 
                       exclude_files = user_exclude_files, 
                       include_files = user_include_files, 
-                      include_dot_files = F)
+                      include_dot_files = user_include_dot_files)
 
 ### Create FLMD ################################################################
 
