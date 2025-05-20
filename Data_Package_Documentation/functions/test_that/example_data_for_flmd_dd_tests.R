@@ -24,8 +24,10 @@ create_test_dir <- function(root = tempdir()) {
   # Create subdirectories
   fs::dir_create(file.path(base_dir, "data"))
   fs::dir_create(file.path(base_dir, "scripts"))
+
+  clean_base_dir <- normalizePath(base_dir, winslash = "/")
   
-  return(base_dir)
+  return(clean_base_dir) 
 }
 
 ### Create example data #########################################################
