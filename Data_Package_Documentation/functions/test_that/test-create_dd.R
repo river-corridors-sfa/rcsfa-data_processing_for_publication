@@ -56,7 +56,7 @@ test_that("expected typical inputs", {
   add_example_goldman(my_data_package_dir)
   
   my_files <- get_files(directory = my_data_package_dir)
-  my_flmd <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F)
   
   # returns a tibble
   expect_s3_class(create_dd(files_df = my_files, flmd_df = my_flmd), "tbl_df")
@@ -119,7 +119,7 @@ test_that("expected edge cases", {
   add_example_goldman(my_data_package_dir)
   
   my_files <- get_files(directory = my_data_package_dir)
-  my_flmd <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F)
   
   
   # returns 2 additional columns (header_count and associated_files) if include_filenames = T
@@ -141,7 +141,7 @@ test_that("expected warnings", {
   add_example_goldman(my_data_package_dir)
   
   my_files <- get_files(directory = my_data_package_dir)
-  my_flmd <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F)
   
   # 2025-05-14 note: removed R's base warning() code from function and replaced
   # it with log_warn(). This means that the test_that expect_warning() tests no
@@ -170,7 +170,7 @@ test_that("expected errors", {
   add_example_goldman(my_data_package_dir)
   
   my_files <- get_files(directory = my_data_package_dir)
-  my_flmd <- create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F)
+  my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F)
   
   # errors if files_df doesn't include required cols
   expect_error(object = create_dd(files_df = get_files(directory = my_data_package_dir) %>% 
@@ -189,7 +189,7 @@ test_that("expected errors", {
                regexp = "Function terminating.")
   
   # errors if FLMD doesn't include required cols
-  expect_error(object = create_dd(files_df = my_files, flmd_df = create_flmd(directory = my_data_package_dir, dp_keyword = "example_data_package", query_header_info = F) %>% 
+  expect_error(object = create_dd(files_df = my_files, flmd_df = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F) %>% 
                                     select(File_Name, File_Path)), 
                regexp = "Function terminating.")
 
