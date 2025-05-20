@@ -16,12 +16,12 @@ library(tidyverse)
 # ================================= User inputs ================================
 metadata_filepath <- file.choose()
 metadata <- read_csv(metadata_filepath)
-metadata <- read_csv('Z:/00_Cross-SFA_ESSDIVE-Data-Package-Upload/01_Data-Package-Folders/WHONDRS_CM_Data_Package/WHONDRS_CM_Data_Package/WHONDRS_CM_Field_Metadata.csv')
+metadata <- read_csv("C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo/Input/CoastalFires_BiogeochemData.csv")
 
-user_code <- 'IEWDR' # this if for WHONDRS
-# user_code <- 'IEPRS' # this is NOT for WHONDRS
+# user_code <- 'IEWDR' # this if for WHONDRS
+user_code <- 'IEPRS' # this is NOT for WHONDRS
 
-outdir <- 'Z:/IGSN/AV1_IGSN_Site_ToBeRegistered.csv'
+outdir <- 'Z:/IGSN/Coastal_Fires_IGSN_Site_ToBeRegistered.csv'
 
 
 # ======================== input column names ============================
@@ -29,7 +29,9 @@ outdir <- 'Z:/IGSN/AV1_IGSN_Site_ToBeRegistered.csv'
 colnames(metadata)
 
 # Sample Name: Some site identifier 
-a <- metadata$Site_ID
+a <- metadata %>% 
+  separate(Sample_ID, into = c("site", "id"), sep = "-", remove = FALSE) %>% 
+  pull(site)
 
 # IGSN: leave blank 
 b <- ''
@@ -46,21 +48,21 @@ d <- ''
 e <- ''
 
 # Latitude 
-f <- as.character(metadata$Sample_Latitude)
+f <- as.character(metadata$Latitude)
 
 # Longitude 
-g <- as.character(metadata$Sample_Longitude)
+g <- as.character(metadata$Longitude)
 
 # Primary physiographic feature: Stream 
 h <- 'stream'
  
 # Name of physiographic feature: Insert stream name 
-i <- as.character(metadata$Stream_Name)
+i <- as.character(metadata$Watershed)
 # i <- 'St. Lawrence River'
  
 # Field program/Cruise
-# j <- 'US Department of Energy River Corridor Science Focus Area'
-j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
+j <- 'US Department of Energy River Corridor Science Focus Area'
+# j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
  
 # Country  
 k <- 'United States'
@@ -68,16 +70,16 @@ k <- 'United States'
 
 # State/Province
 # Use second line if not needed
-l <- metadata$State
-# l <- '
+# l <- metadata$State
+l <- 'California'
 
 # (optional) City/Township 
 # Use second line if not needed
-m <- as.character(metadata$City)
-# m <- ''
+# m <- as.character(metadata$City)
+m <- ''
 
 #name of study
-n <- 'WHONDRS Allison Veach collaboration'
+n <- 'Coastal Fires'
 
 # =========================== create dataframe and add the data =================
 
