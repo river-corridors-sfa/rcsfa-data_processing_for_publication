@@ -81,7 +81,7 @@ get_files <- function(directory, # required
     
   }
   
-  log_info(paste0("Adding ", length(current_file_paths), " of ", length(file_paths_all), " files."))
+  log_info(paste0("Excluding ", length(file_paths_all) - length(current_file_paths), " of ", length(file_paths_all), " total file(s) in the directory."))
   
   ### Add Files ################################################################
   
