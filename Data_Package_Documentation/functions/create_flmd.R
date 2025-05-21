@@ -63,21 +63,21 @@ get_files <- function(directory, # required
   file_paths_all <- list.files(directory, recursive = T, full.names = T, all.files = include_dot_files)
   current_file_paths <- file_paths_all
   
-  # remove excluded files
-  if (any(!is.na(exclude_files))) {
-    
-    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(directory, exclude_files)]
-    
-    log_warn(paste0("Excluding ", length(file_paths_all) - length(current_file_paths), " file(s)."))
-    
-  }
+  # if a user specifies both include and exclude, then only the include list will be used; exclusions will be ignored
   
   # filter to only keep included files
   if (any(!is.na(include_files))) {
     
     current_file_paths <- file_paths_all[file_paths_all %in% file.path(directory, include_files)]
     
-    log_warn(paste0("Including only the ", length(current_file_paths), " file(s) listed in the `include_file` input."))
+    log_warn(paste0("Including only the ", length(current_file_paths), " file(s) listed in the `include_files` input."))
+    
+  } else if (any(!is.na(exclude_files))) {
+    # if include_files was NA, but exclude files is present, then remove excluded files
+    
+    current_file_paths <- file_paths_all[!file_paths_all %in% file.path(directory, exclude_files)]
+    
+    log_warn(paste0("Excluding ", length(file_paths_all) - length(current_file_paths), " file(s)."))
     
   }
   
