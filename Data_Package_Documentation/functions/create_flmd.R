@@ -207,7 +207,7 @@ create_flmd <- function(files_df, # required
            File_Path = paste0(parent_dir, relative_dir),
            File_Description = NA_character_, 
            Standard = NA_character_,
-           header_format = NA) %>% # temporary column
+           header_format = NA_character_) %>% # temporary column
     select(File_Name, File_Description, Standard, File_Path, header_format, all)
     
   ### add columns as indicated by user argument ################################
@@ -291,12 +291,19 @@ create_flmd <- function(files_df, # required
         View(current_tabular_file)
         
         # ask what type of header format
-        user_reply <- as.numeric(readline(prompt = cat("What type of header info is present? 0 = none; 1 = Boye; 2 = Goldman; 3 = other")))
+        user_reply <- readline(prompt = cat("What type of header info is present? n = none; b = Boye; g = Goldman; o = other; u = unknown"))
+        
+        while (!user_reply %in% c("n", "b", "g", "o", "u")) {
+          
+          log_warn("Asking for user input again because previous input included an invalid value.")
+          user_reply <- readline(prompt = cat("What type of header info is present? n = none; b = Boye; g = Goldman; o = other; u = unknown"))
+          
+        }
         
         # update header row type
         current_flmd_skeleton$header_format[current_flmd_skeleton$all == current_file_absolute] <- user_reply
         
-        if (user_reply == 3) {
+        if (user_reply == "o" || user_reply == "u") {
           # run function
           user_inputs <- ask_user_input()
           
@@ -320,14 +327,11 @@ create_flmd <- function(files_df, # required
                    Column_or_Row_Name_Position = case_when(all == current_file_absolute ~ as.character(current_column_or_row_name_position),
                                                            T ~ Column_or_Row_Name_Position))
             
-          # current_flmd_skeleton$Header_Rows[current_flmd_skeleton$all == current_file_absolute] <- current_header_row
-          # current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$all == current_file_absolute] <- current_column_or_row_name_position
-          
-        } # end of user_reply == 3
+        } # end of user_reply == other or unknown
       
         
         # use header_format to update header_rows and column_or_row_name position cols
-        if (user_reply == 1) {
+        if (user_reply == "b") {
           
           # extract header row info from boye file
           boye_row_info <- read_csv(current_file_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = 2) %>% 
@@ -339,19 +343,19 @@ create_flmd <- function(files_df, # required
             mutate(Header_Rows = case_when(all == current_file_absolute ~ as.character(boye_row_info),
                                            T ~ Header_Rows))
           
-        } # end of user_reply = 1
+        } # end of user_reply = boye
         
         
       } # end of loop through tabular files
       
       # update remaining header_rows and column_or_row_name position based on header_format
       current_flmd_skeleton <- current_flmd_skeleton %>% 
-        mutate(Header_Rows = case_when(header_format == 0 ~ "1", # no header rows
-                                       header_format == 2 ~ "1", # goldman
+        mutate(Header_Rows = case_when(header_format == "n" ~ "1", # no header rows
+                                       header_format == "g" ~ "1", # goldman
                                        T ~ Header_Rows)) %>% # user input
-        mutate(Column_or_Row_Name_Position = case_when(header_format == 0 ~ "1", # no header rows
-                                                       header_format == 1 ~ "1", # boye
-                                                       header_format == 2 ~ "1", # goldman
+        mutate(Column_or_Row_Name_Position = case_when(header_format == "n" ~ "1", # no header rows
+                                                       header_format == "b" ~ "1", # boye
+                                                       header_format == "g" ~ "1", # goldman
                                                        T ~ Column_or_Row_Name_Position)) # user input
     } else { # if query_header_info != T
       
