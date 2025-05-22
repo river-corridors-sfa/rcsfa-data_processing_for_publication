@@ -1,7 +1,7 @@
 # test-create_dd.R #############################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-05-02
-# Date Updated: 2025-05-16
+# Date Updated: 2025-05-22
 
 # Objective:
 # Verify that `create_dd()` behaves as expected under a variety of conditions.
@@ -18,9 +18,10 @@
 
 ### Prep Script ################################################################
 
-# clear global env and restart R session
+# clear global env, restart R session, and clear console
 rm(list=ls(all=T))
 rstudioapi::restartSession()
+cat("\014")
 
 # set wd
 current_path <- rstudioapi::getActiveDocumentContext()$path

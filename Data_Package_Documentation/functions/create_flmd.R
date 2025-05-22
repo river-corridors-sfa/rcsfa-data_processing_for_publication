@@ -1,6 +1,6 @@
 ### create_flmd.R ##############################################################
 # Date Created: 2024-06-14
-# Date Updated: 2025-05-15
+# Date Updated: 2025-05-22
 # Author: Bibi Powers-McCormack
 
 # This script contains the functions for creating FLMDs. 
@@ -238,15 +238,15 @@ create_flmd <- function(files_df, # required
         user_input_first_data_row <- as.numeric(readline(prompt = "What line has the first row of data? "))
         
         # calculate header_row
-        current_header_row <- user_input_first_data_row - current_column_or_row_name_position - 1
+        current_header_row <- user_input_first_data_row - 1
         
         user_inputs <- list(current_column_or_row_name_position = current_column_or_row_name_position, current_header_row = current_header_row)
         
         
       } else {
         
-        # if there is only a single data matrix/data doesn't have header rows, then col header is in row 1 and data headers = 0
-        user_inputs <- list(current_column_or_row_name_position = 1, current_header_row = 0)
+        # if there is only a single data matrix/data doesn't have header rows, then col header is in row 1 and data headers = 1
+        user_inputs <- list(current_column_or_row_name_position = 1, current_header_row = 1)
         
       }
       
@@ -400,8 +400,8 @@ create_flmd <- function(files_df, # required
     log_info("Checking for presence of flmd, dd, and readme files.")
     
     # check for presence of dd and flmd files
-    flmd_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "flmd.csv"))
-    dd_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "dd.csv"))
+    flmd_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "flmd\\.csv$"))
+    dd_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "dd\\.csv$"))
     readme_file_present <- any(str_detect(current_flmd_skeleton$File_Name, "readme"))
     
     if (readme_file_present == FALSE) {

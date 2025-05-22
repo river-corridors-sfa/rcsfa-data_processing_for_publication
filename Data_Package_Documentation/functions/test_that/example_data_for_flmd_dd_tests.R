@@ -97,7 +97,7 @@ add_example_boye <- function(directory){
   tribble(
     ~V1,                   ~V2,             ~V3,               ~V4,                            ~V5,                            ~V6,
     "#Columns",            "6",             NA,                NA,                             NA,                             NA,
-    "#Header_Rows",        "5",             NA,                NA,                             NA,                             NA,
+    "#Header_Rows",        "12",             NA,                NA,                             NA,                             NA,
     "Field_Name",          "Sample_Name",   "Material",        "00681_NPOC_mg_per_L_as_C",     "00602_TN_mg_per_L_as_N",       "Methods_Deviation",
     "Unit",                "N/A",           "N/A",             "milligrams_per_liter",         "milligrams_per_liter",         "N/A",
     "Unit_Basis",          "N/A",           "N/A",             "as_dissolvable_Carbon",        "as_dissolvable_Nitrogen",      "N/A",

@@ -1,7 +1,7 @@
 # test-create_flmd_skeleton_v2.R ###############################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-04-24
-# Date Updated: 2025-05-16
+# Date Updated: 2025-05-22
 
 # Objective:
 # Verify that `create_flmd()` behaves as expected under a variety of conditions.
@@ -18,9 +18,10 @@
 
 ### Prep Script ################################################################
 
-# clear global env and restart R session
+# clear global env, restart R session, and clear console
 rm(list=ls(all=T))
 rstudioapi::restartSession()
+cat("\014")
 
 # set wd
 current_path <- rstudioapi::getActiveDocumentContext()$path
@@ -132,7 +133,7 @@ test_that("expected typical inputs", {
   # test with 1 boye, 1 goldman, 1 normal, 1 with a header row below col names
   expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = T, add_placeholders = F) %>% select(File_Name, Header_Rows), 
                expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "01_script.R"), 
-                                 Header_Rows = c(5, 1, 1, 1, 1, -9999)))
+                                 Header_Rows = c(12, 1, 1, 1, 1, -9999)))
 
   # populates the Column_or_Row_Name_Position column based on ...
     
@@ -144,7 +145,7 @@ test_that("expected typical inputs", {
   expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = T, add_placeholders = F) %>% select(File_Name, Column_or_Row_Name_Position),
                expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "01_script.R"),
                                  Column_or_Row_Name_Position = c(1, 1, 1, 1, 1, -9999)))
-  
+
   # if query_header_info = F
     # -9999 if not tabular
     # NA if tabular
