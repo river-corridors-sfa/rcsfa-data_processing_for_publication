@@ -141,6 +141,8 @@ create_flmd <- function(files_df, # required
     # Boye files have a ".csv" file extension
     # If add_placeholders = T, only adds respective placeholders if "readme", "flmd.csv", or "dd.csv" aren't already located in the data package - warning: this will exclude the readme if another readme (e.g., workflow_readme.pdf) is present
     # Adds Standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+    # Also adds boye standard to files ending in "Methods_Codes.csv"
+    # Also adds goldman standard to files ending in "InstallationMethods.csv"
     # Hard codes in placeholder rows - edit code below if descriptions or other values change
   
   # Status: Complete. Awaiting review. 
@@ -424,12 +426,14 @@ create_flmd <- function(files_df, # required
   # update the standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
     
   current_flmd_skeleton <- current_flmd_skeleton %>%
-      mutate(Standard = case_when(header_format == "1" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
-                                  header_format == "2" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
-                                  str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
-                                  str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
-                                  str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
-                                  T ~ "N/A"))
+    mutate(Standard = case_when(header_format == "1" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
+                                header_format == "2" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
+                                str_detect(File_Name, "Methods_Codes\\.csv$") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
+                                str_detect(File_Name, "InstallationMethods\\.csv$") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
+                                str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
+                                str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
+                                str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
+                                T ~ "N/A"))
   
   
   ### sort flmd ################################################################
