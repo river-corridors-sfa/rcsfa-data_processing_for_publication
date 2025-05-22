@@ -369,18 +369,8 @@ create_flmd <- function(files_df, # required
   } # end of if tabular files exist
   
   
-  #### add standard ----
-  # update the standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
-    
-  current_flmd_skeleton <- current_flmd_skeleton %>%
-      mutate(Standard = case_when(header_format == "1" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
-                                  header_format == "2" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
-                                  str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
-                                  str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
-                                  str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
-                                  T ~ "N/A"))
   
-  #### add placeholder readme, flmd, dd rows if indicated ######################
+  ### add placeholder readme, flmd, dd rows if indicated #######################
   
   if (add_placeholders == TRUE) {
     log_info("Checking for presence of flmd, dd, and readme files.")
@@ -396,7 +386,7 @@ create_flmd <- function(files_df, # required
         add_row(
           "File_Name" = paste0("readme_", dp_keyword, ".pdf"),
           "File_Description" = "Data package level readme. Contains data package summary; acknowledgements; and contact information.",
-          "Standard" = "N/A",
+          "Standard" = NA_character_, # standard updated below
           "Header_Rows" = "-9999",
           "Column_or_Row_Name_Position" = "-9999",
           "File_Path" = current_parent_directory
@@ -409,7 +399,7 @@ create_flmd <- function(files_df, # required
         add_row(
           "File_Name" = paste0(dp_keyword, "_flmd.csv"),
           "File_Description" = "File-level metadata that lists and describes all of the files contained in the data package.",
-          "Standard" = "ESS-DIVE FLMD v1; ESS-DIVE CSV v1",
+          "Standard" = NA_character_, # standard updated below
           "Header_Rows" = "1",
           "Column_or_Row_Name_Position" = "1",
           "File_Path" = current_parent_directory
@@ -422,7 +412,7 @@ create_flmd <- function(files_df, # required
         add_row(
           "File_Name" = paste0(dp_keyword, "_dd.csv"),
           "File_Description" = 'Data dictionary that defines column and row headers across all tabular data files (files ending in ".csv" or ".tsv") in the data package.',
-          "Standard" = "ESS-DIVE FLMD v1; ESS-DIVE CSV v1",
+          "Standard" = NA_character_, # standard updated below
           "Header_Rows" = "1",
           "Column_or_Row_Name_Position" = "1",
           "File_Path" = current_parent_directory
@@ -430,6 +420,16 @@ create_flmd <- function(files_df, # required
     }
   }
   
+  ### add standard #############################################################
+  # update the standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+    
+  current_flmd_skeleton <- current_flmd_skeleton %>%
+      mutate(Standard = case_when(header_format == "1" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
+                                  header_format == "2" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
+                                  str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
+                                  str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
+                                  str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
+                                  T ~ "N/A"))
   
   
   ### sort flmd ################################################################
