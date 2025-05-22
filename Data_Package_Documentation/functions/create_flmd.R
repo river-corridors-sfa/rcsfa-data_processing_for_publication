@@ -312,8 +312,14 @@ create_flmd <- function(files_df, # required
           current_header_row <- user_inputs$current_header_row
       
           # add to flmd
-          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$all == current_file_absolute] <- current_header_row
-          current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$all == current_file_absolute] <- current_column_or_row_name_position
+          current_flmd_skeleton <- current_flmd_skeleton %>% 
+            mutate(Header_Rows = case_when(all == current_file_absolute ~ as.character(current_header_row), 
+                                           T ~ Header_Rows),
+                   Column_or_Row_Name_Position = case_when(all == current_file_absolute ~ as.character(current_column_or_row_name_position),
+                                                           T ~ Column_or_Row_Name_Position))
+            
+          # current_flmd_skeleton$Header_Rows[current_flmd_skeleton$all == current_file_absolute] <- current_header_row
+          # current_flmd_skeleton$Column_or_Row_Name_Position[current_flmd_skeleton$all == current_file_absolute] <- current_column_or_row_name_position
           
         } # end of user_reply == 3
       
@@ -327,7 +333,9 @@ create_flmd <- function(files_df, # required
             pull(2)
           
           # add to flmd
-          current_flmd_skeleton$Header_Rows[current_flmd_skeleton$all == current_file_absolute] <- boye_row_info
+          current_flmd_skeleton <- current_flmd_skeleton %>% 
+            mutate(Header_Rows = case_when(all == current_file_absolute ~ as.character(boye_row_info),
+                                           T ~ Header_Rows))
           
         } # end of user_reply = 1
         
