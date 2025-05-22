@@ -45,8 +45,8 @@ user_add_placeholders = F
 # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is FALSE.  
 user_query_header_info = F
 
-# file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
-user_file_n_max = 100
+# file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 20 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 20. 
+user_view_n_max = 20
 
 # add_boye_headers = T/F where the user should select T if they want placeholder rows in the dd for Boye header row names. Optional argument; default is FALSE.
 user_add_boye_headers = F
@@ -65,6 +65,7 @@ library(tidyverse)
 library(rlog)
 library(fs)
 library(devtools)
+library(crayon)
 
 # load functions - keeping these here until the PR is approved; once approved, we can use the below github urls instead
 current_path <- rstudioapi::getActiveDocumentContext()$path
@@ -91,7 +92,7 @@ my_flmd <- create_flmd(files_df = my_files,
                        dp_keyword = my_dp_keyword,
                        add_placeholders = user_add_placeholders,
                        query_header_info = user_query_header_info,
-                       file_n_max = user_file_n_max)
+                       view_n_max = user_view_n_max)
 
 ### Create DD ##################################################################
 
