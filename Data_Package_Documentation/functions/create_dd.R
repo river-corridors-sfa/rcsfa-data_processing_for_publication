@@ -1,7 +1,7 @@
 ### create_dd.R ################################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-05-07
-# Date Updates: 2025-05-14
+# Date Updates: 2025-05-22
 
 
 ### FUNCTION: create_dd() ######################################################
@@ -179,11 +179,6 @@ create_dd <- function(files_df,
   ### Extract headers based on Column_or_Row_Name_Position #####################
   
   log_info("Extracting headers from files.")
-  
-  tabular_files_with_flmd %>% 
-    group_by(Column_or_Row_Name_Position) %>%
-    summarise(files = str_c(file, collapse = ", "), .groups = "drop") %>% 
-    print()
   
   for (i in 1:nrow(tabular_files_with_flmd)) {
     
