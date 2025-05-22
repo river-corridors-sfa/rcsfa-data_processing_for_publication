@@ -216,13 +216,15 @@ create_dd <- function(files_df,
       pivot_longer(everything(), values_to = "Column_or_Row_Name") %>% 
       pull(Column_or_Row_Name)
     
-    # add cols to main df
-    tabular_files$Column_or_Row_Name[tabular_files$files_flmd_join == current_files_flmd_join] <- list(current_Column_or_Row_Names)
+    # add column headers to the main data frame
+      # Each row in `tabular_files` represents a file, and this assigns the corresponding vector of column names (e.g., c("Sample_Name", "IGSN", "Parent_IGSN", ...)) to the `Column_or_Row_Name` column for that file
+    tabular_files$Column_or_Row_Name[tabular_files$files_flmd_join == current_files_flmd_join] <- list(current_Column_or_Row_Names) # leaving this in base because tidy's case_when expects vectors, not a list. 
     
   }
   
   ### Create DD ################################################################
   
+  # create the DD skeleton by unnesting the `Column_or_Row_Name` column so each column name gets its own row: tabular_files (1 row = 1 file); dd_skeleton (1 row = 1 column_or_row_name)
   dd_skeleton <- tabular_files %>% 
     unnest(Column_or_Row_Name) %>% 
     select(Column_or_Row_Name, 
