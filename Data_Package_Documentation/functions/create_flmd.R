@@ -107,7 +107,7 @@ create_flmd <- function(files_df, # required
                         dp_keyword = "data_package", 
                         add_placeholders = F, 
                         query_header_info = F,
-                        file_n_max = 100) {
+                        view_n_max = 20) {
   
   
   ### About the function #######################################################
@@ -123,7 +123,7 @@ create_flmd <- function(files_df, # required
     # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files. Optional argument; default is "data_package".
     # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is FALSE.
     # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is FALSE.  
-    # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 100 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 100. 
+    # view_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 20 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 20. 
     
   # Outputs: 
     # flmd df with the columns: "File_Name", "File_Description", "Standard", "Header_Rows", "Column_or_Row_Name_Position", "File_Path"
