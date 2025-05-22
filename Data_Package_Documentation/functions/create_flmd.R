@@ -167,6 +167,7 @@ create_flmd <- function(files_df, # required
   library(tidyverse) # cuz duh
   library(rlog) # for logging documentation
   library(fs) # for getting file extension
+  library(crayon) # for colored comments
   
   ### Validate Inputs ##########################################################
   
@@ -264,46 +265,84 @@ create_flmd <- function(files_df, # required
       
       # filter for tabular data
       tabular_files <- current_flmd_skeleton %>% 
-        filter(str_detect(File_Name, "\\.csv$|\\.tsv$")) %>% 
-        pull(all)
+        filter(str_detect(File_Name, "\\.csv$|\\.tsv$"))
       
       # loop through tabular files
-      for (i in 1:length(tabular_files)) {
+      for (i in 1:nrow(tabular_files)) {
         
         # get current file path
-        current_file_absolute <- tabular_files[i]
+        current_file_absolute <- tabular_files$all[i]
         
-        if (str_detect(current_file_absolute, "\\.csv$")) {
-          
-          # read in current file
-          current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max, col_names = F)
-          
-        } else if (str_detect(current_file_absolute, "\\.tsv$")) {
-          
-          # read in current file
-          current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = file_n_max, col_names = F)
-          
-        }
+        # display file name
+        log_info(paste0("Tabular file ", i, " of ", nrow(tabular_files), ": "))
         
-        log_info(paste0("Viewing tabular file ", i, " of ", length(tabular_files), ": ", basename(current_file_absolute)))
-        
-        # show file
-        View(current_tabular_file)
+        tabular_files[i, ] %>%
+          mutate(relative_file = paste0(File_Path, "/", File_Name)) %>%
+          pull(relative_file) %>%
+          magenta() %>%
+          cat() %>%
+          cat("\n")
         
         # ask what type of header format
-        user_reply <- readline(prompt = cat("What type of header info is present? n = none; b = Boye; g = Goldman; o = other; u = unknown"))
+        user_reply <- readline(prompt = cat("Which standard best describes the header structure in this file?\n", blue("n"), "= none;", blue("b"), "= Boye;", blue("g"), "= Goldman;", blue("o"), "= other;", blue("u"), "= unknown"))
         
         while (!user_reply %in% c("n", "b", "g", "o", "u")) {
+          # if the user reply isn't part of the controlled vocab, ask again
           
           log_warn("Asking for user input again because previous input included an invalid value.")
-          user_reply <- readline(prompt = cat("What type of header info is present? n = none; b = Boye; g = Goldman; o = other; u = unknown"))
+          user_reply <- readline(prompt = cat("Which standard best describes the header structure in this file?\n", blue("n"), "= none;", blue("b"), "= Boye;", blue("g"), "= Goldman;", blue("o"), "= other;", blue("u"), "= unknown"))
           
         }
         
         # update header row type
         current_flmd_skeleton$header_format[current_flmd_skeleton$all == current_file_absolute] <- user_reply
         
+        # update header_rows and column_or_row_name position based on header_format
+        current_flmd_skeleton <- current_flmd_skeleton %>% 
+          mutate(Header_Rows = case_when(header_format == "n" ~ "1", # no header rows
+                                         header_format == "g" ~ "1", # goldman
+                                         T ~ Header_Rows)) %>% # user input
+          mutate(Column_or_Row_Name_Position = case_when(header_format == "n" ~ "1", # no header rows
+                                                         header_format == "b" ~ "1", # boye
+                                                         header_format == "g" ~ "1", # goldman
+                                                         T ~ Column_or_Row_Name_Position)) # user input
+        
+        # if boye, use the file to get the Header_Row value
+        if (user_reply == "b") {
+          
+          # extract header row info from boye file
+          boye_row_info <- read_csv(current_file_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = 2) %>% 
+            slice(2) %>% 
+            pull(2)
+          
+          # add to flmd
+          current_flmd_skeleton <- current_flmd_skeleton %>% 
+            mutate(Header_Rows = case_when(all == current_file_absolute ~ as.character(boye_row_info),
+                                           T ~ Header_Rows))
+          
+        } # end of user_reply = boye
+        
+        # if other or unknown, display file
         if (user_reply == "o" || user_reply == "u") {
+          
+          # read in current file
+          if (str_detect(current_file_absolute, "\\.csv$")) {
+            
+            # read in csv
+            current_tabular_file <- read_csv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = view_n_max, col_names = F)
+            
+          } else if (str_detect(current_file_absolute, "\\.tsv$")) {
+            
+            # read in tsv
+            current_tabular_file <- read_tsv(current_file_absolute, name_repair = "minimal", comment = "#", show_col_types = F, n_max = view_n_max, col_names = F)
+            
+          }
+          
+          # show file
+          # View(current_tabular_file)
+          current_tabular_file %>%
+            print(n = as.numeric(view_n_max))
+          
           # run function
           user_inputs <- ask_user_input()
           
@@ -319,44 +358,23 @@ create_flmd <- function(files_df, # required
           # pull results out of list
           current_column_or_row_name_position <- user_inputs$current_column_or_row_name_position
           current_header_row <- user_inputs$current_header_row
-      
+          
+          # ask the user if a standard should be applied to this file
+          user_reply_standard <- readline(prompt = cat("Which standard best describes this file?\n", blue("n"), "= none;", blue("b"), "= Boye;", blue("g"), "= Goldman;", blue("o"), "= other"))
+          
           # add to flmd
           current_flmd_skeleton <- current_flmd_skeleton %>% 
-            mutate(Header_Rows = case_when(all == current_file_absolute ~ as.character(current_header_row), 
+            mutate(header_format = case_when(all == current_file_absolute ~ as.character(user_reply_standard), 
+                                             T ~ header_format),
+                   Header_Rows = case_when(all == current_file_absolute ~ as.character(current_header_row), 
                                            T ~ Header_Rows),
                    Column_or_Row_Name_Position = case_when(all == current_file_absolute ~ as.character(current_column_or_row_name_position),
                                                            T ~ Column_or_Row_Name_Position))
-            
+          
         } # end of user_reply == other or unknown
-      
-        
-        # use header_format to update header_rows and column_or_row_name position cols
-        if (user_reply == "b") {
-          
-          # extract header row info from boye file
-          boye_row_info <- read_csv(current_file_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = 2) %>% 
-            slice(2) %>% 
-            pull(2)
-          
-          # add to flmd
-          current_flmd_skeleton <- current_flmd_skeleton %>% 
-            mutate(Header_Rows = case_when(all == current_file_absolute ~ as.character(boye_row_info),
-                                           T ~ Header_Rows))
-          
-        } # end of user_reply = boye
-        
         
       } # end of loop through tabular files
-      
-      # update remaining header_rows and column_or_row_name position based on header_format
-      current_flmd_skeleton <- current_flmd_skeleton %>% 
-        mutate(Header_Rows = case_when(header_format == "n" ~ "1", # no header rows
-                                       header_format == "g" ~ "1", # goldman
-                                       T ~ Header_Rows)) %>% # user input
-        mutate(Column_or_Row_Name_Position = case_when(header_format == "n" ~ "1", # no header rows
-                                                       header_format == "b" ~ "1", # boye
-                                                       header_format == "g" ~ "1", # goldman
-                                                       T ~ Column_or_Row_Name_Position)) # user input
+
     } else { # if query_header_info != T
       
       log_warn("
@@ -430,8 +448,8 @@ create_flmd <- function(files_df, # required
   # update the standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
     
   current_flmd_skeleton <- current_flmd_skeleton %>%
-    mutate(Standard = case_when(header_format == "1" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
-                                header_format == "2" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
+    mutate(Standard = case_when(header_format == "b" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
+                                header_format == "g" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
                                 str_detect(File_Name, "Methods_Codes\\.csv$") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
                                 str_detect(File_Name, "InstallationMethods\\.csv$") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
                                 str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
