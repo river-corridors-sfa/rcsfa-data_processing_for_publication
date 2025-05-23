@@ -30,6 +30,21 @@ my_out_dir = ""
 
 #### OPTIONAL ----
 
+# TIPS for including/excluding files: 
+  # Example 1: Suppose your data package contains 100 sensor files with
+  # standardized "Goldman" headers and 5 regular CSV files. Instead of writing
+  # out all 100 file names just to exclude them, you can use the include_files
+  # argument to explicitly list the 5 files you do want to process. This is more
+  # efficient and makes your code easier to manage.
+  
+  # Example 2: If you have 75 regular files and 3 files with header rows, you
+  # can process them separately by first running the function with
+  # query_header_info = TRUE and include_files set to the 3 files to extract
+  # their header metadata. Then, run the function again with query_header_info =
+  # FALSE and exclude_files set to the same 3 files to process the 75 regular
+  # files. Finally, bind the outputs from both runs to combine them into a
+  # single FLMD.
+
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 user_exclude_files = NA_character_
 
