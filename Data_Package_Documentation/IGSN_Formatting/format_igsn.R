@@ -17,9 +17,9 @@ library(readxl)
 
 # ================================= User inputs ================================
 
-dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package'
+dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/CoastalFires_Data_Package'
 
-out_file <- "WHONDRS_AV1_Metadata_IGSN-Mapping.csv"
+out_file <- "CoastalFires_Metadata_IGSN-Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 
@@ -29,7 +29,7 @@ site <- list.files(dp_dir, pattern = 'Site', full.names = T) %>%
   read_csv(site_file, skip = 1) 
 
 sample <- list.files(dp_dir, pattern = 'Samples', full.names = T) %>% 
-  read_csv(sample_file, skip = 1)
+  read_csv(., skip = 1)
 
 # ========================= remove unwanted columns and rename =================
 
@@ -68,8 +68,8 @@ if (nrow(sample) > 0) {
       City_or_Township = 'City/Township',
       Collector_Chief_Scientist ="Collector/Chief Scientist",
       Collection_Date = "Collection date",
-      Related_URL ="Related URL",
-      Related_URL_Type = "Related URL Type",
+      # Related_URL ="Related URL",
+      # Related_URL_Type = "Related URL Type",
       State_or_Province = "State/Province"
     )%>%
     mutate(across(everything(), as.character))
@@ -81,16 +81,16 @@ if (nrow(sample) > 0) {
 
 
 
-if (nrow(sample) > 0 & nrow(site) > 0) {
+# if (nrow(sample) > 0 & nrow(site) > 0) {
 
 combine <- sample %>%
-  full_join(site, by = c("Parent_IGSN", "Locality", 
-                        "Latitude", "Longitude",
-                           "Primary_Physiographic_Feature",
-                           'Physiographic_Feature_Name',
-                           "Country", "Field_Program_Cruise", 'Comment',
-                           'State_or_Province')
-                         ) %>%
+  # full_join(site, by = c("Parent_IGSN", "Locality",
+  #                       "Latitude", "Longitude",
+  #                          "Primary_Physiographic_Feature",
+  #                          'Physiographic_Feature_Name',
+  #                          "Country", "Field_Program_Cruise", 'Comment',
+  #                          'State_or_Province')
+  #                        ) %>%
   # select(-Site_Name) %>%
   mutate(Collection_Date = paste0(' ', as.character(mdy(Collection_Date))))
 
@@ -104,27 +104,27 @@ write_csv(combine, outdir, append = T, col_names = T)
 # 
 # file.remove(sample_file)
 
-} else if (nrow(sample) == 0) {
-  
-  metadata <- tibble('#Site IDs have International Generic Sample Numbers (IGSNs) registered with System for Earth Sample Registration (SESAR; https://www.geosamples.org/about/services#igsnregistration).  This file maps between site IDs (in the column labeled Sample_Name) and IGSNs. It conforms to the ESS-DIVE Sample ID and Metadata Reporting Format (IGSN-ESS) v1.1.0 (Damerow et al. 2020). Some information is repeated between the field metadata file and this file.' = as.character())
-  
-  write_csv(metadata, outdir)
-  
-  write_csv(site, outdir, append = T, col_names = T)
-  
-  # file.remove(site_file)
-  
-} else if (nrow(site) == 0) {
-  
-  combine <- sample %>%
-    mutate(Collection_Date = paste0(' ', as.character(mdy(Collection_Date))))
-  
-  metadata <- tibble('#Samples have International Generic Sample Numbers (IGSNs) registered with System for Earth Sample Registration (SESAR; https://www.geosamples.org/about/services#igsnregistration). This file maps between sample names and IGSNs. It conforms to the ESS-DIVE Sample ID and Metadata Reporting Format (IGSN-ESS) v1.1.0 (Damerow et al. 2020). Some information may be repeated between the field metadata file and this file. The site ID is listed in the Locality column.' = as.character())
-  
-  write_csv(metadata, outdir)
-  
-  write_csv(combine, outdir, append = T, col_names = T)
-  
-  # file.remove(sample_file)
-}
+# } else if (nrow(sample) == 0) {
+#   
+#   metadata <- tibble('#Site IDs have International Generic Sample Numbers (IGSNs) registered with System for Earth Sample Registration (SESAR; https://www.geosamples.org/about/services#igsnregistration).  This file maps between site IDs (in the column labeled Sample_Name) and IGSNs. It conforms to the ESS-DIVE Sample ID and Metadata Reporting Format (IGSN-ESS) v1.1.0 (Damerow et al. 2020). Some information is repeated between the field metadata file and this file.' = as.character())
+#   
+#   write_csv(metadata, outdir)
+#   
+#   write_csv(site, outdir, append = T, col_names = T)
+#   
+#   # file.remove(site_file)
+#   
+# } else if (nrow(site) == 0) {
+#   
+#   combine <- sample %>%
+#     mutate(Collection_Date = paste0(' ', as.character(mdy(Collection_Date))))
+#   
+#   metadata <- tibble('#Samples have International Generic Sample Numbers (IGSNs) registered with System for Earth Sample Registration (SESAR; https://www.geosamples.org/about/services#igsnregistration). This file maps between sample names and IGSNs. It conforms to the ESS-DIVE Sample ID and Metadata Reporting Format (IGSN-ESS) v1.1.0 (Damerow et al. 2020). Some information may be repeated between the field metadata file and this file. The site ID is listed in the Locality column.' = as.character())
+#   
+#   write_csv(metadata, outdir)
+#   
+#   write_csv(combine, outdir, append = T, col_names = T)
+#   
+#   # file.remove(sample_file)
+# }
 
