@@ -68,8 +68,8 @@ if (nrow(sample) > 0) {
       City_or_Township = 'City/Township',
       Collector_Chief_Scientist ="Collector/Chief Scientist",
       Collection_Date = "Collection date",
-      # Related_URL ="Related URL",
-      # Related_URL_Type = "Related URL Type",
+      Related_URL ="Related URL",
+      Related_URL_Type = "Related URL Type",
       State_or_Province = "State/Province"
     )%>%
     mutate(across(everything(), as.character))
@@ -81,7 +81,7 @@ if (nrow(sample) > 0) {
 
 
 
-# if (nrow(sample) > 0 & nrow(site) > 0) {
+if (nrow(sample) > 0 & nrow(site) > 0) {
 
 combine <- sample %>%
   full_join(site, by = c("Parent_IGSN", "Locality",
