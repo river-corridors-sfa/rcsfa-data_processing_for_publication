@@ -16,7 +16,7 @@ create_dd <- function(files_df,
   ### About the function #######################################################
   # Objective:
     # Create a dd with the following columns: 
-      # Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code
+      # Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code
   
   # Inputs: 
     # files_df = df with at least these 5 cols: all, absolute_dir, parent_dir, relative_dir, and file. Required argument. 
@@ -26,8 +26,8 @@ create_dd <- function(files_df,
     # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
   
   # Outputs: 
-    # dd df with the columns: "Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Missing_Value_Code"
-      # additional optional cols (if include_filenames = T): header_count, associated_files
+    # dd df with the columns: "Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", Missing_Value_Code"
+      # additional optional cols (if include_filenames = T): "header_count", "associated_files"
   
   # Assumptions: 
     # Counts skip all rows that begin with a # - doing this because ESS-DIVE told us that's how the fusion DB reads in files
@@ -234,9 +234,10 @@ create_dd <- function(files_df,
     mutate(Unit = NA_character_,
            Definition = NA_character_,
            Data_Type = NA_character_,
+           Term_Type = NA_character_,
            Missing_Value_Code = '"N/A"; "-9999"; ""; "NA"',
            header_count = 1) %>%
-    select(Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code, header_count, associated_files)
+    select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code, header_count, associated_files)
   
   
   ### Add boye headers #########################################################
@@ -244,18 +245,18 @@ create_dd <- function(files_df,
   if (add_boye_headers == T) {
     
     # boye header rows
-    boye_header_rows <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Missing_Value_Code, ~associated_files, 
-                                "Unit", "N/A",	"Unit of measurement that applies to a given column or row in the data package.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "Unit_Basis", "N/A",	"Basis of the units listed in the column.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "MethodID_Analysis", "N/A",	"Method code defining information about analysis of the samples that led to the data presented in the column.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "MethodID_Inspection", "N/A",	"Method code defining information about inspection of the samples that led to the data presented in the column.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "MethodID_Storage", "N/A",	"Method code defining information about storage of the samples that led to the data presented in the column.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "MethodID_Preservation", "N/A",	"Method code defining information about preservation of the samples that led to the data presented in the column.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "MethodID_Preparation", "N/A",	"Method code defining information about preparation of the samples that led to the data presented in the column.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "MethodID_DataProcessing", "N/A",	"Method code defining information about data processing that led to the data presented in the column.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "Analysis_DetectionLimit", "N/A",	"Analytical detection limit.",	"numeric", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "Analysis_Precision", "N/A",	"Precision of the data values.",	"numeric", '"N/A"; "-9999"; ""; "NA"', "boye template", 
-                                "Data_Status", "N/A",	"State of data readiness for publication and use.",	"text", '"N/A"; "-9999"; ""; "NA"', "boye template")
+    boye_header_rows <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Term_Type, ~Missing_Value_Code, ~associated_files, 
+                                "Unit", "N/A",	"Unit of measurement that applies to a given column or row in the data package.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "Unit_Basis", "N/A",	"Basis of the units listed in the column.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "MethodID_Analysis", "N/A",	"Method code defining information about analysis of the samples that led to the data presented in the column.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "MethodID_Inspection", "N/A",	"Method code defining information about inspection of the samples that led to the data presented in the column.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "MethodID_Storage", "N/A",	"Method code defining information about storage of the samples that led to the data presented in the column.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "MethodID_Preservation", "N/A",	"Method code defining information about preservation of the samples that led to the data presented in the column.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "MethodID_Preparation", "N/A",	"Method code defining information about preparation of the samples that led to the data presented in the column.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "MethodID_DataProcessing", "N/A",	"Method code defining information about data processing that led to the data presented in the column.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "Analysis_DetectionLimit", "N/A",	"Analytical detection limit.",	"numeric", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "Analysis_Precision", "N/A",	"Precision of the data values.",	"numeric", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template", 
+                                "Data_Status", "N/A",	"State of data readiness for publication and use.",	"text", "row header", '"N/A"; "-9999"; ""; "NA"', "boye template")
     
     # add rows 
     dd_skeleton <- dd_skeleton %>% 
@@ -268,22 +269,22 @@ create_dd <- function(files_df,
   if (add_flmd_dd_headers == T) {
     
     # flmd headers
-    flmd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Missing_Value_Code, ~associated_files, 
-                                        "File_Name", "N/A", "Name of files in the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "File_Description", "N/A",  "A brief description of the files in the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "Standard", "N/A","ESS-DIVE Reporting Format (https://ess-dive.lbl.gov/data-reporting-formats/) or other standard applied to the data file.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "Header_Rows", "N/A", 'The number of rows or the number of columns that occur before the start of tabular data. This count assumes the numbering begins at 1 (rather than 0), excludes columns or rows that begin with "#", and includes the column or row that the header names are on. For example, if the file has columns with variable names but does not have any other metadata header rows, then this value is 1. Most data in this data package is oriented in columns, so this field indicates the number of rows before the start of the data (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 2 - to indicate the count of the rows prior to the data values).', "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "Column_or_Row_Name_Position", "N/A", 'The location of the column or row that contains the header names (i.e., column name or row name). The count used to identify the location assumes the numbering begins at 1 (rather than 0) and excludes columns or rows that begin with "#". Most data in this data package is oriented in columns, so this field indicates the tabular location of the row that holds the column names (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 1 - to indicate the location of the column header row).', "numeric", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
-                                        "File_Path", "N/A", "File path within the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "flmd template")
+    flmd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Term_Type, ~Missing_Value_Code, ~associated_files, 
+                                        "File_Name", "N/A", "Name of files in the data package.", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "File_Description", "N/A",  "A brief description of the files in the data package.", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Standard", "N/A","ESS-DIVE Reporting Format (https://ess-dive.lbl.gov/data-reporting-formats/) or other standard applied to the data file.", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Header_Rows", "N/A", 'The number of rows or the number of columns that occur before the start of tabular data. This count assumes the numbering begins at 1 (rather than 0), excludes columns or rows that begin with "#", and includes the column or row that the header names are on. For example, if the file has columns with variable names but does not have any other metadata header rows, then this value is 1. Most data in this data package is oriented in columns, so this field indicates the number of rows before the start of the data (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 2 - to indicate the count of the rows prior to the data values).', "numeric", "column header", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "Column_or_Row_Name_Position", "N/A", 'The location of the column or row that contains the header names (i.e., column name or row name). The count used to identify the location assumes the numbering begins at 1 (rather than 0) and excludes columns or rows that begin with "#". Most data in this data package is oriented in columns, so this field indicates the tabular location of the row that holds the column names (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 1 - to indicate the location of the column header row).', "numeric", "column header", '"N/A"; "-9999"; ""; "NA"', "flmd template", 
+                                        "File_Path", "N/A", "File path within the data package.", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "flmd template")
     
     # dd headers
-    dd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Missing_Value_Code, ~associated_files, 
-                                      "Column_or_Row_Name", "N/A", "Column or row headers from each tabular file (csv or tsv) in the dataset.", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
-                                      "Unit",  "N/A", "Unit of measurement that applies to a given column or row in the data package.", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
-                                      "Definition", "N/A", "Description of the information in a given column or row in the dataset.definition", "text", '"N/A"; "-9999"; ""; "NA"', "dd template",
-                                      "Data_Type", "N/A", "Type of data (numeric; text; date; time; datetime).", "text", '"N/A"; "-9999"; ""; "NA"', "dd template", 
-                                      "Missing_Value_Code", "N/A", 'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. In most cases, the missing value code for numeric data is "-9999" and for character data is "N/A". Some files also use a missing value format specific to when a data value is below the limit of detection or above/below the standard curve. For these cases: a text string is included in the format "[data type]_*|*_Raw_Not_Corrected|*_Final_Corrected" in which the asterisks are the denoted individual data values. See the associated methods deviation (DTL_003) description for more details.', "text", '"N/A"; "-9999"; ""; "NA"', "dd template")
-    
+    dd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Term_Type, ~Missing_Value_Code, ~associated_files, 
+                                      "Column_or_Row_Name", "N/A", "Column or row headers from each tabular file (csv or tsv) in the dataset.", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "dd template", 
+                                      "Unit",  "N/A", "Unit of measurement that applies to a given column or row in the data package.", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "dd template",
+                                      "Definition", "N/A", "Description of the information in a given column or row in the dataset.definition", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "dd template",
+                                      "Data_Type", "N/A", "Type of data (numeric; text; date; time; datetime).", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "dd template", 
+                                      "Term_Type", "N/A", "Indicates whether the header is a column header or row header.", "text", "column header", '"N/A"; "-9999"; ""; "NA"', "dd template", 
+                                      "Missing_Value_Code", "N/A", 'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. In most cases, the missing value code for numeric data is "-9999" and for character data is "N/A". Some files also use a missing value format specific to when a data value is below the limit of detection or above/below the standard curve. For these cases: a text string is included in the format "[data type]_*|*_Raw_Not_Corrected|*_Final_Corrected" in which the asterisks are the denoted individual data values. See the associated methods deviation (DTL_003) description for more details.', "text", "column header", '"N/A"; "-9999"; ""; "NA"', "dd template")
     
     # add rows
     dd_skeleton <- dd_skeleton %>% 
@@ -303,14 +304,14 @@ create_dd <- function(files_df,
       Unit = first(na.omit(Unit)),
       Definition = first(na.omit(Definition)),
       Data_Type = first(na.omit(Data_Type)),
+      Term_Type = paste(Term_Type, collapse = ", "),
       Missing_Value_Code = first(na.omit(Missing_Value_Code)),
-      # for associated_files, concatenate with comma separator
-      header_count = sum(header_count, na.rm = TRUE), 
-      associated_files = paste(associated_files, collapse = ", "),
+      header_count = sum(header_count, na.rm = TRUE), # sum all files with given header
+      associated_files = paste(associated_files, collapse = ", "), # for associated_files, concatenate with comma separator
       .groups = "drop"
     ) %>%
     # if all values were NA for each column then it will return character(0), this converts it back to NA
-    mutate(across(c(Unit, Definition, Data_Type, Missing_Value_Code), 
+    mutate(across(c(Unit, Definition, Data_Type, Term_Type, Missing_Value_Code), 
                   ~case_when(length(.) == 0 ~ NA_character_,
                              TRUE ~ .))) %>% 
     
@@ -322,7 +323,7 @@ create_dd <- function(files_df,
   if (include_filenames == F) {
     
     dd_skeleton <- dd_skeleton %>% 
-      select(Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code)
+      select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code)
     
   }
   

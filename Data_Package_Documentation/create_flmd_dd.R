@@ -2,7 +2,7 @@
 
 # Objective: 
   # Create an FLMD with the cols: File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, File_Path
-  # Create a DD with the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Missing_Value_Code
+  # Create a DD with the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code
 
 # Directions: 
   # 1. Fill out user inputs; then run the chunk. 

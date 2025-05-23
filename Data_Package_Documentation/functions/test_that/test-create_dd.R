@@ -64,7 +64,7 @@ test_that("expected typical inputs", {
   
   # returns a tibble that must include required cols
   result = create_dd(files_df = my_files, flmd = my_flmd)
-  expect_true(all(c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Missing_Value_Code") %in% names(result)))
+  expect_true(all(c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "Missing_Value_Code") %in% names(result)))
 
   # returns a tibble where the columns have the correct class
   result <- create_dd(files_df = my_files, flmd_df = my_flmd)
@@ -77,19 +77,21 @@ test_that("expected typical inputs", {
                expected = "character")
   expect_equal(object = class(result$Data_Type),
                expected = "character")
+  expect_equal(object = class(result$Term_Type),
+               expected = "character")
   expect_equal(object = class(result$Missing_Value_Code),
                expected = "character")
 
   # returns a tibble that adds placeholders when add_boye_headers = T and add_flmd_dd_headers = T
   expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T, add_flmd_dd_headers = T, include_filenames = T) %>% filter(str_detect(associated_files, "\\bboye template\\b|\\bflmd template\\b|\\bdd template\\b")) %>% select(Column_or_Row_Name),
-               expected = tibble(Column_or_Row_Name = c("Analysis_DetectionLimit", "Analysis_Precision", "Column_or_Row_Name", "Column_or_Row_Name_Position", "Data_Status", "Data_Type", "Definition", "File_Description", "File_Name", "File_Path", "Header_Rows", "MethodID_Analysis", "MethodID_DataProcessing", "MethodID_Inspection", "MethodID_Preparation", "MethodID_Preservation", "MethodID_Storage", "Missing_Value_Code", "Standard", "Unit", "Unit_Basis")))
+               expected = tibble(Column_or_Row_Name = c("Analysis_DetectionLimit", "Analysis_Precision", "Column_or_Row_Name", "Column_or_Row_Name_Position", "Data_Status", "Data_Type", "Definition", "File_Description", "File_Name", "File_Path", "Header_Rows", "MethodID_Analysis", "MethodID_DataProcessing", "MethodID_Inspection", "MethodID_Preparation", "MethodID_Preservation", "MethodID_Storage", "Missing_Value_Code", "Standard", "Term_Type", "Unit", "Unit_Basis")))
 
   # populates Missing_Value_Code column  with '"-9999"; "N/A"; "": NA"'
-  expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T) %>% select(Missing_Value_Code) %>% unique() %>% pull(),
+  expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T, add_flmd_dd_headers = F) %>% select(Missing_Value_Code) %>% unique() %>% pull(),
                expected = '"N/A"; "-9999"; ""; "NA"')
 
   # returns a tibble with all column headers
-  expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = F) %>% select(Column_or_Row_Name),
+  expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = F, add_flmd_dd_headers = F) %>% select(Column_or_Row_Name),
                expected = tibble(Column_or_Row_Name = c("00602_TN_mg_per_L_as_N", "00681_NPOC_mg_per_L_as_C", "Battery",
                                                         "DateTime", "Dissolved_Oxygen", "Dissolved_Oxygen_Saturation",
                                                         "Field_Name", "ID",  "id",  "Material",  "Methods_Deviation", "Name",
@@ -125,7 +127,7 @@ test_that("expected edge cases", {
   
   # returns 2 additional columns (header_count and associated_files) if include_filenames = T
   expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, include_filenames = T) %>% names(.), 
-               expected = c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Missing_Value_Code", "header_count", "associated_files"))
+               expected = c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "Missing_Value_Code", "header_count", "associated_files"))
   
 })
 
