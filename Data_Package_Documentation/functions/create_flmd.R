@@ -24,8 +24,13 @@ get_files <- function(directory, # required
     # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE.  
   
   # Outputs: 
-    # df with 5 columns: all, absolute_dir, parent_dir, relative_dir, file
-  
+    # df with 5 columns: 
+      # all = the full absolute path to the file, including the file name
+      # absolute_dir = the absolute path above the parent_dir
+      # parent_dir = the lowest-level directory shared by all files (the last dir specified in the directory the user specified)
+      # relative_dir = the path to the file relative to the directory the user specified
+      # file = the name of the file, without any directory path
+      
   # Assumptions: 
     # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed.
     # if you use both include and exclude options, only the files listed in include will be kept; the exclude list will be ignored.
@@ -34,6 +39,11 @@ get_files <- function(directory, # required
   
   # 1) example that includes all files in a given directory
     # my_files <- get_files(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory")
+      # output of my_files <- tibble(all = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory/folderA/file.csv", 
+      #                              absolute_dir = "C:/Users/powe419/OneDrive - PNNL/Desktop",
+      #                              parent_dir = "/Demo_Directory",
+      #                              relative_dir = "/folderA",
+      #                              file = "file.csv")
 
   # 2) example that excludes a single file in an archive folder
     # my_files <- get_files(directory = "C:/Users/powe419/OneDrive - PNNL/Desktop/Demo_Directory", 
