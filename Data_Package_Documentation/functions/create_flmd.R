@@ -349,7 +349,6 @@ create_flmd <- function(files_df, # required
           }
           
           # show file
-          # View(current_tabular_file)
           current_tabular_file %>%
             print(n = as.numeric(view_n_max))
           
@@ -371,6 +370,15 @@ create_flmd <- function(files_df, # required
           
           # ask the user if a standard should be applied to this file
           user_reply_standard <- readline(prompt = cat("Which standard best describes this file?\n", blue("n"), "= none;", blue("b"), "= Boye;", blue("g"), "= Goldman;", blue("o"), "= other"))
+          
+          # update standards to be capital - doing this so these rows are captured in standard col (below) but not overwritten (on next loop iteration) when the case_when recalculates header rows
+          if(user_reply_standard == "n"){
+            user_reply_standard <- "N"
+          } else if (user_reply_standard == "b") {
+            user_reply_standard <- "B"
+          } else if (user_reply_standard == "g") {
+            user_reply_standard <- "G"
+          }
           
           # add to flmd
           current_flmd_skeleton <- current_flmd_skeleton %>% 
@@ -458,8 +466,8 @@ create_flmd <- function(files_df, # required
   # update the standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
     
   current_flmd_skeleton <- current_flmd_skeleton %>%
-    mutate(Standard = case_when(header_format == "b" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
-                                header_format == "g" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
+    mutate(Standard = case_when(tolower(header_format) == "b" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
+                                tolower(header_format) == "g" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
                                 str_detect(File_Name, "Methods_Codes\\.csv$") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
                                 str_detect(File_Name, "InstallationMethods\\.csv$") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
                                 str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf

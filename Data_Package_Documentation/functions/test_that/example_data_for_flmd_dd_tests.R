@@ -166,15 +166,50 @@ add_example_data <- function(directory){
   
 }
 
+# add regular tsv
+add_example_data_tsv <- function(directory){
+  
+  write_tsv(tibble(
+    id = 1:3, 
+    value = c(10, 20, 30)),
+    file.path(directory, "data", "file_a.tsv"))
+  
+  log_info("add_example_data_tsv() complete")
+  
+}
+
 # add csv with header row below column name
 add_example_data_with_header_rows <- function(directory){
   
+  # header below
+  write_csv(tibble(Name = c("HEADER ROW", "Alice", "Bob", "Charlie"),
+                   Score = c(NA, 85.5, 92.0, 78.3),
+                   Passed = Score >= 80), 
+            file.path(directory, "data", "file_c.csv"))
   
-  write_csv(tibble(
-    Name = c("HEADER ROW", "Alice", "Bob", "Charlie"),
-    Score = c(NA, 85.5, 92.0, 78.3),
-    Passed = Score >= 80), 
-    file.path(directory, "data", "file_c.csv"))
+  # hashtag header below
+  write_csv(tibble(Name = c("#HEADER ROW", "Alice", "Bob", "Charlie"),
+                   Score = c(NA, 85.5, 92.0, 78.3),
+                   Passed = Score >= 80),
+            file.path(directory, "data", "file_d.csv"))
+  
+  # header above
+  write_csv(tibble(Name = c("HEADER ROW", "Name", "Alice", "Bob", "Charlie"),
+                   Score = c(NA, "Score", "85.5", "92.0", "78.3"),
+                   Passed = c(NA, "Passed", "TRUE", "TRUE", "FALSE")),
+            file.path(directory, "data", "file_e.csv"), col_names = F)
+  
+  # hashtag header above
+  write_csv(tibble(Name = c("#HEADER ROW", "Name", "Alice", "Bob", "Charlie"),
+                   Score = c(NA, "Score", "85.5", "92.0", "78.3"),
+                   Passed = c(NA, "Passed", "TRUE", "TRUE", "FALSE")),
+            file.path(directory, "data", "file_f.csv"), col_names = F)
+  
+  # header above + hashtag header above + header below + hashtag header below
+  write_csv(tibble(Name = c("Header Row", "#HEADER ROW", "Name", "Header Row", "#HEADER ROW", "Alice", "Bob", "Charlie"),
+                   Score = c(NA, NA, "Score", NA, NA, "85.5", "92.0", "78.3"),
+                   Passed = c(NA, NA, "Passed", NA, NA, "TRUE", "TRUE", "FALSE")),
+            file.path(directory, "data", "file_g.csv"), col_names = F)
   
   log_info("add_example_data_with_header_rows() complete")
   

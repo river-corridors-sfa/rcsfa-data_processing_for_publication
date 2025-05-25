@@ -120,21 +120,17 @@ test_that("expected typical inputs", {
                                              File_Name %in% c("example_boye.csv") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1",
                                              File_Name %in% c("example_goldman.csv") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1")))
 
+  
+  # add data files with header rows
+  add_example_data_with_header_rows(my_data_package_dir)
+  my_files <- get_files(directory = my_data_package_dir)
+  
   # populates the Header_Rows column based on ...
     # if no headers... then == 1 (Header_Rows are the number of rows above the row the data start on, including the column names but excluding any row that begins with "#")
     # if boye... then == the number indicated in cell B2 (after #Header_Rows)
     # if goldman... then == 1
     # if other... then == user input - 1 (because the user gives the row the start start on and Header_Rows = data_start - 1)
   
-  # add another data file
-  add_example_data_with_header_rows(my_data_package_dir)
-  my_files <- get_files(directory = my_data_package_dir)
-  
-  # test with 1 boye, 1 goldman, 1 normal, 1 with a header row below col names
-  expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = T, add_placeholders = F) %>% select(File_Name, Header_Rows), 
-               expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "01_script.R"), 
-                                 Header_Rows = c(12, 1, 1, 1, 1, -9999)))
-
   # populates the Column_or_Row_Name_Position column based on ...
     
     # if query_header_info = T
@@ -142,16 +138,31 @@ test_that("expected typical inputs", {
       # if boye... then == 1
       # if goldman... then == 1
       # if other... then == user input (because read_csv is reading in without col names, the col names end up being on row 1)
-  expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = T, add_placeholders = F) %>% select(File_Name, Column_or_Row_Name_Position),
-               expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "01_script.R"),
-                                 Column_or_Row_Name_Position = c(1, 1, 1, 1, 1, -9999)))
+  
+  # test with 1 boye, 1 goldman, 1 normal, 5 with header rows (above, below, hashtag above, hashtag below, all)
+  expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = T, add_placeholders = F) %>%
+                 select(File_Name, Header_Rows, Column_or_Row_Name_Position),
+               expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "file_d.csv", "file_e.csv", "file_f.csv", "file_g.csv", "01_script.R"),
+                                 Header_Rows = c(12, 1, 1, 1, 2, 1, 2, 1, 3, -9999),
+                                 Column_or_Row_Name_Position = c(1, 1, 1, 1, 1, 1, 2, 1, 2, -9999)))
 
-  # if query_header_info = F
-    # -9999 if not tabular
-    # NA if tabular
-  expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F) %>% select(File_Name, Column_or_Row_Name_Position),
-               expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "01_script.R"),
-                                 Column_or_Row_Name_Position = c(NA, NA, NA, NA, NA, -9999)))
+
+    # if query_header_info = F
+      # -9999 if not tabular
+      # NA if tabular
+  expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F) %>% select(File_Name, Header_Rows, Column_or_Row_Name_Position),
+               expected = tibble(File_Name = c("example_boye.csv", "example_goldman.csv", "file_a.csv", "file_b.csv", "file_c.csv", "file_d.csv", "file_e.csv", "file_f.csv", "file_g.csv", "01_script.R"),
+                                 Header_Rows = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, -9999),
+                                 Column_or_Row_Name_Position = c(NA, NA, NA, NA, NA, NA, NA, NA, NA, -9999)))
+  
+  
+  # add tsv file
+  add_example_data_tsv(my_data_package_dir)
+  
+  # returns a normal tibble
+  my_files <- get_files(directory = my_data_package_dir, include_files = "data/file_a.tsv")
+  expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F) %>% select(File_Name),
+               expected = tibble(File_Name = c("file_a.tsv"))) 
   
   # remove all test files
   unlink(my_data_package_dir, recursive = T, force = T)
