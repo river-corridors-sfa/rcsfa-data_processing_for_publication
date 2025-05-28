@@ -21,6 +21,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     # By default it pulls data from these dd cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
     # If one of those columns does not exist, it will populate that cell with NA
     # If a file name appears more than once, the function will show the user and ask them to confirm they'd like to update the database
+    # In the database, title case columns are ones from the DD; lower case are database metadata cols.
   
   # Status: complete
     # v2 update: uploads a single dd at a time.
@@ -143,7 +144,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   
   dd_filename <- basename(dd_abs_file)
   
-  # searches the ddd for duplicate file names, asks if the user wants to continue
+  # searches the dd database for duplicate file names, asks if the user wants to continue
   possible_duplicates <- dd_database %>% 
     filter(dd_filename == dd_filename) %>% 
     select(Column_or_Row_Name, dd_filename, dd_source) %>% 
@@ -189,7 +190,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     if (tolower(user_input_export) == "n") {
       
       log_info("Export terminated.")
-      
+      log_info("update_dd_database complete")
       return(dd_database)
       
     } else if (tolower(user_input_export) == "y") {
@@ -200,6 +201,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
       log_info("Updated data_dictionary_database.csv.")
       
       # returns dd database
+      log_info("update_dd_database complete")
       return(dd_database_updated)
       
     }
@@ -211,11 +213,11 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     
     log_info(paste0("'", dd_filename, "' is NOT being added to the database."))
     
+    log_info("update_dd_database complete")
     return(dd_database)
     
   }
   
-  log_info("update_dd_database complete")
   
   
 } # end of update_dd_database() function

@@ -5,27 +5,25 @@
 
 ### FUNCTION ###################################################################
 
-update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir) {
+update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_abs_dir) {
   
-  # Objective: Add new entries to the data dictionary database.
+  # Objective: Add new entries to the file level metadata database.
   
   # Inputs: 
-  # dd_abs_file = the absolute file path of the new dd to add. Required argument.
-  # date_published = the date when the associated data package became publicly available, formatted as YYYY-MM-DD. If you want today's date, then put "Sys.Date()". Required argument.
-  # dd_database_abs_dir = the absolute file path of the dd database; the csv needs the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source. Required argument.
+    # flmd_abs_file = the absolute file path of the new flmd to add. Required argument.
+    # date_published = the date when the associated data package became publicly available, formatted as YYYY-MM-DD. If you want today's date, then put "Sys.Date()". Required argument.
+    # flmd_database_abs_dir = the absolute file path of the flmd database; the csv needs the cols: File_Name, File_Description, date_published, flmd_filename, flmd_source. Required argument.
   
   # Output: 
-  # data_dictionary_database.csv with the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+    # file_level_metadata_database.csv with the cols: File_Name, File_Description, date_published, flmd_filename, flmd_source
   
   # Assumptions: 
-  # By default it pulls data from these dd cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
-  # If one of those columns does not exist, it will populate that cell with NA
-  # If a file name appears more than once, the function will show the user and ask them to confirm they'd like to update the database
+    # By default it pulls data from these flmd cols: File_Name, File_Description
+    # If one of those columns does not exist, it will populate that cell with NA
+    # If a file name appears more than once, the function will show the user and ask them to confirm they'd like to update the database
+    # In the database, title case columns are ones from the FLMD; lower case are database metadata cols.
   
   # Status: complete
-  # v2 update: uploads a single dd at a time.
-  # v2.1 update: removed the log, added a date column to the database
-  
   
   ### Prep script ##############################################################
   
@@ -40,69 +38,69 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   log_info("Reading in files.")
   
   # read in database
-  dd_database <- read_csv(dd_database_abs_dir, col_names = T, show_col_types = F, col_types = "cccccDcc")
+  flmd_database <- read_csv(flmd_database_abs_dir, col_names = T, show_col_types = F, col_types = "ccDcc")
   
-  # read in current dd
-  current_dd <- read_csv(dd_abs_file, show_col_types = F)
+  # read in current flmd
+  current_flmd <- read_csv(flmd_abs_file, show_col_types = F)
   
   
   ### Validate inputs ##########################################################
   # This chunk validates the input arguments. 
-  # It makes sure the database has cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
-  # It grabs the following cols from the dd: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
-  # If a col isn't present in the DD, it fills it in with NA
+  # It makes sure the database has cols: File_Name, File_Description, date_published, flmd_filename, flmd_source
+  # It grabs the following cols from the flmd: File_Name, File_Description
+  # If a col isn't present in the flmd, it fills it in with NA
   # It confirms the date the user provided is in YYYY-MM-DD format and converts it to a date
   
-  # confirm dd_database has correct cols
-  database_required_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "date_published", "dd_filename", "dd_source")
+  # confirm flmd_database has correct cols
+  database_required_cols <- c("File_Name", "File_Description", "date_published", "flmd_filename", "flmd_source")
   
-  if (!all(database_required_cols %in% names(dd_database))) {
+  if (!all(database_required_cols %in% names(flmd_database))) {
     
     # if files_df is missing required cols, error
-    log_error(paste0("dd database is missing required column: ", setdiff(database_required_cols, names(dd_database))))
+    log_error(paste0("flmd database is missing required column: ", setdiff(database_required_cols, names(flmd_database))))
     stop("Function terminating.")
-  } # end of checking dd database required cols
+  } # end of checking flmd database required cols
   
   
-  # confirm dd has the correct cols
-  dd_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type")
+  # confirm flmd has the correct cols
+  flmd_cols <- c("File_Name", "File_Description")
   
   # if some cols are missing, ask the user before filling in the col with NA
-  if (!all(dd_cols %in% names(current_dd))) {
+  if (!all(flmd_cols %in% names(current_flmd))) {
     
-    log_warn("Not all dd columns are present in your dd.")
+    log_warn("Not all flmd columns are present in your flmd.")
     
-    # loop through each correct col and ask user if that col is present in the dd (under a different name)
-    for (i in seq_along(dd_cols)) {
+    # loop through each correct col and ask user if that col is present in the flmd (under a different name)
+    for (i in seq_along(flmd_cols)) {
       
       # get i-th current column
-      current_correct_col <- dd_cols[i]
+      current_correct_col <- flmd_cols[i]
       
-      # check if correct col exists in current dd
-      if (!current_correct_col %in% names(current_dd)) { # if correct col doesn't exist in current dd...
+      # check if correct col exists in current flmd
+      if (!current_correct_col %in% names(current_flmd)) { # if correct col doesn't exist in current flmd...
         
-        # print the current dd
-        print(head(current_dd))
+        # print the current flmd
+        print(head(current_flmd))
         cat("\n")
-        print(data.frame(dd_cols = names(current_dd)))
+        print(data.frame(flmd_cols = names(current_flmd)))
         
         # ask which column matches the current correct col
         user_input <- readline(paste0("What row number is the column '", current_correct_col, "'? Enter 0 if column is not present. "))
         
-        if (user_input > 0 & user_input <= (ncol(current_dd))) { #if the user entered a number...
+        if (user_input > 0 & user_input <= (ncol(current_flmd))) { #if the user entered a number...
           
-          # get the name of the column from current dd that needs to be corrected
-          current_df_col_to_rename <- names(current_dd)[as.numeric(user_input)]
+          # get the name of the column from current flmd that needs to be corrected
+          current_df_col_to_rename <- names(current_flmd)[as.numeric(user_input)]
           
           
           # rename the current column to the correct column
-          current_dd <- current_dd %>% 
+          current_flmd <- current_flmd %>% 
             rename_with(~ current_correct_col, .cols = current_df_col_to_rename)
           
         } else if (user_input == 0) { # else if the user said the column isn't present...
           
           # mutate the column on and make all cell values empty
-          current_dd <- current_dd %>% 
+          current_flmd <- current_flmd %>% 
             mutate(!!current_correct_col := NA)
         } else (break)
         
@@ -113,10 +111,10 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     } # end of loop through correct cols
     
     # arrange columns with corrects cols first, followed by all other columns
-    current_dd <- current_dd %>% 
-      select(all_of(dd_cols), everything())
+    current_flmd <- current_flmd %>% 
+      select(all_of(flmd_cols), everything())
     
-  } # end of checking dd cols
+  } # end of checking flmd cols
   
   # confirm date_published is in date format
   parsed_date_published <- ymd(date_published, quiet = TRUE)
@@ -126,29 +124,26 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   }
   
   # select required cols
-  current_dd <- current_dd %>%
-    select(Column_or_Row_Name,
-           Unit,
-           Definition,
-           Data_Type, 
-           Term_Type)
+  current_flmd <- current_flmd %>%
+    select(File_Name,
+           File_Description)
   
   log_info("All inputs loaded in.")
   
   # print number of new entries
-  log_info(paste0("Found ", nrow(current_dd), " headers in '", dd_abs_file, "'."))
+  log_info(paste0("Found ", nrow(current_flmd), " files in '", flmd_abs_file, "'."))
   
   
   ### Check for possible duplicates ############################################
   
-  dd_filename <- basename(dd_abs_file)
+  flmd_filename <- basename(flmd_abs_file)
   
-  # searches the ddd for duplicate file names, asks if the user wants to continue
-  possible_duplicates <- dd_database %>% 
-    filter(dd_filename == dd_filename) %>% 
-    select(Column_or_Row_Name, dd_filename, dd_source) %>% 
-    group_by(dd_filename, dd_source) %>% 
-    summarise(headers = toString(Column_or_Row_Name), .groups = "drop") %>% 
+  # searches the flmd database for duplicate file names, asks if the user wants to continue
+  possible_duplicates <- flmd_database %>% 
+    filter(flmd_filename == flmd_filename) %>% 
+    select(File_Name, flmd_filename, flmd_source) %>% 
+    group_by(flmd_filename, flmd_source) %>% 
+    summarise(headers = toString(File_Name), .groups = "drop") %>% 
     distinct()
   
   if (nrow(possible_duplicates) > 0) {
@@ -158,28 +153,28 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     # show user possible duplicates - this shows a df listing the duplicates with their source and a concatenated list of headers
     View(possible_duplicates)
     
-    user_input <- readline(prompt = "Do you want to add your dd to the database? (enter Y/N): ")
+    user_input <- readline(prompt = "Do you want to add your flmd to the database? (enter Y/N): ")
     
   } else {
     user_input <- "y"
   }
   
-  ### Add to dd database #######################################################
+  ### Add to flmd database #######################################################
   
-  # if the user wants to add the dd...
+  # if the user wants to add the flmd...
   
   if (tolower(user_input) == "y") {
     
     # add additional database columns
-    current_dd_updated <- current_dd %>% 
+    current_flmd_updated <- current_flmd %>% 
       mutate(date_published = parsed_date_published,
-             dd_filename = dd_filename,
-             dd_source = dd_database_abs_dir)
+             flmd_filename = flmd_filename,
+             flmd_source = flmd_database_abs_dir)
     
-    # add current dd to database
-    dd_database_updated <- dd_database %>% 
-      add_row(current_dd_updated) %>% 
-      arrange(Column_or_Row_Name, .locale = "en") # the .locale argument get it to sort alphabetically irrespective of capital/lowercase letters
+    # add current flmd to database
+    flmd_database_updated <- flmd_database %>% 
+      add_row(current_flmd_updated) %>% 
+      arrange(File_Name, .locale = "en") # the .locale argument get it to sort alphabetically irrespective of capital/lowercase letters
     
     ### Export out new database ##################################################
     
@@ -189,18 +184,19 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     if (tolower(user_input_export) == "n") {
       
       log_info("Export terminated.")
-      
-      return(dd_database)
+      log_info("update_flmd_database complete")
+      return(flmd_database)
       
     } else if (tolower(user_input_export) == "y") {
       
       # export updated database
-      write_csv(dd_database_updated, dd_database_abs_dir, col_names = TRUE)
+      write_csv(flmd_database_updated, flmd_database_abs_dir, col_names = TRUE)
       
       log_info("Updated data_dictionary_database.csv.")
       
-      # returns dd database
-      return(dd_database_updated)
+      # returns flmd database
+      log_info("update_flmd_database complete")
+      return(flmd_database_updated)
       
     }
     
@@ -209,13 +205,13 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     
     user_input <- "N"
     
-    log_info(paste0("'", dd_filename, "' is NOT being added to the database."))
+    log_info(paste0("'", flmd_filename, "' is NOT being added to the database."))
     
-    return(dd_database)
+    log_info("update_flmd_database complete")
+    return(flmd_database)
     
   }
   
-  log_info("update_dd_database complete")
   
   
-} # end of update_dd_database() function
+} # end of update_flmd_database() function
