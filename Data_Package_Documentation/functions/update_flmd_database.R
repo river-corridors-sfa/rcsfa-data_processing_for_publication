@@ -12,10 +12,10 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
   # Inputs: 
     # flmd_abs_file = the absolute file path of the new flmd to add. Required argument.
     # date_published = the date when the associated data package became publicly available, formatted as YYYY-MM-DD. If you want today's date, then put "Sys.Date()". Required argument.
-    # flmd_database_abs_dir = the absolute file path of the flmd database; the csv needs the cols: File_Name, File_Description, date_published, flmd_filename, flmd_source. Required argument.
+    # flmd_database_abs_dir = the absolute file path of the flmd database; the csv needs the cols: index, File_Name, File_Description, date_published, flmd_filename, flmd_source. Required argument.
   
   # Output: 
-    # file_level_metadata_database.csv with the cols: File_Name, File_Description, date_published, flmd_filename, flmd_source
+    # file_level_metadata_database.csv with the cols: index, File_Name, File_Description, date_published, flmd_filename, flmd_source
   
   # Assumptions: 
     # By default it pulls data from these flmd cols: File_Name, File_Description
@@ -38,7 +38,8 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
   log_info("Reading in files.")
   
   # read in database
-  flmd_database <- read_csv(flmd_database_abs_dir, col_names = T, show_col_types = F, col_types = "ccDcc")
+  flmd_database <- read_csv(flmd_database_abs_dir, col_names = T, show_col_types = F, col_types = "iccDcc") %>% 
+    arrange(index)
   
   # read in current flmd
   current_flmd <- read_csv(flmd_abs_file, show_col_types = F)
@@ -52,7 +53,7 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
   # It confirms the date the user provided is in YYYY-MM-DD format and converts it to a date
   
   # confirm flmd_database has correct cols
-  database_required_cols <- c("File_Name", "File_Description", "date_published", "flmd_filename", "flmd_source")
+  database_required_cols <- c("index", "File_Name", "File_Description", "date_published", "flmd_filename", "flmd_source")
   
   if (!all(database_required_cols %in% names(flmd_database))) {
     
@@ -165,9 +166,19 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
   
   if (tolower(user_input) == "y") {
     
+    # identify where the indexing should pick up
+    if (nrow(flmd_database) == 0) {
+      # if there are no rows in the database, start at 0
+      max_index <- 0
+      } else {
+        # otherwise, identify the largest number in the index
+        max_index <- max(flmd_database$index, na.rm = TRUE)
+      }
+    
     # add additional database columns
     current_flmd_updated <- current_flmd %>% 
-      mutate(date_published = parsed_date_published,
+      mutate(index = (max_index + 1):(max_index + nrow(current_flmd)),
+             date_published = parsed_date_published,
              flmd_filename = flmd_filename,
              flmd_source = flmd_database_abs_dir)
     
