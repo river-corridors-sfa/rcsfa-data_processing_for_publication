@@ -218,4 +218,4 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   log_info("update_dd_database complete")
   
   
-}
+} # end of update_dd_database() function
