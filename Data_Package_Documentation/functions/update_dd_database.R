@@ -1,6 +1,6 @@
 ### update_dd_database.R #######################################################
 # Date Created: 2024-02-05
-# Date Updated: 2024-05-28
+# Date Updated: 2025-05-28
 # Author: Bibi Powers-McCormack
 
 ### FUNCTION ###################################################################
@@ -11,7 +11,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   
   # Inputs: 
     # dd_abs_file = the absolute file path of the new dd to add. Required argument.
-    # date_published = the date the data package the dd was associated with was published. Format is a character string in the YYYY-MM-DD format. If you want today's date, then put "as.character(Sys.Date())". Required argument.
+    # date_published = the date when the associated data package became publicly available, formatted as YYYY-MM-DD. If you want today's date, then put "Sys.Date()". Required argument.
     # dd_database_abs_dir = the absolute file path of the dd database; the csv needs the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source. Required argument.
 
   # Output: 
@@ -20,10 +20,11 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   # Assumptions: 
     # By default it pulls data from these dd cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
     # If one of those columns does not exist, it will populate that cell with NA
+    # If a file name appears more than once, the function will show the user and ask them to confirm they'd like to update the database
   
-  # Status: 
+  # Status: complete
     # v2 update: uploads a single dd at a time.
-    # v2.1 update
+    # v2.1 update: removed the log, added a date column to the database
   
   
   ### Prep script ##############################################################
@@ -32,20 +33,25 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   library(tidyverse)
   library(devtools)
   library(rlog)
-  
+  library(lubridate)
   
   ### Read in files ############################################################
   
   log_info("Reading in files.")
   
   # read in database
-  dd_database <- read_csv(dd_database_abs_dir, col_names = T, na = c("N/A", "-9999", "", "NA"), show_col_types = F)
+  dd_database <- read_csv(dd_database_abs_dir, col_names = T, show_col_types = F, col_types = "cccccDcc")
   
   # read in current dd
   current_dd <- read_csv(dd_abs_file, show_col_types = F)
   
   
   ### Validate inputs ##########################################################
+  # This chunk validates the input arguments. 
+  # It makes sure the database has cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+  # It grabs the following cols from the dd: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+  # If a col isn't present in the DD, it fills it in with NA
+  # It confirms the date the user provided is in YYYY-MM-DD format and converts it to a date
   
   # confirm dd_database has correct cols
   database_required_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "date_published", "dd_filename", "dd_source")
@@ -112,6 +118,13 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     
   } # end of checking dd cols
   
+  # confirm date_published is in date format
+  parsed_date_published <- ymd(date_published, quiet = TRUE)
+  
+  if (is.na(parsed_date_published)) {
+    stop("`date_published` must be in 'YYYY-MM-DD' format and convertible to a Date.")
+  }
+  
   # select required cols
   current_dd <- current_dd %>%
     select(Column_or_Row_Name,
@@ -157,11 +170,9 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   
   if (tolower(user_input) == "y") {
     
-    log_info("Adding your dd to the database.")
-    
     # add additional database columns
     current_dd_updated <- current_dd %>% 
-      mutate(date_published = date_published,
+      mutate(date_published = parsed_date_published,
              dd_filename = dd_filename,
              dd_source = dd_database_abs_dir)
     
