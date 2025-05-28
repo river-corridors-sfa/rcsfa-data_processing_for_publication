@@ -1,106 +1,141 @@
 ### update_dd_database.R #######################################################
 # Date Created: 2024-02-05
-# Date Updated: 2024-04-30
+# Date Updated: 2024-05-28
 # Author: Bibi Powers-McCormack
 
-# Objective: Add new entries to the data dictionary database.
-
-# Input: 
-# file name of new dd to add
-# data dictionary
-# data dictionary version log
-
-# Output: 
-# data_dictionary_database.csv
-# data_dictionary_database_version_log.csv
-
-# Assumptions: 
-# v2 update: uploads a single dd at a time.
-
-
 ### FUNCTION ###################################################################
-# Inputs: 
-# upload file path = location of where the file is currently saved 
-# (this may differ from archive_file_path when the archive location makes the file path too long (beyond 256 chrs))
-# archive file path, if different from upload = location of where the file is archived
 
-update_dd_database <- function(upload_file_path, archive_file_path = upload_file_path) {
+update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir) {
   
-  current_file_path <- archive_file_path
-  current_file_name <- basename(current_file_path)
+  # Objective: Add new entries to the data dictionary database.
   
-  ### Prep Script ##############################################################
+  # Inputs: 
+    # dd_abs_file = the absolute file path of the new dd to add. Required argument.
+    # date_published = the date the data package the dd was associated with was published. Format is a character string in the YYYY-MM-DD format. If you want today's date, then put "as.character(Sys.Date())". Required argument.
+    # dd_database_abs_dir = the absolute file path of the dd database; the csv needs the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source. Required argument.
+
+  # Output: 
+    # data_dictionary_database.csv with the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+    
+  # Assumptions: 
+    # By default it pulls data from these dd cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
+    # If one of those columns does not exist, it will populate that cell with NA
+  
+  # Status: 
+    # v2 update: uploads a single dd at a time.
+    # v2.1 update
+  
+  
+  ### Prep script ##############################################################
   
   # load libraries
   library(tidyverse)
+  library(devtools)
   library(rlog)
-  
-  # load helper functions
-  source("./Data_Transformation/functions/rename_column_headers.R")
-  
-  
-  ### Check for when file path is too long #####################################
-  # the file path will include "//?/" at the beginning if the file path is too long
-  # this chunk looks for that string, and if it finds it returns a warning and stops the function
-  
-  if (str_detect(upload_file_path, "//?/")) {
-    
-    log_warn("File path too long. Put dd on desktop and use as upload_file_path. Include long path as archive_file_path")
-    
-    return()
-    
-  }
   
   
   ### Read in files ############################################################
-  # Inputs: data_dictionary_database.csv, data_dictionary_database_version_log.csv, current file
   
-  log_info("Reading in dd and dd files.")
+  log_info("Reading in files.")
   
-  # read in dd database
-  ddd <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", show_col_types = F)
+  # read in database
+  dd_database <- read_csv(dd_database_abs_dir, col_names = T, na = c("N/A", "-9999", "", "NA"), show_col_types = F)
   
-  # read in version log
-  ddd_version_log <- read_csv("./Data_Package_Documentation/database/data_dictionary_database_version_log.csv", show_col_types = F)
+  # read in current dd
+  current_dd <- read_csv(dd_abs_file, show_col_types = F)
   
-  # read in current file
-  current_dd <- read_csv(upload_file_path, show_col_types = F)
   
-  # run it through rename_column_headers function to identify the 3 cols: Column_or_Row_Name, Unit, Definition
-  current_dd <- rename_column_headers(current_dd, c("Column_or_Row_Name", "Unit", "Definition")) %>%
+  ### Validate inputs ##########################################################
+  
+  # confirm dd_database has correct cols
+  database_required_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "date_published", "dd_filename", "dd_source")
+  
+  if (!all(database_required_cols %in% names(dd_database))) {
+    
+    # if files_df is missing required cols, error
+    log_error(paste0("dd database is missing required column: ", setdiff(database_required_cols, names(dd_database))))
+    stop("Function terminating.")
+  } # end of checking dd database required cols
+  
+  
+  # confirm dd has the correct cols
+  dd_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type")
+  
+  # if some cols are missing, ask the user before filling in the col with NA
+  if (!all(dd_cols %in% names(current_dd))) {
+    
+    log_warn("Not all dd columns are present in your dd.")
+    
+    # loop through each correct col and ask user if that col is present in the dd (under a different name)
+    for (i in seq_along(dd_cols)) {
+      
+      # get i-th current column
+      current_correct_col <- dd_cols[i]
+      
+      # check if correct col exists in current dd
+      if (!current_correct_col %in% names(current_dd)) { # if correct col doesn't exist in current dd...
+        
+        # print the current dd
+        print(head(current_dd))
+        cat("\n")
+        print(data.frame(dd_cols = names(current_dd)))
+        
+        # ask which column matches the current correct col
+        user_input <- readline(paste0("What row number is the column '", current_correct_col, "'? Enter 0 if column is not present. "))
+        
+        if (user_input > 0 & user_input <= (ncol(current_dd))) { #if the user entered a number...
+          
+          # get the name of the column from current dd that needs to be corrected
+          current_df_col_to_rename <- names(current_dd)[as.numeric(user_input)]
+            
+          
+          # rename the current column to the correct column
+          current_dd <- current_dd %>% 
+            rename_with(~ current_correct_col, .cols = current_df_col_to_rename)
+          
+        } else if (user_input == 0) { # else if the user said the column isn't present...
+          
+          # mutate the column on and make all cell values empty
+          current_dd <- current_dd %>% 
+            mutate(!!current_correct_col := NA)
+        } else (break)
+        
+      } else {
+        log_info("No changes needed to fix column headers.")
+      }
+      
+    } # end of loop through correct cols
+    
+    # arrange columns with corrects cols first, followed by all other columns
+    current_dd <- current_dd %>% 
+      select(all_of(dd_cols), everything())
+    
+  } # end of checking dd cols
+  
+  # select required cols
+  current_dd <- current_dd %>%
     select(Column_or_Row_Name,
            Unit,
-           Definition)
+           Definition,
+           Data_Type, 
+           Term_Type)
   
   log_info("All inputs loaded in.")
   
   # print number of new entries
-  log_info(paste0("Found ", nrow(current_dd), " headers in '", current_file_name, "'."))
-  
-  
-  ### Clean up file path #######################################################
-  # the file path will include "//?/" at the beginning if the file path is too long
-  # if this string is detected, this removes that part from the archive_file_path name
-  # this is so the database includes a cleaned up file path
-  
-  if (str_detect(current_file_path, "//?/")) {
-    
-    log_info("Removing '//?/' from archive_file_path name.")
-    
-    current_file_path <- str_remove(current_file_path, "^//\\?/") # ^ means the pattern should be at the start of the string, \ escapes the ?
-  }
-  
-  
-  
+  log_info(paste0("Found ", nrow(current_dd), " headers in '", dd_abs_file, "'."))
+
+
   ### Check for possible duplicates ############################################
   
+  dd_filename <- basename(dd_abs_file)
+  
   # searches the ddd for duplicate file names, asks if the user wants to continue
-  possible_duplicates <- ddd %>% 
-    filter(dd_filename == current_file_name) %>% 
+  possible_duplicates <- dd_database %>% 
+    filter(dd_filename == dd_filename) %>% 
     select(Column_or_Row_Name, dd_filename, dd_source) %>% 
     group_by(dd_filename, dd_source) %>% 
-    summarise(headers = toString(Column_or_Row_Name)) %>% 
-    ungroup() %>% 
+    summarise(headers = toString(Column_or_Row_Name), .groups = "drop") %>% 
     distinct()
   
   if (nrow(possible_duplicates) > 0) {
@@ -116,8 +151,7 @@ update_dd_database <- function(upload_file_path, archive_file_path = upload_file
     user_input <- "y"
   }
   
-  
-  ### Add current_dd to ddd ####################################################
+  ### Add to dd database #######################################################
   
   # if the user wants to add the dd...
   
@@ -127,24 +161,17 @@ update_dd_database <- function(upload_file_path, archive_file_path = upload_file
     
     # add additional database columns
     current_dd_updated <- current_dd %>% 
-      mutate(dd_filename = current_file_name,
-             dd_source = current_file_path,
-             dd_database_notes = NA_character_,
-             dd_database_archive = NA)
+      mutate(date_published = date_published,
+             dd_filename = dd_filename,
+             dd_source = dd_database_abs_dir)
     
     # add current dd to database
-    ddd_updated <- ddd %>% 
+    dd_database_updated <- dd_database %>% 
       add_row(current_dd_updated) %>% 
       arrange(Column_or_Row_Name, .locale = "en") # the .locale argument get it to sort alphabetically irrespective of capital/lowercase letters
-    
-    # create new row for version log
-    current_version_log <- data.frame(
-      date = Sys.Date(),
-      dd_source = current_file_path,
-      number_headers_added = nrow(current_dd_updated))
-    
-    ### Export out new version of dd database ####################################
-    
+  
+  ### Export out new database ##################################################
+  
     # ask to export
     user_input_export <- readline("Would you like to export the new version of the database? (Y/N) ")
     
@@ -152,19 +179,17 @@ update_dd_database <- function(upload_file_path, archive_file_path = upload_file
       
       log_info("Export terminated.")
       
+      return(dd_database)
+      
     } else if (tolower(user_input_export) == "y") {
-      
-      
-      # export updated version log
-      write_csv(current_version_log, "./Data_Package_Documentation/database/data_dictionary_database_version_log.csv", col_names = F, append = T)
-      
+    
       # export updated database
-      write_csv(ddd_updated, "./Data_Package_Documentation/database/data_dictionary_database.csv", col_names = TRUE, na = "")
+      write_csv(dd_database_updated, dd_database_abs_dir, col_names = TRUE)
       
-      log_info("Updated version log and exported out data_dictionary_database.csv.")
+      log_info("Updated data_dictionary_database.csv.")
       
       # returns dd database
-      return(ddd_updated)
+      return(dd_database_updated)
       
     }
     
@@ -173,12 +198,13 @@ update_dd_database <- function(upload_file_path, archive_file_path = upload_file
     
     user_input <- "N"
     
-    log_info(paste0("'", current_file_name, "' is NOT being added to the database."))
+    log_info(paste0("'", dd_filename, "' is NOT being added to the database."))
     
-    return(ddd)
+    return(dd_database)
     
   }
   
   log_info("update_dd_database complete")
+  
   
 }
