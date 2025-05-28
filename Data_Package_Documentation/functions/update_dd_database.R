@@ -232,3 +232,4 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   
   
 } # end of update_dd_database() function
+  
