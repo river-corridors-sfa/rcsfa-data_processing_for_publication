@@ -12,10 +12,10 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   # Inputs: 
     # dd_abs_file = the absolute file path of the new dd to add. Required argument.
     # date_published = the date when the associated data package became publicly available, formatted as YYYY-MM-DD. If you want today's date, then put "Sys.Date()". Required argument.
-    # dd_database_abs_dir = the absolute file path of the dd database; the csv needs the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source. Required argument.
+    # dd_database_abs_dir = the absolute file path of the dd database; the csv needs the cols: index, Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source. Required argument.
 
   # Output: 
-    # data_dictionary_database.csv with the cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+    # data_dictionary_database.csv with the cols: index, Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
     
   # Assumptions: 
     # By default it pulls data from these dd cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
@@ -41,7 +41,8 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   log_info("Reading in files.")
   
   # read in database
-  dd_database <- read_csv(dd_database_abs_dir, col_names = T, show_col_types = F, col_types = "cccccDcc")
+  dd_database <- read_csv(dd_database_abs_dir, col_names = T, show_col_types = F, col_types = "icccccDcc") %>% 
+    arrange(index)
   
   # read in current dd
   current_dd <- read_csv(dd_abs_file, show_col_types = F)
@@ -55,7 +56,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   # It confirms the date the user provided is in YYYY-MM-DD format and converts it to a date
   
   # confirm dd_database has correct cols
-  database_required_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "date_published", "dd_filename", "dd_source")
+  database_required_cols <- c("index", "Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "date_published", "dd_filename", "dd_source")
   
   if (!all(database_required_cols %in% names(dd_database))) {
     
@@ -171,9 +172,19 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   
   if (tolower(user_input) == "y") {
     
+    # identify where the indexing should pick up
+    if (nrow(dd_database) == 0) {
+      # if there are no rows in the database, start at 0
+      max_index <- 0
+    } else {
+      # otherwise, identify the largest number in the index
+      max_index <- max(dd_database$index, na.rm = TRUE)
+    }
+    
     # add additional database columns
     current_dd_updated <- current_dd %>% 
-      mutate(date_published = parsed_date_published,
+      mutate(index = (max_index + 1):(max_index+nrow(current_dd)),
+             date_published = parsed_date_published,
              dd_filename = dd_filename,
              dd_source = dd_database_abs_dir)
     
