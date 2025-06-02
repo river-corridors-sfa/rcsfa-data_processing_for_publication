@@ -473,6 +473,7 @@ create_flmd <- function(files_df, # required
                                 str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
                                 str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
                                 str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
+                                str_detect(File_Name, "IGSN_Mapping\\.csv$") ~ "ESS-DIVE Sample v1; ESS-DIVE CSV v1", # sample rf 
                                 T ~ "N/A"))
   
   
