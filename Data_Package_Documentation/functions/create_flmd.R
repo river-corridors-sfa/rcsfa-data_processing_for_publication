@@ -215,7 +215,7 @@ create_flmd <- function(files_df, # required
   # initialize df with file names and paths
   current_flmd_skeleton <- files_df %>% 
     mutate(File_Name = file,
-           File_Path = paste0(parent_dir, relative_dir),
+           File_Path = relative_dir,
            File_Description = NA_character_, 
            Standard = NA_character_,
            header_format = NA_character_) %>% # temporary column
