@@ -110,7 +110,7 @@ create_dd <- function(files_df,
     
     tabular_files <- files_df %>% 
       filter(str_detect(file, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
-      mutate(files_flmd_join = paste0(parent_dir, relative_dir, "/", file))
+      mutate(files_flmd_join = paste0(relative_dir, "/", file))
     
     # are the files listed in the files_df and flmd_df the same?
     are_equal <- setequal(tabular_files$files_flmd_join, tabular_flmd$files_flmd_join)
@@ -148,7 +148,7 @@ create_dd <- function(files_df,
       
       tabular_files <- files_df %>% 
         filter(str_detect(file, "\\.csv$|\\.tsv$")) %>% # filter for only tabular files
-        mutate(files_flmd_join = paste0(parent_dir, relative_dir, "/", file))
+        mutate(files_flmd_join = paste0(relative_dir, "/", file))
       
       tabular_flmd <- tabular_files %>% 
         mutate(Column_or_Row_Name_Position = 1) %>% 
@@ -184,7 +184,7 @@ create_dd <- function(files_df,
     
     # get abs file path
     current_file_absolute <- tabular_files_with_flmd[i, ] %>% 
-      mutate(abs = paste0(absolute_dir, files_flmd_join)) %>% 
+      mutate(abs = paste0(absolute_dir, parent_dir, files_flmd_join)) %>% 
       pull(abs)
     
     # get current join
@@ -311,6 +311,7 @@ create_dd <- function(files_df,
       .groups = "drop"
     ) %>%
     # if all values were NA for each column then it will return character(0), this converts it back to NA
+    mutate(Term_Type = case_when(Term_Type == "" ~ NA_character_, T ~ Term_Type)) %>% 
     mutate(across(c(Unit, Definition, Data_Type, Term_Type, Missing_Value_Code), 
                   ~case_when(length(.) == 0 ~ NA_character_,
                              TRUE ~ .))) %>% 
