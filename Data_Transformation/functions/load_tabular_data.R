@@ -132,7 +132,7 @@ load_tabular_data <- function(files_df,
       
       # clean up flmd by fixing file path and selecting only certain cols and only tabular files
       flmd_info <- flmd_df %>%
-        mutate(File_Path_Absolute = paste0(abs_directory, File_Path, "/", File_Name)) %>%
+        mutate(File_Path_Absolute = paste0(abs_directory, parent_directory, File_Path, "/", File_Name)) %>%
         mutate(Header_Rows = as.numeric(Header_Rows),
                Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>% 
         filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) %>% 
