@@ -304,7 +304,7 @@ create_dd <- function(files_df,
       Unit = first(na.omit(Unit)),
       Definition = first(na.omit(Definition)),
       Data_Type = first(na.omit(Data_Type)),
-      Term_Type = paste(Term_Type, collapse = ", "),
+      Term_Type = paste(na.omit(Term_Type), collapse = "; "),
       Missing_Value_Code = first(na.omit(Missing_Value_Code)),
       header_count = sum(header_count, na.rm = TRUE), # sum all files with given header
       associated_files = paste(associated_files, collapse = ", "), # for associated_files, concatenate with comma separator
