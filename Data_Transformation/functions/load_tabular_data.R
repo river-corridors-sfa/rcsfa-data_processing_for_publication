@@ -268,7 +268,7 @@ load_tabular_data <- function(files_df,
     # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
     while(current_data_start_row < 0) {
       
-      log_info("Asking for user input again because prevoius input included an invalid (negative) value. ")
+      log_info("Asking for user input again because previous input included an invalid (negative) value. ")
       
       current_data_start_row <- ask_user_input_data_start_row()
       
