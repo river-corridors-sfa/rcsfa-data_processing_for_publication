@@ -17,16 +17,16 @@ rm(list=ls(all=T))
 # Directions: Fill out the user inputs. Then run the chunk.
 
 # data package directory (provide absolute directory; do not include a "/" at the end)
-directory <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Barton_2025_Coastal_Fires_Levo/CoastalFires_Data_Package"
+directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/v2_RC2_TemporalStudy_2021-2022_SensorData"
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Barton_2025_Coastal_Fires_Levo"
+report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2"
 
 # do the tabular files have header rows? (T/F)
-user_input_has_header_rows <- T
+user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
 has_flmd <- F
@@ -84,8 +84,7 @@ if (has_flmd == T) {
 
 
 # 2. Load data
-data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows,
-                                                 exclude_files = )
+data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows)
 
 # preview data - this shows all the tabular data you loaded in so you can quickly check if it loaded in correctly without having to poke around in the nested lists
 invisible(lapply(names(data_package_data$tabular_data), function(name) {
