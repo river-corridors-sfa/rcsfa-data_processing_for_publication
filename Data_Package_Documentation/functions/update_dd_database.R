@@ -224,7 +224,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     
     log_info(paste0("'", dd_filename, "' is NOT being added to the database."))
     
-    log_info("update_dd_database complete")
+    log_info("update_dd_database() function complete")
     return(dd_database)
     
   }
