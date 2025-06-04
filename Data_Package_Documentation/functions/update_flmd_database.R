@@ -1,6 +1,6 @@
 ### update_flmd_database.R #####################################################
 # Date Created: 2024-02-02
-# Date Updated: 2025-05-28
+# Date Updated: 2025-06-04
 # Author: Bibi Powers-McCormack
 
 ### FUNCTION ###################################################################
@@ -213,8 +213,6 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     
     
   } else {
-    
-    user_input <- "N"
     
     log_info(paste0("'", flmd_filename, "' is NOT being added to the database."))
     

@@ -1,6 +1,6 @@
 ### update_dd_database.R #######################################################
 # Date Created: 2024-02-05
-# Date Updated: 2025-05-28
+# Date Updated: 2025-06-04
 # Author: Bibi Powers-McCormack
 
 ### FUNCTION ###################################################################
@@ -25,7 +25,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   
   # Status: complete
     # v2 update: uploads a single dd at a time.
-    # v2.1 update: removed the log, added a date column to the database
+    # v2.1 update: removed the log, added data and index columns to the database
   
   
   ### Prep script ##############################################################
@@ -219,8 +219,6 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     
     
   } else {
-    
-    user_input <- "N"
     
     log_info(paste0("'", dd_filename, "' is NOT being added to the database."))
     
