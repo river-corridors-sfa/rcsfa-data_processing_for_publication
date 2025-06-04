@@ -106,7 +106,7 @@ load_tabular_data <- function(files_df,
   
   if (query_header_info == F) {
     
-    # if the user indicated that all tabular files don't have header info, then assume data start = 2 and header position = 1 - which is the data being read in normally with read_csv()
+    # if the user indicated that all tabular files don't have header info (query_header_info = F), then assume data start = 2 and header position = 1 - which is the data being read in normally with read_csv()
     tabular_metadata <- tabular_metadata %>% 
       mutate(Header_Position = 1, 
              Data_Start_Row = 2)
@@ -149,9 +149,9 @@ load_tabular_data <- function(files_df,
       if (length(files_not_in_dir > 0 )) {
         log_warn(paste0("The following file is in the flmd but NOT in the directory: ", basename(files_not_in_dir)))
       }
-      
+
       # join flmd to dir df
-      tabular_metadata %>% 
+      tabular_metadata <- tabular_metadata %>% 
         left_join(flmd_info, join_by(all == File_Path_Absolute)) %>% 
         mutate(Header_Position = coalesce(Header_Position.x, Header_Position.y)) %>% 
         select(-c("Header_Position.x", "Header_Position.y", "File_Name"))
@@ -257,7 +257,7 @@ load_tabular_data <- function(files_df,
       
     }
     
-    log_info(paste0("Viewing tabular file ", j, " of ", nrow(current_df_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
+    log_info(paste0("Viewing tabular file ", j, " of ", nrow(tabular_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
     
     # show file
     View(current_df_metadata)
@@ -334,7 +334,7 @@ load_tabular_data <- function(files_df,
   } # end of loop that reads in each tabular file
 
 # return all data
-output <- list(inputs = list(directory = directory,
+output <- list(inputs = list(directory = abs_directory,
                              files_df = files_df,
                              flmd_df = flmd_df),
                outputs = list(header_row_info = tabular_metadata,
