@@ -193,16 +193,16 @@ test_that("expected typical inputs", {
 
 ### expected warnings ##########################################################
 
-test_that("expected warnings", {
-  
-  # 2025-05-14 note: using log_warn() instead of base R's warning(), so test_that
-  # is unable to run warning checks
-  
-  # warns when excluding files
-
-  # if tabular files are present and query_header_info = F, then warn the user that the Boye and Goldman standards (if applicable) need to be manually added to the FLMD
-  
-})
+# test_that("expected warnings", {
+#   
+#   # 2025-05-14 note: using log_warn() instead of base R's warning(), so test_that
+#   # is unable to run warning checks
+#   
+#   # warns when excluding files
+# 
+#   # if tabular files are present and query_header_info = F, then warn the user that the Boye and Goldman standards (if applicable) need to be manually added to the FLMD
+#   
+# })
 
 
 ### expected errors ############################################################

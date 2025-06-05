@@ -134,32 +134,32 @@ test_that("expected edge cases", {
 
 ### expected warnings ##########################################################
 
-test_that("expected warnings", {
-  
-  # create data
-  my_data_package_dir <- create_test_dir()
-  add_example_data(my_data_package_dir)
-  add_example_script(my_data_package_dir)
-  add_example_boye(my_data_package_dir)
-  add_example_goldman(my_data_package_dir)
-  
-  my_files <- get_files(directory = my_data_package_dir)
-  my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F)
-  
-  # 2025-05-14 note: removed R's base warning() code from function and replaced
-  # it with log_warn(). This means that the test_that expect_warning() tests no
-  # longer work - this is why they are commented out
-  
-  # warns if joining the flmd results in some files not matching up
-  # expect_warning(object = create_dd(files_df = my_files, flmd_df = my_flmd),
-  #                regexp = "Created the DD after user acknowledged possible discrepency between tabular files and FLMD.")
-  
-  # warns that function will assume no header rows are present if FLMD is not a data frame
-  # expect_warning(object = create_dd(files_df = my_files),
-  #                regexp = "Created the DD assuming headers are on the first row.")
-  
- 
-})
+# test_that("expected warnings", {
+#   
+#   # create data
+#   my_data_package_dir <- create_test_dir()
+#   add_example_data(my_data_package_dir)
+#   add_example_script(my_data_package_dir)
+#   add_example_boye(my_data_package_dir)
+#   add_example_goldman(my_data_package_dir)
+#   
+#   my_files <- get_files(directory = my_data_package_dir)
+#   my_flmd <- create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F)
+#   
+#   # 2025-05-14 note: removed R's base warning() code from function and replaced
+#   # it with log_warn(). This means that the test_that expect_warning() tests no
+#   # longer work - this is why they are commented out
+#   
+#   # warns if joining the flmd results in some files not matching up
+#   # expect_warning(object = create_dd(files_df = my_files, flmd_df = my_flmd),
+#   #                regexp = "Created the DD after user acknowledged possible discrepency between tabular files and FLMD.")
+#   
+#   # warns that function will assume no header rows are present if FLMD is not a data frame
+#   # expect_warning(object = create_dd(files_df = my_files),
+#   #                regexp = "Created the DD assuming headers are on the first row.")
+#   
+#  
+# })
 
 ### expected errors ############################################################
 
