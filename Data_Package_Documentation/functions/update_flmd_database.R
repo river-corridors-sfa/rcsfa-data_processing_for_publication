@@ -137,11 +137,11 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
   
   ### Check for possible duplicates ############################################
   
-  flmd_filename <- basename(flmd_abs_file)
+  flmd_file_base_name <- basename(flmd_abs_file)
   
   # searches the flmd database for duplicate file names, asks if the user wants to continue
   possible_duplicates <- flmd_database %>% 
-    filter(flmd_filename == flmd_filename) %>% 
+    filter(flmd_filename == flmd_file_base_name) %>% 
     select(File_Name, flmd_filename, flmd_source) %>% 
     group_by(flmd_filename, flmd_source) %>% 
     summarise(headers = toString(File_Name), .groups = "drop") %>% 
@@ -179,8 +179,8 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     current_flmd_updated <- current_flmd %>% 
       mutate(index = (max_index + 1):(max_index + nrow(current_flmd)),
              date_published = parsed_date_published,
-             flmd_filename = flmd_filename,
-             flmd_source = flmd_database_abs_dir)
+             flmd_filename = flmd_file_base_name,
+             flmd_source = flmd_abs_file)
     
     # add current flmd to database
     flmd_database_updated <- flmd_database %>% 

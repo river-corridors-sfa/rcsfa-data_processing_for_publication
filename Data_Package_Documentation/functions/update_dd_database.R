@@ -143,11 +143,11 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
 
   ### Check for possible duplicates ############################################
   
-  dd_filename <- basename(dd_abs_file)
+  dd_file_base_name <- basename(dd_abs_file)
   
   # searches the dd database for duplicate file names, asks if the user wants to continue
   possible_duplicates <- dd_database %>% 
-    filter(dd_filename == dd_filename) %>% 
+    filter(dd_filename == dd_file_base_name) %>% 
     select(Column_or_Row_Name, dd_filename, dd_source) %>% 
     group_by(dd_filename, dd_source) %>% 
     summarise(headers = toString(Column_or_Row_Name), .groups = "drop") %>% 
@@ -185,8 +185,8 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     current_dd_updated <- current_dd %>% 
       mutate(index = (max_index + 1):(max_index+nrow(current_dd)),
              date_published = parsed_date_published,
-             dd_filename = dd_filename,
-             dd_source = dd_database_abs_dir)
+             dd_filename = dd_file_base_name,
+             dd_source = dd_abs_file)
     
     # add current dd to database
     dd_database_updated <- dd_database %>% 
@@ -220,7 +220,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     
   } else {
     
-    log_info(paste0("'", dd_filename, "' is NOT being added to the database."))
+    log_info(paste0("'", dd_file_base_name, "' is NOT being added to the database."))
     
     log_info("update_dd_database() function complete")
     return(dd_database)
