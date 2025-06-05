@@ -107,6 +107,12 @@ test_that("expected typical inputs", {
                                                         "Parent_ID",  "Passed",  "Sample_Name", "Score", "Site_ID", "Temperature",
                                                         "value")))
   
+  # returns a tibble with the correct term type when placeholders are added
+  expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T, add_flmd_dd_headers = T, include_filenames = T) %>% filter(str_detect(associated_files, "\\bboye template\\b|\\bflmd template\\b|\\bdd template\\b")) %>% select(Column_or_Row_Name, Term_Type),
+               expected = tibble(Column_or_Row_Name = c("Analysis_DetectionLimit", "Analysis_Precision", "Column_or_Row_Name", "Column_or_Row_Name_Position", "Data_Status", "Data_Type", "Definition", "File_Description", "File_Name", "File_Path", "Header_Rows", "MethodID_Analysis", "MethodID_DataProcessing", "MethodID_Inspection", "MethodID_Preparation", "MethodID_Preservation", "MethodID_Storage", "Missing_Value_Code", "Standard", "Term_Type", "Unit", "Unit_Basis"),
+                                 Term_Type = c("row_header", "row_header", "column_header", "column_header", "row_header", "column_header", "column_header", "column_header", "column_header", "column_header", "column_header", "row_header", "row_header", "row_header", "row_header", "row_header", "row_header", "column_header", "column_header", "column_header", "row_header; column_header", "row_header")))
+  
+  
 
 })
 
