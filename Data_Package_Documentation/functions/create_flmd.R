@@ -469,11 +469,11 @@ create_flmd <- function(files_df, # required
     mutate(Standard = case_when(tolower(header_format) == "b" ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
                                 tolower(header_format) == "g" ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
                                 str_detect(File_Name, "Methods_Codes\\.csv$") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1", # boye rf
-                                str_detect(File_Name, "InstallationMethods\\.csv$") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
+                                str_detect(File_Name, "Installation_Methods\\.csv$") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1", # goldman rf
                                 str_detect(File_Name, "flmd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
                                 str_detect(File_Name, "dd\\.csv$") ~ "ESS-DIVE FLMD v1; ESS-DIVE CSV v1", # flmd rf
-                                str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
                                 str_detect(File_Name, "IGSN_Mapping\\.csv$") ~ "ESS-DIVE Sample v1; ESS-DIVE CSV v1", # sample rf 
+                                str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
                                 T ~ "N/A"))
   
   
