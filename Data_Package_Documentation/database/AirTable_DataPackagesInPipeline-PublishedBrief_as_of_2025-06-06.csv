@@ -1,0 +1,92 @@
+﻿Dataset Summary Title,Study Code,Link,RC/ST,Type,Material,Newly Added Data Types,Publish_Date,Keywords
+48 hour,48hr,-,RC4,Study,,,,
+Allison Veach AV1,AV1,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2529428,ECA,Study,"Water,Sediment","Minidot data,Raw FTICR,Processed FTICR,Respiration,C/N,Fe,Grain size,NPOC,TN,XRD",4/8/2025,Lab incubation respiration 
+Bob Danczak 48 hour manuscript,48hr,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2319037,RC4,Manuscript,,,3/6/2024,
+BSLE Processed OM (Myers-Pigg and Roebuck manuscripts),BSLE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2327028,RC3,Manuscript,,,6/12/2024,
+BSLE Processed OM v2 (Myers-Pigg and Roebuck manuscripts),BSLE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2327028,RC3,Manuscript,,,9/25/2024,
+BSLE Processed OM v3 (Myers-Pigg and Roebuck manuscripts),BSLE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2327028,RC3,Manuscript,,,1/16/2025,
+Burn Severity Experiments V1,BSLE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1894135,RC3,Study,"Water,Solid chars","NPOC,TN,Optics,Solid C/N,pH",10/21/2022,
+Burn Severity Experiments V2,BSLE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1894135,RC3,Study,"Water,Solid chars","Raw FTICR,BPCA,NMR",4/24/2023,
+Burn Severity Experiments V3,BSLE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1894135,RC3,Study,"Water,Solid chars","NMR,MBD,ICP,XANES",11/14/2023,
+Burn Severity Experiments V4,BSLE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1894135,RC3,Study,"Water,Solid chars","ICP,MBD,NMR,XANES,Isotopes",10/25/2024,
+Butler 2024 WT_WRF_Hydro,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2448101,RC1,Manuscript,,,2/20/2025,
+Butler 2024 WT_WRF_Hydro v2,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2448101,,Manuscript,,,5/14/2025,
+Cross-SFA geospatial data package v1,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1971251,All SFA,Study,N/A,Coordinates and COMIDs,4/26/2023,
+Cross-SFA geospatial data package v2,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1971251,All SFA,Study,N/A,Coordinates and COMIDs,6/5/2023,
+Cross-SFA geospatial data package v3,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1971251,All SFA,Study,N/A,Coordinates and COMIDs,12/14/2023,
+Cross-SFA geospatial data package v4,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1971251,All SFA,Study,N/A,Coordinates and COMIDs,1/27/2025,
+Disinfection Byproducts (Laura Leonard),DBP,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1969118 ,RC4,Study,Water,"NPOC,Raw FTICR,EEMs,DBP",4/11/2023,
+ECA 2020 Sediment manuscript,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2367553,ECA,Manuscript,,,5/29/2024,
+ECA Sediment,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1834208,ECA,Study,Sediment,"NPOC,TN,Raw FTICR,Moisture",,
+ECA wet/dry ICON-ModEx associated lab experiment data,EC,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2428003,ECA,Study,"Sediment,Water","time series moisture,Fe,SpC,Temperature,pH,NPOC,TN,C/N,IC,Raw FTICR,ATP,Respiration",8/9/2024,Lab incubation respiration 
+Evgueni Kassianov manuscript,,https://data.ess-dive.lbl.gov/view/doi:10.15485/2335802,RC1,Manuscript,,,4/10/2024,
+EWEB Dataset RC3,EWEB,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1869708,RC3,Study,Water,"NPOC,TN,Raw FTICR,Sensor",5/17/2022,
+EWEB Year 2,EWEB,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2478546,RC3,Study,Water,"EEMs,NPOC",11/25/2024,
+EWEB Year 2 Study DP (v2),EWEB,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2478546,RC3,Study,,BPCA,4/28/2025,
+Faria Zahura manuscript,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2205677,RC1,Manuscript,,Model data,11/14/2023,
+GROW ICR peak intensities and other processed data (Danczak)*,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2439202,RC4,Manuscript,,,9/18/2024,
+ICON-ModEx/SSS v1,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1923689,RC4,Study,"Water,Sediment","Minidot data,Grain size,NPOC,TN,Respiration",2/8/2023,Lab incubation respiration 
+ICON-ModEx/SSS v2,CM,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1923689,RC4,Study,"Water,Sediment",Fe,6/21/2023,Lab incubation respiration 
+ICON-ModEx/SSS v3,CM,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1923689,RC4,Study,"Water,Sediment",surface area,12/20/2023,Lab incubation respiration 
+ICON-ModEx/SSS v4,CM,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1923689,RC4,Study,"Water,Sediment","Moisture,IC,C/N,XRD",7/2/2024,Lab incubation respiration 
+ICON-ModEx/SSS v5,CM,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1923689,RC4,Study,"Water,Sediment","Raw FTICR,Processed FTICR,NPOC,TN",4/16/2025,
+Jake Cavaiani: meta-analysis of DOC and nitrate v2,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2319038,RC3,Manuscript,,,4/17/2025,
+Jake meta-analysis of DOC and nitrate*,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2319038,RC3,Manuscript,N/A,,3/7/2024,
+Jianqiu Zheng thermodynamics/bioenergetic manuscript*,,https://data.ess-dive.lbl.gov/view/doi:10.15485/2335801,RC1,Manuscript,,,4/10/2024,
+Jie Bao manuscript,,https://data.ess-dive.lbl.gov/view/doi:10.15485/2336865,RC1,Manuscript,,,4/15/2024,
+Katie Muller pipeline paper*,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2281403,RC1,Manuscript,N/A,"Model data,Processed ICR",2/21/2024,
+Katie Wampler: Thresholds,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2529445,RC3,Manuscript,,Model data,3/21/2025,
+Kevin Ryan WROL YRB OM Scaling v2,,https://data.ess-dive.lbl.gov/view/doi:10.15485/2406989,RC4,Manuscript,,Processed ICR,1/27/2025,
+Kyongho Denitrification,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1970527,,Manuscript,N/A,Model data,4/21/2023,
+Kyongho's Respiration Data Package,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1962818,RC2,Manuscript,N/A,Model data,3/23/2023,ERsed
+Mingjie Shi: Ecosystem Responses to Fire,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2507048,RC1,Manuscript,,Model data,3/17/2025,
+Morgan Barnes: BSLE P Gradient,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2547035,RC3,Manuscript,,,5/19/2025,
+Multireactor,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1985920,RC2,Manuscript,N/A,Sensor,6/21/2023,
+Open source sensor accuracy,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1971118,RC2,Manuscript,N/A,Sensor,4/24/2023,
+Peter D50 2021 Spatial Study,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1972232,RC2,Manuscript,Sediment,"DIC,D50",5/4/2023,
+Peter Regier: Scaling,,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2527349,RC2,Manuscript,,,4/4/2025,
+RMP photos,RMP,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2319247,RC2,Study,N/A,Game Camera Photos,3/12/2024,
+S19S Sediment v1,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1729719,RC4,Study,Sediment,"Raw FTICR,NPOC,Respiration",,Lab incubation respiration 
+S19S Sediment v3 XRF (will be added to existing dataset),S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1729719,RC4,Study,Sediment,XRF,11/11/2022,Lab incubation respiration 
+S19S Sediment v4 Particle Size,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1729719,RC4,Study,Sediment,Grain size,1/9/2023,Lab incubation respiration 
+S19S Sediment v5 C/N ,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1729719,RC4,Study,Sediment,C/N,1/9/2023,Lab incubation respiration 
+S19S Sediment v6 Bacterial Abundance,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1729719,RC4,Study,Sediment,Flow cytometry,1/31/2023,Lab incubation respiration 
+S19S Sediment v7 IRMS,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1729719,RC4,Study,Sediment,IRMS,3/3/2023,Lab incubation respiration 
+S19S Sediment v8,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1729719,RC4,Study,Sediment,Respiration,9/1/2023,Lab incubation respiration 
+S19S Surface Water v1,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1603775,RC4,Study,Water,"Raw FTICR,NPOC,TN,IC",,
+S19S Surface Water v4 Bacterial Abundance,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1603775,RC4,Study,Water,Flow cytometry,2/1/2023,
+S19S Surface Water v5 DIC,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1603775,RC4,Study,Water,DIC,3/3/2023,
+S19S SW v6,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1603775,RC4,Study,Water,,9/1/2023,
+S19S XRF/ICR,S19S,https://data.ess-dive.lbl.gov/view/doi:10.15485/2246724,RC4,Manuscript,,C/N,12/22/2023,
+Sarah Roley,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1985922,RC2,Manuscript,N/A,"Sensor,Stream Metabolizer model data",6/21/2023,ERtot
+Schneider Springs,SSF,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2205676,RC3,Study,Water,"NPOC,TN,TSS,Sensor,Depth",11/14/2023,ERwc
+Spatial Study 2021 Sample Data from RC2,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898914,RC2,Study,Water,"IC,NPOC,TN,Raw FTICR,DIC,TSS",11/11/2022,
+Spatial Study 2021 Sample v2 (update NPOC/TN and DIC) ,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898914,RC2,Study,Water,,5/19/2023,
+Spatial Study 2021 Sample v3 ,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898914,RC2,Study,Water,"BPCA,BPCA isotopes",11/25/2024,
+Spatial Study 2021 Sensor Data,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1892052,RC2,Study,N/A,Sensor,10/14/2022,ERwc
+Spatial Study 2021 Sensor Data v2 (add NRMSE),SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1892052,RC2,Study,N/A,,1/19/2023,ERwc
+Spatial Study 2021 Sensor Data v3,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1892052,RC2,Study,N/A,Sensor,7/2/2024,
+Spatial Study 2021 Water Column Respiration ,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2283171,RC2,Manuscript,Water,,1/31/2024,ERwc
+Spatial Study 2022 v1 (extra data not in ICON-ModEx),SSS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1969566,RC2,Study,N/A,"TSS,Sensor,Depth",4/14/2023,ERwc
+Spatial Study 2022 v2,SSS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1969566,RC2,Study,N/A,,9/20/2023,ERwc
+Spatial Study 2022 v3,SSS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1969566,RC2,Study,Water,Sensor,10/22/2024,
+SPE FTICR & EEMs comparison,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1995543,RC2,Manuscript,Water,"NPOC,Optics,Processed ICR",8/18/2023,
+SSS Stream metabolizer (ERsed),SSS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1987520,RC2,Study,N/A,"Stream Metabolizer model data,Sensor",6/29/2023,"ERsed,ERtot,ERwc"
+St Lawrence Water,STL,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898913,RC4,Study,"Water,Filter","NPOC,Raw FTICR",11/11/2022,
+St Lawrence Water v2,STL,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898913,RC4,Study,"Water,Filter",,4/21/2025,
+Svalbard (YDE) 22,YDE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1969114,RC4,Study,Water,"NPOC,Raw FTICR",4/11/2023,
+Svalbard Water and Sediment,YDE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1888571,RC4,Study,"Water,Sediment","NPOC,Raw FTICR",9/23/2022,
+Svalbard YDE21 7T ICR data,YDE,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1888571,RC4,Study,"Water,Sediment",Raw FTICR,4/4/2023,
+Temporal 2022-2024 Sample data,RC2,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2562910,RC2,Study,Water,"NPOC,TN,DIC,TSS,Isotopes",4/28/2025,
+Temporal Study 2021/2022 Sample Data,RC2,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898912,RC2,Study,Water,"IC,DIC,NPOC,TN,Raw FTICR,TSS",11/21/2022,
+Temporal Study 2021/2022 Sample Data v2,RC2,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898912,RC2,Study,Water,,11/7/2023,
+Temporal Study 2021/2022 Sample Data v3,RC2,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1898912,RC2,Study,Water,,4/28/2025,
+Temporal Study 2021/2022 Sensor Data,RC2,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1892054,RC2,Study,N/A,Sensor,10/14/2022,
+Tim and Stefan's ICON-ModEx*,S19S,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2318723,RC4,Manuscript,Sediment,Model data,3/8/2024,
+Wenas Creek Monthly Sampling (Lab Analyses Only); maybe also sensor,YRBT,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1991624,RC3,Study,Water,"NPOC,TN,TSS,Sensor",7/21/2023,
+WROL + YRB OM scaling via Kevin Ryan*,WROL,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2406989,RC4,Manuscript,,Processed ICR,9/3/2024,
+WROL 2019/2020,WROL,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1895159,RC4,Study,Water,"NPOC,Raw FTICR",10/28/2022,
+WROL v2: site coords correction (EAS-PUM). See geospatial data package,WROL,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1895159,RC4,Study,Water,"NPOC,Raw FTICR",7/12/2023,
+WROL v3,WROL,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1895159,RC4,Study,Water,,11/7/2023,
+Yunxiang D50 YOLO,SPS,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/1999774,RC2,Manuscript,N/A,D50,10/9/2023,
+Zhi Li manuscript,N/A,https://data.ess-dive.lbl.gov/datasets/doi:10.15485/2006549,RC1,Manuscript,N/A,Model data,10/2/2023,
