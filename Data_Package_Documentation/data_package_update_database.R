@@ -17,10 +17,10 @@ my_dd <- ""
 my_flmd <- ""
 
 # absolute file path of the DD database
-dd_database <- ""
+dd_database_dir <- ""
 
 # absolute file path of the FLMD database
-flmd_database <- ""
+flmd_database_dir <- ""
 
 
 ### Prep Script ################################################################
@@ -50,13 +50,13 @@ source("./Data_Package_Documentation/functions/update_flmd_database.R")
 # 1. Update DD database
 dd_database <- update_dd_database(dd_abs_file = my_dd, 
                                   date_published = my_publish_date, 
-                                  dd_database_abs_dir = dd_database)
+                                  dd_database_abs_dir = dd_database_dir)
 
 
 # 2. Update FLMD database
 flmd_database <- update_flmd_database(flmd_abs_file = my_flmd,
                                       date_published = my_publish_date, 
-                                      flmd_database_abs_dir = flmd_database)
+                                      flmd_database_abs_dir = flmd_database_dir)
 
 # 3. Optionally view databases
 View(dd_database)
