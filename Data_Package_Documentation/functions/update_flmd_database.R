@@ -1,6 +1,6 @@
 ### update_flmd_database.R #####################################################
 # Date Created: 2024-02-02
-# Date Updated: 2025-06-04
+# Date Updated: 2025-06-06
 # Author: Bibi Powers-McCormack
 
 ### FUNCTION ###################################################################
@@ -24,6 +24,7 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     # In the database, title case columns are ones from the FLMD; lower case are database metadata cols.
   
   # Status: complete
+    # Code written by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-05.
   
   ### Prep script ##############################################################
   
@@ -59,7 +60,7 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     
     # if files_df is missing required cols, error
     log_error(paste0("flmd database is missing required column: ", setdiff(database_required_cols, names(flmd_database))))
-    stop("Function terminating.")
+    stop("update_flmd_database() function terminating.")
   } # end of checking flmd database required cols
   
   
@@ -195,7 +196,7 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     if (tolower(user_input_export) == "n") {
       
       log_info("Export terminated.")
-      log_info("update_flmd_database complete")
+      log_info("update_flmd_database() function complete")
       return(flmd_database)
       
     } else if (tolower(user_input_export) == "y") {
@@ -203,10 +204,10 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
       # export updated database
       write_csv(flmd_database_updated, flmd_database_abs_dir, col_names = TRUE)
       
-      log_info("Updated data_dictionary_database.csv.")
+      log_info("Updated file_level_metadata_database.csv.")
       
       # returns flmd database
-      log_info("update_flmd_database complete")
+      log_info("update_flmd_database() function complete")
       return(flmd_database_updated)
       
     }
@@ -216,7 +217,7 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     
     log_info(paste0("'", flmd_filename, "' is NOT being added to the database."))
     
-    log_info("update_flmd_database complete")
+    log_info("update_flmd_database() function complete")
     return(flmd_database)
     
   }

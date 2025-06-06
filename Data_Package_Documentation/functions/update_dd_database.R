@@ -1,6 +1,6 @@
 ### update_dd_database.R #######################################################
 # Date Created: 2024-02-05
-# Date Updated: 2025-06-04
+# Date Updated: 2025-06-06
 # Author: Bibi Powers-McCormack
 
 ### FUNCTION ###################################################################
@@ -20,12 +20,12 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   # Assumptions: 
     # By default it pulls data from these dd cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
     # If one of those columns does not exist, it will populate that cell with NA
-    # If a file name appears more than once, the function will show the user and ask them to confirm they'd like to update the database
+    # If a file name appears more than once, the function will show the user and ask them to confirm they'd like to update the database. This is only comparing file name (not file path), so if a dd is generically named (like dd.csv) you may still want to add it to the DD database. 
     # In the database, title case columns are ones from the DD; lower case are database metadata cols.
   
   # Status: complete
-    # v2 update: uploads a single dd at a time.
-    # v2.1 update: removed the log, added data and index columns to the database
+    # v2 update: uploads a single dd at a time. Code written by Bibi Powers-McCormack. Was never reviewed or used; useful edits were carried into v2.1. 
+    # v2.1 update: removed the log, added data and index columns to the database. Code written by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-05.
   
   
   ### Prep script ##############################################################
@@ -41,7 +41,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   log_info("Reading in files.")
   
   # read in database
-  dd_database <- read_csv(dd_database_abs_dir, col_names = T, show_col_types = F, col_types = "icccccDcc") %>% 
+  dd_database <- read_csv(dd_database_abs_dir, col_names = T, show_col_types = F, col_types = "icccccDcc") %>% # the col types argument tells the function what col types (chr, int, date) to use
     arrange(index)
   
   # read in current dd
@@ -62,7 +62,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     
     # if files_df is missing required cols, error
     log_error(paste0("dd database is missing required column: ", setdiff(database_required_cols, names(dd_database))))
-    stop("Function terminating.")
+    stop("update_dd_database() function terminating")
   } # end of checking dd database required cols
   
   
@@ -201,7 +201,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
     if (tolower(user_input_export) == "n") {
       
       log_info("Export terminated.")
-      log_info("update_dd_database complete")
+      log_info("update_dd_database() function complete")
       return(dd_database)
       
     } else if (tolower(user_input_export) == "y") {
@@ -212,7 +212,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
       log_info("Updated data_dictionary_database.csv.")
       
       # returns dd database
-      log_info("update_dd_database complete")
+      log_info("update_dd_database() function complete")
       return(dd_database_updated)
       
     }
