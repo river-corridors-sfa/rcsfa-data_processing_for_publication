@@ -215,7 +215,7 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     
   } else {
     
-    log_info(paste0("'", flmd_filename, "' is NOT being added to the database."))
+    log_info(paste0("'", flmd_file_base_name, "' is NOT being added to the database."))
     
     log_info("update_flmd_database() function complete")
     return(flmd_database)
