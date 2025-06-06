@@ -40,8 +40,7 @@ filtered <- all_files %>%
   filter(!str_detect(sans_dir, 'prelim_dd.csv'))%>%
   filter(!str_detect(sans_dir, 'prelim_flmd.csv')) %>%
   filter(sans_dir != '/SSS_Data_Package_v3/v2_SSS_dd.csv') %>%
-  mutate(date_file_modified = as.Date(file.info(archived_dd_flmd)$mtime),
-        date_published_airtable = "")
+  mutate(date_file_modified = as.Date(file.info(archived_dd_flmd)$mtime))
 
 
 anti <- anti_join(all_files, filtered)
