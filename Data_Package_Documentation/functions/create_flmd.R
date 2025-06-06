@@ -1,6 +1,6 @@
 ### create_flmd.R ##############################################################
 # Date Created: 2024-06-14
-# Date Updated: 2025-06-05
+# Date Updated: 2025-06-06
 # Author: Bibi Powers-McCormack
 
 # This script contains the functions for creating FLMDs. 
@@ -66,7 +66,7 @@ get_files <- function(directory, # required
   ### List Files ###############################################################
   
   # get parent directory
-  current_parent_directory <- sub(".*/", "/", directory)
+  current_parent_directory <- paste0("/", basename(directory))
   
   # get all file paths
   log_info("Getting file paths from directory.")
@@ -97,11 +97,10 @@ get_files <- function(directory, # required
   
   # add all files to df
   files <- tibble(all = current_file_paths) %>% 
-    mutate(absolute_dir = str_remove(all, str_c(current_parent_directory, ".*$")),
-           parent_dir = current_parent_directory,
-           relative_dir = str_remove(dirname(all), absolute_dir) %>% 
-             str_remove(paste0("^", parent_dir)),
-           file = basename(all))
+    mutate(absolute_dir = str_remove(directory, paste0("/", basename(directory))), # this is everything in the abs dir before the parent_dir
+           parent_dir = current_parent_directory, # this is the last dir in the directory
+           relative_dir = str_remove(dirname(all), directory), # any dirs after (relative to) the directory
+           file = basename(all)) # the name of the file
   
   ### Return df ################################################################
   log_info("get_files() complete.")
@@ -215,7 +214,7 @@ create_flmd <- function(files_df, # required
   # initialize df with file names and paths
   current_flmd_skeleton <- files_df %>% 
     mutate(File_Name = file,
-           File_Path = relative_dir,
+           File_Path = paste0(parent_dir, relative_dir),
            File_Description = NA_character_, 
            Standard = NA_character_,
            header_format = NA_character_) %>% # temporary column

@@ -1,4 +1,4 @@
-# test-create_flmd_skeleton_v2.R ###############################################
+# test-create_flmd.R ###########################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-04-24
 # Date Updated: 2025-06-05
@@ -120,7 +120,7 @@ test_that("expected typical inputs", {
                                              File_Name %in% c("example_boye.csv") ~ "ESS-DIVE Water-Soil-Sediment Chem v1; ESS-DIVE CSV v1",
                                              File_Name %in% c("example_goldman.csv") ~ "ESS-DIVE Hydrologic Monitoring v1; ESS-DIVE CSV v1")))
 
-  
+
   # add data files with header rows
   add_example_data_with_header_rows(my_data_package_dir)
   my_files <- get_files(directory = my_data_package_dir)
