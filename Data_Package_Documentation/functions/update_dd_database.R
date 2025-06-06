@@ -1,197 +1,233 @@
 ### update_dd_database.R #######################################################
 # Date Created: 2024-02-05
+# Date Updated: 2025-06-06
 # Author: Bibi Powers-McCormack
-
-# Objective: Add new entries to the data dictionary database.
-
-# Input: 
-  # directory of new dds to add
-
-# Output: 
-  # data_dictionary_database.csv
-
-# Assumptions: 
-  # assumes all data dictionaries (and no other files) end in this pattern: "*_dd.csv" and that all file names are unique.
-
 
 ### FUNCTION ###################################################################
 
-update_dd_database <- function(directory) {
+update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir) {
   
-  current_directory <- directory
+  # Objective: Add new entries to the data dictionary database.
   
-  # ensure the base directory ends with "/"
-  current_directory <- ifelse(substr(current_directory, nchar(current_directory), nchar(current_directory)) == "/", 
-                              current_directory, paste0(current_directory, "/"))
+  # Inputs: 
+    # dd_abs_file = the absolute file path of the new dd to add. Required argument.
+    # date_published = the date when the associated data package became publicly available, formatted as YYYY-MM-DD. If you want today's date, then put "Sys.Date()". Required argument.
+    # dd_database_abs_dir = the absolute file path of the dd database; the csv needs the cols: index, Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source. Required argument.
+
+  # Output: 
+    # data_dictionary_database.csv with the cols: index, Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+    
+  # Assumptions: 
+    # By default it pulls data from these dd cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
+    # If one of those columns does not exist, it will populate that cell with NA
+    # If a file name appears more than once, the function will show the user and ask them to confirm they'd like to update the database. This is only comparing file name (not file path), so if a dd is generically named (like dd.csv) you may still want to add it to the DD database. 
+    # In the database, title case columns are ones from the DD; lower case are database metadata cols.
   
-  ### Prep Script ##############################################################
+  # Status: complete
+    # v2 update: uploads a single dd at a time. Code written by Bibi Powers-McCormack. Was never reviewed or used; useful edits were carried into v2.1. 
+    # v2.1 update: removed the log, added data and index columns to the database. Code written by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-05.
+  
+  
+  ### Prep script ##############################################################
   
   # load libraries
   library(tidyverse)
+  library(devtools)
   library(rlog)
-  
-  # load helper functions
-  source("./Data_Transformation/functions/rename_column_headers.R")
-  
+  library(lubridate)
   
   ### Read in files ############################################################
   
-  # read in dd database
-  ddd <- read_csv("./Data_Package_Documentation/database/data_dictionary_database.csv", comment = "#", show_col_types = F) %>% 
-    mutate(status = "currently in dd")
+  log_info("Reading in files.")
   
-  # get list of dds to add
-  dd_filenames <- list.files((current_directory), pattern = "_dd.csv", recursive = T)
+  # read in database
+  dd_database <- read_csv(dd_database_abs_dir, col_names = T, show_col_types = F, col_types = "icccccDcc") %>% # the col types argument tells the function what col types (chr, int, date) to use
+    arrange(index)
+  
+  # read in current dd
+  current_dd <- read_csv(dd_abs_file, show_col_types = F)
+  
+  
+  ### Validate inputs ##########################################################
+  # This chunk validates the input arguments. 
+  # It makes sure the database has cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+  # It grabs the following cols from the dd: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+  # If a col isn't present in the DD, it fills it in with NA
+  # It confirms the date the user provided is in YYYY-MM-DD format and converts it to a date
+  
+  # confirm dd_database has correct cols
+  database_required_cols <- c("index", "Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "date_published", "dd_filename", "dd_source")
+  
+  if (!all(database_required_cols %in% names(dd_database))) {
+    
+    # if files_df is missing required cols, error
+    log_error(paste0("dd database is missing required column: ", setdiff(database_required_cols, names(dd_database))))
+    stop("update_dd_database() function terminating")
+  } # end of checking dd database required cols
+  
+  
+  # confirm dd has the correct cols
+  dd_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type")
+  
+  # if some cols are missing, ask the user before filling in the col with NA
+  if (!all(dd_cols %in% names(current_dd))) {
+    
+    log_warn("Not all dd columns are present in your dd.")
+    
+    # loop through each correct col and ask user if that col is present in the dd (under a different name)
+    for (i in seq_along(dd_cols)) {
+      
+      # get i-th current column
+      current_correct_col <- dd_cols[i]
+      
+      # check if correct col exists in current dd
+      if (!current_correct_col %in% names(current_dd)) { # if correct col doesn't exist in current dd...
+        
+        # print the current dd
+        print(head(current_dd))
+        cat("\n")
+        print(data.frame(dd_cols = names(current_dd)))
+        
+        # ask which column matches the current correct col
+        user_input <- readline(paste0("What row number is the column '", current_correct_col, "'? Enter 0 if column is not present. "))
+        
+        if (user_input > 0 & user_input <= (ncol(current_dd))) { #if the user entered a number...
+          
+          # get the name of the column from current dd that needs to be corrected
+          current_df_col_to_rename <- names(current_dd)[as.numeric(user_input)]
+            
+          
+          # rename the current column to the correct column
+          current_dd <- current_dd %>% 
+            rename_with(~ current_correct_col, .cols = current_df_col_to_rename)
+          
+        } else if (user_input == 0) { # else if the user said the column isn't present...
+          
+          # mutate the column on and make all cell values empty
+          current_dd <- current_dd %>% 
+            mutate(!!current_correct_col := NA)
+        } else (break)
+        
+      } else {
+        log_info("No changes needed to fix column headers.")
+      }
+      
+    } # end of loop through correct cols
+    
+    # arrange columns with corrects cols first, followed by all other columns
+    current_dd <- current_dd %>% 
+      select(all_of(dd_cols), everything())
+    
+  } # end of checking dd cols
+  
+  # confirm date_published is in date format
+  parsed_date_published <- ymd(date_published, quiet = TRUE)
+  
+  if (is.na(parsed_date_published)) {
+    stop("`date_published` must be in 'YYYY-MM-DD' format and convertible to a Date.")
+  }
+  
+  # select required cols
+  current_dd <- current_dd %>%
+    select(Column_or_Row_Name,
+           Unit,
+           Definition,
+           Data_Type, 
+           Term_Type)
   
   log_info("All inputs loaded in.")
   
-  # initialize empty df
-  new_dd_to_add <- data.frame()
-  
-  log_info("Reading in files.")
-  
-  for (i in 1:length(dd_filenames)) {
-    
-    # get current file name
-    current_file_name <- dd_filenames[i]
-    
-    log_info(paste0("Reading in file ", i , " of ", length(dd_filenames), ": ", current_file_name))
-    
-    # read in current file
-    current_dd <- read_csv(paste0(current_directory, current_file_name), show_col_types = F)
-    
-    log_info("Checking and fixing column header discrepancies.")
-    
-    # run it through rename_column_headers function
-    current_dd <- rename_column_headers(current_dd, c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type")) %>%
-      select(Column_or_Row_Name,
-             Unit,
-             Definition,
-             Data_Type,
-             Term_Type)
-    
-    # add file name to df
-    current_dd <- current_dd %>% 
-      mutate(dd_filename = basename(current_file_name))
-    
-    # add to skeleton df
-    new_dd_to_add <- new_dd_to_add %>% 
-      rbind(current_dd)
-  }
-  
-  # add archive col to new_to_add
-  new_dd_to_add <- new_dd_to_add %>% 
-    mutate(dd_database_archive = NA_character_) %>% 
-    mutate(status = "new to add to ddd")
-  
-  # print number of new entries per new dd file to add
-  count(new_dd_to_add, dd_filename, name = "count_of_new_headers_to_add")
-  
-  log_info(paste0("Planning to add ", count(new_dd_to_add), " headers from ", length(dd_filenames), " data dictionary files."))
-  
-  
-  ### Add new_to_add to ddd ####################################################
-  # If the entry is not an identical duplicate, it adds the entry to the ddd
-  
-  for (i in 1:nrow(new_dd_to_add)) {
-    # loops through each header in the new to add df
-    current_row <- new_dd_to_add[i, ]
-    current_header <- current_row[, "Column_or_Row_Name"]
-    current_file <- current_row[, "dd_filename"]
-    
-    # checks to see if an identical duplicate exists in the database
-    check_for_identical_duplicate <- ddd %>% 
-      filter(.$dd_filename == current_file$dd_filename, 
-             .$Column_or_Row_Name == current_row$Column_or_Row_Name, 
-             .$Definition == current_row$Definition,
-             .$Unit == current_row$Unit,
-             .$Data_Type == current_row$Data_Type,
-             .$Term_Type == current_row$Term_Type)
-    
-      if (nrow(check_for_identical_duplicate) > 0) {
-        
-        # if there is a duplicate, remove from new_to_add df
-        new_dd_to_add <- new_dd_to_add %>%
-          filter(.$Column_or_Row_Name != current_header$Column_or_Row_Name)
-        
-        log_info(paste0("Removed because an identical copy already exists in ddd: '", current_file$dd_filename, "' --- ", current_header$Column_or_Row_Name))
-      }
-  }
-  
-  # add new_to_add to ddd
-  ddd <- ddd %>% 
-    rbind(., new_dd_to_add)
-  
-  log_info(paste0("Added ", nrow(new_dd_to_add), " new headers to the dd database."))
-  
-  
-  ### Clean up ddd #############################################################
-  
-  ddd <- ddd %>% 
-    select(-status) %>% 
-    arrange(Column_or_Row_Name) %>% 
-    filter(!is.na(Column_or_Row_Name)) %>% 
-    filter(Column_or_Row_Name != "")
-  
-  ### Export out new version of dd database ####################################
-  
-  # update version number
-  version <- read_csv(paste0("./Data_Package_Documentation/database/data_dictionary_database.csv"), n_max = 1, col_names = FALSE, show_col_types = F)
-  
-  update_version <- version$X2 + 1
-  
-  version_header <- tibble("# version", update_version)
-  
-  log_info(paste0("Incrementing up dd database version number from v", update_version - 1, " to v", update_version))
-  
-  # ask to export
-  
-  user_input <- readline("Would you like to export the new version of the database? (Y/N) ")
-  
-  if (tolower(user_input) == "n") {
-    
-    log_info("Export terminated.")
-    
-  } else if (tolower(user_input) == "y") {
-    
-    # update database version log
-    
-    # collect values
-    date <- Sys.Date()
-    database <- "dd"
-    dd_files <- new_dd_to_add %>% 
-      select(dd_filename) %>% 
-      distinct() %>% 
-      pull() %>% 
-      paste(., collapse = ", ")
-    note <- paste0("Added ", nrow(new_dd_to_add), " headers from the following dd files: ", dd_files)
-    
-    # create row to append to log
-    update_version_log <- data.frame(
-      Date = date,
-      Version = update_version,
-      Database = database,
-      Note = note
-    )
-    
-    # update log
-    write_csv(update_version_log, "./Data_Package_Documentation/database/database_version_log.csv", col_names = F, append = T)
-    
-    
-    # export database
-    write_csv(version_header, "./Data_Package_Documentation/database/data_dictionary_database.csv", col_names = FALSE)
+  # print number of new entries
+  log_info(paste0("Found ", nrow(current_dd), " headers in '", dd_abs_file, "'."))
 
-    write_csv(ddd, "./Data_Package_Documentation/database/data_dictionary_database.csv", col_names = TRUE, append = TRUE, na = "")
+
+  ### Check for possible duplicates ############################################
+  
+  dd_file_base_name <- basename(dd_abs_file)
+  
+  # searches the dd database for duplicate file names, asks if the user wants to continue
+  possible_duplicates <- dd_database %>% 
+    filter(dd_filename == dd_file_base_name) %>% 
+    select(Column_or_Row_Name, dd_filename, dd_source) %>% 
+    group_by(dd_filename, dd_source) %>% 
+    summarise(headers = toString(Column_or_Row_Name), .groups = "drop") %>% 
+    distinct()
+  
+  if (nrow(possible_duplicates) > 0) {
     
-    log_info(paste0("Updated version log and exported out data_dictionary_database.csv."))
-    log_info(paste0("v", update_version, ": ", note))
+    log_info("This file name is already in the database. Showing possible duplicates: ")
+    
+    # show user possible duplicates - this shows a df listing the duplicates with their source and a concatenated list of headers
+    View(possible_duplicates)
+    
+    user_input <- readline(prompt = "Do you want to add your dd to the database? (enter Y/N): ")
+    
+  } else {
+    user_input <- "y"
+  }
+  
+  ### Add to dd database #######################################################
+  
+  # if the user wants to add the dd...
+  
+  if (tolower(user_input) == "y") {
+    
+    # identify where the indexing should pick up
+    if (nrow(dd_database) == 0) {
+      # if there are no rows in the database, start at 0
+      max_index <- 0
+    } else {
+      # otherwise, identify the largest number in the index
+      max_index <- max(dd_database$index, na.rm = TRUE)
+    }
+    
+    # add additional database columns
+    current_dd_updated <- current_dd %>% 
+      mutate(index = (max_index + 1):(max_index+nrow(current_dd)),
+             date_published = parsed_date_published,
+             dd_filename = dd_file_base_name,
+             dd_source = dd_abs_file)
+    
+    # add current dd to database
+    dd_database_updated <- dd_database %>% 
+      add_row(current_dd_updated) %>% 
+      arrange(Column_or_Row_Name, .locale = "en") # the .locale argument get it to sort alphabetically irrespective of capital/lowercase letters
+  
+  ### Export out new database ##################################################
+  
+    # ask to export
+    user_input_export <- readline("Would you like to export the new version of the database? (Y/N) ")
+    
+    if (tolower(user_input_export) == "n") {
       
+      log_info("Export terminated.")
+      log_info("update_dd_database() function complete")
+      return(dd_database)
+      
+    } else if (tolower(user_input_export) == "y") {
+    
+      # export updated database
+      write_csv(dd_database_updated, dd_database_abs_dir, col_names = TRUE)
+      
+      log_info("Updated data_dictionary_database.csv.")
+      
+      # returns dd database
+      log_info("update_dd_database() function complete")
+      return(dd_database_updated)
+      
+    }
+    
+    
+  } else {
+    
+    log_info(paste0("'", dd_file_base_name, "' is NOT being added to the database."))
+    
+    log_info("update_dd_database() function complete")
+    return(dd_database)
+    
   }
   
-  return(ddd)
   
-  log_info("update_dd_database complete")
   
-}
-
+} # end of update_dd_database() function
   
