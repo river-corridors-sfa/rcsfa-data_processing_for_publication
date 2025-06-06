@@ -38,7 +38,8 @@ filtered <- all_files %>%
   filter(sans_dir != '/SSS_Data_Package_v3/v2_SSS_flmd.csv')%>%
   filter(!str_detect(sans_dir, 'D50')) %>%
   filter(sans_dir != '/RC2_TemporalStudy_2021-2022_SampleData_v3/v2_RC2_Sample_dd.csv') %>%
-  filter(sans_dir != '/RC2_TemporalStudy_2021-2022_SampleData_v3/v2_RC2_Sample_flmd.csv')
+  filter(sans_dir != '/RC2_TemporalStudy_2021-2022_SampleData_v3/v2_RC2_Sample_flmd.csv') %>%
+  mutate(date_file_modified = as.Date(file.info(archived_dd_flmd)$mtime))
 
 anti <- anti_join(all_files, filtered)
 
