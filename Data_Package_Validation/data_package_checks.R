@@ -16,23 +16,51 @@ rm(list=ls(all=T))
 ### User Inputs ################################################################
 # Directions: Fill out the user inputs. Then run the chunk.
 
-# data package directory (provide absolute directory; do not include a "/" at the end)
-directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/v2_RC2_TemporalStudy_2021-2022_SensorData"
+#### REQUIRED ----
+
+# provide the absolute folder file path (do not include "/" at end)
+user_directory <- "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
 
 # provide the name of the person running the checks
-report_author <- "Brieanne Forbes"
+report_author <- "Bibi Powers-McCormack"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2"
+report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package"
 
 # do the tabular files have header rows? (T/F)
-user_input_has_header_rows <- F
+user_input_has_header_rows <- T
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- F
+has_flmd <- T
 
 # if T, then provide the absolute file path of the existing flmd file
 flmd_path <- ""
+
+
+#### OPTIONAL ----
+
+# TIPS for including/excluding files: 
+  # Example 1: Suppose your data package contains 100 sensor files with
+  # standardized "Goldman" headers and 5 regular CSV files. Instead of writing
+  # out all 100 file names just to exclude them, you can use the include_files
+  # argument to explicitly list the 5 files you do want to process. This is more
+  # efficient and makes your code easier to manage.
+  
+  # Example 2: If you have 75 regular files and 3 files with header rows, you
+  # can process them separately by first running the function with
+  # query_header_info = TRUE and include_files set to the 3 files to extract
+  # their header metadata. Then, run the function again with query_header_info =
+  # FALSE and exclude_files set to the same 3 files to process the 75 regular
+  # files.
+
+# exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
+user_exclude_files = NA_character_
+
+# include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
+user_include_files = NA_character_
+
+# include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE.
+user_include_dot_files = F
 
 
 ### Prep Script ################################################################
@@ -53,14 +81,14 @@ library(plotly) # for interactive graphs
 library(downloadthis) # for downloading tabular data report as .csv
 
 
-
 # set working dir
 current_path <- rstudioapi::getActiveDocumentContext()$path
 setwd(dirname(current_path))
 setwd("./..")
 
 # load functions
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/database_v2/Data_Transformation/functions/load_tabular_data_from_flmd.R") # note: will need to update this link after I merge branches
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
 
 ### Run Functions ##############################################################
@@ -71,7 +99,14 @@ if (length(list.files(directory, recursive = T)) == 0) {
   warning("Your directory has 0 files.")
 }
 
-# 1. Load flmd if applicable
+# 1. Get all files
+dp_files <- get_files(directory = user_directory, 
+                      exclude_files = user_exclude_files, 
+                      include_files = user_include_files, 
+                      include_dot_files = user_include_dot_files)
+
+
+# 2. Load flmd if applicable
 if (has_flmd == T) {
   data_package_flmd <- read_csv(flmd_path) %>% 
   # convert to R's NA
@@ -83,8 +118,8 @@ if (has_flmd == T) {
   }
 
 
-# 2. Load data
-data_package_data <- load_tabular_data_from_flmd(directory = directory, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows)
+# 3. Load data
+data_package_data <- load_tabular_data(files_df = dp_files, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows)
 
 # preview data - this shows all the tabular data you loaded in so you can quickly check if it loaded in correctly without having to poke around in the nested lists
 invisible(lapply(names(data_package_data$tabular_data), function(name) {
@@ -93,11 +128,11 @@ invisible(lapply(names(data_package_data$tabular_data), function(name) {
 }))
 
 
-# 3. Run checks
+# 4. Run checks
 data_package_checks <- check_data_package(data_package_data = data_package_data, input_parameters = input_parameters)
 
 
-# 4. Generate report
+# 5. Generate report
 out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
 render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document", output_dir = report_out_dir, output_file = out_file)
 browseURL(paste0(report_out_dir, "/", out_file))
