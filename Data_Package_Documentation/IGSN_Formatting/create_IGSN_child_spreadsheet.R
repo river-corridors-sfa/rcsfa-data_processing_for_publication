@@ -38,10 +38,10 @@ library(readxl) # for reading in .xls files
 
 # select *_Field_Metadata.csv file (either use file.choose to select file or change filepath manually)
 metadata_filepath <- file.choose()
-# metadata_filepath <- "Z:\\00_Cross-SFA_ESSDIVE-Data-Package-Upload\\01_Study-Data-Package-Folders\\CM_SSS_Data_Package_v3\\v3_CM_SSS_Data_Package\\v3_CM_SSS_Field_Metadata.csv"
+metadata_filepath <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo/Input/CoastalFires_BiogeochemData.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/EWEB_Study_v2_IGSN_Samples_2_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/Coastal_Fires_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
@@ -54,10 +54,10 @@ parent_igsn_present <- T
 
 # if parent_igsn_presnt == T, select the registered sites (parent IGSN) .xls file (either use file.choose to select file or change filepath manually); skip if not applicable
 parent_filepath <- file.choose()
-parent_filepath <- "Z:\\IGSN\\AV1_IGSN_Site_Registered.xls"
+# parent_filepath <- ""
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
-# materials_list <- c("water", "sediment", "filter")
+# materials_list <- c("water", "sediment", "filter", "soil") # soil assumes no other material and is not appended to parent ID
 materials_list <- c("water")
 
 
@@ -83,39 +83,43 @@ if (parent_igsn_present == T) {
 print(colnames(metadata))
 
 # `Sample Name`
-a <- metadata$Sample_Name
+a <- metadata$Sample_ID
 
 # (name of sampling campaign) 'Comment'
-i <- 'EWEB'
+i <- 'Coastal Fires'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Latitude_WGS1984
+j <- metadata$Latitude
 
 # 'Longitude (WGS 84)'
-k <- metadata$Longitude_WGS1984
+k <- metadata$Longitude
 
 # 'Primary physiographic feature'
 l <- 'stream'
+# l <- ''
 
 # 'Name of physiographic feature'
-m <- metadata$Locality
+m <- metadata$Watershed
+# m <- ''
 
 # (site ID) 'Locality'
-n <- as.character(metadata$SiteID)
+n <- metadata %>% 
+  separate(Sample_ID, into = c("site", "id"), sep = "-", remove = FALSE) %>% 
+  pull(site)
 
 # 'Locality description'
-o <- 'In stream site'
-o <- as.character(metadata$Location_Description)
+# o <- 'In stream site'
+o <- ''
 
 # 'Country'
-p <- metadata$Country
+p <- 'United States'
 
 # 'State/Province'
-q <- metadata$State
-q <- "Washington"
+# q <- metadata$State
+q <- "California"
 
 # 'City/Township'
-r <- metadata$City
+# r <- metadata$City
 r <- ""
 
 # 'Field program/cruise'
@@ -123,11 +127,13 @@ r <- ""
 s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
-t <- paste(metadata$Contact_First_Name, metadata$Contact_Last_Name)
-t <- metadata$Current_Archive_Contact
+t <- 'Allison Myers-Pigg'
 
-# 'Collection date'
-u <- as.character(metadata$Collection_Date)
+# 'Collection date' in mm/dd/yyyy format
+u <- metadata %>% 
+  mutate(Date = dmy(Date),
+         Date = format(Date, "%m/%d/%Y")) %>% 
+  pull(Date)
 
 # 'Related URL'
 # v <- 'https://whondrs.pnnl.gov'
@@ -150,8 +156,10 @@ f_water <- 'Surface water'
 g_water <- 'grab'
 
 # `Collection method description`
-h_water <- 'Surface water was either (1) pulled into syringe from 50% water column depth and expelled through 0.22 micron filter into sample vials or (2) was not filtered and collected into a bottle.'
-h_water <- metadata$Collection_Method_Description
+# h_water <- 'Surface water was either (1) pulled into syringe from 50% water column depth and expelled through 0.22 micron filter into sample vials or (2) was not filtered and collected into a bottle.'
+h_water <- "Surface water was collected into a bottle."
+# h_water <- metadata$Collection_Method_Description
+# h_water <- ''
 
 
 ### User Inputs 4: material - sediment #########################################
@@ -184,6 +192,21 @@ g_filter <- 'grab'
 
 # `Collection method description`
 h_filter <- '0.22 micron filter used for collecting filtered surface water samples and preserved with "RNAlater" for future microbial analysis'
+
+### User Inputs 5: material - soil #############################################
+
+# Fill in inputs for soil
+# `Material`
+e_soil <- 'Soil'
+
+# `Field name (informal classification)`
+f_soil <- 'Soil core'
+
+# `Collection method`
+g_soil <- ''
+
+# `Collection method description`
+h_soil <- ''
 
 
 ### Generate IGSN file #########################################################
@@ -285,6 +308,19 @@ if ("filter" %in% materials_list) {
     rbind(output_filter)
 }
 
+# generate filter
+if ("soil" %in% materials_list) {
+  output_filter <- output_general %>% 
+    mutate(e = e_soil, # add material
+           f = f_soil, # add field name
+           g = g_soil, # add collection method
+           h = h_soil) # add collection method description
+  
+  # add to output
+  output <- output %>% 
+    rbind(output_filter)
+}
+
 
 ### Clean final IGSN file ######################################################
 
@@ -341,4 +377,5 @@ write_csv(header, outdir)
 
 write_csv(output, outdir, append = TRUE, col_names = TRUE)
 
-shell.exec(outdir)
+shell.exec(outdir) # save as .xls to IGSN folder in Share Drive
+

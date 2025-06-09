@@ -31,10 +31,10 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 
 # USER INPUTS
-your_essdive_metadata_file <- "C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Barnes_2024_BSLE_P_Gradient/ESSDIVE_Metadata_Template.docx" # absolute file path of ESS-DIVE metadata .docx
+your_essdive_metadata_file <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_ESSDIVE_Metadata.docx" # absolute file path of ESS-DIVE metadata .docx
 your_author_spreadsheet <- "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-85e774ed40ee7c3-20240808T190205105778" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-70e2deab672bf04-20250425T193331626" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
@@ -63,9 +63,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 
 # USER INPUTS
-your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
+your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_Geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-71ed0030c185c5a-20250307T191734493" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-c9827fce2a9eb03-20250425T194725628481" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 

@@ -62,11 +62,7 @@ In the main script, the script reads the configuration file, checks the importan
 
 ```{r echo=T, warning=F,message=F}
  rm(list=ls(all=T))
- list.of.packages <- c( "readxl", "qdapTools","purrr","readr","stringr","jsonlite",
-                         "httr","curl","rdflib","emld","rlang","rlist","tcltk","rjson","RJSONIO")
-   
- new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
- if(length(new.packages)) install.packages(new.packages)
+
   
   library(readxl)
   library(qdapTools)

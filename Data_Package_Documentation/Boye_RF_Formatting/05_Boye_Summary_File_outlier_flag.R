@@ -61,13 +61,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-# dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SampleData/RC2_TemporalStudy_2022-2024_SampleData"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_Data_Package/Sample_Data"
 
-study_code <- 'RC2_2022-2024' # this is used to rename the output file
+study_code <- 'v2_WHONDRS_AV1' # this is used to rename the output file
 
-material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
-
+material <- 'Sediment' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 # ====================== functions used in this script =========================
 
@@ -641,3 +639,4 @@ write_csv(combine_headers, summary_out_file, append = T, col_names = T)
 write_csv(summary, summary_out_file, append = T, na = '')
 
 shell.exec(dir)
+

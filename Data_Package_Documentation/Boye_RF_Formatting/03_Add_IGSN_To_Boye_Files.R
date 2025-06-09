@@ -41,11 +41,11 @@ data <- read_csv(file, skip = 2) %>%
   filter(!Sample_Name %in% c('N/A', '-9999')) %>%
   mutate(Parent_ID = str_extract(Sample_Name, '.+(?=-)'))
 
-} else if(str_detect(dp_dir, 'EWEB')){ # EWEB is different
+} else if(str_detect(dp_dir, 'EWEB')|str_detect(dp_dir, 'MCSN')){ # EWEB/MCSN is different
   
   data <- read_csv(file, skip = 2) %>%
     filter(!Sample_Name %in% c('N/A', '-9999')) %>%
-    # mutate(Parent_ID = Sample_Name)%>% # BPCA
+    # mutate(Parent_ID = Sample_Name) #%>% # BPCA
     # mutate(Parent_ID = str_extract(Sample_Name, '.+(?=-)'))%>% # EEMs
     mutate(Parent_ID = str_extract(Sample_Name, '.+(?=-)')) # ICR
   
@@ -77,7 +77,7 @@ if(str_detect(dp_dir, 'EC|EV')){ # IGSN in field metadata for ECA so having to p
     mutate(Parent_ID = Sample_Name) %>%
     select(-Sample_Name, -Material)
   
-} else if(str_detect(dp_dir, 'EWEB')){ # have to pull EWEB in a different way
+} else if(str_detect(dp_dir, 'EWEB')|str_detect(dp_dir, 'MCNSN')){ # have to pull EWEB/MCSN in a different way
   
   igsn <- read_csv(list.files(dp_dir, 'metadata', full.names = T)) %>%
     select(Sample_Name, IGSN) %>%
