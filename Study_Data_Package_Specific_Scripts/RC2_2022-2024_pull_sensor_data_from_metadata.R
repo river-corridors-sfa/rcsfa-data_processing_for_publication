@@ -96,13 +96,13 @@ baro_manta_metadata <- metadata %>%
   
 write_csv(baro_manta_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/Baro_Manta_Metadata.csv')
 
-# need to figure out why pressure isnt included in year 1 dp before proceeding
+# pressure is all -9999 bc ecosense probe doesnt measure preasure, okay to remove
 
-# ysi <- metadata %>%
-#   select(Site_ID, Parent_ID, Date, contains('YSI'))%>%
-#   select(Site_ID, Parent_ID, Date, contains('Time'), contains('Temp'), contains('Dissolved_Oxygen_Saturation'), contains('Dissolved_Oxygen')) 
-# 
-# write_csv(ysi, paste0(dp_dir, 'RC2_2022-2024_YSI_EcoSense_Temp_DO.csv'))
+ysi <- metadata %>%
+  select(Site_ID, Parent_ID, Date, contains('YSI'))%>%
+  select(Site_ID, Parent_ID, Date, contains('Time'), contains('Temp'), contains('Dissolved_Oxygen_Saturation'), contains('Dissolved_Oxygen'))
+
+write_csv(ysi, paste0(dp_dir, 'RC2_2022-2024_YSI_EcoSense_Temp_DO.csv'))
 
 ultra <- metadata %>%
   select(Site_ID, Parent_ID, Date, contains('Ultrameter')) %>%
