@@ -24,7 +24,7 @@ update_flmd_database <- function(flmd_abs_file, date_published, flmd_database_ab
     # In the database, title case columns are ones from the FLMD; lower case are database metadata cols.
   
   # Status: complete
-    # Code written by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-05.
+    # Code written by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-05 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/63.
   
   ### Prep script ##############################################################
   
