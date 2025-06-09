@@ -3,7 +3,11 @@
 # Date Created: 2025-05-01
 # Date Updated: 2025-05-02
 
-# Objective: 
+# Objective: A series of functions that create example data in a temporary
+# folder to be used for developing and testing the FLMD and DD functions.
+
+# Status: complete. 
+  # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
 
 
 ### Prep script ################################################################

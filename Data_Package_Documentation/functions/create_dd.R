@@ -37,7 +37,8 @@ create_dd <- function(files_df,
     # Boye files have a ".csv" file extension
     # Hard codes in placeholder headers - edit code below if descriptions or other values change
     
-  # Status: Complete. Awaiting review. 
+  # Status: complete. 
+    # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
     
   # Examples: 
   

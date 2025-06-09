@@ -35,6 +35,9 @@ get_files <- function(directory, # required
     # exclude_files and include_files only take relative file paths and require the file name; directories are not allowed.
     # if you use both include and exclude options, only the files listed in include will be kept; the exclude list will be ignored.
   
+  # Status: complete. 
+    # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
+  
   # Examples: 
   
   # 1) example that includes all files in a given directory
@@ -154,10 +157,10 @@ create_flmd <- function(files_df, # required
     # Also adds goldman standard to files ending in "InstallationMethods.csv"
     # Hard codes in placeholder rows - edit code below if descriptions or other values change
   
-  # Status: Complete. Awaiting review. 
+  # Status: Complete.
     # Brie informally reviewed on 2024-06-24 (see issue #17)
     # Bibi updated the script on 2025-03-25 and it will need to go through review again. 
-    # Bibi refactored and updated the script on 2025-05-16. 
+    # Bibi refactored and updated the script on 2025-05-16. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
   
   # Examples: 
   

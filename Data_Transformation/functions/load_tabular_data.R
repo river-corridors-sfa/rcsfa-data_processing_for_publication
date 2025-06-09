@@ -3,7 +3,6 @@
 # Date Updated: 2025-06-04
 # Author: Bibi Powers-McCormack
 
-
 ### load_tabular_data_file function ############################################
 
 load_tabular_data <- function(files_df, 
@@ -38,7 +37,8 @@ load_tabular_data <- function(files_df,
     # the data are organized with column headers (not row headers)
     # data files can have header rows above and/or below the column headers
   
-  # Status: complete. awaiting review. 
+  # Status: complete. 
+    # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
   
   ### Prep script ##############################################################
   
