@@ -106,7 +106,7 @@ get_files <- function(directory, # required
            file = basename(all)) # the name of the file
   
   ### Return df ################################################################
-  log_info("get_files() complete.")
+  log_info("get_files() function complete.")
   return(files)
   
 }
