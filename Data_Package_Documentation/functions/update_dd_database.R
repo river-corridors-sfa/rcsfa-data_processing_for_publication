@@ -25,7 +25,7 @@ update_dd_database <- function(dd_abs_file, date_published, dd_database_abs_dir)
   
   # Status: complete
     # v2 update: uploads a single dd at a time. Code written by Bibi Powers-McCormack. Was never reviewed or used; useful edits were carried into v2.1. 
-    # v2.1 update: removed the log, added data and index columns to the database. Code written by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-05.
+    # v2.1 update: removed the log, added data and index columns to the database. Code written by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-05 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/63.
   
   
   ### Prep script ##############################################################
