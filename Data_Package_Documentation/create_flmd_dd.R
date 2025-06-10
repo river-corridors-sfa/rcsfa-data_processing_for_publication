@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_Data_Package"
+my_directory = "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_Data_Package"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "MCSN"
+my_dp_keyword = "EV"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = "Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_Data_Package"
+my_out_dir = "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_Data_Package"
 
 #### OPTIONAL ----
 
@@ -113,13 +113,13 @@ my_dd <- create_dd(files_df = my_files,
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_dd.csv") %>% 
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_dd_old.csv") %>% 
   select(Column_or_Row_Name, Unit, Definition, Data_Type)
 
 dd_populated <- my_dd %>% 
   rows_patch(prelim_dd, by = c("Column_or_Row_Name"))
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_flmd.csv") %>% 
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_EV_Data_Package/WHONDRS_EV_flmd_old.csv") %>% 
   select(File_Name, File_Description)
 
 flmd_populated <- my_flmd %>% 
