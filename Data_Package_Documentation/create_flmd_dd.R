@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = ""
+my_directory = "Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_Data_Package"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = ""
+my_dp_keyword = "MCSN"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = ""
+my_out_dir = "Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_Data_Package"
 
 #### OPTIONAL ----
 
@@ -55,19 +55,19 @@ user_include_files = NA_character_
 user_include_dot_files = F
 
 # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is FALSE.
-user_add_placeholders = F
+user_add_placeholders = T
 
 # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is FALSE.  
-user_query_header_info = F
+user_query_header_info = T
 
 # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 20 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 20. 
 user_view_n_max = 20
 
 # add_boye_headers = T/F where the user should select T if they want placeholder rows in the dd for Boye header row names. Optional argument; default is FALSE.
-user_add_boye_headers = F
+user_add_boye_headers = T
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
-user_add_flmd_dd_headers = F
+user_add_flmd_dd_headers = T
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
 user_include_filenames = F
@@ -113,12 +113,26 @@ my_dd <- create_dd(files_df = my_files,
 ### Data Package Specific Edits ################################################
 
 
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_dd.csv") %>% 
+  select(Column_or_Row_Name, Unit, Definition, Data_Type)
 
+dd_populated <- my_dd %>% 
+  rows_patch(prelim_dd, by = c("Column_or_Row_Name"))
+
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/MCSN/MCSN_flmd.csv") %>% 
+  select(File_Name, File_Description)
+
+flmd_populated <- my_flmd %>% 
+  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 
 ### Export #####################################################################
 
-write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+# write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+# 
+# write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
-write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
+write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+
+write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
