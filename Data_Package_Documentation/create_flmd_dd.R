@@ -82,13 +82,6 @@ library(fs)
 library(devtools)
 library(crayon)
 
-# load functions - keeping these here until the PR is approved; once approved, we can use the below github urls instead
-current_path <- rstudioapi::getActiveDocumentContext()$path
-setwd(dirname(current_path))
-setwd("../.")
-source("./Data_Package_Documentation/functions/create_flmd.R")
-source("./Data_Package_Documentation/functions/create_dd.R")
-
 # source functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Package_Documentation/functions/create_flmd.R")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Package_Documentation/functions/create_dd.R")
