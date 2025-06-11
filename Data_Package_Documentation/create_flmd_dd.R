@@ -144,22 +144,32 @@ my_flmd <- my_flmd_boye %>%
 
 ### Create DD ##################################################################
 
-my_dd <- create_dd(files_df = my_files, 
+my_dd1 <- create_dd(files_df = my_files_boye, 
                    flmd_df = my_flmd, 
                    add_boye_headers = user_add_boye_headers, 
                    add_flmd_dd_headers = user_add_flmd_dd_headers, 
                    include_filenames = user_include_filenames)
 
+my_dd2 <- create_dd(files_df = my_files_others, 
+                    flmd_df = my_flmd, 
+                    add_boye_headers = user_add_boye_headers, 
+                    add_flmd_dd_headers = user_add_flmd_dd_headers, 
+                    include_filenames = user_include_filenames)
+
+my_dd <- my_dd1 %>%
+  bind_rows(my_dd2) %>%
+  arrange(Column_or_Row_Name)
+
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/v2_RC2_Sensor_dd_old.csv") %>% 
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_dd.csv") %>% 
   select(Column_or_Row_Name, Unit, Definition, Data_Type)
 
 dd_populated <- my_dd %>% 
   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore')
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2021-2022_SensorData_v2/v2_RC2_Sensor_flmd_old.csv") %>% 
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_flmd.csv") %>% 
   select(File_Name, File_Description)
 
 flmd_populated <- my_flmd %>% 
