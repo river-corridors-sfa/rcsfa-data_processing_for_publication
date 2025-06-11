@@ -202,12 +202,12 @@ create_dd <- function(files_df,
     if (str_detect(current_file_absolute, "\\.csv$")) {
       
       # read in current file
-      current_tabular_file <- read_csv(current_file_absolute, col_names = F, comment = "#", n_max = current_column_or_row_name_position, show_col_types = F)
+        current_tabular_file <- read_csv(current_file_absolute, col_names = F, comment = "#", n_max = current_column_or_row_name_position, show_col_types = F, col_types = cols(.default = "c"))
       
     } else if (str_detect(current_file_absolute, "\\.tsv$")) {
       
       # read in current file
-      current_tabular_file <- read_tsv(current_file_absolute, col_names = F, comment = "#", n_max = current_column_or_row_name_position, show_col_types = F)
+      current_tabular_file <- read_tsv(current_file_absolute, col_names = F, comment = "#", n_max = current_column_or_row_name_position, show_col_types = F, col_types = cols(.default = "c"))
       
     }
     
