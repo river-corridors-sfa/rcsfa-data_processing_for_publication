@@ -128,7 +128,9 @@ my_flmd_others <- create_flmd(files_df = my_files_others,
                        dp_keyword = my_dp_keyword,
                        add_placeholders = user_add_placeholders,
                        query_header_info = F,
-                       view_n_max = user_view_n_max)
+                       view_n_max = user_view_n_max) %>% 
+  mutate(Column_or_Row_Name_Position = case_when(is.na(Column_or_Row_Name_Position) ~ 1, 
+                                                 T ~ Column_or_Row_Name_Position))
 
 my_flmd <- my_flmd_boye %>%
   bind_rows(my_flmd_others) %>%
