@@ -36,6 +36,7 @@ create_dd <- function(files_df,
     # Tabular data files are organized with column headers (not row headers)
     # Boye files have a ".csv" file extension
     # Hard codes in placeholder headers - edit code below if descriptions or other values change
+    # Duplicate header names are automatically consolidated (in a previous version, it would ask the user to confirm before removing duplicates). Use `include_filenames = T` if you want to see the duplicates. 
     
   # Status: complete. 
     # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
