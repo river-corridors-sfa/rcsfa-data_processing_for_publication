@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_Data_Package'
+my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_Data_Package'
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "v2_WHONDRS_AV1"
+my_dp_keyword = "v2_SSF"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_Data_Package'
+my_out_dir = 'Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_Data_Package'
 
 #### OPTIONAL ----
 
@@ -89,20 +89,9 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 ### Get Files ##################################################################
 
-boye_files <- c("Sample_Data/v2_WHONDRS_AV1_Sediment_Sample_Data_Summary.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_CN.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_Fe.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_FTICR_Methods.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_Grain_Size.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_Gravimetric_Moisture.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_Incubations_Respiration_Rates.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_Normalized_Respiration_Rates.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_NPOC_TN.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_Water_Mass_Volume.csv",
-                "Sample_Data/WHONDRS_AV1_Sediment_XRD.csv",
-                "Sample_Data/WHONDRS_AV1_Water_FTICR_Methods.csv",
-                "Sample_Data/WHONDRS_AV1_Water_NPOC_TN.csv",
-                "Sample_Data/WHONDRS_AV1_Water_Sample_Data_Summary.csv")
+boye_files <- c("Sample_Data/SSF_Water_NPOC_TN.csv",
+                "Sample_Data/SSF_Water_NPOC_TN_TSS_Summary.csv",
+                "Sample_Data/SSF_Water_TSS.csv")
 
 my_files_boye <- get_files(directory = my_directory, 
                       exclude_files = user_exclude_files, 
@@ -163,13 +152,13 @@ my_dd <- my_dd1 %>%
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_dd.csv") %>% 
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_dd_old.csv") %>% 
   select(Column_or_Row_Name, Unit, Definition, Data_Type)
 
 dd_populated <- my_dd %>% 
   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore')
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_flmd.csv") %>% 
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_flmd_old.csv") %>% 
   select(File_Name, File_Description)
 
 flmd_populated <- my_flmd %>% 
