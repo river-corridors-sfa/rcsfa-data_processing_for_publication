@@ -36,6 +36,7 @@ load_tabular_data <- function(files_df,
     # the tabular data is a single data matrix
     # the data are organized with column headers (not row headers)
     # data files can have header rows above and/or below the column headers
+    # if the user selects `query_header_info = F`, then data will be read in skipping any rows that begin with "#" and then assuming column headers are on the first row and data begin on the second row. 
   
   # Status: complete. 
     # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
@@ -228,59 +229,63 @@ load_tabular_data <- function(files_df,
   
   #### ask for start data for each file ----
   
-  log_info("Asking for the row the data start on for all files. Note: If a file has no header rows, then the value should be 2.")
-  
-  # function to ask for start data row info
-  ask_user_input_data_start_row <- function() {
+  # ask for the row the data start on
+  if (query_header_info == T) {
     
-    # ask for row that the data starts on
-    user_input_data_start_row <- readline(prompt = "What line does the data start on? ")
-    user_input_data_start_row <- as.numeric(user_input_data_start_row)
+    log_info("Asking for the row the data start on for all files. Note: If a file has no header rows, then the value should be 2.")
     
-    return(user_input_data_start_row)
-  }
-  
-  for (j in 1:nrow(tabular_metadata)) {
-    
-    # get current file path
-    current_df_metadata_file_path_absolute <- tabular_metadata$all[j]
-    
-    if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+    # function to ask for start data row info
+    ask_user_input_data_start_row <- function() {
       
-      # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-      current_df_metadata <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
+      # ask for row that the data starts on
+      user_input_data_start_row <- readline(prompt = "What line does the data start on? ")
+      user_input_data_start_row <- as.numeric(user_input_data_start_row)
       
-    } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
-      
-      # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-      current_df_metadata <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
-      
+      return(user_input_data_start_row)
     }
     
-    log_info(paste0("Viewing tabular file ", j, " of ", nrow(tabular_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
-    
-    # show file
-    View(current_df_metadata)
-    
-    # run function that asks for what row the data start on
-    current_data_start_row <- ask_user_input_data_start_row()
-    
-    # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
-    while(current_data_start_row < 0) {
+    for (j in 1:nrow(tabular_metadata)) {
       
-      log_info("Asking for user input again because previous input included an invalid (negative) value. ")
+      # get current file path
+      current_df_metadata_file_path_absolute <- tabular_metadata$all[j]
       
+      if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+        
+        # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+        current_df_metadata <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
+        
+      } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
+        
+        # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+        current_df_metadata <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
+        
+      }
+      
+      log_info(paste0("Viewing tabular file ", j, " of ", nrow(tabular_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
+      
+      # show file
+      View(current_df_metadata)
+      
+      # run function that asks for what row the data start on
       current_data_start_row <- ask_user_input_data_start_row()
       
-    }
+      # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
+      while(current_data_start_row < 0) {
+        
+        log_info("Asking for user input again because previous input included an invalid (negative) value. ")
+        
+        current_data_start_row <- ask_user_input_data_start_row()
+        
+      }
+      
+      # store start data row into the current_df_metadata
+      tabular_metadata <- tabular_metadata %>% 
+        mutate(Data_Start_Row = case_when(.$all == current_df_metadata_file_path_absolute ~ current_data_start_row, 
+                                          T ~ Data_Start_Row))
+      
+    } # end of asking for data start row info
     
-    # store start data row into the current_df_metadata
-    tabular_metadata <- tabular_metadata %>% 
-      mutate(Data_Start_Row = case_when(.$all == current_df_metadata_file_path_absolute ~ current_data_start_row, 
-                                        T ~ Data_Start_Row))
-    
-    
-  } # end of asking for data start row info
+  } # end of asking user for start data (it will only do this if query_header_info == T)
   
   ### Part 2: Use data inputs to read in data ##################################
   
