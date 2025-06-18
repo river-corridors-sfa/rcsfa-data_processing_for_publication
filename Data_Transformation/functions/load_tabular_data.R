@@ -41,7 +41,7 @@ load_tabular_data <- function(files_df,
   # Status: complete. 
     # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
   
-  ### Prep script ##############################################################
+  ### Load dependencies ########################################################
   
   # load libraries
   library(tidyverse)
@@ -77,43 +77,86 @@ load_tabular_data <- function(files_df,
   }
   
   
-  ### Prepare tabular files ####################################################
-  # This functions has 2 parts. Part 1 builds a df where each row is a tabular
-  # file name and columns include the index row number the column headers are on
-  # and the row the data start on. It creates this df by using the FLMD (if it
-  # was provided) or asking the user to input the values. Part 2 iterates
-  # through each row of that df to get the column headers and data matrix for
-  # each tabular file. The end result is all of those files loaded into an R
-  # list.
+  ### Prep script ##############################################################
   
   # initialize empty list to store the data
   all_loaded_data <- list()
   
-  
-  ### Part 1: construct the metadata table #####################################
-  # Each file (a row in the df) needs the row the column headers are on and the
-  # row the data start.
-  
-  # get tabular files
+  # filter for only tabular files
   tabular_metadata <- files_df %>% 
-    filter(str_detect(file, "\\.tsv$|\\.csv$")) %>% 
-    mutate("Header_Position" = NA_real_,
-           "Data_Start_Row" = NA_real_)
+    filter(str_detect(file, "\\.tsv$|\\.csv$")) 
   
   log_info(paste0("Planning to load ", nrow(tabular_metadata), " tabular files."))
   
   
-  #### get row location of col headers ----
+  ### query_header_info = F ####################################################
+  
+  # If the user indicates that there are no header rows, then read in the data
+  # with read_csv() like normal. Ignores any rows that begin with "#", and then
+  # assumes that column headers are on the first row and the data begin on the
+  # second row.
   
   if (query_header_info == F) {
     
-    # if the user indicated that all tabular files don't have header info (query_header_info = F), then assume data start = 2 and header position = 1 - which is the data being read in normally with read_csv()
+    # for each row in the tabular_metadata...
+    for (f in 1:nrow(tabular_metadata)) {
+      
+      # name the df the absolute file path
+      current_df_metadata_file_path_absolute <- tabular_metadata$all[f]
+      
+      log_info(paste0("Loading in file ", f, " of ", nrow(tabular_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
+      
+      if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+        
+        # read in current file (does NOT include comment = "#" and assumes col headers on first row)
+        current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#")
+        
+      } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
+        
+        # read in current file (does NOT include comment = "#" and assumes col headers on first row)
+        current_df_data <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#")
+      }
+      
+      # add new data to full list
+      all_loaded_data[[current_df_metadata_file_path_absolute]] <- current_df_data
+      
+    } # end of loop that reads in each tabular file
+    
+  } # end of query_header_info == F
+  
+  
+  ### query_header_info = T ####################################################
+  
+  # This script handles quirks in the Boye reporting format where ESS-DIVE drops
+  # rows starting with "#", causing the first row of actual data (after
+  # "#Start_Data") to be skipped. This script uses the FLMD (if provided) to get
+  # the Column_or_Row_Name_Position and prompts the user to manually indicate
+  # data start rows. It builds a mapping of file structures, reads header rows
+  # separately, then reads data tables and renames columns accordingly.  Part 1
+  # builds a df where each row is a tabular file name and columns include the
+  # index row number the column headers are on and the row the data start on. It
+  # creates this df by using the FLMD (if it was provided) or asking the user to
+  # input the values. Part 2 iterates through each row of that df to read in the
+  # column headers and data matrix for each tabular file. The end result is all
+  # of those files loaded into an R list.
+  
+  # Once the Boye RF is updated, this code can be simplified. Hopefully you will
+  # be able to join in the FLMD and be able to use both the
+  # Column_or_Row_Name_Position and Header_Rows to correctly load in data.
+  
+  #### Part 1: construct the metadata table ----
+  # Each file (a row in the df) needs the row the column headers are on and the
+  # row the data start.
+  
+  else if (query_header_info == T) {
+    
+    # get tabular files
     tabular_metadata <- tabular_metadata %>% 
-      mutate(Header_Position = 1, 
-             Data_Start_Row = 2)
+      mutate("Header_Position" = NA_real_,
+             "Data_Start_Row" = NA_real_)
     
-  } else if (query_header_info == T) {
     
+    #### get row location of col headers ----
     # first attempt to get as much info from the FLMD (if the user provided it)
     if (is.data.frame(flmd_df)) {
       
@@ -135,8 +178,8 @@ load_tabular_data <- function(files_df,
       flmd_info <- flmd_df %>%
         mutate(File_Path_Absolute = paste0(abs_directory, File_Path, "/", File_Name)) %>%
         mutate(Header_Rows = as.numeric(Header_Rows),
-               Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>% 
-        filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) %>% 
+               Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>%
+        filter(str_detect(File_Name, "\\.tsv$|\\.csv$")) %>%
         select(File_Name, Header_Position = Column_or_Row_Name_Position, File_Path_Absolute)
       
       # check for difference between the dir and flmd
@@ -150,21 +193,21 @@ load_tabular_data <- function(files_df,
       if (length(files_not_in_dir > 0 )) {
         log_warn(paste0("The following file is in the flmd but NOT in the directory: ", basename(files_not_in_dir)))
       }
-
+      
       # join flmd to dir df
-      tabular_metadata <- tabular_metadata %>% 
-        left_join(flmd_info, join_by(all == File_Path_Absolute)) %>% 
-        mutate(Header_Position = coalesce(Header_Position.x, Header_Position.y)) %>% 
+      tabular_metadata <- tabular_metadata %>%
+        left_join(flmd_info, join_by(all == File_Path_Absolute)) %>%
+        mutate(Header_Position = coalesce(Header_Position.x, Header_Position.y)) %>%
         select(-c("Header_Position.x", "Header_Position.y", "File_Name"))
       
     } # end of if flmd_df exists
-      
+    
     
     # then/otherwise prompt the user to gather the rest of the info
     log_info("Asking for remaining header position info.")
     
     # getting files that don't have a header_position
-    current_df_metadata_missing_header_position <- tabular_metadata %>% 
+    current_df_metadata_missing_header_position <- tabular_metadata %>%
       filter(is.na(.$Header_Position))
     
     # if there are files that have missing header info...
@@ -217,138 +260,160 @@ load_tabular_data <- function(files_df,
         }
         
         # save header position into df metadata
-        tabular_metadata <- tabular_metadata %>% 
-          mutate(Header_Position = case_when(.$all == current_df_metadata_file_path_absolute ~ current_header_position, 
+        tabular_metadata <- tabular_metadata %>%
+          mutate(Header_Position = case_when(.$all == current_df_metadata_file_path_absolute ~ current_header_position,
                                              T ~ Header_Position))
-      }  
+      }
       
     } # end of getting rest of header info
     # you should now have Header_Position for all files
     
-  }  # end if query_header_info = T
   
   #### ask for start data for each file ----
+  log_info("Asking for the row the data start on for all files. Note: If a file has no header rows, then the value should be 2.")
   
-  # ask for the row the data start on
-  if (query_header_info == T) {
+  # function to ask for start data row info
+  ask_user_input_data_start_row <- function() {
     
-    log_info("Asking for the row the data start on for all files. Note: If a file has no header rows, then the value should be 2.")
+    # ask for row that the data starts on
+    user_input_data_start_row <- readline(prompt = "What line does the data start on? ")
+    user_input_data_start_row <- as.numeric(user_input_data_start_row)
     
-    # function to ask for start data row info
-    ask_user_input_data_start_row <- function() {
+    return(user_input_data_start_row)
+  }
+  
+  for (j in 1:nrow(tabular_metadata)) {
+    
+    # get current file path
+    current_df_metadata_file_path_absolute <- tabular_metadata$all[j]
+    
+    if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
       
-      # ask for row that the data starts on
-      user_input_data_start_row <- readline(prompt = "What line does the data start on? ")
-      user_input_data_start_row <- as.numeric(user_input_data_start_row)
+      # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+      current_df_metadata <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
       
-      return(user_input_data_start_row)
+    } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
+      
+      # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+      current_df_metadata <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
+      
     }
     
-    for (j in 1:nrow(tabular_metadata)) {
+    log_info(paste0("Viewing tabular file ", j, " of ", nrow(tabular_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
+    
+    # show file
+    View(current_df_metadata)
+    
+    # run function that asks for what row the data start on
+    current_data_start_row <- ask_user_input_data_start_row()
+    
+    # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
+    while(current_data_start_row < 0) {
       
-      # get current file path
-      current_df_metadata_file_path_absolute <- tabular_metadata$all[j]
+      log_info("Asking for user input again because previous input included an invalid (negative) value. ")
       
+      current_data_start_row <- ask_user_input_data_start_row()
+      
+    }
+    
+    # store start data row into the current_df_metadata
+    tabular_metadata <- tabular_metadata %>%
+      mutate(Data_Start_Row = case_when(.$all == current_df_metadata_file_path_absolute ~ current_data_start_row,
+                                        T ~ Data_Start_Row))
+    
+  } # end of asking for data start row info
+  
+
+### Part 2: Use data inputs to read in data ##################################
+
+    log_info("Reading in all data based on previous inputs and preparing to return final list.")
+    
+    # for each row in the tabular_metadata...
+    for (k in 1:nrow(tabular_metadata)) {
+      
+      # get k row
+      current_df_k_row <- tabular_metadata[k, ]
+      
+      # name the df the absolute file path
+      current_df_metadata_file_path_absolute <- tabular_metadata$all[k]
+      
+      log_info(paste0("Loading in file ", k, " of ", nrow(tabular_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
+      
+      # use the tabular_metadata to get the column headers
       if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
         
-        # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-        current_df_metadata <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
+        # read in current file
+        current_df_headers <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", col_names = F, show_col_types = F) %>%
+          slice(current_df_k_row$Header_Position) %>%
+          unlist() %>%
+          as.character()
         
       } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
         
-        # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-        current_df_metadata <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
+        # read in current file
+        current_df_headers <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", col_names = F, show_col_types = F) %>%
+          slice(current_df_k_row$Header_Position) %>%
+          unlist() %>%
+          as.character()
+      }
+      
+      # use the data start to read in data
+      if (query_header_info == T) {
+        # don't pull in columns and don't use comment = "#"
+        if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+          
+          # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+          current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, skip = current_df_k_row$Data_Start_Row - 1)
+          
+        } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
+          
+          # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+          current_df_data <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, skip = current_df_k_row$Data_Start_Row - 1)
+        }
+        
+        
+      } else if (query_header_info == F) {
+        # don't pull in columns and use comment = "#"
+        if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
+          
+          # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+          current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#")
+          
+        } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
+          
+          # read in current file (does NOT include comment = "#" and does NOT read in col headers)
+          current_df_data <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#")
+        }
+        
         
       }
       
-      log_info(paste0("Viewing tabular file ", j, " of ", nrow(tabular_metadata), ": ", basename(current_df_metadata_file_path_absolute)))
       
-      # show file
-      View(current_df_metadata)
+      # rename columns with the col headers that were already pulled
+      colnames(current_df_data) <- current_df_headers
       
-      # run function that asks for what row the data start on
-      current_data_start_row <- ask_user_input_data_start_row()
+      # add new data to full list
+      all_loaded_data[[current_df_metadata_file_path_absolute]] <- current_df_data
       
-      # quick check to confirm the user input - if either values are less than 0, rerun function because the user entered them wrong
-      while(current_data_start_row < 0) {
-        
-        log_info("Asking for user input again because previous input included an invalid (negative) value. ")
-        
-        current_data_start_row <- ask_user_input_data_start_row()
-        
-      }
-      
-      # store start data row into the current_df_metadata
-      tabular_metadata <- tabular_metadata %>% 
-        mutate(Data_Start_Row = case_when(.$all == current_df_metadata_file_path_absolute ~ current_data_start_row, 
-                                          T ~ Data_Start_Row))
-      
-    } # end of asking for data start row info
-    
-  } # end of asking user for start data (it will only do this if query_header_info == T)
+    } # end of loop that reads in each tabular file
   
-  ### Part 2: Use data inputs to read in data ##################################
   
-  log_info("Reading in all data based on previous inputs and preparing to return final list.")
+  } # end of query_header_info == T
   
-  # for each row in the tabular_metadata...
-  for (k in 1:nrow(tabular_metadata)) {
-    
-    # get k row
-    current_df_k_row <- tabular_metadata[k, ]
-    
-    # name the df the absolute file path
-    current_df_metadata_file_path_absolute <- tabular_metadata$all[k]
-    
-    # use the tabular_metadata to get the column headers
-    if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
-      
-      # read in current file
-      current_df_headers <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", col_names = F, show_col_types = F) %>% 
-        slice(current_df_k_row$Header_Position) %>% 
-        unlist() %>% 
-        as.character()
-      
-    } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
-      
-      # read in current file
-      current_df_headers <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", comment = "#", col_names = F, show_col_types = F) %>% 
-        slice(current_df_k_row$Header_Position) %>% 
-        unlist() %>% 
-        as.character()
-    }
-    
-    # use the data start to read in data (don't pull in columns and don't use comment = "#")
-    if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
-      
-      # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-      current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, skip = current_df_k_row$Data_Start_Row - 1)
-      
-    } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
-      
-      # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-      current_df_data <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, skip = current_df_k_row$Data_Start_Row - 1)
-    }
-    
-    # rename columns with the col headers that were already pulled
-    colnames(current_df_data) <- current_df_headers
-    
-    # add new data to full list
-    all_loaded_data[[current_df_metadata_file_path_absolute]] <- current_df_data
-    
-  } # end of loop that reads in each tabular file
 
-# return all data
-output <- list(inputs = list(directory = abs_directory,
-                             files_df = files_df,
-                             flmd_df = flmd_df),
-               outputs = list(header_row_info = tabular_metadata,
-                              filtered_file_paths = files_df$all),
-               tabular_data = all_loaded_data)
+  ### Prep return ##############################################################
+  
+  # return all data
+  output <- list(inputs = list(directory = abs_directory,
+                               files_df = files_df,
+                               flmd_df = flmd_df),
+                 outputs = list(header_row_info = tabular_metadata,
+                                filtered_file_paths = files_df$all),
+                 tabular_data = all_loaded_data)
+  
+  log_info("load_tabular_data() function complete.")
+  return(output)
 
-log_info("load_tabular_data() function complete.")
-return(output)
-
-}
+} # end load_tabular_data() function
 
 
