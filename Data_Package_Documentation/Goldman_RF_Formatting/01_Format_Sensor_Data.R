@@ -23,29 +23,28 @@ rm(list=ls(all=T))
 
 # =========================== User inputs ======================================
 
-data_dir <- "Z:/RC3/00_Schneider_Springs_Fire_2023/07_HOBO/03_ProcessedData/SSF_HOBO_Summary.csv"
+data_dir <- "Z:/RC2/03_Temporal_Study/02_MantaRiver/03_ProcessedData"
 
 # must match header row sensor column (do not include "_summary")
-sensor <- 'hobo'
+sensor <- 'manta'
 
 # indicate if this is a summary file, if so the script will find headers with "_summary" appended
-summary <- 'Y' 
+summary <- 'N' 
 
-study_code <- 'SSF'
+study_code <- 'RC2'
 
-out_dir <- 'Z:/RC3/00_Schneider_Springs_Fire_2023/07_HOBO/04_PublishReadyData/'
+out_dir <- 'Z:/RC2/03_Temporal_Study/02_MantaRiver/05_PublishReadyData/'
 
-out_name_format <- '{out_dir}/v2_{Parent_ID}_Water_Press_Temp-{location}.csv'
+out_name_format <- '{out_dir}/{study_code}_{Site_ID}_{Date}_Water_Temp_SpC_ChlA.csv'
 # out_name_format <- '{out_dir}/v2_{study_code}_Water_Press_Temp_Summary.csv'
-
 
 # indicator of different method IDs that can be found in the file name. Could be 
 # a list of site IDs or left blank if only one method ID. 
-group1 <- c('S01', 'S02', 'S08', 'S10', 'S11', 'S47R', 'T05P', 'S54', 'S03', 'S29', 'S58', 'T41')
-group1_ID <- 'Minidot_Hobo_01'
-
-group2 <- c('S04', 'S10', 'S15', 'S03', 'S29')
-group2_ID <- 'Minidot_Hobo_02'
+# group1 <- c('S01', 'S02', 'S08', 'S10', 'S11', 'S47R', 'T05P', 'S54', 'S03', 'S29', 'S58', 'T41')
+# group1_ID <- 'Minidot_Hobo_01'
+# 
+# group2 <- c('S04', 'S10', 'S15', 'S03', 'S29')
+# group2_ID <- 'Minidot_Hobo_02'
 
 # group1 <- c('S18R', 'S29', 'S34R', 'S39', 'S42', 'S48R', 'S56N', 'T05P', 'W10')
 # group1_ID <- 'TreeRope_01'
@@ -84,6 +83,13 @@ for (data_file in data_files) {
 
   # read in file
   data <- read_csv(data_file, show_col_types = F)
+  
+  if(study_code == 'RC2' & "pH" %in% colnames(data)){
+    
+    data <- data %>%
+      select(-pH)
+    
+  }
   
   # remove depth column if it's in a manta or exo sensor
   if (sensor %in% c("manta", "exo") & "Depth" %in% colnames(data)) {
@@ -237,10 +243,19 @@ for (data_file in data_files) {
 
 # ============================ write file ======================================
   
-  Parent_ID <- data %>%
-    select(Parent_ID) %>%
-    distinct()%>%
-    pull()
+  # Parent_ID <- data %>%
+  #   select(Parent_ID) %>%
+  #   distinct()%>%
+  #   pull()
+
+    Site_ID <- data %>%
+      select(Site_ID) %>%
+      distinct()%>%
+      pull()
+    
+    Date <-  unique(date(data$DateTime))
+    
+
 
   if(study_code == 'SSF'){
   location <- unlist(str_split(data_file, '-'))[2] %>%
@@ -255,6 +270,13 @@ for (data_file in data_files) {
     out_name <- str_remove(out_name, '_pH')
     
   }
+  
+  if(sensor == 'manta' & summary == 'N' & !'Chlorophyll_A' %in% colnames(data)){
+    
+    out_name <- str_remove(out_name, '_ChlA')
+    
+  }
+  
 
   # write out headers
   write_csv(data_headers, out_name, col_names = F)
