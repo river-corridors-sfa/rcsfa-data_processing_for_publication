@@ -19,13 +19,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2025_d50_v2/d50_computer_vision"
+user_directory <- "Z:/ST-2/ST-2B/WRRYOLOPaperVersion2"
 
 # provide the name of the person running the checks
-report_author <- "Bibi Powers-McCormack"
+report_author <- "Bibi Powers-McCormack and Brie Forbes (ran on remote computer)"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Regier_2025_d50_v2"
+report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Chen_2024_YOLO_v2"
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
