@@ -27,7 +27,7 @@ report_author <- "Bibi Powers-McCormack"
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
 report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Regier_2025_d50_v2"
 
-# do the tabular files have header rows? (T/F)
+# do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
