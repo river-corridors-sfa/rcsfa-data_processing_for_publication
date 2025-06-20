@@ -1,6 +1,6 @@
 ### load_tabular_data.R ########################################################
 # Date Created: 2024-04-19
-# Date Updated: 2025-06-04
+# Date Updated: 2025-06-20
 # Author: Bibi Powers-McCormack
 
 ### load_tabular_data_file function ############################################
@@ -40,6 +40,14 @@ load_tabular_data <- function(files_df,
   
   # Status: complete. 
     # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
+      # v2 refactored this function to more efficiently work with the FLMD and DD.
+    # Code updated by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-19 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/68
+      # v2.1 added a feature that allows the user to read in data without having
+      # to indicate the row data start on for every file. When the user argument
+      # query_header_info = F, then load_tabular_data() reads in all files where
+      # it treats the column headers as being on the first row and the data
+      # starting on the second row. read_csv ignores rows that begin with "#"
+      # and it doesn't ask the user for the row the data start on.
   
   ### Load dependencies ########################################################
   
@@ -108,12 +116,12 @@ load_tabular_data <- function(files_df,
       
       if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
         
-        # read in current file (does NOT include comment = "#" and assumes col headers on first row)
+        # read in current file (includes comment = "#" and assumes col headers on first row)
         current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#")
         
       } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
         
-        # read in current file (does NOT include comment = "#" and assumes col headers on first row)
+        # read in current file (includes comment = "#" and assumes col headers on first row)
         current_df_data <- read_tsv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#")
       }
       
@@ -127,22 +135,17 @@ load_tabular_data <- function(files_df,
   
   ### query_header_info = T ####################################################
   
-  # This script handles quirks in the Boye reporting format where ESS-DIVE drops
-  # rows starting with "#", causing the first row of actual data (after
-  # "#Start_Data") to be skipped. This script uses the FLMD (if provided) to get
-  # the Column_or_Row_Name_Position and prompts the user to manually indicate
-  # data start rows. It builds a mapping of file structures, reads header rows
-  # separately, then reads data tables and renames columns accordingly.  Part 1
-  # builds a df where each row is a tabular file name and columns include the
-  # index row number the column headers are on and the row the data start on. It
-  # creates this df by using the FLMD (if it was provided) or asking the user to
-  # input the values. Part 2 iterates through each row of that df to read in the
-  # column headers and data matrix for each tabular file. The end result is all
-  # of those files loaded into an R list.
+  # This portion of the script handles quirks in the Boye reporting format where
+  # rows starting with "#" are dropped, which can cause the first row of real
+  # data to be missed. It uses the FLMD (if available) to find the column header
+  # row and asks the user for the data start row. Part 1 builds a mapping of
+  # file names to their header and data row positions. Part 2 reads in the
+  # header and data rows separately for each file and stores the result in a
+  # list.
   
-  # Once the Boye RF is updated, this code can be simplified. Hopefully you will
-  # be able to join in the FLMD and be able to use both the
-  # Column_or_Row_Name_Position and Header_Rows to correctly load in data.
+  # Once the Boye reporting format is updated, this can likely be simplified by
+  # using the FLMD fields directly to load data, and not have to ask the user
+  # for the row the data start on.
   
   #### Part 1: construct the metadata table ----
   # Each file (a row in the df) needs the row the column headers are on and the
