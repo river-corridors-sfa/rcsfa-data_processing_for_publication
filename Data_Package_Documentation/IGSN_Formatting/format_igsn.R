@@ -17,19 +17,19 @@ library(readxl)
 
 # ================================= User inputs ================================
 
-dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/CoastalFires_Data_Package'
+dp_dir <- 'Y:/MEL/MEL_Data_Package_Staging'
 
-out_file <- "CoastalFires_Metadata_IGSN-Mapping.csv"
+out_file <- "WHONDRS_MEL_Metadata_IGSN-Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 
 outdir <- paste(dp_dir, out_file, sep = '/')  
 
 site <- list.files(dp_dir, pattern = 'Site', full.names = T) %>%
-  read_csv(site_file, skip = 1) 
+  read_csv(skip = 1) 
 
 sample <- list.files(dp_dir, pattern = 'Samples', full.names = T) %>% 
-  read_csv(sample_file, skip = 1)
+  read_csv(skip = 1)
 
 # ========================= remove unwanted columns and rename =================
 
@@ -61,9 +61,10 @@ if (nrow(sample) > 0) {
       Parent_IGSN = "Parent IGSN",
       Field_Name_Informal_Classification = "Field name (informal classification)",
       Collection_Method = "Collection method",
-      Collection_Method_Description = "Collection method description",
+      # Collection_Method_Description = "Collection method description",
       Primary_Physiographic_Feature ="Primary physiographic feature",
       Physiographic_Feature_Name = "Name of physiographic feature",
+      Locality_Description = "Locality description", 
       Field_Program_Cruise ="Field program/cruise",
       City_or_Township = 'City/Township',
       Collector_Chief_Scientist ="Collector/Chief Scientist",
