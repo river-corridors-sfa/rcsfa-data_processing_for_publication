@@ -135,3 +135,53 @@ out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
 render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document", output_dir = report_out_dir, output_file = out_file)
 browseURL(paste0(report_out_dir, "/", out_file))
 
+
+# View tabular data ############################################################
+
+tabular_data <- data_package_checks$tabular_report 
+
+numeric_long <- tabular_data %>%
+  filter(column_type != 'POSIXct') %>%
+  select(column_name, range_min, range_max) %>%
+  pivot_longer(c(range_min, range_max)) %>%
+  mutate(value = as.numeric(value)) %>%
+  filter(!is.na(value))
+
+min <- ggplot(data = numeric_long %>% filter(name == 'range_min'), aes(x = value)) +
+  geom_boxplot() +
+  facet_wrap(~column_name, 
+             ncol = 1, 
+             scales = "free") +
+  ggtitle('Minimum values')+
+  theme_bw()
+
+max <- ggplot(data = numeric_long %>% filter(name == 'range_max'), aes(x = value)) +
+  geom_boxplot() +
+  facet_wrap(~column_name, 
+             ncol = 1, 
+             scales = "free") +
+  ggtitle('Maximum values')+
+  theme_bw()
+
+ggsave(
+  paste0(report_out_dir, 'tabular_data_minimums.pdf'),
+  min,
+  device = 'pdf',
+  width = 6,
+  height = 100,
+  units = 'in',
+  dpi = 300,
+  limitsize = FALSE
+)
+
+ggsave(
+  paste0(report_out_dir, 'tabular_data_maximums.pdf'),
+  max,
+  device = 'pdf',
+  width = 6,
+  height = 100,
+  units = 'in',
+  dpi = 300,
+  limitsize = FALSE
+)
+
