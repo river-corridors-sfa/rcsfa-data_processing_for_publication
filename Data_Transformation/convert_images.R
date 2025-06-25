@@ -18,9 +18,9 @@ library(fs)
 
 # ================================= User inputs ================================
 
-photo_dir <- 'C:/Brieanne/SSS_Environmental_Context_Photos/Formatted/'
+photo_dir <- 'Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Field_Photos'
 
-out_dir <- 'C:/Brieanne/SSS_Environmental_Context_Photos/Formatted/'
+out_dir <- 'Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Field_Photos/'
 
 # ================================= convert photo ==============================
 
