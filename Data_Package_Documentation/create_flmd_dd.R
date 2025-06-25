@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_Data_Package'
+my_directory = "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "v2_SSF"
+my_dp_keyword = "RC2_2022-2024"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = 'Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_Data_Package'
+my_out_dir = "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData"
 
 #### OPTIONAL ----
 
@@ -46,7 +46,298 @@ my_out_dir = 'Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_Data_Package
   # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = NA_character_
+user_exclude_files = c("BarotrollAtmData/Data/RC2_T02_2022-05-04_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-05-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-06-02_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-06-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-06-30_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-07-14_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-10-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-11-17_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2022-12-15_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2023-01-26_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2023-02-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2023-03-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2023-04-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T02_2023-05-18_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-04-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-05-04_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-05-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-06-02_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-06-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-06-30_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-07-14_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-10-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-11-17_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2022-12-15_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-01-26_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-02-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-03-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-04-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-05-18_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-06-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-07-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-08-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-10-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-11-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2023-12-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2024-01-29_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2024-02-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2024-03-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T03_2024-04-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-04-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-05-04_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-05-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-06-02_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-06-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-06-30_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-07-14_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-10-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2022-11-17_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-03-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-04-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-05-18_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-06-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-07-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-08-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-10-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-11-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2023-12-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2024-01-29_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2024-02-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2024-03-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T05P_2024-04-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-04-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-05-04_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-05-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-06-02_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-06-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-06-30_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-07-14_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-10-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2022-11-17_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-01-26_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-02-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-03-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-04-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-05-18_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-07-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-08-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-10-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-11-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2023-12-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2024-01-29_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2024-02-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2024-03-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T06_2024-04-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-04-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-05-04_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-05-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-06-02_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-06-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-06-30_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-07-14_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-10-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-11-17_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2022-12-15_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-01-26_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-02-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-03-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-04-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-05-18_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-06-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-07-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-08-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-10-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-11-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2023-12-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2024-01-29_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2024-02-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2024-03-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T07_2024-04-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-04-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-05-04_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-05-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-06-02_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-06-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-06-30_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-07-14_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-10-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-11-17_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2022-12-15_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-01-26_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-02-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-03-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-04-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-05-18_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-06-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-07-20_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-08-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-09-22_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-10-25_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-11-16_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2023-12-21_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2024-01-29_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2024-02-23_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2024-03-19_Air_Press_Temp.csv",
+                       "BarotrollAtmData/Data/RC2_T42_2024-04-23_Air_Press_Temp.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-05-04_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-05-19_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-06-02_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-06-16_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-06-30_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-07-14_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-07-28_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-08-25_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-09-08_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-09-22_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-10-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-11-17_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T02_2022-12-15_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T02_2023-01-26_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T02_2023-02-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T02_2023-03-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T02_2023-05-18_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-04-21_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-05-04_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-05-19_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-06-02_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-06-16_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-06-30_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-07-14_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-07-28_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-08-25_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-09-08_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-09-22_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-10-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-11-17_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2022-12-15_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-01-26_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-02-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-03-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-05-18_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-07-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-08-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-09-22_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-10-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2023-11-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2024-01-29_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2024-02-23_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2024-03-19_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T03_2024-04-23_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-04-21_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-05-04_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-05-19_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-06-02_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-06-16_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-06-30_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-07-14_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-07-28_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-08-25_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-09-08_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-09-22_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-10-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2022-11-17_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2023-03-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2023-05-18_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2023-07-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2023-08-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2023-09-22_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2023-10-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2023-11-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2024-01-29_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2024-02-23_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2024-03-19_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T05P_2024-04-23_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-04-21_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-05-04_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-05-19_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-06-02_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-06-16_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-06-30_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-07-14_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-07-28_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-08-25_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-09-08_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-09-22_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-10-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2022-11-17_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-01-26_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-02-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-03-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-05-18_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-07-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-08-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-09-22_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-10-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2023-11-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2024-01-29_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2024-02-23_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2024-03-19_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T06_2024-04-23_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-04-21_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-05-04_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-05-19_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-06-02_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-06-16_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-06-30_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-07-14_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-07-28_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-08-25_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-09-08_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-09-22_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-11-17_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2022-12-15_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-01-26_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-02-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-03-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-05-18_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-07-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-08-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-09-22_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-10-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2023-11-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2024-01-29_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2024-02-23_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2024-03-19_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T07_2024-04-23_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-04-21_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-05-04_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-05-19_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-06-02_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-06-16_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-06-30_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-07-14_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-07-28_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-08-25_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-09-08_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-09-22_Water_Temp_SpC.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-10-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-11-17_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2022-12-15_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-01-26_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-02-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-03-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-05-18_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-07-20_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-08-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-09-22_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-10-25_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2023-11-16_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2024-01-29_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2024-02-23_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2024-03-19_Water_Temp_SpC_ChlA.csv",
+                       "MantaRiverData/Data/RC2_T42_2024-04-23_Water_Temp_SpC.csv")
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -58,13 +349,13 @@ user_include_dot_files = F
 user_add_placeholders = T
 
 # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Select F if on NERSC. Optional argument; default is FALSE.  
-user_query_header_info = T
+user_query_header_info = F
 
 # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 20 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 20. 
 user_view_n_max = 20
 
 # add_boye_headers = T/F where the user should select T if they want placeholder rows in the dd for Boye header row names. Optional argument; default is FALSE.
-user_add_boye_headers = T
+user_add_boye_headers = F
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
 user_add_flmd_dd_headers = T
@@ -89,89 +380,52 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 ### Get Files ##################################################################
 
-boye_files <- c("Sample_Data/SSF_Water_NPOC_TN.csv",
-                "Sample_Data/SSF_Water_NPOC_TN_TSS_Summary.csv",
-                "Sample_Data/SSF_Water_TSS.csv")
-
-my_files_boye <- get_files(directory = my_directory, 
+my_files <- get_files(directory = my_directory, 
                       exclude_files = user_exclude_files, 
-                      include_files = boye_files, 
+                      include_files = user_include_files, 
                       include_dot_files = user_include_dot_files)
-
-
-my_files_others <- get_files(directory = my_directory, 
-                           exclude_files = boye_files, 
-                           include_files = user_include_files, 
-                           include_dot_files = user_include_dot_files)
 
 ### Create FLMD ################################################################
 
-my_flmd_boye <- create_flmd(files_df = my_files_boye,
+my_flmd<- create_flmd(files_df = my_files,
                        dp_keyword = my_dp_keyword,
                        add_placeholders = user_add_placeholders,
                        query_header_info = user_query_header_info,
                        view_n_max = user_view_n_max)
 
-
-my_flmd_others <- create_flmd(files_df = my_files_others,
-                       dp_keyword = my_dp_keyword,
-                       add_placeholders = user_add_placeholders,
-                       query_header_info = F,
-                       view_n_max = user_view_n_max) %>% 
-  mutate(Column_or_Row_Name_Position = case_when(is.na(Column_or_Row_Name_Position) ~ 1, 
-                                                 T ~ Column_or_Row_Name_Position))
-
-my_flmd <- my_flmd_boye %>%
-  bind_rows(my_flmd_others) %>%
-  distinct()%>% 
-  mutate(sort_order = case_when(grepl("readme", File_Name, ignore.case = T) ~ 1,
-                                grepl("flmd.csv", File_Name, ignore.case = T) ~ 2, 
-                                grepl("dd.csv", File_Name, ignore.case = T) ~ 3,
-                                T ~ 4)) %>% 
-  arrange(sort_order, File_Path, File_Name) %>% 
-  select(-sort_order)
-
 ### Create DD ##################################################################
 
-my_dd1 <- create_dd(files_df = my_files_boye, 
-                   flmd_df = my_flmd, 
-                   add_boye_headers = user_add_boye_headers, 
-                   add_flmd_dd_headers = user_add_flmd_dd_headers, 
-                   include_filenames = user_include_filenames)
-
-my_dd2 <- create_dd(files_df = my_files_others, 
+my_dd <- create_dd(files_df = my_files, 
                     flmd_df = my_flmd, 
                     add_boye_headers = user_add_boye_headers, 
                     add_flmd_dd_headers = user_add_flmd_dd_headers, 
                     include_filenames = user_include_filenames)
 
-my_dd <- my_dd1 %>%
-  bind_rows(my_dd2) %>%
-  arrange(Column_or_Row_Name)
-
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_dd_old.csv") %>% 
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/RC2_TemporalStudy_2021-2022_SensorData_v2/v2_RC2_TemporalStudy_2021-2022_SensorData/v2_RC2_Sensor_dd.csv") %>% 
   select(Column_or_Row_Name, Unit, Definition, Data_Type)
 
 dd_populated <- my_dd %>% 
-  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore')
+  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>%
+  mutate(Term_Type = case_when(is.na(Term_Type) ~ 'column_header',
+                               TRUE ~ Term_Type))
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_flmd_old.csv") %>% 
-  select(File_Name, File_Description)
-
-flmd_populated <- my_flmd %>% 
-  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/SSF_Data_Package_v2/v2_SSF_flmd_old.csv") %>% 
+#   select(File_Name, File_Description)
+# 
+# flmd_populated <- my_flmd %>% 
+#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 
 ### Export #####################################################################
 
-# write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 # 
 # write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
-write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+# write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 
 write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 

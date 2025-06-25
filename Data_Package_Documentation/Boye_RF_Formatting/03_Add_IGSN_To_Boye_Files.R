@@ -23,7 +23,7 @@ dp_dir <- selectDirectory()
 
 
 #number of digits in the parent ID
-parent_id_number <- 8
+parent_id_number <- 6
 
 file <- file.choose()
 
@@ -83,6 +83,14 @@ if(str_detect(dp_dir, 'EC|EV')){ # IGSN in field metadata for ECA so having to p
     select(Sample_Name, IGSN) %>%
     mutate(Parent_ID = Sample_Name) %>%
     select(-Sample_Name)
+  
+} else if(str_detect(dp_dir, 'MEL')&str_detect(file, '_EL')){ # have to pull EL in a different way
+  
+  igsn <- read_csv(list.files(dp_dir, 'IGSN', full.names = T), skip = 1) %>%
+    select(Sample_Name, IGSN, Material) %>%
+    mutate(Parent_ID = str_extract(Sample_Name, paste0('.{', 6, '}')),
+           Parent_ID = str_remove(Parent_ID, 'M')) %>%
+    select(-Sample_Name, -Material)
   
 } else{
   igsn <- read_csv(list.files(dp_dir, 'IGSN', full.names = T), skip = 1) %>%

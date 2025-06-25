@@ -21,11 +21,11 @@ rm(list=ls(all=T))
 
 # =========================== User inputs ======================================
 
-data_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC4/MINIDOT/03_ProcessedData/'
+data_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData/New folder/'
 
-study_code <- 'AV1'
+study_code <- 'RC2_2022-2024'
 
-inst_database_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Protocols-Guidance-Workflows-Methods/Methods_Codes/Installation_Methods.xlsx'
+inst_database_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Installation_Methods.xlsx'
 
 # ===================== read in database find files ============================
 

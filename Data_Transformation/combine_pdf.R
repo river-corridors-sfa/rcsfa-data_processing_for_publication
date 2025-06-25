@@ -16,9 +16,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-pdf_dir <- 'Z:/RC2/03_Temporal_Study/02_MantaRiver/04_Plots'
+pdf_dir <- 'Z:/RC2/03_Temporal_Study/01_BarotrollAtm/04_Plots'
 
-outfile <- 'Z:/RC2/03_Temporal_Study/02_MantaRiver/05_PublishReadyData/RC2_2022-2024_Water_Temp_SpC_ChlA_TsPlot.pdf'
+outfile <- 'Z:/RC2/03_Temporal_Study/01_BarotrollAtm/05_PublishReadyData/RC2_2022-2024_Air_Press_Temp_TsPlot.pdf'
 
 # out_dir <- ''
 

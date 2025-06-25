@@ -19,22 +19,22 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "Z:/ST-2/ST-2B/WRRYOLOPaperVersion2"
+user_directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData"
 
 # provide the name of the person running the checks
-report_author <- "Bibi Powers-McCormack and Brie Forbes (ran on remote computer)"
+report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Chen_2024_YOLO_v2"
+report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/"
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- F
+has_flmd <- T
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- ""
+flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData/RC2_2022-2024_flmd.csv"
 
 
 #### OPTIONAL ----
@@ -80,8 +80,6 @@ library(rmarkdown) # for rendering report
 library(plotly) # for interactive graphs
 library(downloadthis) # for downloading tabular data report as .csv
 
-
-# set working dir
 current_path <- rstudioapi::getActiveDocumentContext()$path
 setwd(dirname(current_path))
 setwd("./..")

@@ -23,19 +23,19 @@ rm(list=ls(all=T))
 
 # =========================== User inputs ======================================
 
-data_dir <- "Z:/RC2/03_Temporal_Study/02_MantaRiver/03_ProcessedData"
+data_dir <- "Z:/RC2/03_Temporal_Study/01_BarotrollAtm/03_ProcessedData"
 
 # must match header row sensor column (do not include "_summary")
-sensor <- 'manta'
+sensor <- 'barotroll'
 
 # indicate if this is a summary file, if so the script will find headers with "_summary" appended
 summary <- 'N' 
 
 study_code <- 'RC2'
 
-out_dir <- 'Z:/RC2/03_Temporal_Study/02_MantaRiver/05_PublishReadyData/'
+out_dir <- 'Z:/RC2/03_Temporal_Study/01_BarotrollAtm/05_PublishReadyData/'
 
-out_name_format <- '{out_dir}/{study_code}_{Site_ID}_{Date}_Water_Temp_SpC_ChlA.csv'
+out_name_format <- '{out_dir}/{study_code}_{Site_ID}_{Date}_Air_Press_Temp.csv'
 # out_name_format <- '{out_dir}/v2_{study_code}_Water_Press_Temp_Summary.csv'
 
 # indicator of different method IDs that can be found in the file name. Could be 
