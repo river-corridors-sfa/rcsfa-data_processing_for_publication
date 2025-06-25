@@ -140,6 +140,8 @@ browseURL(paste0(report_out_dir, "/", out_file))
 
 tabular_data <- data_package_checks$tabular_report 
 
+# look at missing values and negative values by hand before proceeding
+
 numeric_long <- tabular_data %>%
   filter(column_type != 'POSIXct') %>%
   select(column_name, range_min, range_max) %>%
