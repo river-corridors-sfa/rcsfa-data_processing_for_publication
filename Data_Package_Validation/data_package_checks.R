@@ -19,13 +19,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData"
+user_directory <- "Z:/ST-2/ST-2B/WRRYOLOPaperVersion2"
 
 # provide the name of the person running the checks
-report_author <- "Brieanne Forbes"
+report_author <- "Bibi Powers-McCormack and Brie Forbes (ran on remote computer)"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/"
+report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Chen_2024_YOLO_v2"
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
@@ -34,7 +34,7 @@ user_input_has_header_rows <- F
 has_flmd <- T
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData/RC2_2022-2024_flmd.csv"
+flmd_path <- ""
 
 
 #### OPTIONAL ----
@@ -54,7 +54,8 @@ flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/
   # files.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = NA_character_
+user_exclude_files = list.files(path = paste0(user_directory, "/Archive"), recursive = T, full.names = T) %>% # use list.files() to gather the (relative) names of all archived files
+  str_remove(., paste0(user_directory, "/"))
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
