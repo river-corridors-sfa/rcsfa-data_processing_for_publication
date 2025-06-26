@@ -1,7 +1,7 @@
 # test-create_flmd.R ###########################################################
 # Author: Bibi Powers-McCormack
 # Date Created: 2025-04-24
-# Date Updated: 2025-06-05
+# Date Updated: 2025-06-26
 
 # Objective:
 # Verify that `create_flmd()` behaves as expected under a variety of conditions.
@@ -178,12 +178,22 @@ test_that("expected typical inputs", {
   add_example_data(my_data_package_dir)
   add_example_script(my_data_package_dir)
   add_example_dot_files(my_data_package_dir)
-  
+
   my_files <- get_files(directory = my_data_package_dir, include_dot_files = T)
-  
+
  # returns tibble that includes . files if include_dot_files = T
   expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F) %>% select(File_Name),
                expected = tibble(File_Name = c(".hidden_file_a.txt", ".hidden_file_b.txt", "file_a.csv", "file_b.csv", "01_script.R")))
+
+  # remove all test files
+  unlink(my_data_package_dir, recursive = T, force = T)
+  
+  # returns tibble that includes all files if tabular files aren't included in input
+  my_data_package_dir <- create_test_dir()
+  add_example_script(my_data_package_dir)
+  my_files <- get_files(directory = my_data_package_dir, include_dot_files = F)
+  expect_equal(object = create_flmd(files_df = my_files, dp_keyword = "example_data_package", query_header_info = F, add_placeholders = F) %>% select(File_Name),
+               expected = tibble(File_Name = c("01_script.R")))
   
   # remove all test files
   unlink(my_data_package_dir, recursive = T, force = T)

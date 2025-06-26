@@ -1,6 +1,6 @@
 ### create_flmd.R ##############################################################
 # Date Created: 2024-06-14
-# Date Updated: 2025-06-06
+# Date Updated: 2025-06-26
 # Author: Bibi Powers-McCormack
 
 # This script contains the functions for creating FLMDs. 
@@ -411,6 +411,16 @@ create_flmd <- function(files_df, # required
     } # end of query_header_info != T
     
   } # end of if tabular files exist
+  
+  else {
+    
+    current_flmd_skeleton <- current_flmd_skeleton %>% 
+      mutate(Header_Rows = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
+                                     T ~ NA),
+             Column_or_Row_Name_Position = case_when(!str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "-9999", 
+                                                     T ~ NA))
+    
+  } # end of if tabular files do NOT exist
   
   
   
