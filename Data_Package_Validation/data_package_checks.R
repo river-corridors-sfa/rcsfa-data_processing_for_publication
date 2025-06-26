@@ -140,47 +140,62 @@ browseURL(paste0(report_out_dir, "/", out_file))
 
 tabular_data <- data_package_checks$tabular_report 
 
-# look at missing values and negative values by hand before proceeding
+# Find the path that contains "dd.csv"
+dd_path <- names(data_package_checks$input$tabular_data)[
+  str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
+]
+
+## Pull in dd to get units 
+dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
+  select(Column_or_Row_Name, Unit)
+
+## look at missing values, negative values, duplicate rows, and non numeric data ####
+
+view(tabular_data %>%
+       filter(num_missing_rows>0))
+
+view(tabular_data %>%
+       filter(num_negative_rows>0))
+
+view(tabular_data %>%
+       filter(num_unique_rows!=num_rows))
+
+view(tabular_data %>%
+       filter(column_type != 'numeric'))
+
+## look at min/max values ####
 
 numeric_long <- tabular_data %>%
+  left_join(dd, by = c('column_name' = 'Column_or_Row_Name')) %>% 
   filter(column_type != 'POSIXct') %>%
-  select(column_name, range_min, range_max) %>%
-  pivot_longer(c(range_min, range_max)) %>%
-  mutate(value = as.numeric(value)) %>%
-  filter(!is.na(value))
+  select(column_name, range_min, range_max, Unit) %>%
+  mutate(range_min = as.numeric(range_min),
+         range_max = as.numeric(range_max)) %>%
+  filter(!is.na(range_min)) %>%
+  rename(MIN = range_min,
+         MAX = range_max) %>%
+  pivot_longer(cols = c(MIN, MAX), 
+               names_to = "type", 
+               values_to = "value") %>%
+  mutate(facet_label = paste0(column_name, " (", Unit, ") ", type))
 
-min <- ggplot(data = numeric_long %>% filter(name == 'range_min'), aes(x = value)) +
+plot <- ggplot(numeric_long, aes(x = value)) +
   geom_boxplot() +
-  facet_wrap(~column_name, 
-             ncol = 1, 
-             scales = "free") +
-  ggtitle('Minimum values')+
-  theme_bw()
-
-max <- ggplot(data = numeric_long %>% filter(name == 'range_max'), aes(x = value)) +
-  geom_boxplot() +
-  facet_wrap(~column_name, 
-             ncol = 1, 
-             scales = "free") +
-  ggtitle('Maximum values')+
-  theme_bw()
+  facet_wrap(~facet_label, scales = "free_x", ncol = 2) +
+  theme_bw()  +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.title.x = element_blank(),
+    plot.title = element_text(size = 10, color = "grey") 
+  ) +
+  ggtitle(paste("The associated data checks report was created on", Sys.Date(), "by", report_author))
 
 ggsave(
-  paste0(report_out_dir, 'tabular_data_minimums.pdf'),
-  min,
+  paste0(report_out_dir, 'tabular_data_plots_',Sys.Date(),'.pdf'),
+  plot,
   device = 'pdf',
-  width = 6,
-  height = 100,
-  units = 'in',
-  dpi = 300,
-  limitsize = FALSE
-)
-
-ggsave(
-  paste0(report_out_dir, 'tabular_data_maximums.pdf'),
-  max,
-  device = 'pdf',
-  width = 6,
+  width = 10,
   height = 100,
   units = 'in',
   dpi = 300,
