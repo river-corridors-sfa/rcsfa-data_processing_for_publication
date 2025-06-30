@@ -19,19 +19,21 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "Z:/ST-2/ST-2B/WRRYOLOPaperVersion2"
+user_directory <- "C:/Brieanne/GitHub/ECA_DOM_Thermodynamics"
+
 
 # provide the name of the person running the checks
 report_author <- "Bibi Powers-McCormack and Brie Forbes (ran on remote computer)"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Chen_2024_YOLO_v2"
+
+report_out_dir <- "C:/Brieanne/GitHub/ECA_DOM_Thermodynamics"
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- T
+has_flmd <- F
 
 # if T, then provide the absolute file path of the existing flmd file
 flmd_path <- ""
@@ -54,8 +56,9 @@ flmd_path <- ""
   # files.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = list.files(path = paste0(user_directory, "/Archive"), recursive = T, full.names = T) %>% # use list.files() to gather the (relative) names of all archived files
-  str_remove(., paste0(user_directory, "/"))
+user_exclude_files = c("Map/Map_Input_File.csv",
+                       "Map/_readme.txt",
+                       paste0('EC_Data_Package/',list.files("C:/Brieanne/GitHub/ECA_DOM_Thermodynamics/EC_Data_Package", recursive = T)))
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -138,68 +141,68 @@ browseURL(paste0(report_out_dir, "/", out_file))
 
 
 # View tabular data ############################################################
-
-tabular_data <- data_package_checks$tabular_report 
-
-# Find the path that contains "dd.csv"
-dd_path <- names(data_package_checks$input$tabular_data)[
-  str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
-]
-
-## Pull in dd to get units 
-dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
-  select(Column_or_Row_Name, Unit)
-
-## look at missing values, negative values, duplicate rows, and non numeric data ####
-
-view(tabular_data %>%
-       filter(num_missing_rows>0))
-
-view(tabular_data %>%
-       filter(num_negative_rows>0))
-
-view(tabular_data %>%
-       filter(num_unique_rows!=num_rows))
-
-view(tabular_data %>%
-       filter(column_type != 'numeric'))
-
-## look at min/max values ####
-
-numeric_long <- tabular_data %>%
-  left_join(dd, by = c('column_name' = 'Column_or_Row_Name')) %>% 
-  filter(column_type != 'POSIXct') %>%
-  select(column_name, range_min, range_max, Unit) %>%
-  mutate(range_min = as.numeric(range_min),
-         range_max = as.numeric(range_max)) %>%
-  filter(!is.na(range_min)) %>%
-  rename(MIN = range_min,
-         MAX = range_max) %>%
-  pivot_longer(cols = c(MIN, MAX), 
-               names_to = "type", 
-               values_to = "value") %>%
-  mutate(facet_label = paste0(column_name, " (", Unit, ") ", type))
-
-plot <- ggplot(numeric_long, aes(x = value)) +
-  geom_boxplot() +
-  facet_wrap(~facet_label, scales = "free_x", ncol = 2) +
-  theme_bw()  +
-  theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.title.x = element_blank(),
-    plot.title = element_text(size = 10, color = "grey") 
-  ) +
-  ggtitle(paste("The associated data checks report was created on", Sys.Date(), "by", report_author))
-
-ggsave(
-  paste0(report_out_dir, 'tabular_data_plots_',Sys.Date(),'.pdf'),
-  plot,
-  device = 'pdf',
-  width = 10,
-  height = 100,
-  units = 'in',
-  dpi = 300,
-  limitsize = FALSE
-)
+# 
+# tabular_data <- data_package_checks$tabular_report 
+# 
+# # Find the path that contains "dd.csv"
+# dd_path <- names(data_package_checks$input$tabular_data)[
+#   str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
+# ]
+# 
+# ## Pull in dd to get units 
+# dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
+#   select(Column_or_Row_Name, Unit)
+# 
+# ## look at missing values, negative values, duplicate rows, and non numeric data ####
+# 
+# view(tabular_data %>%
+#        filter(num_missing_rows>0))
+# 
+# view(tabular_data %>%
+#        filter(num_negative_rows>0))
+# 
+# view(tabular_data %>%
+#        filter(num_unique_rows!=num_rows))
+# 
+# view(tabular_data %>%
+#        filter(column_type != 'numeric'))
+# 
+# ## look at min/max values ####
+# 
+# numeric_long <- tabular_data %>%
+#   left_join(dd, by = c('column_name' = 'Column_or_Row_Name')) %>% 
+#   filter(column_type != 'POSIXct') %>%
+#   select(column_name, range_min, range_max, Unit) %>%
+#   mutate(range_min = as.numeric(range_min),
+#          range_max = as.numeric(range_max)) %>%
+#   filter(!is.na(range_min)) %>%
+#   rename(MIN = range_min,
+#          MAX = range_max) %>%
+#   pivot_longer(cols = c(MIN, MAX), 
+#                names_to = "type", 
+#                values_to = "value") %>%
+#   mutate(facet_label = paste0(column_name, " (", Unit, ") ", type))
+# 
+# plot <- ggplot(numeric_long, aes(x = value)) +
+#   geom_boxplot() +
+#   facet_wrap(~facet_label, scales = "free_x", ncol = 2) +
+#   theme_bw()  +
+#   theme(
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.title.x = element_blank(),
+#     plot.title = element_text(size = 10, color = "grey") 
+#   ) +
+#   ggtitle(paste("The associated data checks report was created on", Sys.Date(), "by", report_author))
+# 
+# ggsave(
+#   paste0(report_out_dir, 'tabular_data_plots_',Sys.Date(),'.pdf'),
+#   plot,
+#   device = 'pdf',
+#   width = 10,
+#   height = 100,
+#   units = 'in',
+#   dpi = 300,
+#   limitsize = FALSE
+# )
 
