@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2025_d50_v2/d50_computer_vision"
+my_directory = "C:/Brieanne/GitHub/YRB_Water_Column_Respiration"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "Regier_2025_d50_v2"
+my_dp_keyword = "Laan_2025_Water_Column_Respiration"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2025_d50_v2/d50_computer_vision"
+my_out_dir = "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_Data_Package"
 
 #### OPTIONAL ----
 
@@ -46,7 +46,8 @@ my_out_dir = "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2025_d50_v2/d
   # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = "README.md"
+user_exclude_files = c('Data/Published_Data/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_Field_Metadata.csv',
+                       "Data/Map_Layers/ERwc_Coords_LULC.csv")
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -70,7 +71,7 @@ user_add_boye_headers = F
 user_add_flmd_dd_headers = T
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
-user_include_filenames = T
+user_include_filenames = F
 
 
 ### Prep Script ################################################################
@@ -113,32 +114,18 @@ my_dd <- create_dd(files_df = my_files,
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/D50_2021_Spatial_Study_Manuscript_Data_Package/D50_2021_Spatial_Study_Manuscript_Data_Package/d50_dd.csv") %>%
-  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) %>% 
-  arrange(Column_or_Row_Name)
+prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_dd_prelim.csv") %>%
+  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
 
-prelim_dd %>% 
-  count(Column_or_Row_Name) %>% 
-  filter(n > 1) # get duplicate cols
-
-prelim_dd <- prelim_dd %>% 
-  mutate(Definition = case_when(Column_or_Row_Name == "d50_mm_abeshu" ~ "Median particle size determined by the model in Abeshu et al. (2022; doi:10.5194/essd-14-929-2022).",
-                                Column_or_Row_Name == "label" ~ "Integer representing manual categorization of image suitability.",
-                                T ~ Definition)) %>% 
-  unique() # via code, clean up duplicates
 
 dd_populated <- my_dd %>%
   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
                                T ~ Term_Type))
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/D50_2021_Spatial_Study_Manuscript_Data_Package/D50_2021_Spatial_Study_Manuscript_Data_Package/d50_flmd.csv") %>%
-  select(File_Name, File_Description) %>% 
-  unique()
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_flmd_prelim.csv") %>%
+  select(File_Name, File_Description)
 
-prelim_flmd %>% 
-  count(File_Name) %>% 
-  filter(n > 1) # get duplicate cols
 
 flmd_populated <- my_flmd %>%
   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
