@@ -19,13 +19,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "C:/Brieanne/GitHub/ECA_DOM_Thermodynamics"
+user_directory <- "C:/Brieanne/GitHub/YRB_Water_Column_Respiration"
 
 # provide the name of the person running the checks
-report_author <- "Bibi Powers-McCormack"
+report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "C:/Brieanne/GitHub/ECA_DOM_Thermodynamics"
+report_out_dir <- 'Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package'
 
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
@@ -56,9 +56,7 @@ flmd_path <- ""
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = c("Map/Map_Input_File.csv",
-                       "Map/_readme.txt",
-                       paste0('EC_Data_Package/',list.files("C:/Brieanne/GitHub/ECA_DOM_Thermodynamics/EC_Data_Package", recursive = T)))
+user_exclude_files = NA_character_
 
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
