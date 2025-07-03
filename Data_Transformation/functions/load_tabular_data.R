@@ -407,7 +407,7 @@ load_tabular_data <- function(files_df,
   ### Prep return ##############################################################
   
   # return all data
-  output <- list(inputs = list(directory = abs_directory,
+  output <- list(inputs = list(directory = paste0(abs_directory, parent_directory),
                                files_df = files_df,
                                flmd_df = flmd_df),
                  outputs = list(header_row_info = tabular_metadata,
