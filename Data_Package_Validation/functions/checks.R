@@ -426,6 +426,16 @@ create_range_report <- function(input_df,
   # assumptions
     # currently not set up to handle factors (because those are very R specific and we're assuming data are read in from csv/tsv files)
   
+  # rename any NA or blank columns
+  if (any(is.na(colnames(input_df)) | trimws(colnames(input_df)) == "")) {
+
+    # Find indices of unnamed or blank/whitespace-only column names
+    empty_col_indices <- which(is.na(colnames(input_df)) | trimws(colnames(input_df)) == "")
+
+    # Rename those columns to a placeholder
+    colnames(input_df)[empty_col_indices] <- "EMPTY_COLUMN_HEADER"
+  }
+  
   data_tabular_report <- report_table
   
   # loop through each column in the df
@@ -736,7 +746,7 @@ check_data_package <- function(data_package_data, input_parameters = input_param
       current_df <- data_package_data$tabular_data[[current_file_name_absoulte]]
       
       # update empty col names so the checks and range reports can run - load_tabular_data_from_flmd() reads in csv and tsv files with name_repair = "minimal" so all col headers are read in as they are in the original file
-      if (any(is.na(colnames(current_df)))) {
+      if (any(is.na(colnames(current_df)) | trimws(colnames(current_df)) == "")) {
         
         # find indices of unnamed cols
         empty_col_indices <- which(is.na(colnames(current_df)) | colnames(current_df) == "")
