@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "C:/Brieanne/GitHub/YRB_Water_Column_Respiration"
+my_directory = "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2025_d50_v2/d50_computer_vision"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "Laan_2025_Water_Column_Respiration"
+my_dp_keyword = "v2_Regier_2025_d50"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_Data_Package"
+my_out_dir = "C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Regier_2025_d50_v2"
 
 #### OPTIONAL ----
 
@@ -46,8 +46,7 @@ my_out_dir = "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscri
   # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = c('Data/Published_Data/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_Field_Metadata.csv',
-                       "Data/Map_Layers/ERwc_Coords_LULC.csv")
+user_exclude_files = c("README.md", "LICENSE")
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -71,7 +70,7 @@ user_add_boye_headers = F
 user_add_flmd_dd_headers = T
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
-user_include_filenames = F
+user_include_filenames = T
 
 
 ### Prep Script ################################################################
@@ -114,21 +113,40 @@ my_dd <- create_dd(files_df = my_files,
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_dd_prelim.csv") %>%
-  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
+prelim_dd <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Regier_2025_d50_v2/Archive/Regier_2025_d50_v2_dd_prelim_20250702.csv") %>%
+  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
 
 
 dd_populated <- my_dd %>%
   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
-                               T ~ Term_Type))
+                               T ~ Term_Type),
+         Unit = case_when(Definition == "This header is not defined in this data package because it was not used in this analysis. Refer to the citations in the readme for the original source and definition." ~ "N/A",
+                          Column_or_Row_Name %in% c("File", "Folder", "rc_site") ~ "N/A", 
+                          T ~ Unit),
+         Data_Type = case_when(Definition == "This header is not defined in this data package because it was not used in this analysis. Refer to the citations in the readme for the original source and definition." ~ "N/A",
+                          T ~ Data_Type))
+         
+# confirm all rows are populated
+dd_populated %>% 
+  filter(if_any(everything(), is.na)) %>% 
+  nrow() == 0
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_flmd_prelim.csv") %>%
+prelim_flmd <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Regier_2025_d50_v2/Archive/Regier_2025_d50_v2_flmd_prelim_20250702.csv") %>%
   select(File_Name, File_Description)
 
 
 flmd_populated <- my_flmd %>%
-  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
+  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore') %>% 
+  mutate(Header_Rows = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ 1, 
+                                 T ~ Header_Rows),
+         Column_or_Row_Name_Position = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ 1, 
+                                                 T ~ Column_or_Row_Name_Position))
+
+# confirm all rows are populated
+flmd_populated %>% 
+  filter(if_any(everything(), is.na)) %>% 
+  nrow() == 0
 
 
 ### Export #####################################################################
