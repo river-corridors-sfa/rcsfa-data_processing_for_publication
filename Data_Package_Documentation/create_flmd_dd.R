@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "C:/Brieanne/GitHub/YRB_Water_Column_Respiration"
+my_directory = "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "Laan_2025_Water_Column_Respiration"
+my_dp_keyword = "Test"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_Data_Package"
+my_out_dir = "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
 
 #### OPTIONAL ----
 
@@ -46,8 +46,7 @@ my_out_dir = "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscri
   # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = c('Data/Published_Data/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_Field_Metadata.csv',
-                       "Data/Map_Layers/ERwc_Coords_LULC.csv")
+user_exclude_files = NA_character_
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -59,13 +58,13 @@ user_include_dot_files = F
 user_add_placeholders = T
 
 # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Header rows that start with "#" can be considered as not having header rows. Optional argument; default is FALSE.  
-user_query_header_info = F
+user_query_header_info = T
 
 # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 20 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 20. 
 user_view_n_max = 20
 
 # add_boye_headers = T/F where the user should select T if they want placeholder rows in the dd for Boye header row names. Optional argument; default is FALSE.
-user_add_boye_headers = F
+user_add_boye_headers = T
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
 user_add_flmd_dd_headers = T
@@ -114,28 +113,28 @@ my_dd <- create_dd(files_df = my_files,
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_dd_prelim.csv") %>%
-  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
-
-
-dd_populated <- my_dd %>%
-  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
-  mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
-                               T ~ Term_Type))
-
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_flmd_prelim.csv") %>%
-  select(File_Name, File_Description)
-
-
-flmd_populated <- my_flmd %>%
-  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
+# prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_dd_prelim.csv") %>%
+#   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
+# 
+# 
+# dd_populated <- my_dd %>%
+#   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
+#   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
+#                                T ~ Term_Type))
+# 
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_flmd_prelim.csv") %>%
+#   select(File_Name, File_Description)
+# 
+# 
+# flmd_populated <- my_flmd %>%
+#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 
 ### Export #####################################################################
 
-# write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
-# 
-# write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
+write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+
+write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
 write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 
