@@ -341,7 +341,7 @@ test_that("column type is identified as either character, numeric, logical, Date
   expected <- tibble(
     column_name = c("chr_column", "numeric_column", "logical_column", "date_column", "hms_column", "date_time_column", "mixed_column"),
     column_type = c("character", "numeric", "logical", "Date", "hms", "POSIXct", "mixed"))
-  
+
   expect_equal(object = result, 
                expected = expected)
   
@@ -406,6 +406,43 @@ test_that("numerical min and max ranges are correctly reported", {
   expect_equal(object = result, 
                expected = expected)
   
+})
+
+test_that("range reports generate when a file is missing a column name", {
+  
+  # create example data
+  testing_df <- tibble(
+    date = as.Date(c("2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05", "2024-01-06", "2024-01-07", "2024-01-08", "2024-01-09", "2024-01-10")),
+    time_logged = hms::as_hms(c("12:00:00", "14:30:00", "09:45:00", "11:15:00", "16:00:00", "08:20:00", "13:10:00", "10:40:00", "15:30:00", "17:50:00")),
+    datetime = as.POSIXct(c("2024-01-01 12:00:00", "2024-01-02 14:30:00", "2024-01-03 09:45:00", "2024-01-04 11:15:00", "2024-01-05 16:00:00", "2024-01-06 08:20:00", "2024-01-07 13:10:00", "2024-01-08 10:40:00", "2024-01-09 15:30:00", "2024-01-10 17:50:00")),
+    value1 = c(42, 28, 50, -67, 83, 23, 56, 90, 77, 55),
+    value2 = c(5, 8, 6, 10, 7, 9, 4, 11, 12, 3),
+    value3 = c(0.5, 0.7, 0.3, 0.8, 0.6, 0.9, 0.4, -1.0, 0.2, 0.75),
+    value4 = c(100, -200, 300, 400, 500, 600, 700, 800, 900, 1000),
+    value5 = c(15, 12, 19, 11, 14, 10, 17, 16, 13, 18),
+    value6 = c("GHI", 25, 20, 22, "JKL", 27, -24, 26, "MNO", "MNO"),
+    value7 = c(50, -60, 70, 80, 90, 100, 110, 120, 130, 140)
+  )
+  
+  # remove a col name
+  names(testing_df)[8] <- ""
+  
+  result <- create_range_report(input_df = testing_df,
+                                input_df_name = "testing", 
+                                report_table = initialize_report_df(),
+                                missing_value_codes = input_parameters$missing_value_codes) %>% 
+    select(column_name, range_min, range_max, num_negative_rows)
+  
+  expected <- tibble(
+    column_name = c("date", "time_logged", "datetime", "value1", "value2", "value3", "value4", "EMPTY_COLUMN_HEADER", "value6", "value7"),
+    range_min = c("2024-01-01", "08:20:00", "2024-01-01 12:00:00", -67, 3, -1, -200, 10, -24, -60),
+    range_max = c("2024-01-10", "17:50:00", "2024-01-10 17:50:00", 90, 12, 0.9, 1000, 19, 27, 140),
+    num_negative_rows = c(NA, NA, NA, 1, 0, 1, 1, 0, 1, 1)
+  )
+  
+  expect_equal(object = result, 
+               expected = expected)
+
 })
 
 
