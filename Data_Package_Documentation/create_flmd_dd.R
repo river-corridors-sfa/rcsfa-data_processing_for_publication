@@ -20,13 +20,13 @@
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "C:/Users/powe419/Desktop/bpowers_github_repos/Regier_2025_d50_v2/d50_computer_vision"
+my_directory = "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v7/v7_WHONDRS_S19S_SW"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "v2_Regier_2025_d50"
+my_dp_keyword = ""
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = "C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Regier_2025_d50_v2"
+my_out_dir = my_directory
 
 #### OPTIONAL ----
 
@@ -46,7 +46,7 @@ my_out_dir = "C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Managemen
   # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = c("README.md", "LICENSE")
+user_exclude_files = NA_character_
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -70,7 +70,7 @@ user_add_boye_headers = F
 user_add_flmd_dd_headers = T
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
-user_include_filenames = T
+user_include_filenames = F
 
 
 ### Prep Script ################################################################
@@ -113,28 +113,16 @@ my_dd <- create_dd(files_df = my_files,
 ### Data Package Specific Edits ################################################
 
 
-prelim_dd <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Regier_2025_d50_v2/Archive/Regier_2025_d50_v2_dd_prelim_20250702.csv") %>%
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v7/v3_dd.csv") %>%
   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
 
 
 dd_populated <- my_dd %>%
-  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
-  mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
-                               T ~ Term_Type),
-         Unit = case_when(Definition == "This header is not defined in this data package because it was not used in this analysis. Refer to the citations in the readme for the original source and definition." ~ "N/A",
-                          Column_or_Row_Name %in% c("File", "Folder", "rc_site") ~ "N/A", 
-                          T ~ Unit),
-         Data_Type = case_when(Definition == "This header is not defined in this data package because it was not used in this analysis. Refer to the citations in the readme for the original source and definition." ~ "N/A",
-                          T ~ Data_Type))
+  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') 
          
-# confirm all rows are populated
-dd_populated %>% 
-  filter(if_any(everything(), is.na)) %>% 
-  nrow() == 0
 
-prelim_flmd <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Regier_2025_d50_v2/Archive/Regier_2025_d50_v2_flmd_prelim_20250702.csv") %>%
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v7/v3_flmd.csv") %>%
   select(File_Name, File_Description)
-
 
 flmd_populated <- my_flmd %>%
   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore') %>% 
@@ -142,11 +130,6 @@ flmd_populated <- my_flmd %>%
                                  T ~ Header_Rows),
          Column_or_Row_Name_Position = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ 1, 
                                                  T ~ Column_or_Row_Name_Position))
-
-# confirm all rows are populated
-flmd_populated %>% 
-  filter(if_any(everything(), is.na)) %>% 
-  nrow() == 0
 
 
 ### Export #####################################################################
