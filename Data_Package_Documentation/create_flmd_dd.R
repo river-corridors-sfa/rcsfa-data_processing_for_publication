@@ -15,18 +15,20 @@
 # your updates work as expected and haven't broken any existing functionality.
 
 
+rm(list=ls(all=T))
+
 ### USER INPUTS ################################################################
 
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v7/v7_WHONDRS_S19S_SW"
+my_directory = "C:/Brieanne/GitHub/YRB_Water_Column_Respiration"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = ""
+my_dp_keyword = "Laan_2025_Water_Column_Respiration"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = my_directory
+my_out_dir = 'Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_Data_Package'
 
 #### OPTIONAL ----
 
@@ -46,7 +48,8 @@ my_out_dir = my_directory
   # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = NA_character_
+user_exclude_files = c('Data/Published_Data/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_Field_Metadata.csv',
+                       "Data/Map_Layers/ERwc_Coords_LULC.csv")
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -112,24 +115,21 @@ my_dd <- create_dd(files_df = my_files,
 
 ### Data Package Specific Edits ################################################
 
-
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v7/v3_dd.csv") %>%
-  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
+prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_dd_prelim.csv") %>%
+  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
 
 
 dd_populated <- my_dd %>%
-  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') 
-         
+  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
+  mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
+                               T ~ Term_Type))
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v7/v3_flmd.csv") %>%
+prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_flmd_prelim.csv") %>%
   select(File_Name, File_Description)
 
+
 flmd_populated <- my_flmd %>%
-  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore') %>% 
-  mutate(Header_Rows = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ 1, 
-                                 T ~ Header_Rows),
-         Column_or_Row_Name_Position = case_when(str_detect(File_Name, "\\.csv$|\\.tsv$") ~ 1, 
-                                                 T ~ Column_or_Row_Name_Position))
+  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 
 ### Export #####################################################################
