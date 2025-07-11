@@ -19,23 +19,23 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "C:/Users/powe419/Desktop/bpowers_github_repos/ECA_DOM_Thermodynamics"
+user_directory <- "C:/Brieanne/GitHub/YRB_Water_Column_Respiration"
 
 # provide the name of the person running the checks
-report_author <- "Bibi Powers-McCormack"
+report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "C:/Users/powe419/Downloads"
+report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package"
 
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- F
+has_flmd <- T
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- ""
+flmd_path <- "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_Data_Package/Laan_2025_Water_Column_Respiration_flmd.csv"
 
 
 #### OPTIONAL ----
@@ -56,10 +56,8 @@ flmd_path <- ""
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = c("Map/Map_Input_File.csv",
-                       "Map/_readme.txt",
-                       paste0('EC_Data_Package/',list.files("C:/Users/powe419/Desktop/bpowers_github_repos/ECA_DOM_Thermodynamics/EC_Data_Package", recursive = T)))
-
+user_exclude_files = c('Data/Published_Data/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_Field_Metadata.csv',
+                       "Data/Map_Layers/ERwc_Coords_LULC.csv")
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
