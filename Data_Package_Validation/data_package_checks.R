@@ -87,6 +87,7 @@ library(DT) # for interactive tables in report
 library(rmarkdown) # for rendering report
 library(plotly) # for interactive graphs
 library(downloadthis) # for downloading tabular data report as .csv
+library(cli) # for fnacy warning mesages 
 
 current_path <- rstudioapi::getActiveDocumentContext()$path
 setwd(dirname(current_path))
@@ -144,6 +145,27 @@ data_package_checks <- check_data_package(data_package_data = data_package_data,
 out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
 render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document", output_dir = report_out_dir, output_file = out_file)
 browseURL(paste0(report_out_dir, "/", out_file))
+
+# 6. Check for duplicate sample names
+for (file_path in names(data_package_data[["tabular_data"]])) {
+  df <- data_package_data[["tabular_data"]][[file_path]]
+  file_name <- basename(file_path)
+  
+  # Check if either Sample_Name or Sample_ID exists
+  if ("Sample_Name" %in% colnames(df)) {
+    # Check for duplicates in Sample_Name
+    if (any(duplicated(df$Sample_Name))) {
+      cli_alert_danger(paste("Duplicate Sample_Name values found in file:", file_name))
+    }
+  }
+  
+  if ("Sample_ID" %in% colnames(df)) {
+    # Check for duplicates in Sample_ID
+    if (any(duplicated(df$Sample_ID))) {
+      cli_alert_danger(paste("Duplicate Sample_ID values found in file:", file_name))
+    }
+  }
+}
 
 
 # View tabular data ############################################################
