@@ -453,7 +453,7 @@ tabular_report %>%
                      scrollX = TRUE,
                      columnDefs = list(list(width = '100%', targets = "_all"),
                                        # hover text for top_counts
-                                       list(targets = 9,  # Index of the column (0-based) where you don't want text wrapping
+                                       list(targets = 10,  # Index of the column (0-based) where you don't want text wrapping
                                             render = JS("function(data, type, row, meta) { return '<div style=\"white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\" title=\"' + data + '\">' + data + '</div>';
            }"
         )))),
