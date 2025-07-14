@@ -424,7 +424,7 @@ This table summarizes tabular files in your data package to enable you to review
 ```{r tabular-data, echo=FALSE}
 
 tabular_report <- data_package_checks$tabular_report %>% 
-  select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows, num_negative_rows, range_min, range_max, top_counts) %>%   
+  select(file_name, column_name, column_type, num_rows, num_unique_rows, num_missing_rows,num_empty_cells, num_negative_rows, range_min, range_max, top_counts) %>%   
   # reorder
   rename(num_missing_values = num_missing_rows,
          num_negative_values = num_negative_rows,
@@ -462,12 +462,12 @@ tabular_report %>%
       class = "stripe row-border") %>% 
   
   # color missing values red
-      formatStyle(c("num_missing_values", "num_negative_values"), # Column to apply the style
+      formatStyle(c("num_missing_values", "num_negative_values", "num_empty_cells"), # Column to apply the style
                   color = styleInterval(0, c(NA, 'red'))  # Highlight cells with value > 0 in red
                   ) %>% 
   
   # add column lines
-  formatStyle(columns = c("file_name", "column_name", "column_type", "num_rows", "num_unique_rows", "num_missing_values",
+  formatStyle(columns = c("file_name", "column_name", "column_type", "num_rows", "num_unique_rows", "num_missing_values","num_empty_cells",
                           "num_negative_values", "range_min", "range_max", "data_preview"), border = '0.1px solid #e6e6e6')
 
 # button to download table
