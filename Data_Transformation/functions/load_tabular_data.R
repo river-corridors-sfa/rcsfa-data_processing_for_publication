@@ -37,6 +37,7 @@ load_tabular_data <- function(files_df,
     # the data are organized with column headers (not row headers)
     # data files can have header rows above and/or below the column headers
     # if the user selects `query_header_info = F`, then data will be read in skipping any rows that begin with "#" and then assuming column headers are on the first row and data begin on the second row. 
+    # rows containing "#End_Data" will be skipped.
   
   # Status: complete. 
     # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
