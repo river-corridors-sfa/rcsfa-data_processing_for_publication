@@ -19,23 +19,23 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "C:/Brieanne/GitHub/YRB_Water_Column_Respiration"
+user_directory <- "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package"
+report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package"
 
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
-user_input_has_header_rows <- F
+user_input_has_header_rows <- T
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- T
+has_flmd <- F
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_Data_Package/Laan_2025_Water_Column_Respiration_flmd.csv"
+flmd_path <- ""
 
 
 #### OPTIONAL ----
@@ -56,8 +56,13 @@ flmd_path <- "Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscri
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = c('Data/Published_Data/v3_SFA_SpatialStudy_2021_SampleData/SPS_Sample_Field_Metadata.csv',
-                       "Data/Map_Layers/ERwc_Coords_LULC.csv")
+user_exclude_files = c("RC2_Sensor_IGSN_Mapping.csv",
+                       "RC2_Temporal_Sampling_Protocol.pdf",
+                       "Test_dd.csv",
+                       "Test_flmd.csv",
+                       "RC2_2022-2024_Field_Metadata.csv",
+                       "Sensor_Data/v2_SSF_Installation_Methods.csv",
+                       'Sample_Data/WHONDRS_EV_Methods_Codes.csv')
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -82,6 +87,7 @@ library(DT) # for interactive tables in report
 library(rmarkdown) # for rendering report
 library(plotly) # for interactive graphs
 library(downloadthis) # for downloading tabular data report as .csv
+library(cli) # for fnacy warning mesages 
 
 current_path <- rstudioapi::getActiveDocumentContext()$path
 setwd(dirname(current_path))
@@ -89,8 +95,10 @@ setwd("./..")
 
 # load functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
+# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
+# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
+source('./Data_Package_Validation/functions/checks.R')
+source('./Data_Transformation/functions/load_tabular_data.R')
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
@@ -138,6 +146,27 @@ out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
 render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document", output_dir = report_out_dir, output_file = out_file)
 browseURL(paste0(report_out_dir, "/", out_file))
 
+# 6. Check for duplicate sample names
+for (file_path in names(data_package_data[["tabular_data"]])) {
+  df <- data_package_data[["tabular_data"]][[file_path]]
+  file_name <- basename(file_path)
+  
+  # Check if either Sample_Name or Sample_ID exists
+  if ("Sample_Name" %in% colnames(df)) {
+    # Check for duplicates in Sample_Name
+    if (any(duplicated(df$Sample_Name))) {
+      cli_alert_danger(paste("Duplicate Sample_Name values found in file:", file_name))
+    }
+  }
+  
+  if ("Sample_ID" %in% colnames(df)) {
+    # Check for duplicates in Sample_ID
+    if (any(duplicated(df$Sample_ID))) {
+      cli_alert_danger(paste("Duplicate Sample_ID values found in file:", file_name))
+    }
+  }
+}
+
 
 # View tabular data ############################################################
 # 
@@ -152,13 +181,16 @@ browseURL(paste0(report_out_dir, "/", out_file))
 # dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
 #   select(Column_or_Row_Name, Unit)
 # 
-# ## look at missing values, negative values, duplicate rows, and non numeric data ####
+# ## look at missing values, negative values, num_empty_cells, duplicate rows, and non numeric data ####
 # 
 # view(tabular_data %>%
 #        filter(num_missing_rows>0))
 # 
 # view(tabular_data %>%
 #        filter(num_negative_rows>0))
+# 
+# view(tabular_data %>%
+#        filter(num_empty_cells>0))
 # 
 # view(tabular_data %>%
 #        filter(num_unique_rows!=num_rows))
