@@ -19,17 +19,17 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
+user_directory <- "C:/Brieanne/GitHub/dynamic-learning-rivers"
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package"
+report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Forbes_2025_ICON_ModEx"
 
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
-user_input_has_header_rows <- T
+user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
 has_flmd <- F
@@ -56,19 +56,13 @@ flmd_path <- ""
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = c("RC2_Sensor_IGSN_Mapping.csv",
-                       "RC2_Temporal_Sampling_Protocol.pdf",
-                       "Test_dd.csv",
-                       "Test_flmd.csv",
-                       "RC2_2022-2024_Field_Metadata.csv",
-                       "Sensor_Data/v2_SSF_Installation_Methods.csv",
-                       'Sample_Data/WHONDRS_EV_Methods_Codes.csv')
+user_exclude_files = NA_character_
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
 
 # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE.
-user_include_dot_files = F
+user_include_dot_files = T
 
 
 ### Prep Script ################################################################
@@ -95,10 +89,9 @@ setwd("./..")
 
 # load functions
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
-# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
-# source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
-source('./Data_Package_Validation/functions/checks.R')
-source('./Data_Transformation/functions/load_tabular_data.R')
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
+source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
+
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
