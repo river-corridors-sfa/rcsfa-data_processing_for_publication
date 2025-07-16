@@ -19,17 +19,17 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "C:/Brieanne/GitHub/dynamic-learning-rivers"
+user_directory <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_YDE21_Data_Package_v3/WHONDRS_YDE21_Data_Package_v3"
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Forbes_2025_ICON_ModEx"
+report_out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_YDE21_Data_Package_v3"
 
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
-user_input_has_header_rows <- F
+user_input_has_header_rows <- T
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
 has_flmd <- F
@@ -56,13 +56,364 @@ flmd_path <- ""
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = NA_character_
+user_exclude_files = c("FTICR/FTICR_Data_7T/YDE21_053-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_053-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_053-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_054-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_054-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Blank_SED-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Blank_SED-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Process_Blank-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Process_Blank-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Process_Blank-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Process_Blank-4_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Process_Blank-6_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Raw_MilliQ_Blank-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Raw_MilliQ_Blank-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Raw_MilliQ_Blank-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/Raw_MilliQ_Blank-4_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_001-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_001-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_001-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_01_SED-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_01_SED-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_01_SED-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_002-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_002-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_002-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_02_SED-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_02_SED-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_02_SED-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_003-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_003-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_003-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_004-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_004-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_004-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_005-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_005-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_005-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_006-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_006-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_006-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_007-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_007-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_007-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_008-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_008-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_008-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_009-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_009-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_009-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_010-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_010-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_010-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_011-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_011-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_011-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_012-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_012-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_012-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_013-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_013-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_013-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_014-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_014-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_014-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_015-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_015-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_015-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_016-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_016-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_016-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_017-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_017-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_017-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_018-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_018-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_018-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_019-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_019-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_020-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_020-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_020-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_021-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_021-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_021-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_022-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_022-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_022-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_023-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_023-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_023-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_024-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_024-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_024-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_025-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_025-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_025-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_026-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_026-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_026-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_027-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_027-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_027-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_028-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_028-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_028-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_029-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_029-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_029-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_030-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_030-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_030-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_031-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_031-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_031-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_032-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_032-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_033-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_033-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_033-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_034-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_034-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_034-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_035-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_035-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_035-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_036-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_036-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_036-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_037-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_037-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_037-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_038-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_038-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_038-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_039-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_039-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_039-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_040-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_040-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_040-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_041-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_041-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_041-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_042-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_042-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_042-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_043-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_043-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_043-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_044-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_044-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_044-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_045-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_045-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_045-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_046-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_046-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_046-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_047-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_047-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_047-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_048-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_048-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_048-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_049-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_049-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_049-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_050-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_050-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_050-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_051-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_051-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_051-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_052-1_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_052-2_p025_7T.xml",
+                       "FTICR/FTICR_Data_7T/YDE21_052-3_p025_7T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_053-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_053-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_053-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_054-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_054-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Blank_SED-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Blank_SED-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Process_Blank-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Process_Blank-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Process_Blank-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Process_Blank-4_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Process_Blank-5_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Raw_MilliQ_Blank-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Raw_MilliQ_Blank-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Raw_MilliQ_Blank-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/Raw_MilliQ_Blank-4_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_001-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_001-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_001-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_01_SED-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_01_SED-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_01_SED-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_002-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_002-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_002-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_02_SED-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_02_SED-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_02_SED-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_003-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_003-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_003-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_004-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_004-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_004-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_005-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_005-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_005-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_006-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_006-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_006-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_007-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_007-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_007-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_008-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_008-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_008-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_009-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_009-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_009-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_010-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_010-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_010-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_011-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_011-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_011-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_012-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_012-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_012-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_013-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_013-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_013-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_014-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_014-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_014-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_015-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_015-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_015-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_016-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_016-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_016-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_017-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_017-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_017-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_018-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_018-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_018-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_019-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_019-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_020-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_020-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_020-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_021-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_021-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_021-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_022-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_022-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_022-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_023-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_023-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_023-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_024-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_024-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_024-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_025-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_025-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_025-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_026-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_026-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_026-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_027-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_027-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_027-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_028-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_028-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_028-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_029-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_029-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_029-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_030-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_030-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_030-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_031-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_031-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_031-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_032-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_032-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_033-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_033-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_033-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_034-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_034-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_034-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_035-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_035-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_035-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_036-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_036-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_036-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_037-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_037-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_037-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_038-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_038-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_038-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_039-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_039-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_039-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_040-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_040-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_040-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_041-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_041-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_041-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_042-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_042-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_042-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_043-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_043-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_043-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_044-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_044-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_044-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_045-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_045-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_045-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_046-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_046-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_046-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_047-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_047-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_047-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_048-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_048-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_048-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_049-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_049-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_049-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_050-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_050-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_050-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_051-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_051-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_051-3_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_052-1_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_052-2_p3_12T.xml",
+                       "FTICR/FTICR_Data_12T/YDE21_052-3_p3_12T.xml")
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
 
 # include_dot_files = T/F to indicate whether you want to include hidden files that begin with "." (usually github related files). Optional argument; default is FALSE.
-user_include_dot_files = T
+user_include_dot_files = F
 
 
 ### Prep Script ################################################################
@@ -149,6 +500,9 @@ for (file_path in names(data_package_data[["tabular_data"]])) {
     # Check for duplicates in Sample_Name
     if (any(duplicated(df$Sample_Name))) {
       cli_alert_danger(paste("Duplicate Sample_Name values found in file:", file_name))
+    } else {
+      
+      cli_alert_success('No duplicate Sample_Name values found')
     }
   }
   
@@ -156,77 +510,80 @@ for (file_path in names(data_package_data[["tabular_data"]])) {
     # Check for duplicates in Sample_ID
     if (any(duplicated(df$Sample_ID))) {
       cli_alert_danger(paste("Duplicate Sample_ID values found in file:", file_name))
+    }else {
+      
+      cli_alert_success('No duplicates Sample_ID values found')
     }
   }
 }
 
 
 # View tabular data ############################################################
-# 
-# tabular_data <- data_package_checks$tabular_report 
-# 
-# # Find the path that contains "dd.csv"
-# dd_path <- names(data_package_checks$input$tabular_data)[
-#   str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
-# ]
-# 
-# ## Pull in dd to get units 
-# dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
-#   select(Column_or_Row_Name, Unit)
-# 
-# ## look at missing values, negative values, num_empty_cells, duplicate rows, and non numeric data ####
-# 
-# view(tabular_data %>%
-#        filter(num_missing_rows>0))
-# 
-# view(tabular_data %>%
-#        filter(num_negative_rows>0))
-# 
-# view(tabular_data %>%
-#        filter(num_empty_cells>0))
-# 
-# view(tabular_data %>%
-#        filter(num_unique_rows!=num_rows))
-# 
-# view(tabular_data %>%
-#        filter(column_type != 'numeric'))
-# 
-# ## look at min/max values ####
-# 
-# numeric_long <- tabular_data %>%
-#   left_join(dd, by = c('column_name' = 'Column_or_Row_Name')) %>% 
-#   filter(column_type != 'POSIXct') %>%
-#   select(column_name, range_min, range_max, Unit) %>%
-#   mutate(range_min = as.numeric(range_min),
-#          range_max = as.numeric(range_max)) %>%
-#   filter(!is.na(range_min)) %>%
-#   rename(MIN = range_min,
-#          MAX = range_max) %>%
-#   pivot_longer(cols = c(MIN, MAX), 
-#                names_to = "type", 
-#                values_to = "value") %>%
-#   mutate(facet_label = paste0(column_name, " (", Unit, ") ", type))
-# 
-# plot <- ggplot(numeric_long, aes(x = value)) +
-#   geom_boxplot() +
-#   facet_wrap(~facet_label, scales = "free_x", ncol = 2) +
-#   theme_bw()  +
-#   theme(
-#     axis.title.y = element_blank(),
-#     axis.text.y = element_blank(),
-#     axis.title.x = element_blank(),
-#     plot.title = element_text(size = 10, color = "grey") 
-#   ) +
-#   ggtitle(paste("The associated data checks report was created on", Sys.Date(), "by", report_author))
-# 
-# ggsave(
-#   paste0(report_out_dir, 'tabular_data_plots_',Sys.Date(),'.pdf'),
-#   plot,
-#   device = 'pdf',
-#   width = 10,
-#   height = 100,
-#   units = 'in',
-#   dpi = 300,
-#   limitsize = FALSE
-# )
+
+tabular_data <- data_package_checks$tabular_report
+
+# Find the path that contains "dd.csv"
+dd_path <- names(data_package_checks$input$tabular_data)[
+  str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
+]
+
+## Pull in dd to get units
+dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
+  select(Column_or_Row_Name, Unit)
+
+## look at missing values, negative values, num_empty_cells, duplicate rows, and non numeric data ####
+
+view(tabular_data %>%
+       filter(num_missing_rows>0))
+
+view(tabular_data %>%
+       filter(num_negative_rows>0))
+
+view(tabular_data %>%
+       filter(num_empty_cells>0))
+
+view(tabular_data %>%
+       filter(num_unique_rows!=num_rows))
+
+view(tabular_data %>%
+       filter(column_type != 'numeric'))
+
+## look at min/max values ####
+
+numeric_long <- tabular_data %>%
+  left_join(dd, by = c('column_name' = 'Column_or_Row_Name')) %>%
+  filter(column_type != 'POSIXct') %>%
+  select(column_name, range_min, range_max, Unit) %>%
+  mutate(range_min = as.numeric(range_min),
+         range_max = as.numeric(range_max)) %>%
+  filter(!is.na(range_min)) %>%
+  rename(MIN = range_min,
+         MAX = range_max) %>%
+  pivot_longer(cols = c(MIN, MAX),
+               names_to = "type",
+               values_to = "value") %>%
+  mutate(facet_label = paste0(column_name, " (", Unit, ") ", type))
+
+plot <- ggplot(numeric_long, aes(x = value)) +
+  geom_boxplot() +
+  facet_wrap(~facet_label, scales = "free_x", ncol = 2) +
+  theme_bw()  +
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.title.x = element_blank(),
+    plot.title = element_text(size = 10, color = "grey")
+  ) +
+  ggtitle(paste("The associated data checks report was created on", Sys.Date(), "by", report_author))
+
+ggsave(
+  paste0(report_out_dir, 'tabular_data_plots_',Sys.Date(),'.pdf'),
+  plot,
+  device = 'pdf',
+  width = 10,
+  height = 100,
+  units = 'in',
+  dpi = 300,
+  limitsize = FALSE
+)
 
