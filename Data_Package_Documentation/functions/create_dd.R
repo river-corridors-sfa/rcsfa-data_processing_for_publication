@@ -10,7 +10,8 @@ create_dd <- function(files_df,
                       flmd_df = NA, 
                       add_boye_headers = F, 
                       add_flmd_dd_headers = F,
-                      include_filenames = F) {
+                      include_filenames = F,
+                      include_precision = F) {
   
   
   ### About the function #######################################################

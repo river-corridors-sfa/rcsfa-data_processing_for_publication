@@ -425,6 +425,9 @@ user_add_flmd_dd_headers = T
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
 user_include_filenames = F
 
+# include_precision = T/F to indicate whether you want to include the precision in the dd. Optional argument; default is F. 
+user_include_precision = F
+
 
 ### Prep Script ################################################################
 
