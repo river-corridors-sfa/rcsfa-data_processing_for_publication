@@ -26,6 +26,7 @@ rm(list=ls(all=T))
 my_directory = "Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
+
 my_dp_keyword = "WHONDRS_MEL"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
@@ -71,11 +72,10 @@ user_view_n_max = 20
 user_add_boye_headers = T
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
-user_add_flmd_dd_headers = T
+user_add_flmd_dd_headers = F
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
 user_include_filenames = T
-
 
 ### Prep Script ################################################################
 
@@ -142,5 +142,4 @@ write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), n
 # write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 
 write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
-
 

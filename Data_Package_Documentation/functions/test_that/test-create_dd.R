@@ -133,7 +133,7 @@ test_that("expected edge cases", {
   
   # returns 2 additional columns (header_count and associated_files) if include_filenames = T
   expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, include_filenames = T) %>% names(.), 
-               expected = c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "Missing_Value_Code", "header_count", "associated_files"))
+               expected = c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "Missing_Value_Code", "Reported_Precision", "header_count", "associated_files"))
   
 })
 
