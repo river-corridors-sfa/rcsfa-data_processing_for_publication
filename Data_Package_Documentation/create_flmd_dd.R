@@ -22,13 +22,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
+my_directory = "Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
 my_dp_keyword = "TEST"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
+my_out_dir = "Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package"
 
 #### OPTIONAL ----
 
@@ -69,7 +69,7 @@ user_view_n_max = 20
 user_add_boye_headers = T
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
-user_add_flmd_dd_headers = T
+user_add_flmd_dd_headers = F
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
 user_include_filenames = T
@@ -145,3 +145,20 @@ write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.c
 
 write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
+### compare precision to manually input precision ##############################
+
+manual <- read_csv("Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package/WHONDRS_MEL_dd.csv") %>%
+  select(Column_or_Row_Name, Reported_Precision) %>%
+  rename(Reported_Precision_manual = Reported_Precision)
+
+auto <- my_dd %>%
+  select(Column_or_Row_Name, Reported_Precision) %>%
+  mutate(Reported_Precision = as.numeric(Reported_Precision)) %>%
+  rename(Reported_Precision_auto = Reported_Precision)
+
+combine <- manual %>%
+  full_join(auto)
+
+no_match <- combine %>%
+  mutate(match = (Reported_Precision_auto==Reported_Precision_manual)) %>%
+  filter(match == F)
