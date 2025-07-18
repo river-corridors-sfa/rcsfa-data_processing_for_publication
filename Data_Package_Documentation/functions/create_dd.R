@@ -222,8 +222,8 @@ create_dd <- function(files_df,
       # read in full file to get precision. NOTE: this will skip first row of data since it has a hash
         current_tabular_data <- read_csv(current_file_absolute, comment = "#",  skip = current_column_or_row_name_position - 1, na = c("NA", -9999), show_col_types = F) %>%
           slice(-(1:(current_header_rows - current_column_or_row_name_position))) %>%
-          mutate(across(where(~ any(grepl("Standard\\||LOD\\|", .x))), ~ suppressWarnings(as.numeric(.x))))# ensure sample data with text flags are read in as numeric
-        
+          mutate(across(where(~ any(grepl("Standard\\||LOD\\||Not_Corrected\\|", .x))), ~ suppressWarnings(as.numeric(.x)))) %>% # ensure sample data with text flags are read in as numeric
+        type_convert(col_types = cols(.default = col_guess())) # reassess column types after reading in properly
       
     } else if (str_detect(current_file_absolute, "\\.tsv$")) {
       
@@ -233,7 +233,8 @@ create_dd <- function(files_df,
       # read in full file to get precision. NOTE: this will skip first row of datasince it has a hash
       current_tabular_data <- read_tsv(current_file_absolute, comment = "#",  skip = current_column_or_row_name_position - 1, show_col_types = F) %>%
         slice(-(1:(current_header_rows - current_column_or_row_name_position))) %>%
-        mutate(across(where(~ any(grepl("Standard\\||LOD\\|", .x))), ~ suppressWarnings(as.numeric(.x)))) # ensure sample data with text flags are read in as numeric
+        mutate(across(where(~ any(grepl("Standard\\||LOD\\||Not_Corrected\\|", .x))), ~ suppressWarnings(as.numeric(.x))))%>% # ensure sample data with text flags are read in as numeric
+        type_convert(col_types = cols(.default = col_guess())) # reassess column types after reading in properly
       
     }
     
@@ -242,6 +243,14 @@ create_dd <- function(files_df,
       
       current_tabular_data <- current_tabular_data %>%
         mutate(Method_Description = as.character(Method_Description))
+      
+    }
+    
+    if(any("Definition" %in% colnames(current_tabular_data))){
+      # fixing issue where mutate above makes this column numeric
+      
+      current_tabular_data <- current_tabular_data %>%
+        mutate(Definition = as.character(Definition))
       
     }
     
@@ -358,8 +367,8 @@ create_dd <- function(files_df,
                                 "MethodID_Preservation", "N/A",	"Method code defining information about preservation of the samples that led to the data presented in the column.",	"text", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template",  '-9999',
                                 "MethodID_Preparation", "N/A",	"Method code defining information about preparation of the samples that led to the data presented in the column.",	"text", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template",  '-9999',
                                 "MethodID_DataProcessing", "N/A",	"Method code defining information about data processing that led to the data presented in the column.",	"text", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template",  '-9999',
-                                "Analysis_DetectionLimit", "N/A",	"Analytical detection limit.",	"numeric", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template",  '-9999',
-                                "Analysis_Precision", "N/A",	"Precision of the data values.",	"numeric", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template",  '-9999',
+                                "Analysis_DetectionLimit", "N/A",	"Analytical detection limit.",	"numeric", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template",  '0.01',
+                                "Analysis_Precision", "N/A",	"Precision of the data values.",	"numeric", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template",  '0.01',
                                 "Data_Status", "N/A",	"State of data readiness for publication and use.",	"text", "row_header", '"N/A"; "-9999"; ""; "NA"', "boye template" ,'-9999')
     
     # add rows 
@@ -377,8 +386,8 @@ create_dd <- function(files_df,
                                         "File_Name", "N/A", "Name of files in the data package.", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template", '-9999',
                                         "File_Description", "N/A",  "A brief description of the files in the data package.", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template", '-9999',
                                         "Standard", "N/A","ESS-DIVE Reporting Format (https://ess-dive.lbl.gov/data-reporting-formats/) or other standard applied to the data file.", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template", '-9999',
-                                        "Header_Rows", "N/A", 'The number of rows or the number of columns that occur before the start of tabular data. This count assumes the numbering begins at 1 (rather than 0), excludes columns or rows that begin with "#", and includes the column or row that the header names are on. For example, if the file has columns with variable names but does not have any other metadata header rows, then this value is 1. Most data in this data package is oriented in columns, so this field indicates the number of rows before the start of the data (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 2 - to indicate the count of the rows prior to the data values).', "numeric", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template",'-9999', 
-                                        "Column_or_Row_Name_Position", "N/A", 'The location of the column or row that contains the header names (i.e., column name or row name). The count used to identify the location assumes the numbering begins at 1 (rather than 0) and excludes columns or rows that begin with "#". Most data in this data package is oriented in columns, so this field indicates the tabular location of the row that holds the column names (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 1 - to indicate the location of the column header row).', "numeric", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template", '-9999',
+                                        "Header_Rows", "N/A", 'The number of rows or the number of columns that occur before the start of tabular data. This count assumes the numbering begins at 1 (rather than 0), excludes columns or rows that begin with "#", and includes the column or row that the header names are on. For example, if the file has columns with variable names but does not have any other metadata header rows, then this value is 1. Most data in this data package is oriented in columns, so this field indicates the number of rows before the start of the data (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 2 - to indicate the count of the rows prior to the data values).', "numeric", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template",'1', 
+                                        "Column_or_Row_Name_Position", "N/A", 'The location of the column or row that contains the header names (i.e., column name or row name). The count used to identify the location assumes the numbering begins at 1 (rather than 0) and excludes columns or rows that begin with "#". Most data in this data package is oriented in columns, so this field indicates the tabular location of the row that holds the column names (e.g., If row 1 has the column headers, row 2 has the units, and row 3 has the data values, then this value would be 1 - to indicate the location of the column header row).', "numeric", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template", '1',
                                         "File_Path", "N/A", "File path within the data package.", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template",'-9999')
     
     # dd headers
@@ -388,7 +397,8 @@ create_dd <- function(files_df,
                                       "Definition", "N/A", "Description of the information in a given column or row in the dataset.definition", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template",'-9999',
                                       "Data_Type", "N/A", "Type of data (numeric; text; date; time; datetime).", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999',
                                       "Term_Type", "N/A", "Indicates how the term is used in the data package (e.g., a column_header, row_header, data_flag, or other variable).", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999',
-                                      "Missing_Value_Code", "N/A", 'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. In most cases, the missing value code for numeric data is "-9999" and for character data is "N/A". Some files also use a missing value format specific to when a data value is below the limit of detection or above/below the standard curve. For these cases: a text string is included in the format "[data type]_*|*_Raw_Not_Corrected|*_Final_Corrected" in which the asterisks are the denoted individual data values. See the associated methods deviation (DTL_003) description for more details.', "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999')
+                                      "Missing_Value_Code", "N/A", 'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. In most cases, the missing value code for numeric data is "-9999" and for character data is "N/A". Some files also use a missing value format specific to when a data value is below the limit of detection or above/below the standard curve. For these cases: a text string is included in the format "[data type]_*|*_Raw_Not_Corrected|*_Final_Corrected" in which the asterisks are the denoted individual data values. See the associated methods deviation (DTL_003) description for more details.', "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999',
+                                      "Reported_Precision", "N/A", 'Precision of the reported data values. For example, if the values are rounded to 1 decimal place, the precision would be 0.1. Similarly, if a value like 5.24 is reported (rounded to 2 decimal places), its precision would be 0.01.', "numeric", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999')
     
     # add rows
     dd_skeleton <- dd_skeleton %>% 
@@ -444,7 +454,8 @@ create_dd <- function(files_df,
     mutate(across(c(Unit, Definition, Data_Type, Term_Type, Missing_Value_Code), 
                   ~case_when(length(.) == 0 ~ NA_character_,
                              TRUE ~ .))) %>% 
-    
+    # make Reported_Precision for Reported_Precisoin = -9999
+    mutate(Reported_Precision = ifelse(Column_or_Row_Name == "Reported_Precision", -9999, Reported_Precision)) %>%
     # alphabetize
     arrange(tolower(Column_or_Row_Name))
   
