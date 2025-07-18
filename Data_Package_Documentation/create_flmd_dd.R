@@ -74,10 +74,6 @@ user_add_flmd_dd_headers = F
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
 user_include_filenames = T
 
-# include_precision = T/F to indicate whether you want to include the precision in the dd. Optional argument; default is F. 
-user_include_precision = T
-
-
 ### Prep Script ################################################################
 
 # load libraries
@@ -113,8 +109,7 @@ my_dd <- create_dd(files_df = my_files,
                     flmd_df = my_flmd, 
                     add_boye_headers = user_add_boye_headers, 
                     add_flmd_dd_headers = user_add_flmd_dd_headers, 
-                    include_filenames = user_include_filenames,
-                   include_precision = user_include_precision)
+                    include_filenames = user_include_filenames)
 
 ### Data Package Specific Edits ################################################
 
@@ -144,21 +139,3 @@ flmd_populated <- my_flmd %>%
 write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 
 write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
-
-### compare precision to manually input precision ##############################
-
-manual <- read_csv("Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package/WHONDRS_MEL_dd.csv") %>%
-  select(Column_or_Row_Name, Reported_Precision) %>%
-  rename(Reported_Precision_manual = Reported_Precision)
-
-auto <- my_dd %>%
-  select(Column_or_Row_Name, Reported_Precision) %>%
-  mutate(Reported_Precision = as.numeric(Reported_Precision)) %>%
-  rename(Reported_Precision_auto = Reported_Precision)
-
-combine <- manual %>%
-  full_join(auto)
-
-no_match <- combine %>%
-  mutate(match = (Reported_Precision_auto==Reported_Precision_manual)) %>%
-  filter(match == F)

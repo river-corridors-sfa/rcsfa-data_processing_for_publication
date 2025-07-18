@@ -10,14 +10,13 @@ create_dd <- function(files_df,
                       flmd_df = NA, 
                       add_boye_headers = F, 
                       add_flmd_dd_headers = F,
-                      include_filenames = F,
-                      include_precision = F) {
+                      include_filenames = F) {
   
   
   ### About the function #######################################################
   # Objective:
     # Create a dd with the following columns: 
-      # Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code
+      # Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code, Reported_Precision
   
   # Inputs: 
     # files_df = df with at least these 5 cols: all, absolute_dir, parent_dir, relative_dir, and file. Required argument. 
@@ -27,7 +26,7 @@ create_dd <- function(files_df,
     # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
   
   # Outputs: 
-    # dd df with the columns: "Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", Missing_Value_Code"
+    # dd df with the columns: "Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", Missing_Value_Code", Reported_Precision
       # additional optional cols (if include_filenames = T): "header_count", "associated_files"
   
   # Assumptions: 
@@ -464,9 +463,10 @@ create_dd <- function(files_df,
   if (include_filenames == F) {
     
     dd_skeleton <- dd_skeleton %>% 
-      select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code)
+      select(-associated_files, -header_count)
     
   }
+  
   
   
   ### return filled out skeleton ###############################################
