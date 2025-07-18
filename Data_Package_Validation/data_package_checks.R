@@ -263,7 +263,7 @@ plot <- ggplot(numeric_long, aes(x = value)) +
   ggtitle(paste("The associated data checks report was created on", Sys.Date(), "by", report_author))
 
 ggsave(
-  paste0(report_out_dir, 'tabular_data_plots_',Sys.Date(),'.pdf'),
+  paste0(report_out_dir, '/tabular_data_plots_',Sys.Date(),'.pdf'),
   plot,
   device = 'pdf',
   width = 10,

@@ -21,14 +21,17 @@ rm(list=ls(all=T))
 
 #### REQUIRED ----
 
+
 # directory = string of the absolute folder file path; do not include "/" at end.
 my_directory = "Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "TEST"
+
+my_dp_keyword = "WHONDRS_MEL"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = "Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package"
+my_out_dir = 'Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package'
+
 
 #### OPTIONAL ----
 
@@ -113,7 +116,7 @@ my_dd <- create_dd(files_df = my_files,
 
 ### Data Package Specific Edits ################################################
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_YDE21_Data_Package_v3/WHONDRS_YDE21_dd.csv") %>%
+prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/ECA_Data_Package/EC_Data_Package/EC_dd.csv") %>%
   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
 
 
@@ -122,20 +125,21 @@ dd_populated <- my_dd %>%
   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
                                T ~ Term_Type))
 
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_YDE21_Data_Package_v3/WHONDRS_YDE21_flmd_v2.csv") %>%
-  select(File_Name, File_Description)
-
-
-flmd_populated <- my_flmd %>%
-  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/ECA_Data_Package/EC_Data_Package/EC_flmd.csv") %>%
+#   select(File_Name, File_Description)
+# 
+# 
+# flmd_populated <- my_flmd %>%
+#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 
 ### Export #####################################################################
 
-# write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 # 
 # write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
-write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+# write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 
 write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
+
