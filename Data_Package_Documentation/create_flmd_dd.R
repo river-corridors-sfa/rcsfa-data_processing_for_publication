@@ -28,6 +28,9 @@ my_dp_keyword = "Test"
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
 my_out_dir = "Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package"
 
+# populate_dd_flmd = indicate if you would like query the database to populate the dd and flmd. T/F
+populate_dd_flmd = F
+
 #### OPTIONAL ----
 
 # TIPS for including/excluding files: 
@@ -72,6 +75,11 @@ user_add_flmd_dd_headers = T
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
 user_include_filenames = F
 
+# dd_database_path = absolute path to the dd database 
+user_dd_database_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv"
+
+# flmd_database_path = absolute path to the flmd database 
+user_flmd_database_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/file_level_metadata_database.csv"
 
 ### Prep Script ################################################################
 
@@ -110,33 +118,27 @@ my_dd <- create_dd(files_df = my_files,
                     add_flmd_dd_headers = user_add_flmd_dd_headers, 
                     include_filenames = user_include_filenames)
 
-### Data Package Specific Edits ################################################
+### Populate dd/flmd from database #############################################
 
+if(populate_dd_flmd == T){
 
-# prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_dd_prelim.csv") %>%
-#   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
-# 
-# 
-# dd_populated <- my_dd %>%
-#   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
-#   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
-#                                T ~ Term_Type))
-# 
-# prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/v2_Laan_2025_Water_Column_Manuscript_Data_Package/Laan_2025_Water_Column_Respiration_flmd_prelim.csv") %>%
-#   select(File_Name, File_Description)
-# 
-# 
-# flmd_populated <- my_flmd %>%
-#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
+dd_populated <-  query_dd_database(dd_database_abs_path = user_dd_database_path, 
+                                   dd_skeleton = my_dd)
 
+flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_database_path, 
+                                    flmd_skeleton = my_flmd)
 
 ### Export #####################################################################
+
+write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+
+write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
+
+} else{
 
 write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 
 write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
-write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
-
-write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
+}
 
