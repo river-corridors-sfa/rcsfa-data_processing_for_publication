@@ -40,12 +40,24 @@ populated_dd <- query_dd_database(dd_database_abs_path, dd_skeleton)
 # =================== query_dd_database function ===============================
 query_dd_database <- function(dd_database_abs_path, dd_skeleton){
   log_info("Reading in and validating files.")
+  
   # read in database
   dd_database <- read_csv(dd_database_abs_path, col_names = T, show_col_types = F, col_types = "icccccDcc") # the col types argument tells the function what col types (chr, int, date) to use
   backup_file_name <- paste0(dirname(dd_database_abs_path), '/dd_populate_temporary_backup.rds')
   
-  ## =================== Helper Functions ===================
+  # Check if backup file exists and ask user if they want to use it
+  if (file.exists(backup_file_name)) {
+    use_backup <- get_validated_yn_input("A backup file was found. Do you want to continue from where you left off? (Y/N): ")
+    if (use_backup) {
+      log_info("Loading from backup file.")
+      dd_skeleton <- read_rds(backup_file_name)
+      log_info(paste0("Backup loaded. Progress: ", sum(!is.na(dd_skeleton$Definition)), " of ", nrow(dd_skeleton), " rows completed."))
+    } else {
+      log_info("Starting fresh - backup file will be overwritten.")
+    }
+  }
   
+  ## =================== Helper Functions ===================
   # Validate numeric input from user
   get_validated_numeric_input <- function(prompt, max_value) {
     repeat {
@@ -76,9 +88,10 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
       return(NULL)
     }
     
-    log_info(paste0("The header '", current_header, "' ", 
-                    if(match_type == "fuzzy") "is not in the data dictionary database. Trying a fuzzy match." 
+    log_info(paste0("The header '", current_header, "' ",
+                    if(match_type == "fuzzy") "is not in the data dictionary database. Trying a fuzzy match."
                     else "was found in the data dictionary database."))
+    
     print(matches)
     
     user_choice <- get_validated_numeric_input(
@@ -92,8 +105,8 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
     }
     
     log_info("Adding selected definition to the dd")
-    return(matches %>% 
-             slice(user_choice) %>% 
+    return(matches %>%
+             slice(user_choice) %>%
              select(Unit, Definition, Data_Type, Term_Type))
   }
   
@@ -101,6 +114,7 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
   # This chunk validates the input arguments.
   # It makes sure the database has cols: index, Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
   # It makes sure the dd has cols: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+  
   # confirm dd_database has correct cols
   database_required_cols <- c("index", "Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type", "date_published", "dd_filename", "dd_source")
   if (!all(database_required_cols %in% names(dd_database))) {
@@ -108,6 +122,7 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
     log_error(paste0("dd database is missing required column: ", setdiff(database_required_cols, names(dd_database))))
     stop("query_dd_database() function terminating")
   } # end of checking dd database required cols
+  
   # confirm dd has the correct cols
   dd_cols <- c("Column_or_Row_Name", "Unit", "Definition", "Data_Type", "Term_Type")
   if (!all(dd_cols %in% names(dd_skeleton))) {
@@ -124,9 +139,11 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
               dd_filename = paste(unique(dd_filename), collapse = ", "), .groups = "drop")
   
   ## =================== Initialize populated dd ============================
-  # add flag column
-  dd_skeleton <- dd_skeleton %>%
-    add_column(flag = FALSE)
+  # add flag column if it doesn't exist (in case we're starting fresh)
+  if (!"flag" %in% names(dd_skeleton)) {
+    dd_skeleton <- dd_skeleton %>%
+      add_column(flag = FALSE)
+  }
   
   ## ================= Initialize fuzzy match function ==========================
   find_fuzzy_matches <- function(current_header, dd_database_condensed, max_distance = 2, min_similarity = 0.69, method = "jw") {
@@ -138,29 +155,45 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
       filter(similarity_score >= min_similarity) %>%
       arrange(desc(similarity_score), Column_or_Row_Name, desc(latest_date_published)) %>%
       head(10)
+    
     return(dd_database_fuzzy)
   }
   
   ## =================== look at existing definitions ==================
-  log_info("Showing populated rows. Read through the definitions and units. ")
-  view(dd_skeleton %>% filter(!is.na(Definition)))
-  
-  flag_existing <- get_validated_yn_input("Do you want to flag any rows to come back to later? (enter Y/N) ")
-  
-  if(flag_existing){
-    print(dd_skeleton %>% filter(!is.na(Definition)) %>% pull(Column_or_Row_Name))
-    user_input2 <- readline(prompt = "Provide a comma seperated list of the column names you would like to flag:  ")
-    dd_skeleton <- dd_skeleton %>%
-      mutate(flag = case_when(str_detect(user_input2, Column_or_Row_Name) ~ T,
-                              TRUE ~ FALSE))
-    write_rds(dd_skeleton, backup_file_name)
+  # Only show this section if we're not resuming from backup or if user wants to review
+  if (!file.exists(backup_file_name) || !use_backup) {
+    log_info("Showing populated rows. Read through the definitions and units. ")
+    view(dd_skeleton %>% filter(!is.na(Definition)))
     
-    log_info("Back up created.")
+    flag_existing <- get_validated_yn_input("Do you want to flag any rows to come back to later? (enter Y/N) ")
+    if(flag_existing){
+      print(dd_skeleton %>% filter(!is.na(Definition)) %>% pull(Column_or_Row_Name))
+      user_input2 <- readline(prompt = "Provide a comma seperated list of the column names you would like to flag:  ")
+      dd_skeleton <- dd_skeleton %>%
+        mutate(flag = case_when(str_detect(user_input2, Column_or_Row_Name) ~ T,
+                                TRUE ~ FALSE))
+      write_rds(dd_skeleton, backup_file_name)
+      log_info("Back up created.")
+    }
   }
   
   ## =================== loop through and populate ==================
-  for (i in 1:nrow(dd_skeleton)) {
+  # Find the starting point (first row with NA definition, or 1 if starting fresh)
+  start_row <- ifelse(exists("use_backup") && use_backup, 
+                      min(which(is.na(dd_skeleton$Definition)), nrow(dd_skeleton) + 1),
+                      1)
+  
+  if (start_row > nrow(dd_skeleton)) {
+    log_info("All rows are already populated!")
+    cli_alert_warning("Reminder to review the rows that have TRUE in the flag column and then remove the flag column. ")
+    return(dd_skeleton)
+  }
+  
+  dd_populated <- dd_skeleton  # Initialize with current state
+  
+  for (i in start_row:nrow(dd_skeleton)) {
     log_info(paste0("Querying skeleton dd row ", i, " of ", nrow(dd_skeleton), "."))
+    
     # extract current row
     current_row <- dd_skeleton %>%
       slice(i)
@@ -203,18 +236,13 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
       
       # Ask about flagging
       flag_row <- get_validated_yn_input("Do you want to flag this row to come back to later? (enter Y/N) ")
-      
       populated_row <- populated_row %>%
         mutate(flag = flag_row)
-      
     } # end of if definition is NA
     
-    if(i == 1){ # create dd_populated if first row, otherwise append to existing dd_populated
-      dd_populated <- populated_row
-    } else{
-      dd_populated <- dd_populated %>%
-        add_row(populated_row)
-    }
+    # Update the row in dd_populated
+    dd_populated[i, ] <- populated_row
+    
     write_rds(dd_populated, backup_file_name)
     log_info("Back up created.")
   } # end of loop for each column
