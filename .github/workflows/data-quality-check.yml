@@ -1,0 +1,104 @@
+name: Data Quality Check
+
+on:
+  push:
+    branches: [ main ]  # ⚠️ Only change this if your default branch isn't 'main'
+  pull_request:
+    branches: [ main ]  # ⚠️ Only change this if your default branch isn't 'main'
+
+jobs:
+  run-data-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.3.0'
+    
+    - name: Install R dependencies
+      run: |
+        Rscript -e "install.packages(c('here', 'tidyverse', 'devtools', 'hms', 'fs', 'knitr', 'kableExtra', 'DT', 'rmarkdown', 'plotly', 'downloadthis'), repos='https://cran.rstudio.com/')"
+    
+    - name: Run data validation
+      run: |
+        mkdir -p data_checks_reports
+        curl -L -o data_package_checks_github_action.R https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Validation/data_package_checks_github_action.R
+        Rscript data_package_checks_github_action.R > data_checks_reports/validation-log.txt 2>&1
+        
+        # Create markdown summary for GitHub
+        echo "## 📊 Data Package Validation Results" > data_checks_reports/validation-summary.md
+        echo "**Generated:** $(date)" >> data_checks_reports/validation-summary.md
+        echo "**Commit:** ${{ github.sha }}" >> data_checks_reports/validation-summary.md
+        echo "**Author:** Brieanne Forbes via GitHub action" >> data_checks_reports/validation-summary.md
+        echo "" >> data_checks_reports/validation-summary.md
+        
+        # Add link to HTML report if it exists
+        if [ -f data_checks_reports/Checks_Report_*.html ]; then
+          HTML_FILE=$(basename data_checks_reports/Checks_Report_*.html)
+          echo "### 📄 Full HTML Report Available:" >> data_checks_reports/validation-summary.md
+          echo "Download the full interactive report: [\`$HTML_FILE\`](../../raw/${{ github.sha }}/data_checks_reports/$HTML_FILE)" >> data_checks_reports/validation-summary.md
+          echo "" >> data_checks_reports/validation-summary.md
+        fi
+        
+        # Add detailed summary if available
+        if [ -f data_checks_reports/validation_summary_*.txt ]; then
+          echo "### Validation Summary:" >> data_checks_reports/validation-summary.md
+          echo "\`\`\`" >> data_checks_reports/validation-summary.md
+          cat data_checks_reports/validation_summary_*.txt >> data_checks_reports/validation-summary.md
+          echo "\`\`\`" >> data_checks_reports/validation-summary.md
+          echo "" >> data_checks_reports/validation-summary.md
+        fi
+        
+        echo "### Validation Log (last 50 lines):" >> data_checks_reports/validation-summary.md
+        echo "\`\`\`" >> data_checks_reports/validation-summary.md
+        tail -50 data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
+        echo "\`\`\`" >> data_checks_reports/validation-summary.md
+        echo "" >> data_checks_reports/validation-summary.md
+        echo "📁 **All files available in:** \`data_checks_reports/\`" >> data_checks_reports/validation-summary.md
+      continue-on-error: true
+    
+    - name: Check if results changed
+      id: changes
+      run: |
+        git add data_checks_reports/
+        if git diff --staged --quiet; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit results back to repo
+      if: steps.changes.outputs.changed == 'true' && github.event_name == 'push'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action Bot"
+        git add data_checks_reports/
+        git commit -m "📊 Update data package validation report [skip ci]
+        
+        - Generated from commit ${{ github.sha }}
+        - Validation completed on $(date)
+        - Author: Brieanne Forbes via GitHub action
+        - HTML report: data_checks_reports/Checks_Report_$(date +%Y-%m-%d).html"
+        git push
+    
+    - name: Comment on PR with results
+      if: github.event_name == 'pull_request' && steps.changes.outputs.changed == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} \
+          --body-file data_checks_reports/validation-summary.md
+    
+    - name: Upload validation reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: data-validation-report-${{ github.sha }}
+        path: data_checks_reports/
+        retention-days: 30
