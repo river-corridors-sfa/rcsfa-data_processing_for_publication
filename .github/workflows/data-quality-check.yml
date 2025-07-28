@@ -2,9 +2,9 @@ name: Data Quality Check
 
 on:
   push:
-    branches: [ main ]  # ⚠️ Only change this if your default branch isn't 'main'
+    branches: [ main ]
   pull_request:
-    branches: [ main ]  # ⚠️ Only change this if your default branch isn't 'main'
+    branches: [ main ]
 
 jobs:
   run-data-validation:
@@ -21,57 +21,69 @@ jobs:
       uses: r-lib/actions/setup-r@v2
       with:
         r-version: '4.3.0'
-        use-public-rspm: true  # Use pre-built binaries
+        use-public-rspm: true
     
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libgdal-dev libudunits2-dev
     
-    - name: Cache R packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.local/share/renv
-        key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-renv-
-    
-    - name: Install R dependencies (faster)
+    - name: Install R dependencies (all packages needed)
       run: |
         Rscript -e "
         options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/__linux__/jammy/latest'));
-        install.packages('pak');
-        pak::pkg_install(c(
-          'dplyr',
-          'readr', 
-          'purrr',
-          'tidyr',
-          'stringr',
+        
+        # Install tidyverse first (this includes dplyr, readr, etc.)
+        install.packages('tidyverse', dependencies = TRUE);
+        cat('Tidyverse installed\n');
+        
+        # Install other required packages
+        install.packages(c(
+          'here', 
           'devtools', 
           'hms', 
           'fs', 
           'knitr', 
-          'rmarkdown'
+          'kableExtra', 
+          'DT', 
+          'rmarkdown', 
+          'plotly', 
+          'downloadthis'
         ), dependencies = TRUE);
-        "
-    
-    - name: Install additional packages if needed
-      run: |
-        Rscript -e "
-        options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/__linux__/jammy/latest'));
-        tryCatch({
-          pak::pkg_install(c('kableExtra', 'DT', 'plotly', 'downloadthis'), dependencies = TRUE)
-        }, error = function(e) {
-          message('Some optional packages failed to install: ', e$message)
-        })
+        cat('All packages installed successfully\n');
+        
+        # Test loading key packages
+        library(tidyverse);
+        library(devtools);
+        library(rmarkdown);
+        cat('Key packages loaded successfully\n');
         "
     
     - name: Run data validation
       run: |
         mkdir -p data_checks_reports
+        
+        # Download the script
         curl -L -o data_package_checks_github_action.R https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Validation/data_package_checks_github_action.R
+        
+        echo "Running validation script..."
+        echo "Current directory: $(pwd)"
+        echo "Files in directory:"
+        ls -la
+        echo ""
+        
+        # Run the script with detailed output
         Rscript data_package_checks_github_action.R > data_checks_reports/validation-log.txt 2>&1
         
+        echo "Script completed with exit code: $?"
+        echo ""
+        echo "=== VALIDATION LOG ==="
+        cat data_checks_reports/validation-log.txt
+        echo "=== END LOG ==="
+      continue-on-error: true
+    
+    - name: Create GitHub summary
+      run: |
         # Create markdown summary for GitHub
         echo "## 📊 Data Package Validation Results" > data_checks_reports/validation-summary.md
         echo "**Generated:** $(date)" >> data_checks_reports/validation-summary.md
@@ -79,30 +91,41 @@ jobs:
         echo "**Author:** Brieanne Forbes via GitHub action" >> data_checks_reports/validation-summary.md
         echo "" >> data_checks_reports/validation-summary.md
         
-        # Add link to HTML report if it exists
+        # Check for HTML report
         if [ -f data_checks_reports/Checks_Report_*.html ]; then
           HTML_FILE=$(basename data_checks_reports/Checks_Report_*.html)
           echo "### 📄 Full HTML Report Available:" >> data_checks_reports/validation-summary.md
-          echo "Download the full interactive report: [\`$HTML_FILE\`](../../raw/${{ github.sha }}/data_checks_reports/$HTML_FILE)" >> data_checks_reports/validation-summary.md
+          echo "Download the interactive report: [\`$HTML_FILE\`](../../raw/${{ github.sha }}/data_checks_reports/$HTML_FILE)" >> data_checks_reports/validation-summary.md
           echo "" >> data_checks_reports/validation-summary.md
         fi
         
-        # Add detailed summary if available
+        # Add summary file if available
         if [ -f data_checks_reports/validation_summary_*.txt ]; then
-          echo "### Validation Summary:" >> data_checks_reports/validation-summary.md
+          echo "### Summary:" >> data_checks_reports/validation-summary.md
           echo "\`\`\`" >> data_checks_reports/validation-summary.md
           cat data_checks_reports/validation_summary_*.txt >> data_checks_reports/validation-summary.md
           echo "\`\`\`" >> data_checks_reports/validation-summary.md
           echo "" >> data_checks_reports/validation-summary.md
         fi
         
-        echo "### Validation Log (last 50 lines):" >> data_checks_reports/validation-summary.md
+        # Add validation log
+        echo "### Validation Log:" >> data_checks_reports/validation-summary.md
         echo "\`\`\`" >> data_checks_reports/validation-summary.md
-        tail -50 data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
+        if [ -f data_checks_reports/validation-log.txt ]; then
+          # Show last 100 lines of log
+          tail -100 data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
+        else
+          echo "No validation log found" >> data_checks_reports/validation-summary.md
+        fi
         echo "\`\`\`" >> data_checks_reports/validation-summary.md
+        
         echo "" >> data_checks_reports/validation-summary.md
         echo "📁 **All files available in:** \`data_checks_reports/\`" >> data_checks_reports/validation-summary.md
-      continue-on-error: true
+    
+    - name: List all generated files
+      run: |
+        echo "Files created in data_checks_reports:"
+        ls -la data_checks_reports/ || echo "No data_checks_reports directory found"
     
     - name: Check if results changed
       id: changes
@@ -124,8 +147,7 @@ jobs:
         
         - Generated from commit ${{ github.sha }}
         - Validation completed on $(date)
-        - Author: Brieanne Forbes via GitHub action
-        - HTML report: data_checks_reports/Checks_Report_$(date +%Y-%m-%d).html"
+        - Author: Brieanne Forbes via GitHub action"
         git push
     
     - name: Comment on PR with results
