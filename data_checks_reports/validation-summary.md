@@ -1,12 +1,12 @@
 ## 📊 Data Package Validation Results
-**Generated:** Mon Jul 28 21:27:20 UTC 2025
-**Commit:** 6151a481080dbe964cfa47ef68a59ae04aa0e5d4
+**Generated:** Mon Jul 28 21:54:24 UTC 2025
+**Commit:** facbd38777c8c74c049d310bfc33051bfcecb4b4
 **Author:** Brieanne Forbes via GitHub action
 
-### ⚠️ Validation Status: DEBUGGING
-Working to resolve validation function compatibility...
+### ⚠️ Validation Status
+Direct function calls are being tested for compatibility.
 
-### 📋 Summary Report
+### 📋 Validation Summary
 ```
 === DATA PACKAGE VALIDATION SUMMARY ===
 Generated: 2025-07-28 21:11:33.532243 
@@ -25,8 +25,8 @@ Validation checks failed - see log for details
 HTML report generated: FALSE 
 ```
 
-### 🔍 Processing Log
-<details><summary>Click to expand processing details</summary>
+### 🔍 Processing Details
+<details><summary>Click to expand validation log</summary>
 
 ```
 === RUNNING WORKING VALIDATION ===
@@ -59,3 +59,5 @@ Failed with do.call: promise already under evaluation: recursive default argumen
 Validation process completed!
 ```
 </details>
+
+📁 **All results available in:** `data_checks_reports/`
