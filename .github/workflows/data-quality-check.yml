@@ -41,12 +41,12 @@ jobs:
         install.packages(packages, dependencies = TRUE);
         "
     
-    - name: Debug and fix validation script
+    - name: Create fixed validation script
       run: |
         mkdir -p data_checks_reports
         
-        cat > debug_validation.R << 'EOF'
-        # Debug Data Package Validation Script
+        cat > fixed_validation.R << 'EOF'
+        # Fixed Data Package Validation Script
         rm(list=ls(all=T))
         
         # Configuration
@@ -63,10 +63,17 @@ jobs:
           library(hms)
           library(fs)
           library(rlog)
+          library(knitr)
+          library(kableExtra)
+          library(DT)
+          library(rmarkdown)
+          library(plotly)
+          library(downloadthis)
         })
         
-        cat("=== DEBUGGING DATA VALIDATION ===\n")
+        cat("=== DATA PACKAGE VALIDATION WITH FIXES ===\n")
         cat("Working directory:", getwd(), "\n")
+        cat("Report author:", report_author, "\n\n")
         
         # Load validation functions
         cat("Loading validation functions...\n")
@@ -78,246 +85,139 @@ jobs:
         dp_files <- get_files(directory = user_directory)
         data_package_data <- load_tabular_data(files_df = dp_files, flmd_df = NA, query_header_info = FALSE)
         
-        cat("Data loaded successfully. Now debugging validation function...\n")
+        cat("Successfully loaded", length(data_package_data$tabular_data), "data files\n")
         
-        # Debug: Let's examine the check_data_package function
-        cat("Checking function signature...\n")
-        print(formals(check_data_package))
+        # Create the COMPLETE input_parameters structure (based on lines 63-80 from checks.R)
+        cat("Creating complete input_parameters structure...\n")
         
-        cat("Checking function environment...\n")
-        print(environment(check_data_package))
-        
-        # Try to identify the problematic parameter
-        cat("Attempting to run validation with explicit parameters...\n")
-        
-        # Method 1: Try with minimal parameters
-        tryCatch({
-          cat("Method 1: Calling with just data_package_data...\n")
-          result1 <- check_data_package(data_package_data = data_package_data)
-          cat("✅ Method 1 SUCCESS!\n")
-        }, error = function(e) {
-          cat("❌ Method 1 failed:", e$message, "\n")
-        })
-        
-        # Method 2: Try creating input_parameters explicitly
-        tryCatch({
-          cat("Method 2: Creating input_parameters explicitly...\n")
+        input_parameters <- list(
+          # Basic configuration
+          user_directory = user_directory,
+          report_author = report_author,
+          report_out_dir = report_out_dir,
+          user_input_has_header_rows = FALSE,
+          has_flmd = FALSE,
+          flmd_path = "",
           
-          # Create a clean input_parameters object
-          input_parameters <- list(
-            user_directory = user_directory,
-            report_author = report_author,
-            report_out_dir = report_out_dir,
-            user_input_has_header_rows = FALSE,
-            has_flmd = FALSE,
-            flmd_path = ""
-          )
+          # Required file strings (from the original script)
+          required_file_strings = c("data_dictionary", "file_level_metadata", "readme"),
           
-          result2 <- check_data_package(data_package_data = data_package_data, input_parameters = input_parameters)
-          cat("✅ Method 2 SUCCESS!\n")
-        }, error = function(e) {
-          cat("❌ Method 2 failed:", e$message, "\n")
-        })
-        
-        # Method 3: Try in a completely clean environment
-        tryCatch({
-          cat("Method 3: Clean environment approach...\n")
+          # Special characters to check for
+          special_chrs = c("&", "#", "@", "$", "%", "^", "*", "(", ")", 
+                          "+", "=", "[", "]", "{", "}", "|", "\\", 
+                          ":", ";", "\"", "'", "<", ">", ",", "?", "/", "~", "`"),
           
-          # Create a new environment to avoid conflicts
-          clean_env <- new.env()
+          # Non-proprietary extensions 
+          non_proprietary_extensions = c(".xlsx", ".xls", ".docx", ".doc"),
           
-          # Copy only what we need
-          clean_env$data_package_data <- data_package_data
+          # Missing value codes
+          missing_value_codes = c("", " ", "NA", "N/A", "na", "n/a", "NULL", 
+                                 "null", "Null", "-9999", "-999", "NaN", 
+                                 "nan", "#N/A", "#NULL!", "NIL", "nil"),
           
-          # Try to run in clean environment
-          with(clean_env, {
-            result3 <- check_data_package(data_package_data = data_package_data)
-          })
-          cat("✅ Method 3 SUCCESS!\n")
-        }, error = function(e) {
-          cat("❌ Method 3 failed:", e$message, "\n")
-        })
+          # File types to exclude
+          exclude_files = NA_character_,
+          include_files = NA_character_,
+          include_dot_files = FALSE
+        )
         
-        # Method 4: Try sourcing the function directly and calling
-        tryCatch({
-          cat("Method 4: Direct function execution...\n")
-          
-          # Clear any potentially problematic variables
-          if (exists("input_parameters", envir = .GlobalEnv)) {
-            rm(input_parameters, envir = .GlobalEnv)
-          }
-          
-          # Source the checks script again to ensure clean function
-          source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
-          
-          # Try calling with explicit argument matching
-          result4 <- do.call("check_data_package", list(data_package_data = data_package_data))
-          cat("✅ Method 4 SUCCESS!\n")
-        }, error = function(e) {
-          cat("❌ Method 4 failed:", e$message, "\n")
-        })
+        cat("✅ Complete input_parameters created\n")
         
-        # Method 5: Inspect the actual function code to find the issue
-        cat("Method 5: Examining function source code...\n")
-        tryCatch({
-          # Download and examine the checks.R file directly
-          temp_file <- tempfile(fileext = ".R")
-          download.file("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R", temp_file)
-          
-          # Read the file content
-          checks_code <- readLines(temp_file)
-          
-          # Look for problematic patterns
-          problem_lines <- grep("input_parameters", checks_code)
-          if (length(problem_lines) > 0) {
-            cat("Found input_parameters references at lines:", problem_lines, "\n")
-            cat("Problematic lines:\n")
-            for (line_num in problem_lines) {
-              cat(sprintf("Line %d: %s\n", line_num, checks_code[line_num]))
-            }
-          }
-          
-          # Look for default argument issues
-          default_arg_lines <- grep("=.*input_parameters", checks_code)
-          if (length(default_arg_lines) > 0) {
-            cat("Found default argument issues at lines:", default_arg_lines, "\n")
-          }
-          
-        }, error = function(e) {
-          cat("Could not examine source code:", e$message, "\n")
-        })
+        # Now run the validation with complete parameters
+        cat("Running data package validation...\n")
         
-        cat("\n=== DEBUG COMPLETE ===\n")
-        cat("Please check the output above to identify which method worked.\n")
-        EOF
-    
-    - name: Run debugging script
-      run: |
-        echo "🔍 Running validation debugging..."
-        Rscript debug_validation.R > data_checks_reports/debug-log.txt 2>&1
-        
-        echo "=== DEBUG RESULTS ==="
-        cat data_checks_reports/debug-log.txt
-        echo "=== END DEBUG ==="
-      continue-on-error: true
-    
-    - name: Create working validation based on debug results
-      run: |
-        cat > working_validation.R << 'EOF'
-        # Working Data Package Validation (based on debug results)
-        rm(list=ls(all=T))
-        
-        # Configuration
-        user_directory <- getwd()
-        report_author <- "Brieanne Forbes via GitHub action"
-        report_out_dir <- file.path(getwd(), "data_checks_reports")
-        dir.create(report_out_dir, showWarnings = FALSE, recursive = TRUE)
-        
-        # Load packages
-        suppressPackageStartupMessages({
-          library(here)
-          library(tidyverse)
-          library(devtools)
-          library(hms)
-          library(fs)
-          library(rlog)
-        })
-        
-        cat("=== RUNNING WORKING VALIDATION ===\n")
-        
-        # Load functions
-        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
-        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
-        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
-        
-        # Load data
-        dp_files <- get_files(directory = user_directory)
-        data_package_data <- load_tabular_data(files_df = dp_files, flmd_df = NA, query_header_info = FALSE)
-        
-        cat("Loaded", length(data_package_data$tabular_data), "data files\n")
-        
-        # Try the validation methods that worked in debug
-        validation_result <- NULL
         validation_success <- FALSE
+        validation_result <- NULL
         
-        # Try Method 2 first (explicit input_parameters)
-        if (!validation_success) {
-          tryCatch({
-            cat("Trying explicit input_parameters method...\n")
-            input_parameters <- list(
-              user_directory = user_directory,
-              report_author = report_author,
-              report_out_dir = report_out_dir,
-              user_input_has_header_rows = FALSE,
-              has_flmd = FALSE,
-              flmd_path = ""
-            )
-            validation_result <- check_data_package(data_package_data = data_package_data, input_parameters = input_parameters)
-            validation_success <- TRUE
-            cat("✅ SUCCESS with explicit input_parameters!\n")
-          }, error = function(e) {
-            cat("Failed with input_parameters:", e$message, "\n")
-          })
-        }
-        
-        # Try Method 1 (just data_package_data)
-        if (!validation_success) {
-          tryCatch({
-            cat("Trying minimal parameters method...\n")
-            validation_result <- check_data_package(data_package_data = data_package_data)
-            validation_success <- TRUE
-            cat("✅ SUCCESS with minimal parameters!\n")
-          }, error = function(e) {
-            cat("Failed with minimal parameters:", e$message, "\n")
-          })
-        }
-        
-        # Try Method 4 (do.call)
-        if (!validation_success) {
-          tryCatch({
-            cat("Trying do.call method...\n")
-            validation_result <- do.call("check_data_package", list(data_package_data = data_package_data))
-            validation_success <- TRUE
-            cat("✅ SUCCESS with do.call!\n")
-          }, error = function(e) {
-            cat("Failed with do.call:", e$message, "\n")
-          })
-        }
-        
-        if (validation_success) {
+        tryCatch({
+          validation_result <- check_data_package(
+            data_package_data = data_package_data, 
+            input_parameters = input_parameters
+          )
+          validation_success <- TRUE
           cat("🎉 VALIDATION CHECKS COMPLETED SUCCESSFULLY!\n")
-          
+        }, error = function(e) {
+          cat("❌ Validation failed:", e$message, "\n")
+          cat("Error details:\n")
+          print(e)
+        })
+        
+        if (validation_success && !is.null(validation_result)) {
           # Save validation results
+          cat("Saving validation results...\n")
           saveRDS(validation_result, file.path(report_out_dir, "validation_results.rds"))
           
-          # Create detailed summary
+          # Generate HTML report
+          cat("Generating HTML report...\n")
+          tryCatch({
+            out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
+            rmd_url <- "https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks_report.Rmd"
+            download.file(rmd_url, destfile = "checks_report.Rmd", mode = "wb")
+            
+            render("checks_report.Rmd",
+                   output_format = "html_document",
+                   output_dir = report_out_dir,
+                   output_file = out_file)
+            
+            cat("✅ HTML report generated:", file.path(report_out_dir, out_file), "\n")
+            file.remove("checks_report.Rmd")
+          }, error = function(e) {
+            cat("⚠️ HTML report generation failed:", e$message, "\n")
+          })
+          
+          # Create comprehensive summary
           summary_file <- file.path(report_out_dir, paste0("validation_summary_", Sys.Date(), ".txt"))
           
           cat("=== DATA PACKAGE VALIDATION REPORT ===\n", file = summary_file)
           cat("Generated:", as.character(Sys.time()), "\n", file = summary_file, append = TRUE)
           cat("Author:", report_author, "\n", file = summary_file, append = TRUE)
-          cat("Validation Status: SUCCESS ✅\n", file = summary_file, append = TRUE)
+          cat("Status: VALIDATION COMPLETED SUCCESSFULLY ✅\n", file = summary_file, append = TRUE)
           cat("Files processed:", length(data_package_data$tabular_data), "\n\n", file = summary_file, append = TRUE)
           
-          # Add validation results summary
-          cat("VALIDATION RESULTS:\n", file = summary_file, append = TRUE)
+          cat("FILES ANALYZED:\n", file = summary_file, append = TRUE)
+          for (file_name in names(data_package_data$tabular_data)) {
+            df <- data_package_data$tabular_data[[file_name]]
+            cat(sprintf("  📄 %s: %d rows, %d columns\n", basename(file_name), nrow(df), ncol(df)), 
+                file = summary_file, append = TRUE)
+          }
+          
+          cat("\nVALIDATION RESULTS:\n", file = summary_file, append = TRUE)
           if (is.list(validation_result)) {
+            cat("✅ Data package validation checks completed\n", file = summary_file, append = TRUE)
+            cat("✅ All validation functions executed successfully\n", file = summary_file, append = TRUE)
+            cat("📊 Detailed results available in validation_results.rds\n", file = summary_file, append = TRUE)
+            
+            # Add summary of validation results
             for (result_name in names(validation_result)) {
-              cat(sprintf("- %s: completed\n", result_name), file = summary_file, append = TRUE)
+              if (is.data.frame(validation_result[[result_name]])) {
+                cat(sprintf("  - %s: %d records\n", result_name, nrow(validation_result[[result_name]])), 
+                    file = summary_file, append = TRUE)
+              } else {
+                cat(sprintf("  - %s: completed\n", result_name), file = summary_file, append = TRUE)
+              }
             }
           }
           
+          cat("\n=== VALIDATION SUCCESSFUL ===\n", file = summary_file, append = TRUE)
+          
         } else {
-          cat("❌ All validation methods failed\n")
+          # Create failure summary
+          summary_file <- file.path(report_out_dir, paste0("validation_summary_", Sys.Date(), ".txt"))
+          cat("=== DATA PACKAGE VALIDATION REPORT ===\n", file = summary_file)
+          cat("Generated:", as.character(Sys.time()), "\n", file = summary_file, append = TRUE)
+          cat("Author:", report_author, "\n", file = summary_file, append = TRUE)
+          cat("Status: VALIDATION FAILED ❌\n", file = summary_file, append = TRUE)
+          cat("Files loaded:", length(data_package_data$tabular_data), "\n", file = summary_file, append = TRUE)
+          cat("Issue: Validation function compatibility problem\n", file = summary_file, append = TRUE)
         }
         
-        cat("Validation process completed!\n")
+        cat("✅ Validation process completed!\n")
         EOF
     
-    - name: Run working validation
+    - name: Run fixed validation
       run: |
-        echo "🚀 Running working validation..."
-        Rscript working_validation.R > data_checks_reports/validation-log.txt 2>&1
+        echo "🚀 Running fixed validation script..."
+        Rscript fixed_validation.R > data_checks_reports/validation-log.txt 2>&1
         
         echo "=== VALIDATION RESULTS ==="
         cat data_checks_reports/validation-log.txt
@@ -334,31 +234,50 @@ jobs:
         
         # Check if validation was successful
         if grep -q "VALIDATION CHECKS COMPLETED SUCCESSFULLY" data_checks_reports/validation-log.txt; then
-          echo "### ✅ Validation Status: SUCCESS" >> data_checks_reports/validation-summary.md
-          echo "Data validation checks completed successfully!" >> data_checks_reports/validation-summary.md
+          echo "### ✅ SUCCESS: Data Validation Completed!" >> data_checks_reports/validation-summary.md
+          echo "" >> data_checks_reports/validation-summary.md
+          echo "🎉 **All validation checks have been successfully executed!**" >> data_checks_reports/validation-summary.md
+          echo "" >> data_checks_reports/validation-summary.md
+          
+          # Add link to HTML report if available
+          if [ -f data_checks_reports/Checks_Report_*.html ]; then
+            HTML_FILE=$(basename data_checks_reports/Checks_Report_*.html)
+            echo "### 📄 Interactive HTML Report" >> data_checks_reports/validation-summary.md
+            echo "📥 **Download the full validation report:** [\`$HTML_FILE\`](../../raw/${{ github.sha }}/data_checks_reports/$HTML_FILE)" >> data_checks_reports/validation-summary.md
+            echo "" >> data_checks_reports/validation-summary.md
+          fi
+          
         else
-          echo "### ⚠️ Validation Status: DEBUGGING" >> data_checks_reports/validation-summary.md
-          echo "Working to resolve validation function compatibility..." >> data_checks_reports/validation-summary.md
+          echo "### ⚠️ Validation Status: Working on Compatibility" >> data_checks_reports/validation-summary.md
+          echo "The validation functions are being debugged for GitHub Actions compatibility." >> data_checks_reports/validation-summary.md
+          echo "" >> data_checks_reports/validation-summary.md
         fi
-        echo "" >> data_checks_reports/validation-summary.md
         
-        # Add summary if available
+        # Add summary report
         if [ -f data_checks_reports/validation_summary_*.txt ]; then
-          echo "### 📋 Summary Report" >> data_checks_reports/validation-summary.md
+          echo "### 📋 Validation Summary" >> data_checks_reports/validation-summary.md
           echo "\`\`\`" >> data_checks_reports/validation-summary.md
           cat data_checks_reports/validation_summary_*.txt >> data_checks_reports/validation-summary.md
           echo "\`\`\`" >> data_checks_reports/validation-summary.md
           echo "" >> data_checks_reports/validation-summary.md
         fi
         
-        # Add debug log
-        echo "### 🔍 Processing Log" >> data_checks_reports/validation-summary.md
-        echo "<details><summary>Click to expand processing details</summary>" >> data_checks_reports/validation-summary.md
+        # Add processing log in collapsible section
+        echo "### 🔍 Processing Details" >> data_checks_reports/validation-summary.md
+        echo "<details><summary>Click to expand validation log</summary>" >> data_checks_reports/validation-summary.md
         echo "" >> data_checks_reports/validation-summary.md
         echo "\`\`\`" >> data_checks_reports/validation-summary.md
         cat data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
         echo "\`\`\`" >> data_checks_reports/validation-summary.md
         echo "</details>" >> data_checks_reports/validation-summary.md
+        
+        echo "" >> data_checks_reports/validation-summary.md
+        echo "📁 **All validation files available in:** \`data_checks_reports/\`" >> data_checks_reports/validation-summary.md
+    
+    - name: List all generated files
+      run: |
+        echo "📁 Generated validation files:"
+        ls -la data_checks_reports/ 2>/dev/null || echo "No files found"
     
     - name: Check if results changed
       id: changes
@@ -376,16 +295,4 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action Bot"
         git add data_checks_reports/
-        git commit -m "📊 Data validation debug and results [skip ci]
-        
-        - Generated from commit ${{ github.sha }}
-        - Debugging validation function compatibility
-        - Author: Brieanne Forbes via GitHub action"
-        git push
-    
-    - name: Upload validation reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: data-validation-debug-${{ github.sha }}
-        path: data_checks_reports/
-        retention-days: 30
+        git commit -m "📊 Data
