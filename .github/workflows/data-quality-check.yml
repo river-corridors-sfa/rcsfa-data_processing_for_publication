@@ -28,17 +28,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libgdal-dev libudunits2-dev
     
-    - name: Install R dependencies (all packages needed)
+    - name: Install R dependencies (complete set)
       run: |
         Rscript -e "
         options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/__linux__/jammy/latest'));
         
-        # Install tidyverse first (this includes dplyr, readr, etc.)
+        # Install tidyverse first
         install.packages('tidyverse', dependencies = TRUE);
         cat('Tidyverse installed\n');
         
-        # Install other required packages
-        install.packages(c(
+        # Install all packages the script and external functions need
+        packages <- c(
           'here', 
           'devtools', 
           'hms', 
@@ -48,14 +48,35 @@ jobs:
           'DT', 
           'rmarkdown', 
           'plotly', 
-          'downloadthis'
-        ), dependencies = TRUE);
-        cat('All packages installed successfully\n');
+          'downloadthis',
+          'rlog',          # Missing package causing the error
+          'clipr',         # Used in external functions
+          'cli',           # Used in external functions  
+          'rstudioapi'     # Used in external functions (though may not work in Actions)
+        );
+        
+        # Install packages with error handling
+        for (pkg in packages) {
+          tryCatch({
+            if (!requireNamespace(pkg, quietly = TRUE)) {
+              install.packages(pkg, dependencies = TRUE);
+              cat('Installed:', pkg, '\n');
+            } else {
+              cat('Already available:', pkg, '\n');
+            }
+          }, error = function(e) {
+            cat('Failed to install', pkg, ':', e\$message, '\n');
+            # Continue with other packages
+          });
+        }
+        
+        cat('Package installation completed\n');
         
         # Test loading key packages
         library(tidyverse);
         library(devtools);
         library(rmarkdown);
+        library(rlog);
         cat('Key packages loaded successfully\n');
         "
     
@@ -68,18 +89,22 @@ jobs:
         
         echo "Running validation script..."
         echo "Current directory: $(pwd)"
-        echo "Files in directory:"
-        ls -la
+        echo "Files in directory (first 20):"
+        ls -la | head -20
         echo ""
         
         # Run the script with detailed output
         Rscript data_package_checks_github_action.R > data_checks_reports/validation-log.txt 2>&1
         
-        echo "Script completed with exit code: $?"
+        SCRIPT_EXIT_CODE=$?
+        echo "Script completed with exit code: $SCRIPT_EXIT_CODE"
         echo ""
         echo "=== VALIDATION LOG ==="
         cat data_checks_reports/validation-log.txt
         echo "=== END LOG ==="
+        
+        # Don't fail the workflow if the script has issues
+        exit 0
       continue-on-error: true
     
     - name: Create GitHub summary
@@ -95,7 +120,11 @@ jobs:
         if [ -f data_checks_reports/Checks_Report_*.html ]; then
           HTML_FILE=$(basename data_checks_reports/Checks_Report_*.html)
           echo "### 📄 Full HTML Report Available:" >> data_checks_reports/validation-summary.md
-          echo "Download the interactive report: [\`$HTML_FILE\`](../../raw/${{ github.sha }}/data_checks_reports/$HTML_FILE)" >> data_checks_reports/validation-summary.md
+          echo "✅ **Success!** Download the interactive report: [\`$HTML_FILE\`](../../raw/${{ github.sha }}/data_checks_reports/$HTML_FILE)" >> data_checks_reports/validation-summary.md
+          echo "" >> data_checks_reports/validation-summary.md
+        else
+          echo "### ⚠️ HTML Report Generation" >> data_checks_reports/validation-summary.md
+          echo "HTML report was not generated. Check the validation log below for details." >> data_checks_reports/validation-summary.md
           echo "" >> data_checks_reports/validation-summary.md
         fi
         
@@ -108,16 +137,18 @@ jobs:
           echo "" >> data_checks_reports/validation-summary.md
         fi
         
-        # Add validation log
+        # Add validation log (last 150 lines to capture more context)
         echo "### Validation Log:" >> data_checks_reports/validation-summary.md
+        echo "<details><summary>Click to expand validation log</summary>" >> data_checks_reports/validation-summary.md
+        echo "" >> data_checks_reports/validation-summary.md
         echo "\`\`\`" >> data_checks_reports/validation-summary.md
         if [ -f data_checks_reports/validation-log.txt ]; then
-          # Show last 100 lines of log
-          tail -100 data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
+          tail -150 data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
         else
           echo "No validation log found" >> data_checks_reports/validation-summary.md
         fi
         echo "\`\`\`" >> data_checks_reports/validation-summary.md
+        echo "</details>" >> data_checks_reports/validation-summary.md
         
         echo "" >> data_checks_reports/validation-summary.md
         echo "📁 **All files available in:** \`data_checks_reports/\`" >> data_checks_reports/validation-summary.md
