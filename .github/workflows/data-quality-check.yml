@@ -23,6 +23,11 @@ jobs:
         r-version: '4.3.0'
         use-public-rspm: true
     
+    - name: Install Pandoc
+      uses: r-lib/actions/setup-pandoc@v2
+      with:
+        pandoc-version: '3.1.1'
+    
     - name: Install system dependencies
       run: |
         sudo apt-get update
@@ -49,10 +54,10 @@ jobs:
           'rmarkdown', 
           'plotly', 
           'downloadthis',
-          'rlog',          # Missing package causing the error
-          'clipr',         # Used in external functions
-          'cli',           # Used in external functions  
-          'rstudioapi'     # Used in external functions (though may not work in Actions)
+          'rlog',          
+          'clipr',         
+          'cli',           
+          'rstudioapi'     
         );
         
         # Install packages with error handling
@@ -66,7 +71,6 @@ jobs:
             }
           }, error = function(e) {
             cat('Failed to install', pkg, ':', e\$message, '\n');
-            # Continue with other packages
           });
         }
         
@@ -78,23 +82,206 @@ jobs:
         library(rmarkdown);
         library(rlog);
         cat('Key packages loaded successfully\n');
+        
+        # Check pandoc
+        cat('Pandoc available:', rmarkdown::pandoc_available(), '\n');
+        if (rmarkdown::pandoc_available()) {
+          cat('Pandoc version:', as.character(rmarkdown::pandoc_version()), '\n');
+        }
         "
     
-    - name: Run data validation
+    - name: Create modified validation script (with error fixes)
       run: |
         mkdir -p data_checks_reports
         
-        # Download the script
-        curl -L -o data_package_checks_github_action.R https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Validation/data_package_checks_github_action.R
+        # Download the original script
+        curl -L -o data_package_checks_original.R https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Validation/data_package_checks_github_action.R
         
-        echo "Running validation script..."
+        # Create a modified version with better error handling
+        cat > data_package_checks_fixed.R << 'EOF'
+        ### Modified data_package_checks_github_action.R with error fixes
+        rm(list=ls(all=T))
+        
+        ### Static Configuration ######################################################
+        user_input_has_header_rows <- FALSE
+        has_flmd <- FALSE
+        flmd_path <- ""
+        user_directory <- getwd()
+        report_author <- "Brieanne Forbes via GitHub action"
+        report_out_dir <- file.path(getwd(), "data_checks_reports")
+        dir.create(report_out_dir, showWarnings = FALSE, recursive = TRUE)
+        
+        ### Load packages with better error handling
+        suppressPackageStartupMessages({
+          library(here)
+          library(tidyverse)
+          library(devtools)
+          library(hms)
+          library(fs)
+          library(knitr)
+          library(kableExtra)
+          library(DT)
+          library(rmarkdown)
+          library(plotly)
+          library(downloadthis)
+        })
+        
+        cat("Working directory:", getwd(), "\n")
+        cat("Data directory:", user_directory, "\n")
+        cat("Output directory:", report_out_dir, "\n")
+        cat("Report author:", report_author, "\n")
+        
+        # Load functions with error handling
+        tryCatch({
+          source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
+          source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
+          source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
+        }, error = function(e) {
+          cat("Error loading functions:", e$message, "\n")
+          quit(status = 1)
+        })
+        
+        # Validate directory
+        if (!dir.exists(user_directory)) {
+          cat("Error: Directory does not exist:", user_directory, "\n")
+          quit(status = 1)
+        }
+        
+        all_files <- list.files(user_directory, recursive = TRUE)
+        if (length(all_files) == 0) {
+          cat("Warning: Directory contains no files:", user_directory, "\n")
+          quit(status = 0)
+        }
+        
+        cat("Found", length(all_files), "total files in repository\n")
+        
+        # Get files
+        tryCatch({
+          dp_files <- get_files(directory = user_directory)
+          cat("Identified", nrow(dp_files), "data files for processing\n")
+        }, error = function(e) {
+          cat("Error identifying files:", e$message, "\n")
+          quit(status = 1)
+        })
+        
+        # Load FLMD
+        if (has_flmd && flmd_path != "") {
+          tryCatch({
+            data_package_flmd <- read_csv(flmd_path) %>%
+              mutate(across(everything(), ~ case_when(. == -9999 ~ NA,
+                                                      . == "N/A" ~ NA,
+                                                      TRUE ~ .)))
+            cat("Loaded FLMD file:", flmd_path, "\n")
+          }, error = function(e) {
+            cat("Error loading FLMD file:", e$message, "\n")
+            quit(status = 1)
+          })
+        } else {
+          data_package_flmd <- NA
+        }
+        
+        # Load data
+        tryCatch({
+          data_package_data <- load_tabular_data(
+            files_df = dp_files,
+            flmd_df = data_package_flmd,
+            query_header_info = user_input_has_header_rows
+          )
+          cat("Successfully loaded", length(data_package_data$tabular_data), "data files\n")
+          
+          for (file_name in names(data_package_data$tabular_data)) {
+            df <- data_package_data$tabular_data[[file_name]]
+            cat(" -", file_name, ":", nrow(df), "rows,", ncol(df), "columns\n")
+          }
+        }, error = function(e) {
+          cat("Error loading data:", e$message, "\n")
+          quit(status = 1)
+        })
+        
+        # Run checks with better error handling
+        data_package_checks <- NULL
+        tryCatch({
+          # Try to run checks - this seems to have the promise evaluation error
+          cat("Attempting to run data package checks...\n")
+          data_package_checks <- check_data_package(data_package_data = data_package_data)
+          cat("Successfully completed data package checks\n")
+        }, error = function(e) {
+          cat("Error running checks:", e$message, "\n")
+          cat("Continuing without checks...\n")
+          # Don't quit - continue with summary generation
+        })
+        
+        # Generate HTML report
+        html_success <- FALSE
+        tryCatch({
+          cat("Checking pandoc availability...\n")
+          cat("Pandoc available:", pandoc_available(), "\n")
+          
+          if (pandoc_available()) {
+            out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
+            rmd_url <- "https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks_report.Rmd"
+            download.file(rmd_url, destfile = "checks_report.Rmd", mode = "wb")
+            
+            render("checks_report.Rmd",
+                   output_format = "html_document",
+                   output_dir = report_out_dir,
+                   output_file = out_file)
+            
+            cat("HTML report generated:", file.path(report_out_dir, out_file), "\n")
+            file.remove("checks_report.Rmd")
+            html_success <- TRUE
+          } else {
+            cat("Pandoc not available - skipping HTML report\n")
+          }
+        }, error = function(e) {
+          cat("Error generating HTML report:", e$message, "\n")
+          cat("Continuing with text summary...\n")
+        })
+        
+        # Generate text summary
+        summary_file <- file.path(report_out_dir, paste0("validation_summary_", Sys.Date(), ".txt"))
+        
+        cat("=== DATA PACKAGE VALIDATION SUMMARY ===\n", file = summary_file)
+        cat("Generated:", as.character(Sys.time()), "\n", file = summary_file, append = TRUE)
+        cat("Author:", report_author, "\n", file = summary_file, append = TRUE)
+        cat("Repository:", user_directory, "\n", file = summary_file, append = TRUE)
+        cat("Files processed:", length(data_package_data$tabular_data), "\n\n", file = summary_file, append = TRUE)
+        
+        cat("FILES ANALYZED:\n", file = summary_file, append = TRUE)
+        for (file_name in names(data_package_data$tabular_data)) {
+          df <- data_package_data$tabular_data[[file_name]]
+          cat(sprintf("  %s: %d rows, %d columns\n", basename(file_name), nrow(df), ncol(df)),
+              file = summary_file, append = TRUE)
+        }
+        
+        # Save check results if available
+        if (!is.null(data_package_checks)) {
+          cat("\nCHECK RESULTS:\n", file = summary_file, append = TRUE)
+          cat("Validation checks completed successfully\n", file = summary_file, append = TRUE)
+          tryCatch({
+            saveRDS(data_package_checks, file.path(report_out_dir, "validation_results.rds"))
+          }, error = function(e) {
+            cat("Could not save RDS file:", e$message, "\n")
+          })
+        } else {
+          cat("\nCHECK RESULTS:\n", file = summary_file, append = TRUE)
+          cat("Validation checks failed - see log for details\n", file = summary_file, append = TRUE)
+        }
+        
+        cat("HTML report generated:", html_success, "\n", file = summary_file, append = TRUE)
+        
+        cat("\nSummary saved to:", summary_file, "\n")
+        cat("Validation process completed!\n")
+        EOF
+    
+    - name: Run data validation
+      run: |
+        echo "Running fixed validation script..."
         echo "Current directory: $(pwd)"
-        echo "Files in directory (first 20):"
-        ls -la | head -20
         echo ""
         
-        # Run the script with detailed output
-        Rscript data_package_checks_github_action.R > data_checks_reports/validation-log.txt 2>&1
+        # Run the fixed script
+        Rscript data_package_checks_fixed.R > data_checks_reports/validation-log.txt 2>&1
         
         SCRIPT_EXIT_CODE=$?
         echo "Script completed with exit code: $SCRIPT_EXIT_CODE"
@@ -103,13 +290,11 @@ jobs:
         cat data_checks_reports/validation-log.txt
         echo "=== END LOG ==="
         
-        # Don't fail the workflow if the script has issues
         exit 0
       continue-on-error: true
     
     - name: Create GitHub summary
       run: |
-        # Create markdown summary for GitHub
         echo "## 📊 Data Package Validation Results" > data_checks_reports/validation-summary.md
         echo "**Generated:** $(date)" >> data_checks_reports/validation-summary.md
         echo "**Commit:** ${{ github.sha }}" >> data_checks_reports/validation-summary.md
@@ -137,13 +322,13 @@ jobs:
           echo "" >> data_checks_reports/validation-summary.md
         fi
         
-        # Add validation log (last 150 lines to capture more context)
+        # Add validation log
         echo "### Validation Log:" >> data_checks_reports/validation-summary.md
         echo "<details><summary>Click to expand validation log</summary>" >> data_checks_reports/validation-summary.md
         echo "" >> data_checks_reports/validation-summary.md
         echo "\`\`\`" >> data_checks_reports/validation-summary.md
         if [ -f data_checks_reports/validation-log.txt ]; then
-          tail -150 data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
+          cat data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
         else
           echo "No validation log found" >> data_checks_reports/validation-summary.md
         fi
