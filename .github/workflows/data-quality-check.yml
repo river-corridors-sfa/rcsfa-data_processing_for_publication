@@ -1,296 +1,141 @@
-name: Data Quality Check
+name: Data Package Checks
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
-  run-data-validation:
+  data-checks:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        fetch-depth: 0
-    
-    - name: Set up R
+      
+    - name: Setup R
       uses: r-lib/actions/setup-r@v2
       with:
         r-version: '4.3.0'
-        use-public-rspm: true
-    
-    - name: Install Pandoc
+        
+    - name: Setup Pandoc
       uses: r-lib/actions/setup-pandoc@v2
-      with:
-        pandoc-version: '3.1.1'
-    
+      
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libgdal-dev libudunits2-dev
-    
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+        
+    - name: Cache R packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.local/share/renv
+        key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+        restore-keys: ${{ runner.os }}-renv-
+        
     - name: Install R dependencies
       run: |
-        Rscript -e "
-        options(repos = c(CRAN = 'https://packagemanager.rstudio.com/cran/__linux__/jammy/latest'));
-        packages <- c('tidyverse', 'here', 'devtools', 'hms', 'fs', 'knitr', 'kableExtra', 'DT', 'rmarkdown', 'plotly', 'downloadthis', 'rlog', 'clipr', 'cli');
-        install.packages(packages, dependencies = TRUE);
-        "
-    
-    - name: Run data validation directly
+        install.packages(c(
+          "here", "tidyverse", "rlog", "devtools", "hms", "fs", 
+          "clipr", "knitr", "kableExtra", "DT", "rmarkdown", 
+          "plotly", "downloadthis", "cli", "rstudioapi"
+        ))
+      shell: Rscript {0}
+      
+    - name: Run data package checks
       run: |
-        mkdir -p data_checks_reports
+        # Load required libraries
+        library(here)
+        library(tidyverse)
+        library(rlog)
+        library(devtools)
+        library(hms)
+        library(fs)
+        library(clipr)
+        library(knitr)
+        library(kableExtra)
+        library(DT)
+        library(rmarkdown)
+        library(plotly)
+        library(downloadthis)
+        library(cli)
         
-        Rscript -e "
-        # Direct function call approach - bypass the problematic script
+        # Set working directory to repo root
+        setwd(getwd())
         
-        # Load required packages
-        suppressPackageStartupMessages({
-          library(tidyverse)
-          library(here)
-          library(devtools)
-          library(hms)
-          library(fs)
-          library(rlog)
-          library(knitr)
-          library(kableExtra)
-          library(DT)
-          library(rmarkdown)
-          library(plotly)
-          library(downloadthis)
-        })
-        
-        cat('=== DIRECT FUNCTION CALL VALIDATION ===\n')
-        
-        # Configuration
+        # User inputs (automated for GitHub Actions)
         user_directory <- getwd()
-        report_author <- 'Brieanne Forbes via GitHub action'
-        report_out_dir <- file.path(getwd(), 'data_checks_reports')
+        report_author <- "${{ github.actor }}"
+        report_out_dir <- file.path(getwd(), "data_checks_reports")
+        user_input_has_header_rows <- FALSE
+        has_flmd <- FALSE
+        flmd_path <- ""
+        user_exclude_files <- NA_character_
+        user_include_files <- NA_character_
+        user_include_dot_files <- TRUE
         
-        # Load the validation functions directly
-        cat('Loading validation functions...\n')
-        source_url('https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R')
-        source_url('https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R')
-        source_url('https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R')
+        # Source required functions from GitHub
+        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
+        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
+        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
         
-        # Step 1: Get files using the function
-        cat('Step 1: Getting files...\n')
-        dp_files <- get_files(directory = user_directory)
-        cat('Found', nrow(dp_files), 'data files\n')
-        
-        # Step 2: Load data using the function  
-        cat('Step 2: Loading data...\n')
-        data_package_data <- load_tabular_data(files_df = dp_files, flmd_df = NA, query_header_info = FALSE)
-        cat('Successfully loaded', length(data_package_data\$tabular_data), 'data files\n')
-        
-        # Display what we loaded
-        for (file_name in names(data_package_data\$tabular_data)) {
-          df <- data_package_data\$tabular_data[[file_name]]
-          cat(sprintf('  📄 %s: %d rows, %d columns\n', basename(file_name), nrow(df), ncol(df)))
+        # Check if directory has files
+        if (length(list.files(user_directory, recursive = TRUE)) == 0) {
+          warning("Your directory has 0 files.")
         }
         
-        # Step 3: Create the input parameters that the validation function expects
-        cat('Step 3: Setting up validation parameters...\n')
+        # 1. Get all files
+        dp_files <- get_files(directory = user_directory,
+                              exclude_files = user_exclude_files,
+                              include_files = user_include_files,
+                              include_dot_files = user_include_dot_files)
         
-        # Create the input_parameters list with all required fields
-        input_parameters <- list(
-          user_directory = user_directory,
-          report_author = report_author,
-          report_out_dir = report_out_dir,
-          user_input_has_header_rows = FALSE,
-          has_flmd = FALSE,
-          flmd_path = '',
-          required_file_strings = c('data_dictionary', 'file_level_metadata', 'readme'),
-          special_chrs = c('&', '#', '@', '\$', '%', '^', '*', '(', ')', '+', '=', '[', ']', '{', '}', '|', '\\\\', ':', ';', '\"', \"'\", '<', '>', ',', '?', '/', '~', '`'),
-          non_proprietary_extensions = c('.xlsx', '.xls', '.docx', '.doc'),
-          missing_value_codes = c('', ' ', 'NA', 'N/A', 'na', 'n/a', 'NULL', 'null', 'Null', '-9999', '-999', 'NaN', 'nan', '#N/A', '#NULL!', 'NIL', 'nil'),
-          exclude_files = NA_character_,
-          include_files = NA_character_,
-          include_dot_files = FALSE
-        )
+        # 2. Set flmd to NA (no existing flmd)
+        data_package_flmd <- NA
         
-        # Make input_parameters available in global environment (this might be what the function expects)
-        assign('input_parameters', input_parameters, envir = .GlobalEnv)
+        # 3. Load data
+        data_package_data <- load_tabular_data(files_df = dp_files, 
+                                               flmd_df = data_package_flmd, 
+                                               query_header_info = user_input_has_header_rows)
         
-        # Step 4: Call the validation function directly
-        cat('Step 4: Running validation checks...\n')
+        # Preview data
+        invisible(lapply(names(data_package_data$tabular_data), function(name) {
+          cat("\n--- Data Preview of", name, "---\n")
+          print(glimpse(data_package_data$tabular_data[[name]]))
+        }))
         
-        validation_success <- FALSE
-        data_package_checks <- NULL
+        # 4. Run checks (input_parameters defined in checks.R)
+        data_package_checks <- check_data_package(data_package_data = data_package_data, 
+                                                   input_parameters = input_parameters)
         
-        tryCatch({
-          # Try calling with explicit parameters
-          data_package_checks <- check_data_package(data_package_data = data_package_data, input_parameters = input_parameters)
-          validation_success <- TRUE
-          cat('✅ VALIDATION SUCCESS with explicit parameters!\n')
-        }, error = function(e) {
-          cat('Method 1 failed:', e\$message, '\n')
-          
-          # Try calling with global input_parameters (the function might expect this)
-          tryCatch({
-            data_package_checks <<- check_data_package(data_package_data = data_package_data)
-            validation_success <<- TRUE
-            cat('✅ VALIDATION SUCCESS with global parameters!\n')
-          }, error = function(e2) {
-            cat('Method 2 also failed:', e2\$message, '\n')
-          })
-        })
+        # 5. Generate report
+        out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
         
-        # Step 5: Generate results
-        if (validation_success && !is.null(data_package_checks)) {
-          cat('Step 5: Generating validation report...\n')
-          
-          # Save validation results
-          saveRDS(data_package_checks, file.path(report_out_dir, 'validation_results.rds'))
-          
-          # Try to generate HTML report
-          tryCatch({
-            cat('Generating HTML report...\n')
-            out_file <- paste0('Checks_Report_', Sys.Date(), '.html')
-            download.file('https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks_report.Rmd', 'checks_report.Rmd')
-            
-            render('checks_report.Rmd',
-                   output_format = 'html_document',
-                   output_dir = report_out_dir,
-                   output_file = out_file)
-            
-            cat('✅ HTML report generated successfully!\n')
-            file.remove('checks_report.Rmd')
-          }, error = function(e) {
-            cat('HTML generation failed:', e\$message, '\n')
-          })
-          
-          # Create text summary
-          summary_file <- file.path(report_out_dir, paste0('validation_summary_', Sys.Date(), '.txt'))
-          cat('=== DATA PACKAGE VALIDATION REPORT ===\n', file = summary_file)
-          cat('Generated:', as.character(Sys.time()), '\n', file = summary_file, append = TRUE)
-          cat('Author:', report_author, '\n', file = summary_file, append = TRUE)
-          cat('Status: VALIDATION COMPLETED SUCCESSFULLY ✅\n', file = summary_file, append = TRUE)
-          cat('Files processed:', length(data_package_data\$tabular_data), '\n\n', file = summary_file, append = TRUE)
-          
-          cat('FILES ANALYZED:\n', file = summary_file, append = TRUE)
-          for (file_name in names(data_package_data\$tabular_data)) {
-            df <- data_package_data\$tabular_data[[file_name]]
-            cat(sprintf('  📄 %s: %d rows, %d columns\n', basename(file_name), nrow(df), ncol(df)), file = summary_file, append = TRUE)
-          }
-          
-          cat('\n✅ VALIDATION FUNCTIONS COMPLETED SUCCESSFULLY!\n', file = summary_file, append = TRUE)
-          cat('📊 Detailed results saved in validation_results.rds\n', file = summary_file, append = TRUE)
-          
-          cat('🎉 DATA PACKAGE VALIDATION COMPLETED!\n')
-          
-        } else {
-          cat('❌ Validation functions failed\n')
-          
-          # Create failure report
-          summary_file <- file.path(report_out_dir, paste0('validation_summary_', Sys.Date(), '.txt'))
-          cat('=== DATA PACKAGE VALIDATION REPORT ===\n', file = summary_file)
-          cat('Generated:', as.character(Sys.time()), '\n', file = summary_file, append = TRUE)
-          cat('Author:', report_author, '\n', file = summary_file, append = TRUE)
-          cat('Status: VALIDATION FUNCTIONS FAILED ❌\n', file = summary_file, append = TRUE)
-          cat('Data loading: SUCCESS ✅\n', file = summary_file, append = TRUE)
-          cat('Files processed:', length(data_package_data\$tabular_data), '\n', file = summary_file, append = TRUE)
-          cat('Issue: Validation function compatibility with CI environment\n', file = summary_file, append = TRUE)
-        }
-        " > data_checks_reports/validation-log.txt 2>&1
+        # Render report using the checks_report.Rmd in data_checks_reports folder
+        rmarkdown::render("data_checks_reports/checks_report.Rmd", 
+                         output_format = "html_document", 
+                         output_dir = report_out_dir, 
+                         output_file = out_file,
+                         envir = new.env())
         
-        echo "=== VALIDATION LOG ==="
-        cat data_checks_reports/validation-log.txt
-        echo "=== END LOG ==="
+        # Print success message
+        cat("Report generated successfully:", file.path(report_out_dir, out_file), "\n")
         
-        echo ""
-        echo "Files created:"
-        ls -la data_checks_reports/
-      continue-on-error: true
-    
-    - name: Create GitHub summary
-      run: |
-        echo "## 📊 Data Package Validation Results" > data_checks_reports/validation-summary.md
-        echo "**Generated:** $(date)" >> data_checks_reports/validation-summary.md
-        echo "**Commit:** ${{ github.sha }}" >> data_checks_reports/validation-summary.md
-        echo "**Author:** Brieanne Forbes via GitHub action" >> data_checks_reports/validation-summary.md
-        echo "" >> data_checks_reports/validation-summary.md
-        
-        # Check for validation success
-        if grep -q "VALIDATION SUCCESS" data_checks_reports/validation-log.txt; then
-          echo "### 🎉 SUCCESS: Validation Functions Completed!" >> data_checks_reports/validation-summary.md
-          echo "" >> data_checks_reports/validation-summary.md
-          echo "✅ **Data validation checks have been successfully executed using direct function calls!**" >> data_checks_reports/validation-summary.md
-          echo "" >> data_checks_reports/validation-summary.md
-          
-          # Check for HTML report
-          if [ -f data_checks_reports/Checks_Report_*.html ]; then
-            HTML_FILE=$(basename data_checks_reports/Checks_Report_*.html)
-            echo "### 📄 Interactive HTML Report" >> data_checks_reports/validation-summary.md
-            echo "📥 **Download full report:** [\`$HTML_FILE\`](../../raw/${{ github.sha }}/data_checks_reports/$HTML_FILE)" >> data_checks_reports/validation-summary.md
-            echo "" >> data_checks_reports/validation-summary.md
-          fi
-          
-        else
-          echo "### ⚠️ Validation Status" >> data_checks_reports/validation-summary.md
-          echo "Direct function calls are being tested for compatibility." >> data_checks_reports/validation-summary.md
-          echo "" >> data_checks_reports/validation-summary.md
-        fi
-        
-        # Add summary
-        if [ -f data_checks_reports/validation_summary_*.txt ]; then
-          echo "### 📋 Validation Summary" >> data_checks_reports/validation-summary.md
-          echo "\`\`\`" >> data_checks_reports/validation-summary.md
-          cat data_checks_reports/validation_summary_*.txt >> data_checks_reports/validation-summary.md
-          echo "\`\`\`" >> data_checks_reports/validation-summary.md
-          echo "" >> data_checks_reports/validation-summary.md
-        fi
-        
-        # Add detailed log
-        echo "### 🔍 Processing Details" >> data_checks_reports/validation-summary.md
-        echo "<details><summary>Click to expand validation log</summary>" >> data_checks_reports/validation-summary.md
-        echo "" >> data_checks_reports/validation-summary.md
-        echo "\`\`\`" >> data_checks_reports/validation-summary.md
-        cat data_checks_reports/validation-log.txt >> data_checks_reports/validation-summary.md
-        echo "\`\`\`" >> data_checks_reports/validation-summary.md
-        echo "</details>" >> data_checks_reports/validation-summary.md
-        
-        echo "" >> data_checks_reports/validation-summary.md
-        echo "📁 **All results available in:** \`data_checks_reports/\`" >> data_checks_reports/validation-summary.md
-    
-    - name: Check if results changed
-      id: changes
-      run: |
-        git add data_checks_reports/
-        if git diff --staged --quiet; then
-          echo "changed=false" >> $GITHUB_OUTPUT
-        else
-          echo "changed=true" >> $GITHUB_OUTPUT
-        fi
-    
-    - name: Commit results back to repo
-      if: steps.changes.outputs.changed == 'true' && github.event_name == 'push'
+      shell: Rscript {0}
+      
+    - name: Commit and push report
       run: |
         git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action Bot"
+        git config --local user.name "GitHub Action"
         git add data_checks_reports/
-        git commit -m "📊 Direct function validation results [skip ci]
-        
-        - Generated from commit ${{ github.sha }}
-        - Direct function call approach
-        - Author: Brieanne Forbes via GitHub action"
+        git diff --staged --quiet || git commit -m "Auto-update data package checks report [skip ci]"
         git push
-    
-    - name: Comment on PR with results
-      if: github.event_name == 'pull_request' && steps.changes.outputs.changed == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh pr comment ${{ github.event.pull_request.number }} \
-          --body-file data_checks_reports/validation-summary.md
-    
-    - name: Upload validation reports
-      uses: actions/upload-artifact@v4
+        
+    - name: Upload report as artifact
+      uses: actions/upload-artifact@v3
       with:
-        name: data-validation-direct-${{ github.sha }}
+        name: data-checks-report
         path: data_checks_reports/
-        retention-days: 30
