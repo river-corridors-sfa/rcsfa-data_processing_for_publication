@@ -97,7 +97,7 @@ jobs:
           --body-file data_checks_reports/validation-summary.md
     
     - name: Upload validation reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: data-validation-report-${{ github.sha }}
         path: data_checks_reports/
