@@ -18,6 +18,7 @@ jobs:
       uses: r-lib/actions/setup-r@v2
       with:
         r-version: '4.3.0'
+        use-public-rspm: true  # Use binary packages for faster installation
         
     - name: Setup Pandoc
       uses: r-lib/actions/setup-pandoc@v2
@@ -25,23 +26,28 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
-        
-    - name: Cache R packages
-      uses: actions/cache@v3
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev
+      
+    - name: Setup R dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        path: ~/.local/share/renv
-        key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
-        restore-keys: ${{ runner.os }}-renv-
-        
-    - name: Install R dependencies
-      run: |
-        install.packages(c(
-          "here", "tidyverse", "rlog", "devtools", "hms", "fs", 
-          "clipr", "knitr", "kableExtra", "DT", "rmarkdown", 
-          "plotly", "downloadthis", "cli", "rstudioapi"
-        ))
-      shell: Rscript {0}
+        packages: |
+          any::here
+          any::tidyverse
+          any::rlog
+          any::devtools
+          any::hms
+          any::fs
+          any::clipr
+          any::knitr
+          any::kableExtra
+          any::DT
+          any::rmarkdown
+          any::plotly
+          any::downloadthis
+          any::cli
+          any::rstudioapi
+        cache-version: 2
       
     - name: Run data package checks
       run: |
@@ -62,12 +68,12 @@ jobs:
         library(cli)
         
         # Set working directory to repo root
-        setwd(getwd())
+        setwd(here())
         
         # User inputs (automated for GitHub Actions)
-        user_directory <- getwd()
+        user_directory <- here()
         report_author <- "${{ github.actor }}"
-        report_out_dir <- file.path(getwd(), "data_checks_reports")
+        report_out_dir <- file.path(here(), "data_checks_reports")
         user_input_has_header_rows <- FALSE
         has_flmd <- FALSE
         flmd_path <- ""
