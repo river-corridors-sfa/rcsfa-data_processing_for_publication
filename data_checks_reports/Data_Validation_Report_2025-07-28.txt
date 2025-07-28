@@ -1,0 +1,43 @@
+======================================
+    DATA PACKAGE VALIDATION REPORT    
+======================================
+Generated:  2025-07-28 21:18:46.192501 
+Author:  Brieanne Forbes via GitHub action 
+Repository:  rcsfa-data_processing_for_publication 
+Total files found:  152 
+Data files processed:  4 
+
+VALIDATION STATUS:
+⚠️  Data validation checks: SKIPPED (function compatibility issue)
+✅ Data loading and parsing: SUCCESS
+✅ File structure analysis: COMPLETE
+
+DATA FILES ANALYZED:
+==================
+
+📄 AirTable_DataPackagesInPipeline-PublishedBrief_as_of_2025-06-06.csv
+   Dimensions: 91 rows × 9 columns
+   Path: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/AirTable_DataPackagesInPipeline-PublishedBrief_as_of_2025-06-06.csv
+   Columns:  Dataset Summary Title, Study Code, Link, RC/ST, Type, Material, Newly Added Data Types, Publish_Date, Keywords
+
+📄 All_dd_flmd_as_of_2025-06-05.csv
+   Dimensions: 119 rows × 5 columns
+   Path: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/All_dd_flmd_as_of_2025-06-05.csv
+   Columns:  archived_dd_flmd, sans_dir, date_file_modified, airtable_title, exclude
+
+📄 data_dictionary_database.csv
+   Dimensions: 6036 rows × 9 columns
+   Path: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv
+   Columns:  index, Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, date_published, dd_filename, dd_source
+
+📄 file_level_metadata_database.csv
+   Dimensions: 1176 rows × 6 columns
+   Path: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/file_level_metadata_database.csv
+   Columns:  index, File_Name, File_Description, date_published, flmd_filename, flmd_source
+==================
+Total data rows: 7422
+Largest file columns: 9
+Average file size: 1855.5 rows
+
+======================================
+Report complete. All processable data files have been analyzed.
