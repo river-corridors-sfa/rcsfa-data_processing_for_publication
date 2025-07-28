@@ -20,13 +20,10 @@ jobs:
         r-version: '4.3.0'
         use-public-rspm: true  # Use binary packages for faster installation
         
-    - name: Setup Pandoc
-      uses: r-lib/actions/setup-pandoc@v2
-      
-    - name: Install system dependencies
+    - name: Install system dependencies (including Pandoc)
       run: |
         sudo apt-get update
-        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev pandoc
       
     - name: Setup R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
@@ -48,6 +45,9 @@ jobs:
           any::cli
           any::rstudioapi
         cache-version: 2
+      
+    - name: Verify Pandoc installation
+      run: pandoc --version
       
     - name: Run data package checks
       run: |
