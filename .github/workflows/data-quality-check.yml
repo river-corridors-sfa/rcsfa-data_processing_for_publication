@@ -22,9 +22,18 @@ jobs:
       with:
         r-version: '4.3.0'
     
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+    
     - name: Install R dependencies
       run: |
-        Rscript -e "install.packages(c('here', 'tidyverse', 'devtools', 'hms', 'fs', 'knitr', 'kableExtra', 'DT', 'rmarkdown', 'plotly', 'downloadthis'), repos='https://cran.rstudio.com/')"
+        Rscript -e "
+        options(repos = 'https://cran.rstudio.com/');
+        install.packages('tidyverse', dependencies = TRUE);
+        install.packages(c('devtools', 'hms', 'fs', 'knitr', 'kableExtra', 'DT', 'rmarkdown', 'plotly', 'downloadthis'), dependencies = TRUE)
+        "
     
     - name: Run data validation
       run: |
