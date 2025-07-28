@@ -1,9 +1,29 @@
 ## 📊 Data Package Validation Results
-**Generated:** Mon Jul 28 20:58:14 UTC 2025
-**Commit:** 89741190cb4b833f8ef5dd54e451281fadbe3a86
+**Generated:** Mon Jul 28 21:05:21 UTC 2025
+**Commit:** 52779610c69bac781bdb085194571f01d0a89024
 **Author:** Brieanne Forbes via GitHub action
 
+### ⚠️ HTML Report Generation
+HTML report was not generated. Check the validation log below for details.
+
+### Summary:
+```
+=== DATA PACKAGE VALIDATION SUMMARY ===
+Generated: 2025-07-28 21:05:21.249655 
+Author: Brieanne Forbes via GitHub action 
+Repository: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication 
+Files processed: 4 
+
+FILES ANALYZED:
+  AirTable_DataPackagesInPipeline-PublishedBrief_as_of_2025-06-06.csv: 91 rows, 9 columns
+  All_dd_flmd_as_of_2025-06-05.csv: 119 rows, 5 columns
+  data_dictionary_database.csv: 6036 rows, 9 columns
+  file_level_metadata_database.csv: 1176 rows, 6 columns
+```
+
 ### Validation Log:
+<details><summary>Click to expand validation log</summary>
+
 ```
 Working directory: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication 
 Data directory: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication 
@@ -12,8 +32,39 @@ Report author: Brieanne Forbes via GitHub action
 ℹ SHA-1 hash of file is "4fa12e6789da6da22482a133d07f4efcdddae1ab"
 ℹ SHA-1 hash of file is "e079ac6a08985588b6bc311458bc8142c43ad343"
 ℹ SHA-1 hash of file is "3a2447c52efa15df1a81adf36b4f26632da11a36"
-Found 150 total files in repository
-Error identifying files: there is no package called ‘rlog’ 
+Found 151 total files in repository
+2025-07-28 21:05:20.455243 [INFO] Getting file paths from directory.
+2025-07-28 21:05:20.457118 [INFO] Excluding 0 of 151 total file(s) in the directory.
+2025-07-28 21:05:20.590874 [INFO] get_files() function complete.
+Identified 151 data files for processing
+2025-07-28 21:05:20.705724 [INFO] Planning to load 4 tabular files.
+2025-07-28 21:05:20.7059 [INFO] Loading in file 1 of 4: AirTable_DataPackagesInPipeline-PublishedBrief_as_of_2025-06-06.csv
+2025-07-28 21:05:20.796909 [INFO] Loading in file 2 of 4: All_dd_flmd_as_of_2025-06-05.csv
+2025-07-28 21:05:20.800675 [INFO] Loading in file 3 of 4: data_dictionary_database.csv
+2025-07-28 21:05:20.832268 [INFO] Loading in file 4 of 4: file_level_metadata_database.csv
+2025-07-28 21:05:20.840012 [INFO] load_tabular_data() function complete.
+Successfully loaded 4 data files
+ - /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/AirTable_DataPackagesInPipeline-PublishedBrief_as_of_2025-06-06.csv : 91 rows, 9 columns
+ - /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/All_dd_flmd_as_of_2025-06-05.csv : 119 rows, 5 columns
+ - /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv : 6036 rows, 9 columns
+ - /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/file_level_metadata_database.csv : 1176 rows, 6 columns
+Warning message:
+One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+Error running checks: promise already under evaluation: recursive default argument reference or earlier problems? 
+trying URL 'https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks_report.Rmd'
+Content type 'text/plain; charset=utf-8' length 28806 bytes (28 KB)
+==================================================
+downloaded 28 KB
+
+Error generating HTML report: pandoc version 1.12.3 or higher is required and was not found (see the help page ?rmarkdown::pandoc_available). 
+Continuing with text summary...
+
+Summary saved to: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication/data_checks_reports/validation_summary_2025-07-28.txt 
+Validation process completed successfully!
 ```
+</details>
 
 📁 **All files available in:** `data_checks_reports/`
