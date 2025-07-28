@@ -1,0 +1,69 @@
+=== DEBUGGING DATA VALIDATION ===
+Working directory: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication 
+Loading validation functions...
+ℹ SHA-1 hash of file is "4fa12e6789da6da22482a133d07f4efcdddae1ab"
+ℹ SHA-1 hash of file is "e079ac6a08985588b6bc311458bc8142c43ad343"
+ℹ SHA-1 hash of file is "3a2447c52efa15df1a81adf36b4f26632da11a36"
+2025-07-28 21:27:17.913517 [INFO] Getting file paths from directory.
+2025-07-28 21:27:17.915744 [INFO] Excluding 0 of 154 total file(s) in the directory.
+2025-07-28 21:27:18.199335 [INFO] get_files() function complete.
+2025-07-28 21:27:18.30697 [INFO] Planning to load 4 tabular files.
+2025-07-28 21:27:18.307138 [INFO] Loading in file 1 of 4: AirTable_DataPackagesInPipeline-PublishedBrief_as_of_2025-06-06.csv
+2025-07-28 21:27:18.401568 [INFO] Loading in file 2 of 4: All_dd_flmd_as_of_2025-06-05.csv
+2025-07-28 21:27:18.405273 [INFO] Loading in file 3 of 4: data_dictionary_database.csv
+2025-07-28 21:27:18.431302 [INFO] Loading in file 4 of 4: file_level_metadata_database.csv
+2025-07-28 21:27:18.438586 [INFO] load_tabular_data() function complete.
+Warning message:
+One or more parsing issues, call `problems()` on your data frame for details,
+e.g.:
+  dat <- vroom(...)
+  problems(dat) 
+Data loaded successfully. Now debugging validation function...
+Checking function signature...
+$data_package_data
+
+
+$input_parameters
+input_parameters
+
+Checking function environment...
+<environment: R_GlobalEnv>
+Attempting to run validation with explicit parameters...
+Method 1: Calling with just data_package_data...
+❌ Method 1 failed: promise already under evaluation: recursive default argument reference or earlier problems? 
+Method 2: Creating input_parameters explicitly...
+2025-07-28 21:27:18.523721 [INFO] Running data checks on file 1 of 154: Data_Validation_Report_2025-07-28.txt
+❌ Method 2 failed: `pattern` must be a string, not NULL. 
+Method 3: Clean environment approach...
+❌ Method 3 failed: promise already under evaluation: recursive default argument reference or earlier problems? 
+Method 4: Direct function execution...
+ℹ SHA-1 hash of file is "3a2447c52efa15df1a81adf36b4f26632da11a36"
+❌ Method 4 failed: promise already under evaluation: recursive default argument reference or earlier problems? 
+Method 5: Examining function source code...
+trying URL 'https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R'
+Content type 'text/plain; charset=utf-8' length 36287 bytes (35 KB)
+==================================================
+downloaded 35 KB
+
+Found input_parameters references at lines: 63 80 103 155 231 650 667 687 711 721 782 791 798 818 844 874 
+Problematic lines:
+Line 63: input_parameters <- list(
+Line 80: ) # end of input_parameters list
+Line 103:                                             required_file_strings = input_parameters$required_file_strings,
+Line 155:                                       invalid_chrs = input_parameters$special_chrs,
+Line 231:                                            invalid_extensions = input_parameters$non_proprietary_extensions,
+Line 650: check_data_package <- function(data_package_data, input_parameters = input_parameters) {
+Line 667:     # input_parameters list
+Line 687:       #      parameters = input_parameters,     -> this is the list of parameters provided as input that the checks rely on
+Line 711:                                                         required_file_strings = input_parameters$required_file_strings,
+Line 721:                                                   invalid_chrs = input_parameters$special_chrs,
+Line 782:                                                     invalid_chrs = input_parameters$special_chrs,
+Line 791:                                                   invalid_chrs = input_parameters$special_chrs,
+Line 798:                                                           invalid_extensions = input_parameters$non_proprietary_extensions,
+Line 818:                                                         invalid_chrs = input_parameters$special_chrs,
+Line 844:                                               missing_value_codes = input_parameters$missing_value_codes)
+Line 874:                 parameters = input_parameters, # this is the list of parameters the functions used
+Found default argument issues at lines: 103 155 231 650 687 711 721 782 791 798 818 844 874 
+
+=== DEBUG COMPLETE ===
+Please check the output above to identify which method worked.
