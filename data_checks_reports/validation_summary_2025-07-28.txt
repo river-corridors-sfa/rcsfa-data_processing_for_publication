@@ -1,5 +1,5 @@
 === DATA PACKAGE VALIDATION SUMMARY ===
-Generated: 2025-07-28 21:05:21.249655 
+Generated: 2025-07-28 21:11:33.532243 
 Author: Brieanne Forbes via GitHub action 
 Repository: /home/runner/work/rcsfa-data_processing_for_publication/rcsfa-data_processing_for_publication 
 Files processed: 4 
@@ -9,3 +9,7 @@ FILES ANALYZED:
   All_dd_flmd_as_of_2025-06-05.csv: 119 rows, 5 columns
   data_dictionary_database.csv: 6036 rows, 9 columns
   file_level_metadata_database.csv: 1176 rows, 6 columns
+
+CHECK RESULTS:
+Validation checks failed - see log for details
+HTML report generated: FALSE 
