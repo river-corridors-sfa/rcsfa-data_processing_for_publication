@@ -50,27 +50,20 @@ jobs:
     - name: Setup R dependencies
       if: steps.rate-limit-check.outputs.should_run == 'true'
       env:
-        _R_CHECK_FORCE_SUGGESTS_: false  # Disable automatic Quarto installation
+        _R_CHECK_FORCE_SUGGESTS_: false
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         packages: |
           any::here
-          any::tidyverse
-          any::rlog
+          any::dplyr
+          any::readr
           any::devtools
-          any::hms
-          any::fs
-          any::clipr
           any::knitr
-          any::kableExtra
           any::DT
           any::rmarkdown
-          any::plotly
-          any::downloadthis
           any::cli
-          any::rstudioapi
-        cache-version: 2
-        needs: check
+        cache-version: 3
+        upgrade: never
         
     - name: Install system dependencies
       if: steps.rate-limit-check.outputs.should_run == 'true'
@@ -87,19 +80,22 @@ jobs:
       run: |
         # Load required libraries
         library(here)
-        library(tidyverse)
-        library(rlog)
+        library(dplyr)
+        library(readr)
         library(devtools)
-        library(hms)
-        library(fs)
-        library(clipr)
         library(knitr)
-        library(kableExtra)
         library(DT)
         library(rmarkdown)
-        library(plotly)
-        library(downloadthis)
         library(cli)
+        
+        # Load additional packages as needed
+        if (!require("hms", quietly = TRUE)) install.packages("hms")
+        if (!require("fs", quietly = TRUE)) install.packages("fs")
+        if (!require("rlog", quietly = TRUE)) install.packages("rlog")
+        
+        library(hms)
+        library(fs)
+        library(rlog)
         
         # Set working directory to repo root
         setwd(here())
