@@ -5,7 +5,6 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # Manual override option
 
 jobs:
   data-checks:
@@ -15,86 +14,58 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Setup R (for timestamp check)
+    - name: Setup R
       uses: r-lib/actions/setup-r@v2
       with:
         r-version: '4.3.0'
+        use-public-rspm: true  # Use binary packages for faster installation
         
-    - name: Check rate limit
-      id: rate-limit-check
-      run: |
-        # Check if timestamp file exists and if enough time has passed
-        if [ -f ".last-data-check" ]; then
-          last_check=$(cat .last-data-check)
-          echo "Last check was: $last_check"
-          
-          # Calculate time difference in hours
-          current_time=$(date -u +%s)
-          last_time=$(date -d "$last_check" +%s 2>/dev/null || echo "0")
-          time_diff=$(( (current_time - last_time) / 3600 ))
-          
-          echo "Hours since last check: $time_diff"
-          
-          if [ $time_diff -lt 6 ]; then
-            echo "⏸️  Skipping - last check was only $time_diff hours ago (minimum: 6 hours)"
-            echo "should_run=false" >> $GITHUB_OUTPUT
-          else
-            echo "✅ Proceeding - last check was $time_diff hours ago"
-            echo "should_run=true" >> $GITHUB_OUTPUT
-          fi
-        else
-          echo "✅ No previous timestamp found - proceeding with first run"
-          echo "should_run=true" >> $GITHUB_OUTPUT
-        fi
-        
-    - name: Setup R dependencies
-      if: steps.rate-limit-check.outputs.should_run == 'true'
-      env:
-        _R_CHECK_FORCE_SUGGESTS_: false
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: |
-          any::here
-          any::dplyr
-          any::readr
-          any::devtools
-          any::knitr
-          any::DT
-          any::rmarkdown
-          any::cli
-        cache-version: 3
-        
-    - name: Install system dependencies
-      if: steps.rate-limit-check.outputs.should_run == 'true'
+    - name: Install system dependencies (including Pandoc)
       run: |
         sudo apt-get update
         sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev pandoc
       
+    - name: Setup R dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: |
+          any::here
+          any::tidyverse
+          any::rlog
+          any::devtools
+          any::hms
+          any::fs
+          any::clipr
+          any::knitr
+          any::kableExtra
+          any::DT
+          any::rmarkdown
+          any::plotly
+          any::downloadthis
+          any::cli
+          any::rstudioapi
+        cache-version: 2
+      
     - name: Verify Pandoc installation
-      if: steps.rate-limit-check.outputs.should_run == 'true'
       run: pandoc --version
       
     - name: Run data package checks
-      if: steps.rate-limit-check.outputs.should_run == 'true'
       run: |
         # Load required libraries
         library(here)
-        library(dplyr)
-        library(readr)
+        library(tidyverse)
+        library(rlog)
         library(devtools)
-        library(knitr)
-        library(DT)
-        library(rmarkdown)
-        library(cli)
-        
-        # Load additional packages as needed
-        if (!require("hms", quietly = TRUE)) install.packages("hms")
-        if (!require("fs", quietly = TRUE)) install.packages("fs")
-        if (!require("rlog", quietly = TRUE)) install.packages("rlog")
-        
         library(hms)
         library(fs)
-        library(rlog)
+        library(clipr)
+        library(knitr)
+        library(kableExtra)
+        library(DT)
+        library(rmarkdown)
+        library(plotly)
+        library(downloadthis)
+        library(cli)
         
         # Set working directory to repo root
         setwd(here())
@@ -159,26 +130,17 @@ jobs:
         
       shell: Rscript {0}
       
-    - name: Update timestamp
-      if: steps.rate-limit-check.outputs.should_run == 'true'
-      run: |
-        # Write current timestamp to file
-        date -u +"%Y-%m-%dT%H:%M:%SZ" > .last-data-check
-        echo "Updated timestamp: $(cat .last-data-check)"
-        
     - name: Commit and push report
-      if: steps.rate-limit-check.outputs.should_run == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add data_checks_reports/ .last-data-check
+        git add data_checks_reports/
         git diff --staged --quiet || git commit -m "Auto-update data package checks report [skip ci]"
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Upload report as artifact
-      if: steps.rate-limit-check.outputs.should_run == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: data-checks-report
