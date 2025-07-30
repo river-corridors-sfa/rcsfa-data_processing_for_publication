@@ -10,3 +10,6 @@ To implement the GitHub action, create a folder in your repository called "data_
 
 ## Assumptions
 Using this GitHub action for the data checks assumes that there are no header rows in your data (if a header row is hashed, this will automatically be skipped and is not considered having a header row). If you have header rows, the data checks will have to be run manually using [data_package_checks.R](https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/blob/main/Data_Package_Validation/data_package_checks.R).
+
+## Questions
+For questions, reach out to Brieanne Forbes (brieanne.forbes@pnnl.gov).
