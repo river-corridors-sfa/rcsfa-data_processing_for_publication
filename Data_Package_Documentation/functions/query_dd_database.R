@@ -112,7 +112,7 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
   # Process matches (both fuzzy and exact)
   process_matches <- function(matches, current_header, match_type) {
     if (nrow(matches) == 0) {
-      log_info(paste0("No ", match_type, " match found for '", current_header, "'"))
+      cli_rule(left = paste0("No ", match_type, " match found "), right = current_header)
       return(NULL)
     }
     log_info(paste0("The header '", current_header, "' ",
