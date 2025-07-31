@@ -81,15 +81,8 @@ p_load(tidyverse,
 #     - Always review flagged rows before finalizing the data dictionary
 #     - Remove the 'flag' column before publishing the final data dictionary
 
-# =================== DELETE AFTER TESTING ===============================
-
-dd_database_abs_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv"
-
-dd_skeleton <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package/Test_dd.csv")
-
-populated_dd <- query_dd_database(dd_database_abs_path, dd_skeleton)
-  
 # =================== query_dd_database function ===============================
+
 query_dd_database <- function(dd_database_abs_path, dd_skeleton){
   
   ## =================== Helper Functions ===================
