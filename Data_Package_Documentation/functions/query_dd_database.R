@@ -2,19 +2,13 @@
 #
 # Functions for querying the dd database to populate dd skeleton
 #
-# Status: in progress
+# Status: Complete
 #
 # ==============================================================================
 #
 # Author: Brieanne Forbes 
-# 3 July 2025
+# 31 July 2025
 #
-# ==============================================================================
-
-
-#   > need to set up way to start function back up with intermediate file 
-
-
 # ==============================================================================
 
 require(pacman)
@@ -22,12 +16,70 @@ require(pacman)
 p_load(tidyverse,
        rlog,
        cli,
-       stringdist)
+       stringdist,
+       fs)
 
-# ============== Define Inputs/Outputs/Assumptions =============================
-
-# assumption: if the definition is empty but other columns have something, they are incorrect and will be over written
-#             if definition matches, the other columns (unit, term type, data type) also match
+# ============== Documentation =============================
+# Purpose:
+#       The purpose of this function is to query the dd database to populate an
+#       empty dd. It will attempt to find an exact match using the Column_or_Row_Name
+#       field. If no exact match is found, it will attempt to do a fuzzy match.
+#       This is an interactive function that requires user input for selecting
+#       definitions and flagging rows for review.
+#
+# Inputs:
+#     - dd_database_abs_path: (character) Absolute file path to the dd database CSV file
+#     - dd_skeleton: (data.frame) Empty data dictionary produced by "create_dd" function
+#                    Must contain columns: Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type
+#
+# Outputs:
+#     - (data.frame) Data dictionary with definition, unit, term type, and data type
+#       populated from the database if there was a match. Also includes a flag
+#       column where the user can indicate if they want to come back to it to review.
+#       In the flag column, TRUE indicates that the user flagged this row.
+#
+# Dependencies:
+#     - Required packages: tidyverse, rlog, cli, stringdist, fs
+#     - Database file must be readable CSV with specific column structure
+#
+# Interactive Elements:
+#     - User will be prompted to select from matching definitions
+#     - User can flag rows for later review
+#     - User can choose to resume from backup if available
+#     - Function displays progress and matching options during execution
+#
+# File Operations:
+#     - Creates temporary backup file: '[database_directory]/dd_populate_temporary_backup.rds'
+#     - Backup is automatically deleted upon successful completion
+#     - If function is interrupted, backup allows resuming from last position
+#
+# Error Handling:
+#     - Validates required columns in both database and skeleton files
+#     - Stops execution with descriptive error messages if validation fails
+#     - Input validation for all user prompts
+#
+# Performance Notes:
+#     - Processing time depends on skeleton size and number of matches found
+#     - Fuzzy matching parameters: similarity threshold = 0.69, method = "jw" (Jaro-Winkler)
+#     - Maximum of 10 fuzzy matches displayed per query
+#
+# Assumptions:
+#     - If the definition is empty, but the other columns (unit, term type, data type)
+#       are populated, they will be overwritten if a definition is selected from the
+#       database.
+#     - If a definition is selected from the database, it is assumed that the
+#       other columns (unit, term type, data type) are also accurate and will be
+#       populated from the database in addition to the definition.
+#     - Database file uses column types: "icccccDcc" (integer, character, character, 
+#       character, character, character, Date, character, character)
+#     - Missing_Value_Code will be preserved from skeleton if consistent across all rows
+#
+#
+# Warnings:
+#     - This function requires active user interaction and cannot run unattended
+#     - Large datasets may require significant time investment for manual review
+#     - Always review flagged rows before finalizing the data dictionary
+#     - Remove the 'flag' column before publishing the final data dictionary
 
 # =================== DELETE AFTER TESTING ===============================
 
@@ -39,23 +91,6 @@ populated_dd <- query_dd_database(dd_database_abs_path, dd_skeleton)
   
 # =================== query_dd_database function ===============================
 query_dd_database <- function(dd_database_abs_path, dd_skeleton){
-  log_info("Reading in and validating files.")
-  
-  # read in database
-  dd_database <- read_csv(dd_database_abs_path, col_names = T, show_col_types = F, col_types = "icccccDcc") # the col types argument tells the function what col types (chr, int, date) to use
-  backup_file_name <- paste0(dirname(dd_database_abs_path), '/dd_populate_temporary_backup.rds')
-  
-  # Check if backup file exists and ask user if they want to use it
-  if (file.exists(backup_file_name)) {
-    use_backup <- get_validated_yn_input("A backup file was found. Do you want to continue from where you left off? (Y/N): ")
-    if (use_backup) {
-      log_info("Loading from backup file.")
-      dd_skeleton <- read_rds(backup_file_name)
-      log_info(paste0("Backup loaded. Progress: ", sum(!is.na(dd_skeleton$Definition)), " of ", nrow(dd_skeleton), " rows completed."))
-    } else {
-      log_info("Starting fresh - backup file will be overwritten.")
-    }
-  }
   
   ## =================== Helper Functions ===================
   # Validate numeric input from user
@@ -87,28 +122,44 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
       log_info(paste0("No ", match_type, " match found for '", current_header, "'"))
       return(NULL)
     }
-    
     log_info(paste0("The header '", current_header, "' ",
                     if(match_type == "fuzzy") "is not in the data dictionary database. Trying a fuzzy match."
                     else "was found in the data dictionary database."))
-    
     print(matches)
-    
     user_choice <- get_validated_numeric_input(
       "Do any of these column definitions apply? If so, indicate the row. If none match, write '0': ",
       nrow(matches)
     )
-    
     if (user_choice == 0) {
       log_info(paste0("Did not find a suitable definition in the database for header '", current_header, "'"))
       return(NULL)
     }
-    
     log_info("Adding selected definition to the dd")
     return(matches %>%
              slice(user_choice) %>%
              select(Unit, Definition, Data_Type, Term_Type))
   }
+  
+  log_info("Reading in and validating files.")
+  # read in database
+  dd_database <- read_csv(dd_database_abs_path, col_names = T, show_col_types = F, col_types = "icccccDcc") # the col types argument tells the function what col types (chr, int, date) to use
+  backup_file_name <- paste0(dirname(dd_database_abs_path), '/dd_populate_temporary_backup.rds')
+  
+  # Initialize use_backup variable
+  use_backup <- FALSE
+  
+  # Check if backup file exists and ask user if they want to use it
+  if (file.exists(backup_file_name)) {
+    use_backup <- get_validated_yn_input("A backup file was found. Do you want to continue from where you left off? (Y/N): ")
+    if (use_backup) {
+      log_info("Loading from backup file.")
+      dd_skeleton <- read_rds(backup_file_name)
+      log_info(paste0("Backup loaded. Progress: ", sum(!is.na(dd_skeleton$Definition)), " of ", nrow(dd_skeleton), " rows completed."))
+    } else {
+      log_info("Starting fresh - backup file will be overwritten.")
+    }
+  }
+  
   
   ## =================== Validate inputs ===================
   # This chunk validates the input arguments.
