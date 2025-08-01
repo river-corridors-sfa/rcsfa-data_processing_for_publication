@@ -390,6 +390,7 @@ create_dd <- function(files_df,
                                         "File_Path", "N/A", "File path within the data package.", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "flmd template",'-9999')
     
     # dd headers
+
     dd_placeholder_entires <- tribble(~Column_or_Row_Name, ~Unit, ~ Definition, ~Data_Type, ~Term_Type, ~Missing_Value_Code, ~associated_files,  ~Reported_Precision,
                                       "Column_or_Row_Name", "N/A", "Column or row headers from each tabular file (csv or tsv) in the dataset.", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999',
                                       "Unit",  "N/A", "Unit of measurement that applies to a given column or row in the data package.", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template",'-9999',
@@ -398,6 +399,7 @@ create_dd <- function(files_df,
                                       "Term_Type", "N/A", "Indicates how the term is used in the data package (e.g., a column_header, row_header, data_flag, or other variable).", "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999',
                                       "Missing_Value_Code", "N/A", 'Cells with missing data are represented with a missing value code rather than an empty cell. This column describes which missing value codes were used. In most cases, the missing value code for numeric data is "-9999" and for character data is "N/A". Some files also use a missing value format specific to when a data value is below the limit of detection or above/below the standard curve. For these cases: a text string is included in the format "[data type]_*|*_Raw_Not_Corrected|*_Final_Corrected" in which the asterisks are the denoted individual data values. See the associated methods deviation (DTL_003) description for more details.', "text", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999',
                                       "Reported_Precision", "N/A", 'Precision of the reported data values. For example, if the values are rounded to 1 decimal place, the precision would be 0.1. Similarly, if a value like 5.24 is reported (rounded to 2 decimal places), its precision would be 0.01.', "numeric", "column_header", '"N/A"; "-9999"; ""; "NA"', "dd template", '-9999')
+
     
     # add rows
     dd_skeleton <- dd_skeleton %>% 

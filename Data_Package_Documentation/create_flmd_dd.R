@@ -23,14 +23,15 @@ rm(list=ls(all=T))
 
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = "Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package"
+my_directory = "C:/Brieanne/GitHub/dynamic-learning-rivers"
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
 
 my_dp_keyword = "WHONDRS_MEL"
 
+
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = 'Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package'
+my_out_dir = 'Z:/00_ESSDIVE/03_Manuscript_DPs/Forbes_2025_ICON_ModEx/dynamic-learning-rivers'
 
 
 #### OPTIONAL ----
@@ -52,7 +53,6 @@ my_out_dir = 'Y:/MEL/MEL_Data_Package_Staging/WHONDRS_MEL_Data_Package'
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 user_exclude_files = NA_character_
-
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
 
@@ -63,19 +63,19 @@ user_include_dot_files = F
 user_add_placeholders = T
 
 # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Header rows that start with "#" can be considered as not having header rows. Optional argument; default is FALSE.  
-user_query_header_info = T
+user_query_header_info = F
 
 # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 20 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 20. 
 user_view_n_max = 20
 
 # add_boye_headers = T/F where the user should select T if they want placeholder rows in the dd for Boye header row names. Optional argument; default is FALSE.
-user_add_boye_headers = T
+user_add_boye_headers = F
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
 user_add_flmd_dd_headers = F
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
-user_include_filenames = T
+user_include_filenames = F
 
 ### Prep Script ################################################################
 
@@ -116,7 +116,7 @@ my_dd <- create_dd(files_df = my_files,
 
 ### Data Package Specific Edits ################################################
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/ECA_Data_Package/EC_Data_Package/EC_dd.csv") %>%
+prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Gary_2024_sl-archive-whondrs_Manuscript_Data_Package/sl_archive_whondrs_dd.csv") %>%
   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
 
 
@@ -125,7 +125,16 @@ dd_populated <- my_dd %>%
   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
                                T ~ Term_Type))
 
-# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/ECA_Data_Package/EC_Data_Package/EC_flmd.csv") %>%
+prelim_dd2 <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/v5_CM_SSS_dd.csv") %>%
+  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
+
+
+dd_populated <- dd_populated %>%
+  rows_patch(prelim_dd2, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
+  mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
+                               T ~ Term_Type))
+
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Gary_2024_sl-archive-whondrs_Manuscript_Data_Package/sl_archive_whondrs_flmd.csv") %>%
 #   select(File_Name, File_Description)
 # 
 # 
