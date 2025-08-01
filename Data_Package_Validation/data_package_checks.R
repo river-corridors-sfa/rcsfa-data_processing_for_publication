@@ -53,6 +53,7 @@ flmd_path <- ""
   # files.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
+
 user_exclude_files = NA_character_
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
@@ -163,6 +164,44 @@ for (file_path in names(data_package_data[["tabular_data"]])) {
   }
 }
 
+# 7. Check that all numeric columns contain a Reported_Precision
+
+if(any(str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$"))){
+  
+  dd_path <- names(data_package_checks$input$tabular_data)[
+    str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
+  ]
+  
+  ## Pull in dd to get units
+  dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
+    select(Column_or_Row_Name, Data_Type, Reported_Precision)
+  
+  numeric <- dd %>%
+    filter(Data_Type == 'numeric') %>%
+    filter(Column_or_Row_Name != 'Reported_Precision')
+  
+
+  not_numeric <- dd %>%
+    filter(Data_Type != 'numeric')
+    
+  if(any(numeric$Reported_Precision == -9999)){
+    
+    cli_alert_danger('A numeric column is missing a Reported_Precision')
+  } else{
+    
+    cli_alert_success('All numeric columns have a Reported_Precision')
+  }
+  
+  if(any(not_numeric$Reported_Precision != -9999)){
+    
+    cli_alert_danger('A non-numeric column contains a Reported_Precision')
+  }else{
+    
+    cli_alert_success('All non-numeric columns do not have a Reported_Precision')
+  }
+  
+  
+}
 
 # View tabular data ############################################################
 
