@@ -128,6 +128,25 @@ dd_populated <-  query_dd_database(dd_database_abs_path = user_dd_database_path,
 flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_database_path, 
                                     flmd_skeleton = my_flmd)
 
+
+### Data Package Specific Edits ################################################
+
+# prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Gary_2024_sl-archive-whondrs_Manuscript_Data_Package/sl_archive_whondrs_dd.csv") %>%
+#   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
+# 
+# 
+# dd_populated <- my_dd %>%
+#   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
+#   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
+#                                T ~ Term_Type))
+
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Gary_2024_sl-archive-whondrs_Manuscript_Data_Package/sl_archive_whondrs_flmd.csv") %>%
+#   select(File_Name, File_Description)
+# 
+# 
+# flmd_populated <- my_flmd %>%
+#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
+
 ### Export #####################################################################
 
 write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
