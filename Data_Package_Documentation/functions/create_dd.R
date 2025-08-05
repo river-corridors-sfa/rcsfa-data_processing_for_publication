@@ -295,7 +295,7 @@ create_dd <- function(files_df,
             stop('create_dd() function ended. Fix precision of data file and re-run dd function to proceed.')
             
             
-          } else if(to_lower(user_prompt_to_proceed_precision) == 'y'){ # if user says its okay to proceed, report max as precision
+          } else if(tolower(user_prompt_to_proceed_precision) == 'y'){ # if user says its okay to proceed, report max as precision
             
             precision <- column_precision$max_precision
             
@@ -411,27 +411,50 @@ create_dd <- function(files_df,
   
   ### Clean up #################################################################
   
-  # see if there are duplicate column headers with different precision 
- check_precision <-  dd_skeleton %>%
+  # see if there are duplicate column headers with different precision
+  check_precision <-  dd_skeleton %>%
     select(Column_or_Row_Name, Reported_Precision) %>%
     group_by(Column_or_Row_Name) %>%
     filter(n_distinct(Reported_Precision) > 1)
   
   if(nrow(check_precision)>0){
-    
     for (dup_column in unique(check_precision$Column_or_Row_Name)) {
-      
       values <- paste(check_precision %>%
-                        filter(Column_or_Row_Name == dup_column) %>% 
+                        filter(Column_or_Row_Name == dup_column) %>%
                         pull(Reported_Precision),
                       collapse = ", ")
-      
       cli_alert_danger(paste0('Precision varies for "', dup_column, '" across files: ',values))
-      
-
     }
     
-    stop('create_dd() function ended. Fix precision of data file and re-run dd function to proceed.')
+    cat("\nOptions:\n")
+    cat("1. Select which precision to use\n")
+    cat("2. Quit to fix precision manually\n")
+    choice <- readline(prompt = "Enter your choice (1 or 2): ")
+    
+    if(choice == "1") {
+      for (dup_column in unique(check_precision$Column_or_Row_Name)) {
+        precisions <- check_precision %>%
+          filter(Column_or_Row_Name == dup_column) %>%
+          pull(Reported_Precision) %>%
+          unique()
+        
+        cat(paste0("\nFor column '", dup_column, "', available precisions:\n"))
+        for(i in seq_along(precisions)) {
+          cat(paste0(i, ". ", precisions[i], "\n"))
+        }
+        
+        selected <- as.numeric(readline(prompt = "Select precision number: "))
+        chosen_precision <- precisions[selected]
+        
+        # Update dd_skeleton to use chosen precision
+        dd_skeleton <- dd_skeleton %>%
+          mutate(Reported_Precision = ifelse(Column_or_Row_Name == dup_column, 
+                                             chosen_precision, 
+                                             Reported_Precision))
+      }
+    } else {
+      stop('create_dd() function ended. Fix precision of data file and re-run dd function to proceed.')
+    }
   }
   
   
