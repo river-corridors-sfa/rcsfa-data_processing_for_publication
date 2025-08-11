@@ -13,8 +13,6 @@
 #
 # ==============================================================================
 
-library(tidyverse)
-
 rm(list=ls(all=T))
 
 # this link will have to be updated once the function moves to the ESS-DIVE repo
