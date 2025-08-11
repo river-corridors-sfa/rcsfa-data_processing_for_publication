@@ -3,12 +3,8 @@
 # Function to read in data and metadata that are formatted in compliance with the 
 # Soil, Sediment, Water and/or Hydrologic Monitoring reporting formats
 #
-# Status: in progress
+# Status:  needs review
 #
-# ================================= Notes =====================================
-# 
-# - add logging
-# 
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
@@ -20,8 +16,6 @@ require(pacman)
 p_load(tidyverse,
        rlog)
 
-rm(list=ls(all=T))
-
 # ============================ read_in_formats function ===========================
 
 read_in_formats <- function(data_files, 
@@ -31,7 +25,7 @@ read_in_formats <- function(data_files,
   
   ## ---- initiate output list ----
   output <- list()
-  
+
   ## ---- define missing value codes ----
   if(length(user_missing_value_codes) == 1 && user_missing_value_codes == "default"){
     
@@ -40,7 +34,7 @@ read_in_formats <- function(data_files,
   } else{
     
     missing_value_codes <- user_missing_value_codes
-  }
+  } # end off missing value codes
   
   log_info(paste0("Using the following missing value codes: ", paste(missing_value_codes, collapse = ', ')))
   
@@ -50,11 +44,11 @@ read_in_formats <- function(data_files,
     log_info(paste0("Parsing file ", match(data_file, data_files), " of ", length(data_files)))
     
     # read in data, skipping metadata rows, changing all missing value codes to NA, drop field_name column
-    data <- read_csv(data_file, comment = '#', na = missing_value_codes) %>%
+    data <- read_csv(data_file, comment = '#', na = missing_value_codes, show_col_types = F) %>%
       select(-matches("field_name", ignore.case = TRUE))
     
     # read in metadata rows, changing all missing value codes to NA
-    metadata <- read_csv(data_file, na = missing_value_codes) %>%
+    metadata <- read_csv(data_file, na = missing_value_codes, show_col_types = F) %>%
       filter(if_any(matches("field_name", ignore.case = TRUE), ~ str_starts(.x, "#"))) %>%
       rename_with(~ str_remove(.x, "^#"), starts_with("#")) %>%
       mutate(across(matches("field_name", ignore.case = TRUE), ~ str_remove(.x, "#"))) 
@@ -76,7 +70,7 @@ read_in_formats <- function(data_files,
     
     if(!is.na(methods_file)){ # if a methods file exists, it will append the information to the long_metadata
       
-      methods <- read_csv(methods_file, na = missing_value_codes)
+      methods <- read_csv(methods_file, na = missing_value_codes, show_col_types = F)
       
       long_metadata <- long_metadata  %>%
         rename_with(~ case_when(
@@ -86,7 +80,7 @@ read_in_formats <- function(data_files,
         left_join(methods, by = c('value' = 'method_id'))%>% # join long data to methods
         select(where(~ !all(is.na(.x)))) # drop columns that are all na
       
-    }
+    } # end of methods file
     
     ### ---- create output ----
     # get name of file
@@ -100,9 +94,10 @@ read_in_formats <- function(data_files,
       metadata_transposed = metadata_transposed,
       full_file_path = data_file
     )
-  }
-  
+
 ## ---- output list of (meta)data ----
 return(output)
+  
+  } # end of for loop
   
 }
