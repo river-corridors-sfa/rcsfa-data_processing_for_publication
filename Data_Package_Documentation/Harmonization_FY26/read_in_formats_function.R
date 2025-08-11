@@ -36,7 +36,7 @@ p_load(tidyverse,
 
 read_in_formats <- function(data_files, 
                             methods_file = NA,
-                            missing_value_codes = 'default'){
+                            missing_value_codes = NULL){
   
   ## ---- Input validation ----
   # Check that data_files is provided and not empty
@@ -70,7 +70,7 @@ read_in_formats <- function(data_files,
   output <- list()
   
   ## ---- define missing value codes ----
-  if(length(missing_value_codes) == 1 && missing_value_codes == "default"){
+  if(is.null(missing_value_codes)){
     
     missing_value_codes <- c('N/A', '-9999')
     
