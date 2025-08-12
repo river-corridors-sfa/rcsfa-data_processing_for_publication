@@ -91,7 +91,6 @@ read_in_formats <- function(data_files,
     
     log_info(paste0("Parsing file ", match(data_file, data_files), " of ", length(data_files)))
     
-    # Enhanced error handling for file reading
     tryCatch({
       # read in data, skipping metadata rows, changing all missing value codes to NA, drop field_name column
       data <- read_csv(data_file, comment = '#', na = missing_value_codes, show_col_types = F) %>%

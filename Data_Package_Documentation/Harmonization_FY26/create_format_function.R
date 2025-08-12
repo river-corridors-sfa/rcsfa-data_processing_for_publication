@@ -90,8 +90,12 @@ create_format <- function(unformatted_data_file,
   for (file in unformatted_data_file) {
     
     log_info(paste0("Formatting file ", match(file, unformatted_data_file), " of ", length(unformatted_data_file)))
-    
-    data <- suppressWarnings(read_csv(file, na = character(), show_col_types = F))
+
+    data <- tryCatch({
+      suppressWarnings(read_csv(file, na = character(), show_col_types = F))
+    }, error = function(e) {
+      stop(paste("Failed to read file:", basename(file), "-", e$message))
+    })
     
     formatted_data <- data %>%
       add_column('field_name' = 'N/A', .before = 1)
@@ -119,18 +123,22 @@ create_format <- function(unformatted_data_file,
     
     row_headers <- c("#unit", "#unit_basis", method_rows, "#analysis_detection_limit", "#analysis_precision", "#data_status")
 
-    header_rows <- tibble(
-      `#field_name` = row_headers,
-      !!!map(column_names[-1], ~ rep('', length(row_headers))) %>% 
-        setNames(column_names[-1])
-    ) %>%
-      # add "#" to any rows if they are missing
-      mutate(`#field_name` = case_when(
-        str_starts(`#field_name`, "#") ~ `#field_name`,
-        TRUE ~ paste0("#", `#field_name`)
-      )) %>%
-      # fill in methods_deviations, notes, sample_name, IGSN with N/A
-      mutate(across(matches("methods_deviation|notes|sample_name|igsn", ignore.case = TRUE), ~ 'N/A'))
+    header_rows <- tryCatch({
+      tibble(
+        `#field_name` = row_headers,
+        !!!map(column_names[-1], ~ rep('', length(row_headers))) %>% 
+          setNames(column_names[-1])
+      ) %>%
+        # add "#" to any rows if they are missing
+        mutate(`#field_name` = case_when(
+          str_starts(`#field_name`, "#") ~ `#field_name`,
+          TRUE ~ paste0("#", `#field_name`)
+        )) %>%
+        # fill in methods_deviations, notes, sample_name, IGSN with N/A
+        mutate(across(matches("methods_deviation|notes|sample_name|igsn", ignore.case = TRUE), ~ 'N/A'))
+    }, error = function(e) {
+      stop(paste("Failed to create header rows:", e$message))
+    })
     
     ### ---- checks ----
     # check for missing values and asks if wish to proceed if cell is empty
@@ -197,9 +205,13 @@ create_format <- function(unformatted_data_file,
     # write file to outdir, append "Formatted" and date to file name
     out_file <- file.path(outdir, paste0(file_path_sans_ext(basename(file)), '_Formatted_', Sys.Date(), '.csv'))
     
-    write_csv(header_rows, out_file)
+    tryCatch({
+      write_csv(header_rows, out_file)
+      write_csv(formatted_data, out_file, append = T, col_names = T, na = '')
+    }, error = function(e) {
+      stop(paste("Failed to write output file:", basename(out_file), "-", e$message))
+    })
     
-    write_csv(formatted_data, out_file, append = T, col_names = T, na = '')
     
     cli_alert_success('File has been outputted. The user should now populate the metadata header rows.')
 
