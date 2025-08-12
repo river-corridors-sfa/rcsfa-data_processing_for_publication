@@ -22,28 +22,59 @@ p_load(tidyverse,
        cli)
 
 # ================================ Documentation ===============================
-# Inputs: 
-#      - unformatted_data_file = required; unformatted data file 
-#      - outdir = optional; default is dir of input files
-#      - method_rows = row names for methods; could be one (i.e. 'method_id') or 
-#       multiple (i.e. c('method_id_analysis', 'method_id_inspection', 'method_id_storage', 'method_id_preservation', 'method_id_preparation', 'method_id_dataprocessing'))
-
-# Outputs: 
-#     - formatted file will output to the indicated outdir; it will retain the original file name with "Formatted" and the date appended. 
 # 
+# This function formats raw data files to comply with ESS-DIVE soil, sediment, 
+# water chemistry, and hydrologic monitoring reporting formats (v2).
+#
+# What it does:
+# 1. Adds a 'field_name' column as the first column
+# 2. Creates metadata header rows with standard field names
+# 3. Validates data for empty cells and provides warnings
+# 4. Outputs formatted file with metadata rows that need to be populated
+#
+# Inputs: 
+# - unformatted_data_file = required; vector of file path(s) to CSV data files
+# - outdir = optional; output directory path. Default: same directory as input files
+# - method_rows = optional; method ID row names to include in metadata headers.
+#                 Default: NULL (uses 'method_id' only)
+#                 Examples: 'method_id' OR c('method_id_analysis', 'method_id_storage')
+#
+# Outputs: 
+# - CSV file(s) in specified directory with format: [originalname]_Formatted_YYYY-MM-DD.csv
+# - Files contain metadata header rows (empty, to be populated) + formatted data
+#
+# Usage Examples:
+# create_format("C://data.csv")  # Basic usage
+# create_format(c("C://file1.csv", "C://file2.csv"), outdir = "C://output")  # Multiple files
+# create_format("C://data.csv", method_rows = c("method_id_analysis", "method_id_storage"))# Multiple method id rows
 # ============================ create_format function ========================
 
 create_format <- function(unformatted_data_file,
                           outdir = NULL,
-                          method_rows = 'method_id'){
+                          method_rows = NULL){
+
+
+  ## ---- Input validation ----
   
+  # Check that unformatted_data_file is provided and not empty
+  if(missing(unformatted_data_file) || length(unformatted_data_file) == 0) {
+    stop("unformatted_data_file parameter is required and cannot be empty")
+  }
   
-  if(is.null(outdir)){
-    
-    outdir <- unique(dirname(unformatted_data_file))
-    
-    # need to add validation that provided outdir is a path that exists and errors if outdir give more than one 
-    
+  # Validate that all files are CSV files
+  non_csv_files <- unformatted_data_file[!grepl("\\.csv$", unformatted_data_file, ignore.case = TRUE)]
+  if(length(non_csv_files) > 0) {
+    stop(paste("Only CSV files are supported. Non-CSV files found:", paste(non_csv_files, collapse = ", ")))
+  }
+  
+  # Validate outdir if provided
+  if(!is.null(outdir)) {
+    if(length(outdir) > 1) {
+      stop("outdir must be a single directory path")
+    }
+    if(!dir.exists(outdir)) {
+      stop(paste("Output directory does not exist:", outdir))
+    }
   }
   
   
@@ -90,7 +121,7 @@ create_format <- function(unformatted_data_file,
         str_starts(`#field_name`, "#") ~ `#field_name`,
         TRUE ~ paste0("#", `#field_name`)
       )) %>%
-      # fill in methods_devitaions, notes, sample_name, IGSN with N/A
+      # fill in methods_deviations, notes, sample_name, IGSN with N/A
       mutate(across(matches("methods_deviation|notes|sample_name|igsn", ignore.case = TRUE), ~ 'N/A'))
     
     ### ---- checks ----
@@ -102,7 +133,7 @@ create_format <- function(unformatted_data_file,
     
     if(missing_value_check == TRUE){
       
-      cli_alert_danger('There are emtpy cells in your dataset, do you wish to proceed with outputting the formatted data?')
+      cli_alert_danger('There are empty cells in your dataset, do you wish to proceed with outputting the formatted data?')
       
       user_input <- readline(prompt = "Y/N?: ") 
       

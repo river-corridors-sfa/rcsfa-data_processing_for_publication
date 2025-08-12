@@ -20,33 +20,43 @@ source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publica
 # 
 # This function is meant to format data files to follow  v2 of the soil, sediment, 
 # and water chemistry and hydrologic monitoring reporting formats.
-# It will add the field_name column as well as the metadata header rows and output in 
-# the indicated folder. Once outputted, the user should populate the metadata 
-# header rows after running the function.
+# 
+# WHAT THIS DOES:
+# 1. Adds required 'field_name' column
+# 2. Creates metadata header rows (unit, method_id, detection_limit, etc.)
+# 3. Outputs formatted file with "_Formatted_YYYY-MM-DD" suffix
+#
+# AFTER RUNNING:
+# 1. Open the formatted file
+# 2. Fill in the metadata header rows (marked with #)
+# 3. Review and populate any missing data values
 
 # ================================ User Inputs =================================
 
 ## ---- Required ----
 
-# Select the data file(s) you would like to format
+# Select the data file(s) you would like to format. Only csv files are supported.
+# Use shift or ctrl to select multiple files.
 user_unformatted_data_file <- choose.files()
 
 ## ---- Optional ----
 
-# Indicate the method_id row(s) you would like to include. 
-# This could be one (i.e. 'method_id') or multiple (i.e. c('method_id_analysis', 
-#                                                         'method_id_inspection', 
-#                                                         'method_id_storage', 
-#                                                         'method_id_preservation', 
-#                                                         'method_id_preparation', 
-#                                                         'method_id_dataprocessing'))
-# If left NULL, it will include the 'method_id' row only.
+# Indicate the method_id row(s) you would like to include in metadata headers. 
+# Default (NULL) = includes only 'method_id' row
+# Options:
+#   NULL                            -> uses 'method_id' only
+#   'method_id'                     -> same as NULL
+#   c('method_id_analysis', 
+#     'method_id_inspection', 
+#     'method_id_storage', 
+#     'method_id_preservation', 
+#     'method_id_preparation', 
+#     'method_id_dataprocessing')    -> multiple method rows
 user_method_rows <- NULL
 
 # Enter the path to folder where you would like the formatted files to output. 
-# If left NULL, it will default to the directory of the input. 
+# Default (NULL) = saves to same directory as input files
 user_outdir <- NULL
-
 
 # =============================== run function =================================
 
