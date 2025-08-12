@@ -18,6 +18,9 @@ p_load(tidyverse,
 
 # ================================ Documentation ===============================
 
+# This function is meant to ingest v2 of the soil, sediment, and water chemistry 
+# and hydrologic monitoring reporting formats and the associated methods file. 
+
 # Inputs: 
 # - data_files = required; list of absolute file path(s) of data files that are compliant with the reporting formats 
 # - methods_file = optional; default = NA; methods file associated with the data file(s)
@@ -31,6 +34,11 @@ p_load(tidyverse,
 #                   was provided, this will include additional details from that file
 #   - metadata_transposed =  the metadata header rows extracted from the data file but transposed
 #                          so that each row is the metadata for a column
+
+# Usage Examples:
+# read_in_formats("C://data.csv") # Basic usage
+# read_in_formats(c("C://file1.csv", "C://file2.csv"), "C://methods_codes.csv") # multiple files with methods 
+# read_in_formats("C://data.csv", "C://methods_codes.csv", c('N/A', '-9999', 'NA', ''))
 
 # ============================ read_in_formats function ========================
 

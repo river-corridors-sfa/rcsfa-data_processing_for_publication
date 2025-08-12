@@ -22,27 +22,27 @@ p_load(tidyverse,
        cli)
 
 # ================================ Documentation ===============================
-# 
+
 # This function formats raw data files to comply with ESS-DIVE soil, sediment, 
 # water chemistry, and hydrologic monitoring reporting formats (v2).
-#
-# What it does:
+
+# This function:
 # 1. Adds a 'field_name' column as the first column
 # 2. Creates metadata header rows with standard field names
 # 3. Validates data for empty cells and provides warnings
 # 4. Outputs formatted file with metadata rows that need to be populated
-#
+
 # Inputs: 
 # - unformatted_data_file = required; vector of file path(s) to CSV data files
 # - outdir = optional; output directory path. Default: same directory as input files
 # - method_rows = optional; method ID row names to include in metadata headers.
 #                 Default: NULL (uses 'method_id' only)
 #                 Examples: 'method_id' OR c('method_id_analysis', 'method_id_storage')
-#
+
 # Outputs: 
 # - CSV file(s) in specified directory with format: [originalname]_Formatted_YYYY-MM-DD.csv
 # - Files contain metadata header rows (empty, to be populated) + formatted data
-#
+
 # Usage Examples:
 # create_format("C://data.csv")  # Basic usage
 # create_format(c("C://file1.csv", "C://file2.csv"), outdir = "C://output")  # Multiple files

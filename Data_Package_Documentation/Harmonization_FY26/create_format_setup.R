@@ -17,16 +17,17 @@ rm(list=ls(all=T))
 source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Documentation/Harmonization_FY26/create_format_function.R')
 
 # ================================ Documentation ===============================
-# 
-# This function is meant to format data files to follow  v2 of the soil, sediment, 
+
+# This script helps the user setup the inputs needed for the create_format_function.R 
+# function, which is meant to format data files to follow  v2 of the soil, sediment, 
 # and water chemistry and hydrologic monitoring reporting formats.
-# 
-# WHAT THIS DOES:
+
+# This function:
 # 1. Adds required 'field_name' column
 # 2. Creates metadata header rows (unit, method_id, detection_limit, etc.)
 # 3. Outputs formatted file with "_Formatted_YYYY-MM-DD" suffix
-#
-# AFTER RUNNING:
+
+# After running:
 # 1. Open the formatted file
 # 2. Fill in the metadata header rows (marked with #)
 # 3. Review and populate any missing data values
