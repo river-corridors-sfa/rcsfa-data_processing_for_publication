@@ -57,6 +57,7 @@ user_method_rows <- NULL
 
 # Enter the path to folder where you would like the formatted files to output. 
 # Default (NULL) = saves to same directory as input files
+# Can use chose.dir() to find folder path 
 user_outdir <- NULL
 
 # =============================== run function =================================

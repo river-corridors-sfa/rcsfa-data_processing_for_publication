@@ -75,6 +75,14 @@ create_format <- function(unformatted_data_file,
     if(!dir.exists(outdir)) {
       stop(paste("Output directory does not exist:", outdir))
     }
+  } else if(is.null(outdir)){
+    outdir <- unique(dirname(unformatted_data_file))
+    
+    if(length(outdir)<1){
+      
+      stop("Input files are in multiple directories.\nOnly one directory can be used for the output.\nNo out directory was provided.")
+    }
+    
   }
   
   
@@ -83,7 +91,7 @@ create_format <- function(unformatted_data_file,
     
     log_info(paste0("Formatting file ", match(file, unformatted_data_file), " of ", length(unformatted_data_file)))
     
-    data <- read_csv(file, na = character())
+    data <- suppressWarnings(read_csv(file, na = character(), show_col_types = F))
     
     formatted_data <- data %>%
       add_column('field_name' = 'N/A', .before = 1)

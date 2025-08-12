@@ -44,7 +44,7 @@ user_data_files <- choose.files()
 
 # Select the associated methods file. 
 # If you do not want to pull information from the methods file, put NA
-user_methods_file <- file.choose()
+user_methods_file <- file.choose() #or enter NA
 
 # Enter missing values codes for selected files. 
 # Default is user_missing_value_codes == c('N/A', '-9999')
