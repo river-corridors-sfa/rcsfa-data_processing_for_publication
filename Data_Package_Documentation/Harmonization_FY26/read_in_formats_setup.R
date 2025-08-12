@@ -18,6 +18,21 @@ rm(list=ls(all=T))
 # this link will have to be updated once the function moves to the ESS-DIVE repo
 source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Documentation/Harmonization_FY26/read_in_formats_function.R')
 
+# =============================== Documentation ================================
+# 
+# This function is meant to ingest v2 of the soil, sediment, and water chemistry 
+# and hydrologic monitoring reporting formats and the associated methods file. For
+# each file input, the output of the function will include:
+#   - data = the data file with metadata header rows removed
+#   - metadata = the metadata header rows extracted from the data file 
+#   - long_metadata = a pivoted long version of the metadata header rows; if a methods file 
+#                   was provided, this will include additional details from that file
+#   - metadata_transposed =  the metadata header rows extracted from the data file but transposed
+#                          so that each row is the metadata for a column
+#                          
+# The output includes the metadata in three formats to allow flexibility. The user 
+# can choose what is the most useful. 
+#
 # ================================ User Inputs =================================
 
 ## ---- Required ----
@@ -37,21 +52,7 @@ user_methods_file <- file.choose()
 # Example: c('N/A', '-9999', 'NA', ''). 
 user_missing_value_codes <- NULL
 
-# =============================== Documentation ================================
-# 
-# This function is meant to ingest v2 of the soil, sediment, and water chemistry 
-# and hydrologic monitoring reporting formats and the associated methods file. For
-# each file input, the output of the function will include:
-#   - data = the data file with metadata header rows removed
-#   - metadata = the metadata header rows extracted from the data file 
-#   - long_metadata = a pivoted long version of the metadata header rows; if a methods file 
-#                   was provided, this will include additional details from that file
-#   - metadata_transposed =  the metadata header rows extracted from the data file but transposed
-#                          so that each row is the metadata for a column
-#                          
-# The output includes the metadata in three formats to allow flexibility. The user 
-# can choose what is the most useful. 
-#
+
 # =============================== run function =================================
 
 all_data <- read_in_formats(data_files = user_data_files,
