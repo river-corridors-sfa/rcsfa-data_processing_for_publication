@@ -27,13 +27,14 @@ p_load(tidyverse,
 # - missing_value_codes = optional; default = c('N/A', '-9999'); list of codes that indicate missing values
   
 # Outputs: 
-# List that includes the following for each input file
-#   - data = the data file with metadata header rows removed
-#   - metadata = the metadata header rows extracted from the data file 
-#   - long_metadata = a pivoted long version of the metadata header rows; if a methods file 
-#                   was provided, this will include additional details from that file
-#   - metadata_transposed =  the metadata header rows extracted from the data file but transposed
-#                          so that each row is the metadata for a column
+# - List that includes the following for each input file nested within each directory
+#        - data = the data file with metadata header rows removed
+#        - metadata = the metadata header rows extracted from the data file 
+#        - long_metadata = a pivoted long version of the metadata header rows; if a methods file 
+#                          was provided, this will include additional details from that file
+#        - metadata_transposed =  the metadata header rows extracted from the data file but transposed
+#                                  so that each row is the metadata for a column
+# - Combined dataframes for metadata, long-metadata, and metadata_transposed
 
 # Usage Examples:
 # read_in_formats("C://data.csv") # Basic usage
@@ -166,26 +167,41 @@ read_in_formats <- function(data_files,
     ### ---- create output ----
     # get name of file
     file_name <- basename(data_file)
-    
+    directory <- dirname(data_file)  # Get directory name
     # add data and metadata to the output
-    output[[file_name]] <- list(
+    output[[directory]][[file_name]] <- list(
       data = data,
       metadata = metadata,
       long_metadata = long_metadata,
-      metadata_transposed = metadata_transposed,
-      full_file_path = data_file
+      metadata_transposed = metadata_transposed
     )
-    
     # Clean up temporary variables for next iteration
     if(exists("data")) rm(data)
     if(exists("metadata")) rm(metadata)
     if(exists("long_metadata")) rm(long_metadata)
     if(exists("metadata_transposed")) rm(metadata_transposed)
-    
   } # end of for loop
   
-  ## ---- output list of (meta)data ----
-
+  ## ---- return list of (meta)data ----
+  # combine metadata
+  log_info('Combining metadata.')
+  # Get the directory names
+  dir_names <- names(output)[!str_starts(names(output), "combined_")]
+  
+  output[["combined_metadata"]] <- map_dfr(dir_names, function(directory) {
+    map_dfr(output[[directory]], ~ .x$metadata, .id = "source_file") %>%
+      mutate(source_directory = directory)
+  })
+  
+  output[["combined_long_metadata"]] <- map_dfr(dir_names, function(directory) {
+    map_dfr(output[[directory]], ~ .x$long_metadata, .id = "source_file") %>%
+      mutate(source_directory = directory)
+  })
+  
+  output[["combined_metadata_transposed"]] <- map_dfr(dir_names, function(directory) {
+    map_dfr(output[[directory]], ~ .x$metadata_transposed, .id = "source_file") %>%
+      mutate(source_directory = directory)
+  })
   return(output)
   
 }
