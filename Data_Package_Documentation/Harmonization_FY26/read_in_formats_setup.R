@@ -33,6 +33,8 @@ source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publica
 #                   was provided, this will include additional details from that file
 #   - metadata_transposed =  the metadata header rows extracted from the data file but transposed
 #                          so that each row is the metadata for a column
+# Combined data frames for metadata, long-metadata, and metadata_transposed are 
+# also included
 # ================================ User Inputs =================================
 
 ## ---- Required ----
