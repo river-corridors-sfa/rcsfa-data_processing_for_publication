@@ -5,14 +5,17 @@
 #
 # Status: in progress
 #
+# remidners
+# - remind only once (move outside of for loop, store column names in df)
+# - sample name/id - flag duplicates 
+
+#
+# - make header rows  say "[USER MUST POPULATE]" instead of blank
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
 # 11 August 2025
 #
-
-# Notes
-# - add ability to have long data - need to discuss w amy
 # ==============================================================================
 
 require(pacman)
@@ -33,7 +36,7 @@ p_load(tidyverse,
 # 4. Outputs formatted file with metadata rows that need to be populated
 
 # Inputs: 
-# - unformatted_data_file = required; vector of file path(s) to CSV data files
+# - unformatted_data_file = required; vector of file path(s) to CSV data files (files must be in wide format)
 # - outdir = optional; output directory path. Default: same directory as input files
 # - method_rows = optional; method ID row names to include in metadata headers.
 #                 Default: NULL (uses 'method_id' only)
@@ -100,13 +103,6 @@ create_format <- function(unformatted_data_file,
     formatted_data <- data %>%
       add_column('field_name' = 'N/A', .before = 1)
     
-    # if(towlower(input_format) == 'long'){
-    #   
-    #   
-    #   
-    # 
-    #   
-    # }
     
     column_names <- data %>%
       add_column('#field_name', .before = 1) %>%
@@ -195,9 +191,24 @@ create_format <- function(unformatted_data_file,
     #reminder to include coordinate reference system in lat/long column unit
     if(any('latitude' %in% tolower(colnames(data)))|any('longitude' %in% tolower(colnames(data)))){
       
-      cli_alert_warning('You have a latitude and/or longitude column. It is recommended to report the coordinate reference system in the unit.')
+      cli_alert_warning('You have a latitude and/or longitude column. It is recommended to report the coordinate reference system in the unit. Reminder to use the Locations Reporting Format if appropriate.')
       
     }
+    
+    #reminder to use samples reporting format
+    if(str_detect('sample', tolower(colnames(data)))){
+      
+      cli_alert_warning('You have a sample column. Reminder to use the Samples Reporting Format if appropriate.')
+      
+    }
+    
+    #reminder to use controlled vocab for material column
+    if(any('material' %in% tolower(colnames(data)))){
+      
+      cli_alert_warning('You have a material column. Reminder to use the controlled vocab from the Samples Reporting Format.')
+      
+    }
+    
     
     
     ### ---- write files ----

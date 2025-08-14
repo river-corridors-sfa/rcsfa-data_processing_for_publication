@@ -6,6 +6,8 @@
 #
 # Status: needs review
 #
+#  remove combined metadata
+# 
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
