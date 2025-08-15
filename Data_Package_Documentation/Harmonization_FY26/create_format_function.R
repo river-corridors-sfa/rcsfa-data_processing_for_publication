@@ -6,7 +6,6 @@
 # Status: in progress
 #
 # remidners
-# - remind only once (move outside of for loop, store column names in df)
 # - sample name/id - flag duplicates 
 
 #
@@ -163,53 +162,19 @@ create_format <- function(unformatted_data_file,
       
     }
     
+    ### ---- compile column names for reminders ----
     
-    ### ---- reminder ----
-    #reminder to check datetime column format
-    
-    if(any('datetime' %in% tolower(colnames(data)))){
+    if(match(file, unformatted_data_file) == 1){
       
-      cli_alert_warning('Reminder to check the DateTime format. It is recommended to use YYYY-MM-DD hh:mm:ss and report the UTC offset in the unit.')
+      all_colnames <- as_tibble(column_names)
+      
+    } else {
+      
+      all_colnames <- all_colnames %>%
+        add_row(value = column_names)
       
     }
-    
-    #reminder to check date column format
-    
-    if(any('date' %in% tolower(colnames(data)))){
-      
-      cli_alert_warning('Reminder to check the date format. It is recommended to use YYYY-MM-DD.')
-      
-    }
-    
-    #reminder to include precision and utc offset in time column unit
-    if(any('time' %in% tolower(colnames(data)))){
-      
-      cli_alert_warning('You have a time column. It is recommended to report the precision (hh; hh:mm; hh:mm:ss) and the UTC offset in the unit.')
-      
-    }
-    
-    #reminder to include coordinate reference system in lat/long column unit
-    if(any('latitude' %in% tolower(colnames(data)))|any('longitude' %in% tolower(colnames(data)))){
-      
-      cli_alert_warning('You have a latitude and/or longitude column. It is recommended to report the coordinate reference system in the unit. Reminder to use the Locations Reporting Format if appropriate.')
-      
-    }
-    
-    #reminder to use samples reporting format
-    if(str_detect('sample', tolower(colnames(data)))){
-      
-      cli_alert_warning('You have a sample column. Reminder to use the Samples Reporting Format if appropriate.')
-      
-    }
-    
-    #reminder to use controlled vocab for material column
-    if(any('material' %in% tolower(colnames(data)))){
-      
-      cli_alert_warning('You have a material column. Reminder to use the controlled vocab from the Samples Reporting Format.')
-      
-    }
-    
-    
+
     
     ### ---- write files ----
     
@@ -228,6 +193,59 @@ create_format <- function(unformatted_data_file,
 
     
   }
+  
+  all_colnames <- all_colnames %>%
+    distinct %>%
+    pull() %>%
+    tolower()
+  
+
+  ### ---- reminder ----
+  #reminder to check datetime column format
+
+  if(any('datetime' %in% all_colnames)){
+
+    cli_alert_warning('Reminder to check the DateTime format. It is recommended to use YYYY-MM-DD hh:mm:ss and report the UTC offset in the unit.')
+
+  }
+
+  #reminder to check date column format
+
+  if(any('date' %in% all_colnames)){
+
+    cli_alert_warning('Reminder to check the date format. It is recommended to use YYYY-MM-DD.')
+
+  }
+
+  #reminder to include precision and utc offset in time column unit
+  if(any('time' %in% all_colnames)){
+
+    cli_alert_warning('You have a time column. It is recommended to report the precision (hh; hh:mm; hh:mm:ss) and the UTC offset in the unit.')
+
+  }
+
+  #reminder to include coordinate reference system in lat/long column unit
+  if(any('latitude' %in% all_colnames)|any('longitude' %in% all_colnames)){
+
+    cli_alert_warning('You have a latitude and/or longitude column. It is recommended to report the coordinate reference system in the unit. Reminder to use the Locations Reporting Format if appropriate.')
+
+  }
+
+  #reminder to use samples reporting format
+  if(str_detect('sample', all_colnames)){
+
+    cli_alert_warning('You have a sample column. Reminder to use the Samples Reporting Format if appropriate.')
+
+  }
+
+  #reminder to use controlled vocab for material column
+  if(any('material' %in% all_colnames)){
+
+    cli_alert_warning('You have a material column. Reminder to use the controlled vocab from the Samples Reporting Format.')
+
+  }
+
+
   
   
 
