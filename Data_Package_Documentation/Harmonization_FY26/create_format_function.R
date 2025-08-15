@@ -5,7 +5,6 @@
 #
 # Status: in progress
 #
-# - make header rows  say "[USER MUST POPULATE]" instead of blank
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
@@ -117,7 +116,7 @@ create_format <- function(unformatted_data_file,
     header_rows <- tryCatch({
       tibble(
         `#field_name` = row_headers,
-        !!!map(column_names[-1], ~ rep('', length(row_headers))) %>% 
+        !!!map(column_names[-1], ~ rep('[USER MUST POPULATE]', length(row_headers))) %>% 
           setNames(column_names[-1])
       ) %>%
         # add "#" to any rows if they are missing
