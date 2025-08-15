@@ -188,11 +188,6 @@ read_in_formats <- function(data_files,
   # Get the directory names
   dir_names <- names(output)[!str_starts(names(output), "combined_")]
   
-  output[["combined_metadata"]] <- map_dfr(dir_names, function(directory) {
-    map_dfr(output[[directory]], ~ .x$metadata, .id = "source_file") %>%
-      mutate(source_directory = directory)
-  })
-  
   output[["combined_long_metadata"]] <- map_dfr(dir_names, function(directory) {
     map_dfr(output[[directory]], ~ .x$long_metadata, .id = "source_file") %>%
       mutate(source_directory = directory)
