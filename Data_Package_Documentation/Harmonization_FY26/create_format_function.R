@@ -5,10 +5,6 @@
 #
 # Status: in progress
 #
-# remidners
-# - sample name/id - flag duplicates 
-
-#
 # - make header rows  say "[USER MUST POPULATE]" instead of blank
 # ==============================================================================
 #
@@ -144,7 +140,7 @@ create_format <- function(unformatted_data_file,
     
     if(missing_value_check == TRUE){
       
-      cli_alert_danger('There are empty cells in your dataset, do you wish to proceed with outputting the formatted data?')
+      cli_alert_danger('ALERT: There are empty cells in your dataset, do you wish to proceed with outputting the formatted data?')
       
       user_input <- readline(prompt = "Y/N?: ") 
       
@@ -155,13 +151,37 @@ create_format <- function(unformatted_data_file,
         
       } else{
         
-        cli_alert_warning('To comply with the reporting format, you must fill in the empty cells.')
+        cli_alert_warning('REMINDER: To comply with the reporting format, you must fill in the empty cells.')
         cli_alert('For missing values, it is recommended to use -9999 for numeric columns and N/A for character columns.')
         
       }
       
     }
     
+    # if sample column exists, check for duplicates 
+    if(any(str_detect(column_names, 'sample'))){   
+     
+      sample_dup_check <-  data %>%
+        select(contains('sample')) %>%
+        summarise(across(everything(), ~ any(duplicated(.x)))) 
+      
+      overall_check <- sample_dup_check %>%
+        summarise(any_duplicates_found = any(c_across(everything()))) %>%
+        pull()
+      
+      if(overall_check == TRUE){
+        
+        cli_alert_danger(paste0(
+          'ALERT: There are duplicate values in the following sample column(s): ',
+          paste0(sample_dup_check %>%
+                   select(where( ~ .x == TRUE)) %>%
+                   colnames(), collapse = ', ')
+        ))
+        
+      }
+      
+       
+    }
     ### ---- compile column names for reminders ----
     
     if(match(file, unformatted_data_file) == 1){
@@ -189,7 +209,7 @@ create_format <- function(unformatted_data_file,
     })
     
     
-    cli_alert_success('File has been outputted. The user should now populate the metadata header rows.')
+    cli_alert_success(paste0(file_path_sans_ext(basename(file)), '_Formatted_', Sys.Date(), '.csv', ' has been outputted.'))
 
     
   }
@@ -205,7 +225,7 @@ create_format <- function(unformatted_data_file,
 
   if(any('datetime' %in% all_colnames)){
 
-    cli_alert_warning('Reminder to check the DateTime format. It is recommended to use YYYY-MM-DD hh:mm:ss and report the UTC offset in the unit.')
+    cli_alert_warning('REMINDER: Check the DateTime format. It is recommended to use YYYY-MM-DD hh:mm:ss and report the UTC offset in the unit.')
 
   }
 
@@ -213,40 +233,41 @@ create_format <- function(unformatted_data_file,
 
   if(any('date' %in% all_colnames)){
 
-    cli_alert_warning('Reminder to check the date format. It is recommended to use YYYY-MM-DD.')
+    cli_alert_warning('REMINDER: Check the date format. It is recommended to use YYYY-MM-DD.')
 
   }
 
   #reminder to include precision and utc offset in time column unit
   if(any('time' %in% all_colnames)){
 
-    cli_alert_warning('You have a time column. It is recommended to report the precision (hh; hh:mm; hh:mm:ss) and the UTC offset in the unit.')
+    cli_alert_warning('REMINDER: It is recommended to report the precision (hh; hh:mm; hh:mm:ss) and the UTC offset in the unit for your time column.')
 
   }
 
   #reminder to include coordinate reference system in lat/long column unit
   if(any('latitude' %in% all_colnames)|any('longitude' %in% all_colnames)){
 
-    cli_alert_warning('You have a latitude and/or longitude column. It is recommended to report the coordinate reference system in the unit. Reminder to use the Locations Reporting Format if appropriate.')
+    cli_alert_warning('REMINDER: For your latitude and/or longitude column, it is recommended to report the coordinate reference system in the unit. Reminder to use the Locations Reporting Format if appropriate.')
 
   }
 
   #reminder to use samples reporting format
-  if(str_detect('sample', all_colnames)){
+  if(any(str_detect(all_colnames, 'sample'))){
 
-    cli_alert_warning('You have a sample column. Reminder to use the Samples Reporting Format if appropriate.')
+    cli_alert_warning('REMINDER: Use the Samples Reporting Format if appropriate.')
 
   }
 
   #reminder to use controlled vocab for material column
   if(any('material' %in% all_colnames)){
 
-    cli_alert_warning('You have a material column. Reminder to use the controlled vocab from the Samples Reporting Format.')
+    cli_alert_warning('REMINDER: Use the controlled vocab from the Samples Reporting Format for the material column.')
 
   }
 
 
-  
+  cli_alert_danger('REMINDER: YOU MUST NOW POPULATE THE METADATA HEADER ROWS IN THE OUTPUTTED FILES.')
   
 
   }
+
