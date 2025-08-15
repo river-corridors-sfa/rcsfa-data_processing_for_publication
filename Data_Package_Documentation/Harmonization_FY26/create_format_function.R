@@ -3,7 +3,7 @@
 # Function for formatting the users data in the soil, sediment, 
 # water chemistry or hydrologic monitoring formats. 
 #
-# Status: in progress
+# Status: needs review
 #
 # ==============================================================================
 #
@@ -75,7 +75,7 @@ create_format <- function(unformatted_data_file,
   } else if(is.null(outdir)){
     outdir <- unique(dirname(unformatted_data_file))
     
-    if(length(outdir)<1){
+    if(length(outdir)>1){
       
       stop("Input files are in multiple directories.\nOnly one directory can be used for the output.\nNo out directory was provided.")
     }
@@ -265,7 +265,7 @@ create_format <- function(unformatted_data_file,
   }
 
 
-  cli_alert_danger('REMINDER: YOU MUST NOW POPULATE THE METADATA HEADER ROWS IN THE OUTPUTTED FILES.')
+  cli_alert_info('REMINDER: YOU MUST NOW POPULATE THE METADATA HEADER ROWS IN THE OUTPUTTED FILES.')
   
 
   }
