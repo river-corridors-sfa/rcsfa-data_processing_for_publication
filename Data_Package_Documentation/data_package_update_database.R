@@ -12,10 +12,10 @@ my_publish_date <- Sys.Date()
 # my_publish_date <- '2025-07-21'
   
 # provide the absolute file path of the new DD to add
-my_dd <-"Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_Sediment_v9/v9_WHONDRS_S19S_Sediment/v7_dd.csv"
+my_dd <-"Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_MEL_Data_Package/WHONDRS_MEL_Data_Package/WHONDRS_MEL_dd.csv"
 
 # provide the absolute file path of the new FLMD to add
-my_flmd <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_Sediment_v9/v9_WHONDRS_S19S_Sediment/v7_flmd.csv"
+my_flmd <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_MEL_Data_Package/WHONDRS_MEL_Data_Package/WHONDRS_MEL_flmd.csv"
 
 # absolute file path of the DD database
 dd_database_dir <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv"
