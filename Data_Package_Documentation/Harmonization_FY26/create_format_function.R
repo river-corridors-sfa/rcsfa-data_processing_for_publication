@@ -35,6 +35,10 @@ p_load(tidyverse,
 # - method_rows = optional; method ID row names to include in metadata headers.
 #                 Default: NULL (uses 'method_id' only)
 #                 Examples: 'method_id' OR c('method_id_analysis', 'method_id_storage')
+# - populate_header_rows_indicate = optional; T/F; indicate if you would like to populate the header rows with the input file
+#                 Default: FALSE (header rows will not be populated)
+# - populate_header_rows_input = optional; must provide if populate_header_rows_indicate == T; Path to the header row input file
+#                 Default: NULL 
 
 # Outputs: 
 # - CSV file(s) in specified directory with format: [originalname]_Formatted_YYYY-MM-DD.csv
@@ -48,7 +52,9 @@ p_load(tidyverse,
 
 create_format <- function(unformatted_data_file,
                           outdir = NULL,
-                          method_rows = NULL){
+                          method_rows = NULL,
+                          populate_header_rows_indicate = F,
+                          populate_header_rows_input = NULL){
 
 
   ## ---- Input validation ----
@@ -129,6 +135,23 @@ create_format <- function(unformatted_data_file,
     }, error = function(e) {
       stop(paste("Failed to create header rows:", e$message))
     })
+    
+    ### ---- populate header rows ----
+    
+    if(populate_header_rows_indicate == T){
+      
+      if(is.null(populate_header_rows_input)){
+        
+        cli_alert_danger('Header rows input file not provided.')
+        
+        stop('Function terminating. Data not outputted.')
+        
+      }
+      
+      header_rows <- populate_header_rows(data = header_rows,
+                                          header_row_input_file = populate_header_rows_input)
+      
+    } # end of populating header rows
     
     ### ---- checks ----
     # check for missing values and asks if wish to proceed if cell is empty
@@ -264,9 +287,10 @@ create_format <- function(unformatted_data_file,
 
   }
 
-
-  cli_alert_info('REMINDER: YOU MUST NOW POPULATE THE METADATA HEADER ROWS IN THE OUTPUTTED FILES.')
+if(populate_header_rows == F){
   
+  cli_alert_info('REMINDER: YOU MUST NOW POPULATE THE METADATA HEADER ROWS IN THE OUTPUTTED FILES.')
+}
 
   }
 
