@@ -5,10 +5,11 @@
 #
 # Status: in progress
 #
+#
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
-# 17 August 2025
+# 22 August 2025
 #
 # ==============================================================================
 
@@ -22,25 +23,34 @@ p_load(tidyverse,
 # water chemistry, and hydrologic monitoring reporting formats (v2).
 
 # This function:
-# 1. 
-# 2.
-# 3. 
-# 4. 
+# 1. Loops through the file and uses the input file to populate header rows in the data files 
+# 2. Warns the user if the input file and data files don't match 
+# 3. Returns a list with the data file(s) containing populated header rows
 
 # Inputs: 
-# 
+# - data_dfs = required; list of formatted data frames 
+# - header_row_input_file = required; file path of header row input file
 
 # Outputs: 
-# 
+#  - list of data files with header rows populated 
 
 # Usage Examples:
 # 
 # ============================ populate_header_rows function ========================
 
-populate_header_rows <- function(data_df, 
+populate_header_rows <- function(data_dfs, 
                                  header_row_input_file){
+  
+  # initilize output list
+  output_list <- list()
+  
+  for(file in names(data_dfs)){
+    
+    data_file <- data_dfs[[file]]
+    
+    column_names <- colnames(data_file)
 
-  header_row_input <- read_csv(header_row_input_file) %>%
+  header_row_input <- read_csv(header_row_input_file, show_col_types = F) %>%
     mutate(file_path = file.path(paste0(directory, '\\',file_name))) %>%
     filter(file_path == file)
   
@@ -68,15 +78,15 @@ populate_header_rows <- function(data_df,
         lookup_data <- header_row_input_long %>% 
           filter(column_name == col)
         
-        data_df <- data_df %>%
+        data_file <- data_file %>%
           mutate(!!col := case_when(
-            !!sym(names(data_df)[1]) %in% lookup_data$name ~ 
-              lookup_data$value[match(!!sym(names(data_df)[1]), lookup_data$name)],
+            !!sym(names(data_file)[1]) %in% lookup_data$name ~ 
+              lookup_data$value[match(!!sym(names(data_file)[1]), lookup_data$name)],
             TRUE ~ !!sym(col)
           ))
       }  # end of for loop to populate header rows
       
-      if(any(grepl("\\[USER MUST POPULATE\\]", data_df))){ # check if any header rows were not populated and alert
+      if(any(grepl("\\[USER MUST POPULATE\\]", data_file))){ # check if any header rows were not populated and alert
         
         cli_alert_danger('NOT ALL HEADER ROWS WERE POPULATED BECAUSE THEY WERE MISSING FROM THE INPUT FILE.')
         cli_alert_danger('YOU MUST POPULATE THE REMAINING HEADER ROWS AFTER IT IS OUTPUTTED.')
@@ -89,7 +99,7 @@ populate_header_rows <- function(data_df,
       stop('Function terminating.')
       
     } # end of check if all header rows in input file are in data file
-    
+
     header_row_column_check <-  column_names[column_names != "\"#field_name\""]
     header_row_column_check <-  header_row_column_check[header_row_column_check != "methods_deviation"]
     header_row_column_check <-  header_row_column_check[header_row_column_check != "notes"]
@@ -103,6 +113,10 @@ populate_header_rows <- function(data_df,
     
   } # end of file found
   
-  return(data_df)
+  output_list[[file]] <- data_file
+  
+  } # end for loop
+  
+  return(output_list)
   
 }
