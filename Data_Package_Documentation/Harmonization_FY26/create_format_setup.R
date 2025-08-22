@@ -47,12 +47,12 @@ user_unformatted_data_file <- choose.files()
 # Options:
 #   NULL                            -> uses 'method_id' only
 #   'method_id'                     -> same as NULL
-#   c('method_id_preservation'
-#    'method_id_storage'
-#    'method_id_preparation'
-#     'method_id_analysis'
-#     'method_id_dataprocessing'
-#     'method_id_deployment'
+#   c('method_id_preservation',
+#    'method_id_storage',
+#    'method_id_preparation',
+#     'method_id_analysis',
+#     'method_id_dataprocessing',
+#     'method_id_deployment',
 #     'method_id_calibration')    -> example of multiple method rows
 user_method_rows <- NULL
 
