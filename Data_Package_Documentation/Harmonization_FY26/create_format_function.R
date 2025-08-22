@@ -131,7 +131,7 @@ create_format <- function(unformatted_data_file,
           TRUE ~ paste0("#", `#field_name`)
         )) %>%
         # fill in methods_deviations, notes, sample_name, IGSN with N/A
-        mutate(across(matches("methods_deviation|notes|sample_name|igsn", ignore.case = TRUE), ~ 'N/A'))
+        mutate(across(matches("methods_deviation|notes|sample_name|igsn|material", ignore.case = TRUE), ~ 'N/A'))
     }, error = function(e) {
       stop(paste("Failed to create header rows:", e$message))
     })
@@ -148,8 +148,16 @@ create_format <- function(unformatted_data_file,
         
       }
       
-      header_rows <- populate_header_rows(data = header_rows,
+      # make list for input
+      header_row_list <- list()
+      header_row_list[[file]] <- header_rows
+      
+      
+      populated_header_rows <- populate_header_rows(data = header_row_list,
                                           header_row_input_file = populate_header_rows_input)
+      #extract header rows from list 
+      header_rows <- populated_header_rows[[file]]
+        
       
     } # end of populating header rows
     
@@ -287,7 +295,7 @@ create_format <- function(unformatted_data_file,
 
   }
 
-if(populate_header_rows == F){
+if(populate_header_rows_indicate == F){
   
   cli_alert_info('REMINDER: YOU MUST NOW POPULATE THE METADATA HEADER ROWS IN THE OUTPUTTED FILES.')
 }
