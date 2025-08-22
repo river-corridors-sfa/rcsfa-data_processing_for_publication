@@ -47,21 +47,35 @@ user_unformatted_data_file <- choose.files()
 # Options:
 #   NULL                            -> uses 'method_id' only
 #   'method_id'                     -> same as NULL
-#   c('method_id_analysis', 
-#     'method_id_storage', 
-#     'method_id_preservation', 
-#     'method_id_preparation', 
-#     'method_id_dataprocessing')    -> multiple method rows
+#   c('method_id_preservation'
+#    'method_id_storage'
+#    'method_id_preparation'
+#     'method_id_analysis'
+#     'method_id_dataprocessing'
+#     'method_id_deployment'
+#     'method_id_calibration')    -> example of multiple method rows
 user_method_rows <- NULL
+
 
 # Enter the path to folder where you would like the formatted files to output. 
 # Default (NULL) = saves to same directory as input files
 # Can use chose.dir() to find folder path 
 user_outdir <- NULL
 
+# Indicate if you would like to populate the header rows with the input file
+# Default (FALSE) = the file will output with header rows that need to be populated
+user_populate_header_rows <- FALSE
+
+# If you would like to populate header rows, enter the path to the header row input file
+# Default (NULL) = the file will output with header rows that need to be populated
+# Can use file.choose() to find file path 
+user_populate_header_rows_input <- NULL
+
 # =============================== run function =================================
 
 create_format(unformatted_data_file = user_unformatted_data_file,
               method_rows = user_method_rows,
-              outdir = user_outdir)
+              outdir = user_outdir,
+              populate_header_rows_indicate = user_populate_header_rows,
+              populate_header_rows_input = user_populate_header_rows_input)
 
