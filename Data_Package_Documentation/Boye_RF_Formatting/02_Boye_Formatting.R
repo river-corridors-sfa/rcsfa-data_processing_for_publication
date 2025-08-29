@@ -26,9 +26,9 @@ rm(list=ls(all=T))
 
 dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
-RC <- 'RC2'
+RC <- 'TGW'
 
-study_code <- 'RC2'
+study_code <- 'TGW'
   
 material <- 'Water'
 
@@ -42,15 +42,15 @@ colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Fil
 # LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
 
 #uncomment if data was run at MCRL
-LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
+# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
 
 #uncomment if data was run at BSF
-# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
+LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
  
  #uncomment if ions were run at EMSL and update file name
-ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv' 
+# ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv' 
 
-tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
+# tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
 
 # ================================= Build dir ================================
 
@@ -151,7 +151,7 @@ for (file in files) {
                  'MethodID_Preparation', 'MethodID_DataProcessing')
 
       column_typical_codes <- typical_codes %>%
-        filter(str_detect(Method_ID, '000')) %>%
+        filter(str_detect(Method_ID, typical_code_number)) %>%
         slice(match(order, Method_Type))%>%
         select(Method_ID)%>%
         pull(n = 1)
