@@ -26,11 +26,10 @@ source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publica
 # 1. Adds required 'field_name' column
 # 2. Creates metadata header rows (unit, method_id, detection_limit, etc.)
 # 3. Outputs formatted file with "_Formatted_YYYY-MM-DD" suffix
+# 4. Returns a data frame of reminders for complying with the reporting formats (see below for descriptions)
 
 # After running:
-# 1. Open the formatted file
-# 2. Fill in the metadata header rows (marked with #)
-# 3. Review and populate any missing data values
+# 1. Review reminders and take an actions necessary
 
 # ================================ User Inputs =================================
 
@@ -65,17 +64,62 @@ user_outdir <- NULL
 # Indicate if you would like to populate the header rows with the input file
 # Default (FALSE) = the file will output with header rows that need to be populated
 user_populate_header_rows <- FALSE
+user_populate_header_rows <- TRUE
 
 # If you would like to populate header rows, enter the path to the header row input file
 # Default (NULL) = the file will output with header rows that need to be populated
 # Can use file.choose() to find file path 
 user_populate_header_rows_input <- NULL
-
+user_populate_header_rows_input <- file.choose()
 # =============================== run function =================================
 
-create_format(unformatted_data_file = user_unformatted_data_file,
-              method_rows = user_method_rows,
-              outdir = user_outdir,
-              populate_header_rows_indicate = user_populate_header_rows,
-              populate_header_rows_input = user_populate_header_rows_input)
+format <- create_format(unformatted_data_file = user_unformatted_data_file,
+                        method_rows = user_method_rows,
+                        outdir = user_outdir,
+                        populate_header_rows_indicate = user_populate_header_rows,
+                        populate_header_rows_input = user_populate_header_rows_input)
+# view reminders
+view(format$Reminders)
+
+# ============================= Reminders =================================
+# The reminders are meant to help the user comply with the reporting formats. 
+# We recommend the user take action when applicable. 
+
+# The directory is included in case there are multiple files with the same name. If 
+# there are not duplicate file names, this column can be disregarded
+
+# The column names indicate the reminder. The rows indicate the file. 0 indicates
+# the reminder is NOT applicable to the associated file. 1 indicates the reminder
+# is applicable to the associated file.
+
+# Definitions: 
+# - confirm_date_format: there is a date column in your file; it is recommended 
+#                        to format dates as YYYY-MM-DD
+# - confirm_time_format: there is a time column in your file; it is recommended 
+#                        to format time as hh:mm:ss [ASK AMY ABOUT THIS]
+# - confirm_datetime_format: there is a datetime column in your file; it is  
+#                       recommended to format dates as YYYY-MM-DD hh:mm:ss 
+# - report_utc_offset: there is a datetime or time column in your file; it is 
+#                      recommended to specify the UTC offset in the unit
+# - use_sample_rf: there is a sample column; you must comply with the Sample 
+#                   Reporting Format  
+# - confirm_material_vocab: there is a material column; it is recommended to use 
+#                           the controlled vocab specified in the Sample Reporting Format  
+# - fix_duplicate_sample: there is a duplicate within a sample column; this may 
+#                         be okay depending on your data structure
+# - use_location_rf: there is a latitude and/or longitude column; you must comply 
+#                    with the Location Reporting Format
+# - report_crs: there is a latitude and/or longitude column; it is recommended to
+#               report the coordinate reference system in the unit
+# - populate_empty_cells: there are empty cells in you file; it is recommended to 
+#                         -9999 for numeric columns and N/A for non-numeric columns
+# - populate_header_rows: there are cells in the header rows that must be populated
+# -ignored_extra_header_input: if provided, the header rows input file contained 
+#                              additional information that was ignored 
+
+
+
+
+
+
 

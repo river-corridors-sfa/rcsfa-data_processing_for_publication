@@ -201,3 +201,5 @@ ipython_config.py
 #   git rm -r .ipynb_checkpoints/
 
 # End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks
+Data_Package_Documentation/Harmonization_FY26/Test_Data_Package/v2_HydroRF_Template_DataFile_unformatted_Formatted_2025-08-29.csv
+Data_Package_Documentation/Harmonization_FY26/Test_Data_Package/v2_WSSChemRF_Template_DataFile_unformatted_Formatted_2025-08-29.csv

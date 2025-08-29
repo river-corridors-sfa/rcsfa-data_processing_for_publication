@@ -26,7 +26,7 @@ p_load(tidyverse,
 # This function:
 # 1. Adds a 'field_name' column as the first column
 # 2. Creates metadata header rows with standard field names
-# 3. Validates data for empty cells and provides warnings
+# 3. Validates data  and provides reminders for complying with the reporting formats
 # 4. Outputs formatted file with metadata rows that need to be populated
 
 # Inputs: 
@@ -42,7 +42,8 @@ p_load(tidyverse,
 
 # Outputs: 
 # - CSV file(s) in specified directory with format: [originalname]_Formatted_YYYY-MM-DD.csv
-# - Files contain metadata header rows (empty, to be populated) + formatted data
+#           > Files contain metadata header rows (empty, to be populated) + formatted data
+# - reminders for complying with the reporting formats
 
 # Usage Examples:
 # create_format("C://data.csv")  # Basic usage
@@ -88,9 +89,29 @@ create_format <- function(unformatted_data_file,
     
   }
   
+  #initialize reminders
+  reminders <- tibble(directory = dirname(unformatted_data_file),
+                      file_name = basename(unformatted_data_file),
+                      populate_empty_cells = 0,
+                      populate_header_rows = 0,
+                      ignored_extra_header_input = 0,
+                      confirm_date_format = 0,
+                      confirm_time_format = 0,
+                      report_utc_offset = 0,
+                      confirm_datetime_format = 0,
+                      use_sample_rf = 0,
+                      confirm_material_vocab = 0,
+                      fix_duplicate_sample = 0,
+                      use_location_rf = 0,
+                      report_crs = 0
+                      )
   
   ## ---- loop through files ----
   for (file in unformatted_data_file) {
+    
+    data_directory <- dirname(file)
+    
+    data_file_name <- basename(file)
     
     log_info(paste0("Formatting file ", match(file, unformatted_data_file), " of ", length(unformatted_data_file)))
 
@@ -157,75 +178,18 @@ create_format <- function(unformatted_data_file,
                                           header_row_input_file = populate_header_rows_input)
       #extract header rows from list 
       header_rows <- populated_header_rows[[file]]
-        
+      
+      # join reminders
+      reminders <- reminders %>%
+        left_join(populated_header_rows$Reminders, by = c('directory', 'file_name')) %>%
+        mutate(across(ends_with('.x'), ~ pmax(.x, 
+                                              get(str_replace(cur_column(), '\\.x$', '.y')), na.rm = TRUE),
+                      .names = "{str_replace(.col, '\\\\.x$', '')}")) %>%
+        select(-ends_with('.x'), -ends_with('.y'))
       
     } # end of populating header rows
     
-    ### ---- checks ----
-    # check for missing values and asks if wish to proceed if cell is empty
-    
-   missing_value_check <- data %>% 
-      summarise(across(everything(), ~ any(is.na(.x) | .x == "" | str_trim(.x) == ""))) %>%
-      any()
-    
-    if(missing_value_check == TRUE){
-      
-      cli_alert_danger('ALERT: There are empty cells in your dataset, do you wish to proceed with outputting the formatted data?')
-      
-      user_input <- readline(prompt = "Y/N?: ") 
-      
-      if(tolower(user_input) == 'n'){
-        
-        stop('Function terminating. Data not outputted.')
-        
-        
-      } else{
-        
-        cli_alert_warning('REMINDER: To comply with the reporting format, you must fill in the empty cells.')
-        cli_alert('For missing values, it is recommended to use -9999 for numeric columns and N/A for character columns.')
-        
-      }
-      
-    }
-    
-    # if sample column exists, check for duplicates 
-    if(any(str_detect(column_names, 'sample'))){   
-     
-      sample_dup_check <-  data %>%
-        select(contains('sample')) %>%
-        summarise(across(everything(), ~ any(duplicated(.x)))) 
-      
-      overall_check <- sample_dup_check %>%
-        summarise(any_duplicates_found = any(c_across(everything()))) %>%
-        pull()
-      
-      if(overall_check == TRUE){
-        
-        cli_alert_danger(paste0(
-          'ALERT: There are duplicate values in the following sample column(s): ',
-          paste0(sample_dup_check %>%
-                   select(where( ~ .x == TRUE)) %>%
-                   colnames(), collapse = ', ')
-        ))
-        
-      }
-      
-       
-    }
-    ### ---- compile column names for reminders ----
-    
-    if(match(file, unformatted_data_file) == 1){
-      
-      all_colnames <- as_tibble(column_names)
-      
-    } else {
-      
-      all_colnames <- all_colnames %>%
-        add_row(value = column_names)
-      
-    }
 
-    
     ### ---- write files ----
     
     # write file to outdir, append "Formatted" and date to file name
@@ -242,63 +206,107 @@ create_format <- function(unformatted_data_file,
     cli_alert_success(paste0(file_path_sans_ext(basename(file)), '_Formatted_', Sys.Date(), '.csv', ' has been outputted.'))
 
     
-  }
+    
+    ## ---- reminder ----
+    
+    #### empty cells ----
+    
+    if(formatted_data %>% 
+       summarise(across(everything(), ~ any(is.na(.x) | .x == "" | str_trim(.x) == ""))) %>%
+       any()){    # check if any cells are empty
+      
+      reminders <- reminders %>%
+        mutate(populate_empty_cells = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                TRUE ~ populate_empty_cells))
+      
+    }    # end of check if any cells are empty
+    
+    #### sample ----
+    if(any(str_detect(column_names, 'sample'))){   
+      
+      reminders <- reminders %>%
+        mutate(use_sample_rf = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                         TRUE ~ use_sample_rf))
+      
+      sample_dup_check <-  data %>%
+        select(contains('sample')) %>%
+        summarise(across(everything(), ~ any(duplicated(.x)))) 
+      
+      overall_check <- sample_dup_check %>%
+        summarise(any_duplicates_found = any(c_across(everything()))) %>%
+        pull()
+      
+      if(overall_check == TRUE){
+        
+        reminders <- reminders %>%
+          mutate(fix_duplicate_sample = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                  TRUE ~ fix_duplicate_sample))
+        
+      }
+      
+      
+    } # end sample  
+    
+    ### datetime ----
+    
+    if(any('datetime' %in% colnames(formatted_data))){
+      
+      reminders <- reminders %>%
+        mutate(confirm_datetime_format = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                   TRUE ~ confirm_datetime_format),
+               report_utc_offset = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                             TRUE ~ report_utc_offset))
+      
+    } # end of datetime
+    
+    ### date ----
+    
+    if(any('date' %in% colnames(formatted_data))){
+      
+      reminders <- reminders %>%
+        mutate(confirm_date_format = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                               TRUE ~ confirm_date_format))
+      
+    }
+    
+    ### time ----
+    if(any('time' %in% colnames(formatted_data))){
+      
+      reminders <- reminders %>%
+        mutate(confirm_time_format = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                               TRUE ~ confirm_time_format),
+               report_utc_offset = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                             TRUE ~ report_utc_offset))
+    }
+    
+    ### lat/long ----
+    if(any('latitude' %in% colnames(formatted_data))|any('longitude' %in% colnames(formatted_data))){
+      
+      reminders <- reminders %>%
+        mutate(report_crs = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                      TRUE ~ report_crs))
+    }
+    
+    ### material ----
+    if(any('material' %in% colnames(formatted_data))){
+      
+      reminders <- reminders %>%
+        mutate(confirm_material_vocab = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                  TRUE ~ confirm_material_vocab))
+      
+    }
+    
+    if(populate_header_rows_indicate == F){
+      
+      reminders <- reminders %>%
+        mutate(populate_empty_cells = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                  TRUE ~ populate_empty_cells))
+    }
+    
+    
+  } # end file loop
   
-  all_colnames <- all_colnames %>%
-    distinct %>%
-    pull() %>%
-    tolower()
-  
+  return(list(Reminders = reminders))
 
-  ### ---- reminder ----
-  #reminder to check datetime column format
-
-  if(any('datetime' %in% all_colnames)){
-
-    cli_alert_warning('REMINDER: Check the DateTime format. It is recommended to use YYYY-MM-DD hh:mm:ss and report the UTC offset in the unit.')
-
-  }
-
-  #reminder to check date column format
-
-  if(any('date' %in% all_colnames)){
-
-    cli_alert_warning('REMINDER: Check the date format. It is recommended to use YYYY-MM-DD.')
-
-  }
-
-  #reminder to include precision and utc offset in time column unit
-  if(any('time' %in% all_colnames)){
-
-    cli_alert_warning('REMINDER: It is recommended to report the precision (hh; hh:mm; hh:mm:ss) and the UTC offset in the unit for your time column.')
-
-  }
-
-  #reminder to include coordinate reference system in lat/long column unit
-  if(any('latitude' %in% all_colnames)|any('longitude' %in% all_colnames)){
-
-    cli_alert_warning('REMINDER: For your latitude and/or longitude column, it is recommended to report the coordinate reference system in the unit. Reminder to use the Locations Reporting Format if appropriate.')
-
-  }
-
-  #reminder to use samples reporting format
-  if(any(str_detect(all_colnames, 'sample'))){
-
-    cli_alert_warning('REMINDER: Use the Samples Reporting Format if appropriate.')
-
-  }
-
-  #reminder to use controlled vocab for material column
-  if(any('material' %in% all_colnames)){
-
-    cli_alert_warning('REMINDER: Use the controlled vocab from the Samples Reporting Format for the material column.')
-
-  }
-
-if(populate_header_rows_indicate == F){
-  
-  cli_alert_info('REMINDER: YOU MUST NOW POPULATE THE METADATA HEADER ROWS IN THE OUTPUTTED FILES.')
-}
-
-  }
+  } # end function
 

@@ -32,10 +32,12 @@ p_load(tidyverse,
 # - header_row_input_file = required; file path of header row input file
 
 # Outputs: 
-#  - list of data files with header rows populated 
+#  - list of 
+#         > data files with header rows populated 
+#         > reminders reminders for complying with the reporting formats
 
 # Usage Examples:
-# 
+# populate_header_rows(data_frame_list, "C://header_row_input.csv")
 # ============================ populate_header_rows function ========================
 
 populate_header_rows <- function(data_dfs, 
@@ -44,9 +46,20 @@ populate_header_rows <- function(data_dfs,
   # initilize output list
   output_list <- list()
   
+  # initilize reminders
+  reminders <- tibble(directory = dirname(names(data_dfs)),
+                      file_name = basename(names(data_dfs)),
+                      populate_empty_cells = 0,
+                      populate_header_rows = 0,
+                      ignored_extra_header_input = 0)
+  
   for(file in names(data_dfs)){
     
     data_file <- data_dfs[[file]]
+    
+    data_directory <- dirname(file)
+    
+    data_file_name <- basename(file)
     
     column_names <- colnames(data_file)
 
@@ -88,17 +101,29 @@ populate_header_rows <- function(data_dfs,
       
       if(any(grepl("\\[USER MUST POPULATE\\]", data_file))){ # check if any header rows were not populated and alert
         
-        cli_alert_danger('NOT ALL HEADER ROWS WERE POPULATED BECAUSE THEY WERE MISSING FROM THE INPUT FILE.')
-        cli_alert_danger('YOU MUST POPULATE THE REMAINING HEADER ROWS AFTER IT IS OUTPUTTED.')
+        reminders <- reminders %>%
+          mutate(populate_header_rows = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                  TRUE ~ populate_header_rows))
         
       } # end check if any header rows were not populated and alert
       
     } else{
       
-      cli_alert_danger('The input file does not contain all header rows in the data file. ')
+      cli_alert_danger('The input file does not contain all column names that are in the data file. ')
       stop('Function terminating.')
       
     } # end of check if all header rows in input file are in data file
+    
+
+    if(data_file %>% 
+       summarise(across(everything(), ~ any(is.na(.x) | .x == "" | str_trim(.x) == ""))) %>%
+       any()){    # check if any cells are empty
+      
+      reminders <- reminders %>%
+        mutate(populate_empty_cells = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                               TRUE ~ populate_empty_cells))
+      
+    }    # end of check if any cells are empty
 
     header_row_column_check <-  column_names[column_names != "\"#field_name\""]
     header_row_column_check <-  header_row_column_check[header_row_column_check != "methods_deviation"]
@@ -106,7 +131,9 @@ populate_header_rows <- function(data_dfs,
     
     if(!all(header_row_column_check %in% header_row_input$column_name)){ # check if data file contains all columns in input
       
-      cli_alert_warning('The input file contains column names that are not in the data file and are being ignored.')
+      reminders <- reminders %>%
+        mutate(ignored_extra_header_input = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                TRUE ~ ignored_extra_header_input))
       
     }# end of check if data file contains all columns in input
     
@@ -114,6 +141,8 @@ populate_header_rows <- function(data_dfs,
   } # end of file found
   
   output_list[[file]] <- data_file
+  
+  output_list[['Reminders']] <- reminders
   
   } # end for loop
   
