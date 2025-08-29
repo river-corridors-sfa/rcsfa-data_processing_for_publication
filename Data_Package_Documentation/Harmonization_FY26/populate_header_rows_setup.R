@@ -1,13 +1,13 @@
 # ==============================================================================
 #
-# Set up script for create_format.R function
+# Set up script for populate_header_rows_function.R function
 #
-# Status: in progress
+# Status: needs review
 #
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
-# 22 August 2025
+# 29 August 2025
 #
 # ==============================================================================
 

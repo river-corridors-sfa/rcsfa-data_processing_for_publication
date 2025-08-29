@@ -3,13 +3,13 @@
 # Function for populating the metadata headers in the soil, sediment, 
 # water chemistry or hydrologic monitoring formats. 
 #
-# Status: in progress
+# Status: needs review
 #
 #
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
-# 22 August 2025
+# 29 August 2025
 #
 # ==============================================================================
 
@@ -34,7 +34,7 @@ p_load(tidyverse,
 # Outputs: 
 #  - list of 
 #         > data files with header rows populated 
-#         > reminders reminders for complying with the reporting formats
+#         > reminders for complying with the reporting formats
 
 # Usage Examples:
 # populate_header_rows(data_frame_list, "C://header_row_input.csv")
@@ -42,6 +42,16 @@ p_load(tidyverse,
 
 populate_header_rows <- function(data_dfs, 
                                  header_row_input_file){
+  
+  
+  # Validate inputs
+  if(!file.exists(header_row_input_file)) {
+    stop("Header row input file does not exist: ", header_row_input_file)
+  }
+  if(length(data_dfs) == 0) {
+    stop("No data frames provided")
+  }
+  
   
   # initilize output list
   output_list <- list()
@@ -52,6 +62,12 @@ populate_header_rows <- function(data_dfs,
                       populate_empty_cells = 0,
                       populate_header_rows = 0,
                       ignored_extra_header_input = 0)
+ 
+   # read in header row input
+  header_row_input_all <- read_csv(header_row_input_file, show_col_types = F) %>%
+    mutate(file_path = file.path(directory, file_name))
+  
+
   
   for(file in names(data_dfs)){
     
@@ -63,9 +79,8 @@ populate_header_rows <- function(data_dfs,
     
     column_names <- colnames(data_file)
 
-  header_row_input <- read_csv(header_row_input_file, show_col_types = F) %>%
-    mutate(file_path = file.path(paste0(directory, '\\',file_name))) %>%
-    filter(file_path == file)
+    header_row_input <- header_row_input_all %>%
+      filter(file_path == file)
   
   header_row_input_long <- header_row_input %>%
     select(-file_path, -directory, -file_name) %>%

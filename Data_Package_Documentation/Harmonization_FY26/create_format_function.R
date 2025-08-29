@@ -8,7 +8,7 @@
 # ==============================================================================
 #
 # Brieanne Forbes (brieanne.forbes@pnnl.gov)
-# 11 August 2025
+# 29 August 2025
 #
 # ==============================================================================
 
@@ -174,7 +174,7 @@ create_format <- function(unformatted_data_file,
       header_row_list[[file]] <- header_rows
       
       
-      populated_header_rows <- populate_header_rows(data = header_row_list,
+      populated_header_rows <- populate_header_rows(data_dfs = header_row_list,
                                           header_row_input_file = populate_header_rows_input)
       #extract header rows from list 
       header_rows <- populated_header_rows[[file]]
@@ -299,8 +299,8 @@ create_format <- function(unformatted_data_file,
     if(populate_header_rows_indicate == F){
       
       reminders <- reminders %>%
-        mutate(populate_empty_cells = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
-                                                  TRUE ~ populate_empty_cells))
+        mutate(populate_header_rows = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
+                                                  TRUE ~ populate_header_rows))
     }
     
     
