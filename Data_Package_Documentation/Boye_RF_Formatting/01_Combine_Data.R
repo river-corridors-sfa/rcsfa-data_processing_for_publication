@@ -30,16 +30,17 @@ rm(list=ls(all=T))
 pnnl_user <-  'forb086'
 
 dir <- paste0('C:/Users/', pnnl_user, '/OneDrive - PNNL/Data Generation and Files/')
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_HJW/NPOC_TN/'
 
-RC <-  'RC2' # Options are RC2, RC3, or RC4
+RC <-  'HJW' # Options are RC2, RC3, or RC4, TGW
 
-study_code <-  'RC2' 
+study_code <-  'HJW' 
 
-analysis <-  'TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
+analysis <-  'NPOC_TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
 
 analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
 
-qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
+qaqc <- 'Y' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
 git_hub_dir <-  "C:/GitHub/QAQC_scripts/Functions_for_statistics/"
 
