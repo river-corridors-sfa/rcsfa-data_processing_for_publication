@@ -275,7 +275,8 @@ query_dd_database <- function(dd_database_abs_path, dd_skeleton){
         
         populated_row <- selected_definition %>%
           add_column(Column_or_Row_Name = current_header, .before = 'Unit') %>%
-          add_column(Missing_Value_Code = missing_code)
+          add_column(Missing_Value_Code = missing_code) %>%
+          add_column(Reported_Precision = current_row$Reported_Precision)
       }
       
       # Ask about flagging
