@@ -22,14 +22,14 @@ rm(list=ls(all=T))
 
 dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
-RC <- 'N/A'
+RC <- 'RC4'
 
-study_code <- 'TGW'
+study_code <- 'AV1'
 
 
 # ================================= Build dir ================================
 # boye_dir <- paste0(dir, RC, '/Boye_Files/', study_code, '/')
-boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_Data_Package/TGW_Sample_Data'
+boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v3/v3_WHONDRS_AV1_Data_Package/Sample_Data'
 
 typical_codes <- paste0(dir, 'Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx')
   
