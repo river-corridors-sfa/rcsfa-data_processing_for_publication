@@ -86,14 +86,6 @@ p_load(tidyverse,
 #     - Always review flagged rows before finalizing the file metadata
 #     - Remove the 'flag' column before publishing the final metadata
 
-# =================== DELETE AFTER TESTING ===============================
-
-flmd_database_abs_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/file_level_metadata_database.csv"
-
-flmd_skeleton <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/Test_Data_Package/Test_Data_Package/Test_flmd.csv")
-
-populated_flmd <- query_flmd_database(flmd_database_abs_path, flmd_skeleton)
-
 # =================== query_flmd_database function ===============================
 query_flmd_database <- function(flmd_database_abs_path, flmd_skeleton){
   
