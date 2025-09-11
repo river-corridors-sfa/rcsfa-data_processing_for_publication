@@ -27,20 +27,13 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-pnnl_user <-  'forb086'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_TAP/NPOC_TN'
 
-dir <- paste0('C:/Users/', pnnl_user, '/OneDrive - PNNL/Data Generation and Files/')
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_HJW/NPOC_TN/'
-
-RC <-  'HJW' # Options are RC2, RC3, or RC4, TGW
-
-study_code <-  'HJW' 
-
-analysis <-  'NPOC_TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
+study_code <- 'TAP'
 
 analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
 
-qaqc <- 'Y' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
+qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
 git_hub_dir <-  "C:/GitHub/QAQC_scripts/Functions_for_statistics/"
 
@@ -48,38 +41,13 @@ git_hub_dir <-  "C:/GitHub/QAQC_scripts/Functions_for_statistics/"
 cv <- 30
 # ================================= Build dir ================================
 
-if(RC == 'RC3'){
-  
-  mapping_file_dir <- paste0(dir, RC, '/00_Raw_data_by_analysis/', analysis, '/')
-  qaqc_file_dir <- paste0(dir, RC, '/', '01_Processed_data_by_analysis/', analysis, '/')
-  data_file_dir <- paste0(dir, RC, '/', '01_Processed_data_by_analysis/', analysis, '/')
-  
-} else {
+mapping_file_dir <- paste0(dir, '/', '01_RawData/')
 
-mapping_file_dir <- paste0(dir, RC, '/', analysis, '/', '01_RawData/')
-qaqc_file_dir <- paste0(dir, RC, '/', analysis, '/', '03_ProcessedData')
-
-if (analysis == 'Ions'){
-  
-  data_file_dir <- paste0(dir, RC, '/', analysis, '/', '03_ProcessedData/')
-  
-} else {
-  
-  data_file_dir <- paste0(dir, RC, '/', analysis, '/', '02_FormattedData/')
-  
-}
-
-}
-
-
-
-
-
-# out_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC2/Boye_Files/'
+qaqc_file_dir <- paste0(dir, '/', '03_ProcessedData')
 
 # ================================ create outdir ===============================
 
-study_out_dir <- paste0(dir,RC, '/Boye_Files/', study_code, '/')
+study_out_dir <- paste0(dir, '/05_PublishReadyData/Interim_Boye_Files/')
 
 
 dir_create(study_out_dir)
@@ -120,6 +88,7 @@ for (mapping_file in mapping_files) {
       mutate(Date = date) %>%
       select(!contains('...')) %>% 
       mutate(Method_Deviation = if("Method_Deviation" %in% names(.)) as.character(Method_Deviation) else NA_character_, 
+             Study_Code = if("Study_Code" %in% names(.)) as.character(Study_Code) else NA_character_, 
       Method_Notes = if("Method_Notes" %in% names(.)) as.character(Method_Notes) else NA_character_, 
       Instrument_MakeModel = if("Instrument_MakeModel" %in% names(.)) as.character(Instrument_MakeModel) else NA_character_, 
       Date_of_Run = if("Date_of_Run" %in% names(.)) as.Date(Date_of_Run, origin = "1899-12-30") else NA)
@@ -145,26 +114,10 @@ mapping_filtered <- combine_mapping %>%
   filter(str_detect(Sample_ID, study_code))%>%
   filter(str_detect(Sample_ID, analyte_code)) # analyte code should remove need for if statement below, but keeping for now
 
-# if(analysis == 'DIC'){
-#   
-#   mapping_filtered <- mapping_filtered %>%
-#     filter(str_detect(Sample_ID, 'DIC'))
-#   
-# }
 
 # ============================== combine QAQC data =============================
-  if(analysis != 'TSS'){
-  
-    
-    if(analysis == 'Ions'){
       
-      qaqc_files <- list.files(qaqc_file_dir, pattern = 'QAQCed',recursive = T, full.names = T)
-      
-    } else {
-      
-      qaqc_files <- list.files(qaqc_file_dir, pattern = 'Compiled_QAQC',recursive = T, full.names = T)
-      
-    }
+  qaqc_files <- list.files(qaqc_file_dir, pattern = 'Compiled_QAQC',recursive = T, full.names = T)
 
   qaqc_files <- qaqc_files[ !grepl('Archive',qaqc_files)]
   
@@ -187,31 +140,16 @@ mapping_filtered <- combine_mapping %>%
       bind_rows(qaqc_data)
     
     
-  } } else{
-    
-    combine_qaqc <- list.files(qaqc_file_dir, study_code, full.names = T, recursive = T) %>%
-      read_csv() %>%
-      mutate(Date = date,
-             across(everything(), as.character))
-    
-  } ## seems like this last else statement wouldn't really be doing anything because everything should be captured in first else statement?
+  }
   
   # ===================== filter data by study code and output =================
   
   data_filtered <- combine_qaqc %>%
     filter(str_detect(Sample_ID, study_code)) %>%
-    filter(str_detect(Sample_ID, analyte_code)) # filtering by analyte code should remove need for if statement below
-  
-  
-# if(analysis == 'DIC'){
-#   
-#   data_filtered <- data_filtered %>%
-#     filter(str_detect(Sample_ID, 'DIC'))
-#   
-# } 
+    filter(str_detect(Sample_ID, analyte_code)) 
   
   #file needed for summary stats code
-  write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_', analysis, '_CombinedQAQC_', Sys.Date(), '_by_', pnnl_user, '.csv'))
+  write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_CombinedQAQC_', Sys.Date(), '.csv'))
 
     
   
@@ -230,7 +168,7 @@ mapping_filtered <- combine_mapping %>%
                       Date_end = max(merged$Date))
   
   # Export LOD dates
-  write_csv(date_range,paste0(study_out_dir,'/', study_code, '_', analysis, '_LOD_Dates_', Sys.Date(), '_by_', pnnl_user, '.csv'))
+  write_csv(date_range,paste0(study_out_dir,'/', study_code, '_LOD_Dates_', Sys.Date(), '.csv'))
   
   # ========================= select necessary columns ===========================
   
@@ -764,5 +702,5 @@ mapping_filtered <- combine_mapping %>%
     mutate(Methods_Deviation = paste(unique(unlist(strsplit(Methods_Deviation, split="; "))), collapse = '; ')) 
 
   
-  write_csv(final,  paste0(study_out_dir, '/', study_code, '_', analysis, '_Check_for_Duplicates_',Sys.Date(),'_by_', pnnl_user,'.csv'))
+  write_csv(final,  paste0(study_out_dir, '/', study_code, '_Check_for_Duplicates_',Sys.Date(),'.csv'))
   
