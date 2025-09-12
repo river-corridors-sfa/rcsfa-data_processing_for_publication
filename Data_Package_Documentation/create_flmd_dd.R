@@ -633,7 +633,49 @@ user_exclude_files =  c("TGW_Field_Photos/TGW_021-south.jpg",
                         "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_023_ICR-2_r2_p03.corems.json",
                         "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_023_ICR-3_r1_p03.corems.cal",
                         "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_023_ICR-3_r1_p03.corems.csv",
-                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_023_ICR-3_r1_p03.corems.json")
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_023_ICR-3_r1_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-1_r2_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-2_r1_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-2_r1_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-2_r1_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r1_Fir_30Apr25_300SA_p03_54_1_7499.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r1_Fir_30Apr25_300SA_p03_54_1_7499.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r1_Fir_30Apr25_300SA_p03_54_1_7499.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7536.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7536.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7536.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7572.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7572.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7572.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7586.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7586.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/QC_SRFAII_20ppm_r2_Fir_30Apr25_300SA_p03_54_1_7586.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/SPE_MeOH_blank_r2_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/SPE_MeOH_blank_r2_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/SPE_MeOH_blank_r2_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/SPE_Milli_Q_blank_r2_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/SPE_Milli_Q_blank_r2_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/SPE_Milli_Q_blank_r2_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-1_r2_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-1_r2_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-1_r2_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-2_r1_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-2_r1_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-2_r1_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-2_r2_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-2_r2_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-2_r2_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-3_r1_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-3_r1_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-3_r1_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-3_r2_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-3_r2_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK_ICR-3_r2_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-1_r1_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-1_r1_p03.corems.csv",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-1_r1_p03.corems.json",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-1_r2_p03.corems.cal",
+                        "TGW_Sample_Data/FTICR/Water_CoreMS_Output_Files/TGW_BLK2_ICR-1_r2_p03.corems.csv")
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -657,7 +699,7 @@ user_add_boye_headers = T
 user_add_flmd_dd_headers = T
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
-user_include_filenames = F
+user_include_filenames = T
 
 # dd_database_path = absolute path to the dd database 
 user_dd_database_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv"
@@ -704,6 +746,9 @@ my_dd <- create_dd(files_df = my_files,
                     add_boye_headers = user_add_boye_headers, 
                     add_flmd_dd_headers = user_add_flmd_dd_headers, 
                     include_filenames = user_include_filenames)
+
+my_dd <- my_dd%>%
+  filter(!row_number() %in% c(134:260)) # remove all of the ICR sample names except one 
 
 ### Populate dd/flmd from database #############################################
 
