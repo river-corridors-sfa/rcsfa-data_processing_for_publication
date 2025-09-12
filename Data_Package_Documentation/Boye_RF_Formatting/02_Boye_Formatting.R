@@ -24,11 +24,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_TAP/NPOC_TN'
 
-RC <- 'TGW'
-
-study_code <- 'TGW'
+study_code <- 'TAP'
   
 material <- 'Water'
 
@@ -52,13 +50,10 @@ LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_I
 
 # tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
 
-# ================================= Build dir ================================
-
-boye_dir <- paste0(dir, RC, '/Boye_Files/', study_code, '/')
 
 # =============================== list files ===================================
 
-files <- list.files(boye_dir, 'Check_for_Duplicates', full.names = T)
+files <- list.files(dir, 'Check_for_Duplicates', full.names = T, recursive = T)
 
 hub <- read_excel(hub_dir)
 
@@ -99,7 +94,7 @@ for (file in files) {
     data <- data %>%
       select(-Date_of_Run, -Method_Notes, -duplicate)
     
-    data_type <- unlist(str_split(basename(file), '_'))[2]
+    data_type <- unlist(str_split(file, '/'))[7]
     
     if(data_type == 'NPOC' & str_detect(file, 'NPOC_TN')){
       
@@ -469,7 +464,7 @@ for (file in files) {
     
     # =================================== Write File ===============================
     
-    out_name <- glue('{boye_dir}{study_code}_{material}_{data_type}_Boye_{Sys.Date()}.csv' )
+    out_name <- glue('{dir}/05_PublishReadyData/{study_code}_{material}_{data_type}_Boye_{Sys.Date()}.csv' )
 
     write_csv(top, out_name, col_names = F)
 
