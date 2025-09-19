@@ -65,7 +65,8 @@ populate_header_rows <- function(data_dfs,
  
    # read in header row input
   header_row_input_all <- read_csv(header_row_input_file, show_col_types = F) %>%
-    mutate(file_path = file.path(directory, file_name))
+    mutate(file_path = file.path(directory, file_name),
+           file_path = normalizePath(file_path))
   
 
   
