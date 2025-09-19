@@ -16,7 +16,8 @@ require(pacman)
 p_load(tidyverse,
        rlog,
        tools,
-       cli)
+       cli,
+       tcltk)
 
 # ================================ Documentation ===============================
 
@@ -300,13 +301,14 @@ create_format <- function(unformatted_data_file,
       
       reminders <- reminders %>%
         mutate(populate_header_rows = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
-                                                  TRUE ~ populate_header_rows))
+                                                  TRUE ~ populate_header_rows)) %>%
+        select(-ignored_extra_header_input)
     }
     
     
   } # end file loop
   
-  return(list(Reminders = reminders))
+  return(reminders)
 
   } # end function
 
