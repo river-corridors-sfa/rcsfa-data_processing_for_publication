@@ -74,13 +74,13 @@ user_populate_header_rows_input <- NULL
 user_populate_header_rows_input <- file.choose()
 # =============================== run function =================================
 
-format <- create_format(unformatted_data_file = user_unformatted_data_file,
-                        method_rows = user_method_rows,
-                        outdir = user_outdir,
-                        populate_header_rows_indicate = user_populate_header_rows,
-                        populate_header_rows_input = user_populate_header_rows_input)
+reminders <- create_format(unformatted_data_file = user_unformatted_data_file,
+                           method_rows = user_method_rows,
+                           outdir = user_outdir,
+                           populate_header_rows_indicate = user_populate_header_rows,
+                            populate_header_rows_input = user_populate_header_rows_input)
 # view reminders
-view(format$Reminders)
+view(reminders)
 
 # ============================= Reminders =================================
 # The reminders are meant to help the user comply with the reporting formats. 
