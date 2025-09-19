@@ -15,7 +15,8 @@
 
 require(pacman)
 p_load(tidyverse,
-       cli)
+       cli,
+       tcltk)
 
 # ================================ Documentation ===============================
 
