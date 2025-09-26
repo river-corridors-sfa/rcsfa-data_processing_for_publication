@@ -46,7 +46,7 @@ colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Fil
 LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
  
  #uncomment if ions were run at EMSL and update file name
-# ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv' 
+ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv'
 
 # tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
 
@@ -92,7 +92,7 @@ for (file in files) {
   } else{
     
     data <- data %>%
-      select(-Date_of_Run, -Method_Notes, -duplicate)
+      select(-Date_of_Run, -Method_Notes, -duplicate, -Randomized_ID)
     
     data_type <- unlist(str_split(file, '/'))[7]
     
@@ -224,7 +224,7 @@ for (file in files) {
 
         LOD <- read_csv(ion_LOD_file)
         
-        LOD_dates_file_info <-file.info(list.files(path = boye_dir,pattern = "LOD", full.names = T)) %>%
+        LOD_dates_file_info <-file.info(list.files(path = paste0(dir,'/05_PublishReadyData/Interim_Boye_Files'),pattern = "LOD", full.names = T)) %>%
           rownames_to_column('File_Name') %>%
           tibble()
         
@@ -284,7 +284,7 @@ for (file in files) {
         
         LOD <- read_csv(ion_LOD_file)
         
-        LOD_dates_file_info <-file.info(list.files(path = boye_dir,pattern = "LOD", full.names = T)) %>%
+        LOD_dates_file_info <-file.info(list.files(path = paste0(dir,'/05_PublishReadyData/Interim_Boye_Files'),pattern = "LOD", full.names = T)) %>%
           rownames_to_column('File_Name') %>%
           tibble()
         
@@ -342,7 +342,7 @@ for (file in files) {
 
         LOD <- read_excel(LOD_file_dir)
         
-        LOD_dates_file_info <-file.info(list.files(path = boye_dir,pattern = "LOD", full.names = T)) %>%
+        LOD_dates_file_info <-file.info(list.files(path = paste0(dir,'/05_PublishReadyData/Interim_Boye_Files'),pattern = "LOD", full.names = T)) %>%
           rownames_to_column('File_Name') %>%
           tibble()
         
