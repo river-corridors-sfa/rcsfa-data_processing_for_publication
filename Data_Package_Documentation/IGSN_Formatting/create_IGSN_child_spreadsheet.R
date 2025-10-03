@@ -41,7 +41,7 @@ metadata_filepath <- file.choose()
 metadata_filepath <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo/Input/CoastalFires_BiogeochemData.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/Coastal_Fires_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/YEP_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
@@ -49,16 +49,16 @@ outdir <- 'Z:/IGSN/Coastal_Fires_IGSN_Samples_ToBeRegistered.csv'
 user_code <- 'IEPRS'  # this is not for WHONDRS
 
 # indicate if parent IGSNs exist
-parent_igsn_present <- T
-# parent_igsn_present <- F
+# parent_igsn_present <- T
+parent_igsn_present <- F
 
 # if parent_igsn_presnt == T, select the registered sites (parent IGSN) .xls file (either use file.choose to select file or change filepath manually); skip if not applicable
-parent_filepath <- file.choose()
-# parent_filepath <- ""
+# parent_filepath <- file.choose()
+parent_filepath <- ""
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
 # materials_list <- c("water", "sediment", "filter", "soil") # soil assumes no other material and is not appended to parent ID
-materials_list <- c("water")
+materials_list <- c("sediment")
 
 
 ### Load data ##################################################################
@@ -83,10 +83,10 @@ if (parent_igsn_present == T) {
 print(colnames(metadata))
 
 # `Sample Name`
-a <- metadata$Sample_ID
+a <- metadata$Parent_ID
 
 # (name of sampling campaign) 'Comment'
-i <- 'Coastal Fires'
+i <- 'YRB Batch Experiment Py-OM additions (YEP)'
 
 # 'Latitude (WGS 84)'
 j <- metadata$Latitude
@@ -99,13 +99,11 @@ l <- 'stream'
 # l <- ''
 
 # 'Name of physiographic feature'
-m <- metadata$Watershed
-# m <- ''
+# m <- metadata$Watershed
+m <- 'Columbia river'
 
 # (site ID) 'Locality'
-n <- metadata %>% 
-  separate(Sample_ID, into = c("site", "id"), sep = "-", remove = FALSE) %>% 
-  pull(site)
+n <- ''
 
 # 'Locality description'
 # o <- 'In stream site'
@@ -116,24 +114,21 @@ p <- 'United States'
 
 # 'State/Province'
 # q <- metadata$State
-q <- "California"
+q <- "Washington"
 
 # 'City/Township'
 # r <- metadata$City
-r <- ""
+r <- "Richland"
 
 # 'Field program/cruise'
 # s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
 s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
-t <- 'Allison Myers-Pigg'
+t <- 'James Stegen'
 
 # 'Collection date' in mm/dd/yyyy format
-u <- metadata %>% 
-  mutate(Date = dmy(Date),
-         Date = format(Date, "%m/%d/%Y")) %>% 
-  pull(Date)
+u <- metadata$Date
 
 # 'Related URL'
 # v <- 'https://whondrs.pnnl.gov'
@@ -175,7 +170,7 @@ f_sediment <- 'Riverbed sediment'
 g_sediment <- 'grab'
 
 # `Collection method description`
-h_sediment <- 'Sediment was scooped with a metal spoon (cleaned with hydrogen peroxide) into a bottle and two 50 milliliter vials containing "RNAlater" to preserve for future microbial analysis.'
+h_sediment <- "Sediment was scooped with a metal spoon, sieved to less than 2 millimeters, and then put into a bottle. Both the spoon and sieve were cleaned with hydrogen peroxide."
 
 
 ### User Inputs 5: material - filter #############################################
