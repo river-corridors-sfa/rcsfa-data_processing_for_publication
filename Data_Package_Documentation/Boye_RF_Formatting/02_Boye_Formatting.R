@@ -24,11 +24,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_TAP/NPOC_TN'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/NPOC_TN'
 
-study_code <- 'TAP'
+study_code <- 'YEP'
   
-material <- 'Water'
+material <- 'Sediment'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
@@ -54,6 +54,8 @@ ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw
 # =============================== list files ===================================
 
 files <- list.files(dir, 'Check_for_Duplicates', full.names = T, recursive = T)
+
+files <- files[ !grepl('Archive',files)] 
 
 hub <- read_excel(hub_dir)
 
@@ -92,7 +94,7 @@ for (file in files) {
   } else{
     
     data <- data %>%
-      select(-Date_of_Run, -Method_Notes, -duplicate, -Randomized_ID)
+      select(-Date_of_Run, -Method_Notes, -duplicate)
     
     data_type <- unlist(str_split(file, '/'))[7]
     
