@@ -285,7 +285,7 @@ mapping_filtered <- combine_mapping %>%
                                "YEP1A_SOC-S1", 
                                Sample_ID)) %>%
     filter(!Sample_ID == 'YEP1A_SOC-H1') %>%
-    filter(!Sample_ID == 'YEP1A_SOC-U1')
+    filter(!Sample_ID == 'YEP1A_SOC-U2')
   
   }else{
     
