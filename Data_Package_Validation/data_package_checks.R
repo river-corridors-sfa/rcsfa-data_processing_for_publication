@@ -19,22 +19,22 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Regier_2025_d50_v2/v2_Regier_2025_d50"
+user_directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Bao_2025_Drone_Methods/Bao_2025_Drone_Methods"
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Regier_2025_d50_v2"
+report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Bao_2025_Drone_Methods"
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- T
+has_flmd <- F
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Regier_2025_d50_v2/v2_Regier_2025_d50/v2_Regier_2025_d50_flmd.csv"
+flmd_path <- ""
 
 #### OPTIONAL ----
 
@@ -65,21 +65,21 @@ user_include_dot_files = F
 
 ### Prep Script ################################################################
 # Directions: Run this chunk without modification.
-
-library(here) # for setting wd at git repo
-library(tidyverse)
-library(rlog)
-library(devtools) # for sourcing from github
-library(hms) # for handling times
-library(fs) # for tree diagram
-library(clipr) # for copying to clipboard
-library(knitr) # for kable
-library(kableExtra) # for rmd report table styling
-library(DT) # for interactive tables in report
-library(rmarkdown) # for rendering report
-library(plotly) # for interactive graphs
-library(downloadthis) # for downloading tabular data report as .csv
-library(cli) # for fnacy warning mesages 
+require(pacman)
+p_load(here, # for setting wd at git repo
+tidyverse,
+rlog,
+devtools, # for sourcing from github
+hms, # for handling times
+fs, # for tree diagram
+clipr, # for copying to clipboard
+knitr, # for kable
+kableExtra, # for rmd report table styling
+DT, # for interactive tables in report
+rmarkdown, # for rendering report
+plotly, # for interactive graphs
+downloadthis, # for downloading tabular data report as .csv
+cli) # for fnacy warning mesages 
 
 current_path <- rstudioapi::getActiveDocumentContext()$path
 setwd(dirname(current_path))
