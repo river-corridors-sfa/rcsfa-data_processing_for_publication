@@ -19,13 +19,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Bao_2025_Drone_Methods/Bao_2025_Drone_Methods"
+user_directory <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Bao_2025_GameCamera_Manuscript_Data_Package/Bao_2025_GameCamera_Manuscript_Data_Package"
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Bao_2025_Drone_Methods"
+report_out_dir <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Bao_2025_GameCamera_Manuscript_Data_Package/"
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
@@ -122,10 +122,10 @@ if (has_flmd == T) {
 data_package_data <- load_tabular_data(files_df = dp_files, flmd_df = data_package_flmd, query_header_info = user_input_has_header_rows)
 
 # preview data - this shows all the tabular data you loaded in so you can quickly check if it loaded in correctly without having to poke around in the nested lists
-invisible(lapply(names(data_package_data$tabular_data), function(name) {
-  cat("/n--- Data Preview of", name, "---/n")
-  glimpse(data_package_data$tabular_data[[name]])
-}))
+# invisible(lapply(names(data_package_data$tabular_data), function(name) {
+#   cat("/n--- Data Preview of", name, "---/n")
+#   glimpse(data_package_data$tabular_data[[name]])
+# }))
 
 
 # 4. Run checks
