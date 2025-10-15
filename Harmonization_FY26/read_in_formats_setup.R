@@ -52,7 +52,7 @@ user_data_files <- rchoose.files()
 user_methods_file <- file.choose() #or enter NA
 
 # Enter missing values codes for selected files. 
-# Default is user_missing_value_codes == c('N/A', '-9999')
+# Default (NULL) is user_missing_value_codes == c('N/A', '-9999')
 # If indicating missing value codes and "N/A" and/or "-9999" is used, you must still include them.  
 # Example: c('N/A', '-9999', 'NA', ''). 
 user_missing_value_codes <- NULL
