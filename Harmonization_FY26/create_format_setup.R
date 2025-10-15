@@ -37,8 +37,8 @@ source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publica
 ## ---- Required ----
 
 # Select the data file(s) you would like to format. Only csv files in wide format are supported. 
-# Use shift or ctrl to select multiple files.
-user_unformatted_data_file <- choose.files()
+# Use shift or ctrl to select multiple files (if choosing multiple files, they must be within the same folder).
+user_unformatted_data_file <- rchoose.files()
 
 ## ---- Optional ----
 

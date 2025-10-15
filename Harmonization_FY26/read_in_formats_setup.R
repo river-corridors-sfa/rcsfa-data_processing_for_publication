@@ -18,7 +18,7 @@
 rm(list=ls(all=T))
 
 # this link will have to be updated once the function moves to the ESS-DIVE repo
-source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Documentation/Harmonization_FY26/read_in_formats_function.R')
+source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/Harmonization_FY26/Harmonization_FY26/read_in_formats_function.R')
 
 # =============================== Documentation ================================
 # 
@@ -41,8 +41,9 @@ source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publica
 
 ## ---- Required ----
 
-# Select the data file(s) you would like the read in
-user_data_files <- choose.files()
+# Select the data file(s) you would like the read in.  Only csv files in wide format are supported. 
+# Use shift or ctrl to select multiple files (if choosing multiple files, they must be within the same folder).
+user_data_files <- rchoose.files()
 
 ## ---- Optional ----
 

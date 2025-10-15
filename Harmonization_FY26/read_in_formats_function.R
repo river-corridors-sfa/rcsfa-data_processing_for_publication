@@ -14,7 +14,9 @@
 
 require(pacman)
 p_load(tidyverse,
-       rlog)
+       rlog,
+       tcltk,
+       rChoiceDialogs)
 
 # ================================ Documentation ===============================
 

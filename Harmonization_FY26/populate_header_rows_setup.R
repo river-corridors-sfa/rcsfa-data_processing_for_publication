@@ -34,8 +34,8 @@ source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publica
 ## ---- Required ----
 
 # Select the formatted data file(s) you would like to format. Only formatted csv files are supported. 
-# Use shift or ctrl to select multiple files.
-user_data_files <- choose.files()
+# Use shift or ctrl to select multiple files (if choosing multiple files, they must be within the same folder).
+user_data_files <- rchoose.files()
 
 # Select the header row input file. You must use the specified format (see XYZ).
 user_header_row_input_file <- file.choose()
