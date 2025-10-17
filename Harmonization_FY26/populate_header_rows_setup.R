@@ -24,7 +24,7 @@ source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publica
 
 # This function:
 # 1. Loops through the file and uses the input file to populate header rows in the data files 
-# 2. Returns a list with the data file(s) containing populated header rows and reminders for 
+# 2. Returns a list with the data file(s) containing populated header rows and warnings for 
 #    complying with the reporting formats (see below for descriptions)
 # NOTE: The function will terminate if an unformatted file is missing from the input file or
 #       if the input file does not contain all column headers that are in the data file. 
@@ -54,22 +54,22 @@ populated_data <- populate_header_rows(data_dfs = user_data_dfs,
 
 # ========================= output populated data files ========================
 
-output_files <- populated_data[names(populated_data) != "Reminders"]
+output_files <- populated_data[names(populated_data) != "Warnings"]
 
 # overwrites existing file with populated file
 iwalk(output_files, ~ write_csv(.x, .y, na = ''))
 
-view(populated_data$Reminders)
+view(populated_data$Warnings)
 
-# ============================= Reminders =================================
-# The reminders are meant to help the user comply with the reporting formats. 
+# ============================= Warnings =================================
+# The warnings are meant to help the user comply with the reporting formats. 
 # We recommend the user take action when applicable. 
 
 # The directory is included in case there are multiple files with the same name. If 
 # there are not duplicate file names, this column can be disregarded
 
-# The column names indicate the reminder. The rows indicate the file. 0 indicates
-# the reminder is NOT applicable to the associated file. 1 indicates the reminder
+# The column names indicate the warning. The rows indicate the file. 0 indicates
+# the warning is NOT applicable to the associated file. 1 indicates the warning
 # is applicable to the associated file.
 
 # Definitions: 

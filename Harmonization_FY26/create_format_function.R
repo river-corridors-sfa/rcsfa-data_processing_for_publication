@@ -28,7 +28,7 @@ p_load(tidyverse,
 # This function:
 # 1. Adds a 'field_name' column as the first column
 # 2. Creates metadata header rows with standard field names
-# 3. Validates data  and provides reminders for complying with the reporting formats
+# 3. Validates data  and provides warnings for complying with the reporting formats
 # 4. Outputs formatted file with metadata rows that need to be populated
 
 # Inputs: 
@@ -45,7 +45,7 @@ p_load(tidyverse,
 # Outputs: 
 # - CSV file(s) in specified directory with format: [originalname]_Formatted_YYYY-MM-DD.csv
 #           > Files contain metadata header rows (empty, to be populated) + formatted data
-# - reminders for complying with the reporting formats
+# - warnings for complying with the reporting formats
 
 # Usage Examples:
 # create_format("C://data.csv")  # Basic usage
@@ -91,8 +91,8 @@ create_format <- function(unformatted_data_file,
     
   }
   
-  #initialize reminders
-  reminders <- tibble(directory = dirname(unformatted_data_file),
+  #initialize warnings
+  warnings <- tibble(directory = dirname(unformatted_data_file),
                       file_name = basename(unformatted_data_file),
                       populate_empty_cells = 0,
                       populate_header_rows = 0,
@@ -181,9 +181,9 @@ create_format <- function(unformatted_data_file,
       #extract header rows from list 
       header_rows <- populated_header_rows[[file]]
       
-      # join reminders
-      reminders <- reminders %>%
-        left_join(populated_header_rows$Reminders, by = c('directory', 'file_name')) %>%
+      # join warnings
+      warnings <- warnings %>%
+        left_join(populated_header_rows$Warnings, by = c('directory', 'file_name')) %>%
         mutate(across(ends_with('.x'), ~ pmax(.x, 
                                               get(str_replace(cur_column(), '\\.x$', '.y')), na.rm = TRUE),
                       .names = "{str_replace(.col, '\\\\.x$', '')}")) %>%
@@ -209,7 +209,7 @@ create_format <- function(unformatted_data_file,
 
     
     
-    ## ---- reminder ----
+    ## ---- warning ----
     
     #### empty cells ----
     
@@ -217,7 +217,7 @@ create_format <- function(unformatted_data_file,
        summarise(across(everything(), ~ any(is.na(.x) | .x == "" | str_trim(.x) == ""))) %>%
        any()){    # check if any cells are empty
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(populate_empty_cells = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                 TRUE ~ populate_empty_cells))
       
@@ -226,7 +226,7 @@ create_format <- function(unformatted_data_file,
     #### sample ----
     if(any(str_detect(column_names, 'sample'))){   
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(use_sample_rf = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                          TRUE ~ use_sample_rf))
       
@@ -240,7 +240,7 @@ create_format <- function(unformatted_data_file,
       
       if(overall_check == TRUE){
         
-        reminders <- reminders %>%
+        warnings <- warnings %>%
           mutate(fix_duplicate_sample = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                   TRUE ~ fix_duplicate_sample))
         
@@ -253,7 +253,7 @@ create_format <- function(unformatted_data_file,
     
     if(any('datetime' %in% colnames(formatted_data))){
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(confirm_datetime_format = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                    TRUE ~ confirm_datetime_format),
                report_utc_offset = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
@@ -265,7 +265,7 @@ create_format <- function(unformatted_data_file,
     
     if(any('date' %in% colnames(formatted_data))){
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(confirm_date_format = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                TRUE ~ confirm_date_format))
       
@@ -274,7 +274,7 @@ create_format <- function(unformatted_data_file,
     ### time ----
     if(any('time' %in% colnames(formatted_data))){
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(confirm_time_format = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                TRUE ~ confirm_time_format),
                report_utc_offset = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
@@ -284,7 +284,7 @@ create_format <- function(unformatted_data_file,
     ### lat/long ----
     if(any('latitude' %in% colnames(formatted_data))|any('longitude' %in% colnames(formatted_data))){
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(report_crs = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                       TRUE ~ report_crs))
     }
@@ -292,7 +292,7 @@ create_format <- function(unformatted_data_file,
     ### material ----
     if(any('material' %in% colnames(formatted_data))){
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(confirm_material_vocab = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                   TRUE ~ confirm_material_vocab))
       
@@ -300,7 +300,7 @@ create_format <- function(unformatted_data_file,
     
     if(populate_header_rows_indicate == F){
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(populate_header_rows = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                   TRUE ~ populate_header_rows)) %>%
         select(-any_of("ignored_extra_header_input"))
@@ -309,7 +309,7 @@ create_format <- function(unformatted_data_file,
     
   } # end file loop
   
-  return(reminders)
+  return(warnings)
 
   } # end function
 

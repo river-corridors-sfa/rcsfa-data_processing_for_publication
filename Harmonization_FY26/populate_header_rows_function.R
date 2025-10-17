@@ -35,7 +35,7 @@ p_load(tidyverse,
 # Outputs: 
 #  - list of 
 #         > data files with header rows populated 
-#         > reminders for complying with the reporting formats
+#         > warnings for complying with the reporting formats
 
 # Usage Examples:
 # populate_header_rows(data_frame_list, "C://header_row_input.csv")
@@ -57,8 +57,8 @@ populate_header_rows <- function(data_dfs,
   # initilize output list
   output_list <- list()
   
-  # initilize reminders
-  reminders <- tibble(directory = dirname(names(data_dfs)),
+  # initilize warnings
+  warnings <- tibble(directory = dirname(names(data_dfs)),
                       file_name = basename(names(data_dfs)),
                       populate_empty_cells = 0,
                       populate_header_rows = 0,
@@ -118,7 +118,7 @@ populate_header_rows <- function(data_dfs,
       
       if(any(grepl("\\[USER MUST POPULATE\\]", data_file))){ # check if any header rows were not populated and alert
         
-        reminders <- reminders %>%
+        warnings <- warnings %>%
           mutate(populate_header_rows = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                   TRUE ~ populate_header_rows))
         
@@ -136,7 +136,7 @@ populate_header_rows <- function(data_dfs,
        summarise(across(everything(), ~ any(is.na(.x) | .x == "" | str_trim(.x) == ""))) %>%
        any()){    # check if any cells are empty
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(populate_empty_cells = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                TRUE ~ populate_empty_cells))
       
@@ -148,7 +148,7 @@ populate_header_rows <- function(data_dfs,
     
     if(!all(header_row_column_check %in% header_row_input$column_name)){ # check if data file contains all columns in input
       
-      reminders <- reminders %>%
+      warnings <- warnings %>%
         mutate(ignored_extra_header_input = case_when((directory == data_directory & file_name == data_file_name) ~ 1,
                                                 TRUE ~ ignored_extra_header_input))
       
@@ -159,7 +159,7 @@ populate_header_rows <- function(data_dfs,
   
   output_list[[file]] <- data_file
   
-  output_list[['Reminders']] <- reminders
+  output_list[['Warnings']] <- warnings
   
   } # end for loop
   
