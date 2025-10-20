@@ -14,6 +14,7 @@
 # `create_dd()`, refer to test-create_flmd() and test-create_dd() to ensure that
 # your updates work as expected and haven't broken any existing functionality.
 
+rm(list=ls(all=T))
 
 rm(list=ls(all=T))
 
@@ -4047,6 +4048,12 @@ user_add_flmd_dd_headers = T
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
 user_include_filenames = F
 
+# dd_database_path = absolute path to the dd database 
+user_dd_database_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv"
+
+# flmd_database_path = absolute path to the flmd database 
+user_flmd_database_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/file_level_metadata_database.csv"
+
 ### Prep Script ################################################################
 
 # load libraries
@@ -4060,6 +4067,9 @@ library(crayon)
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Package_Documentation/functions/create_flmd.R")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Package_Documentation/functions/create_dd.R")
 
+#UPDATE ONCE MERGED
+source("C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/functions/query_dd_database.R")
+source("C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/functions/query_flmd_database.R")
 
 ### Get Files ##################################################################
 
@@ -4076,6 +4086,7 @@ my_flmd<- create_flmd(files_df = my_files,
                        query_header_info = user_query_header_info,
                        view_n_max = user_view_n_max)
 
+
 ### Create DD ##################################################################
 
 my_dd <- create_dd(files_df = my_files, 
@@ -4084,33 +4095,47 @@ my_dd <- create_dd(files_df = my_files,
                     add_flmd_dd_headers = user_add_flmd_dd_headers, 
                     include_filenames = user_include_filenames)
 
+
+### Populate dd/flmd from database #############################################
+
+if(populate_dd_flmd == T){
+
+dd_populated <-  query_dd_database(dd_database_abs_path = user_dd_database_path, 
+                                   dd_skeleton = my_dd)
+
+flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_database_path, 
+                                    flmd_skeleton = my_flmd)
+
+
 ### Data Package Specific Edits ################################################
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v6/v5_CM_SSS_dd.csv") %>%
-  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
+# prelim_dd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Gary_2024_sl-archive-whondrs_Manuscript_Data_Package/sl_archive_whondrs_dd.csv") %>%
+#   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type) 
+# 
+# 
+# dd_populated <- my_dd %>%
+#   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
+#   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
+#                                T ~ Term_Type))
 
-
-dd_populated <- my_dd %>%
-  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>% 
-  mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header", 
-                               T ~ Term_Type))
-
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v6/v5_CM_SSS_flmd.csv") %>%
-  select(File_Name, File_Description) %>%
-  head(54)
-
-
-flmd_populated <- my_flmd %>%
-  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
-
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/03_Manuscript_DPs/00_ARCHIVE-WHEN-PUBLISHED/Gary_2024_sl-archive-whondrs_Manuscript_Data_Package/sl_archive_whondrs_flmd.csv") %>%
+#   select(File_Name, File_Description)
+# 
+# 
+# flmd_populated <- my_flmd %>%
+#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 ### Export #####################################################################
-
-# write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
-# 
-# write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
 
 write_csv(flmd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
 
 write_csv(dd_populated, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
+
+} else{
+
+write_csv(my_flmd, file = paste0(my_out_dir, "/", my_dp_keyword, "_flmd.csv"), na = "")
+
+write_csv(my_dd, file = paste0(my_out_dir, "/", my_dp_keyword, "_dd.csv"), na = "")
+
+}
 
