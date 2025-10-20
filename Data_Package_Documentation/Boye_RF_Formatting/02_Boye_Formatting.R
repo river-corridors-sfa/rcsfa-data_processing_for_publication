@@ -24,13 +24,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/NPOC_TN'
 
-RC <- 'RC2'
-
-study_code <- 'RC2'
+study_code <- 'YEP'
   
-material <- 'Water'
+material <- 'Sediment'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
@@ -42,23 +40,22 @@ colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Fil
 # LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
 
 #uncomment if data was run at MCRL
-LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
+# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
 
 #uncomment if data was run at BSF
-# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
+LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
  
  #uncomment if ions were run at EMSL and update file name
-ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv' 
+ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv'
 
-tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
+# tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
 
-# ================================= Build dir ================================
-
-boye_dir <- paste0(dir, RC, '/Boye_Files/', study_code, '/')
 
 # =============================== list files ===================================
 
-files <- list.files(boye_dir, 'Check_for_Duplicates', full.names = T)
+files <- list.files(dir, 'Check_for_Duplicates', full.names = T, recursive = T)
+
+files <- files[ !grepl('Archive',files)] 
 
 hub <- read_excel(hub_dir)
 
@@ -99,7 +96,7 @@ for (file in files) {
     data <- data %>%
       select(-Date_of_Run, -Method_Notes, -duplicate)
     
-    data_type <- unlist(str_split(basename(file), '_'))[2]
+    data_type <- unlist(str_split(file, '/'))[7]
     
     if(data_type == 'NPOC' & str_detect(file, 'NPOC_TN')){
       
@@ -151,7 +148,7 @@ for (file in files) {
                  'MethodID_Preparation', 'MethodID_DataProcessing')
 
       column_typical_codes <- typical_codes %>%
-        filter(str_detect(Method_ID, '000')) %>%
+        filter(str_detect(Method_ID, typical_code_number)) %>%
         slice(match(order, Method_Type))%>%
         select(Method_ID)%>%
         pull(n = 1)
@@ -229,7 +226,7 @@ for (file in files) {
 
         LOD <- read_csv(ion_LOD_file)
         
-        LOD_dates_file_info <-file.info(list.files(path = boye_dir,pattern = "LOD", full.names = T)) %>%
+        LOD_dates_file_info <-file.info(list.files(path = paste0(dir,'/05_PublishReadyData/Interim_Boye_Files'),pattern = "LOD", full.names = T)) %>%
           rownames_to_column('File_Name') %>%
           tibble()
         
@@ -289,7 +286,7 @@ for (file in files) {
         
         LOD <- read_csv(ion_LOD_file)
         
-        LOD_dates_file_info <-file.info(list.files(path = boye_dir,pattern = "LOD", full.names = T)) %>%
+        LOD_dates_file_info <-file.info(list.files(path = paste0(dir,'/05_PublishReadyData/Interim_Boye_Files'),pattern = "LOD", full.names = T)) %>%
           rownames_to_column('File_Name') %>%
           tibble()
         
@@ -347,7 +344,7 @@ for (file in files) {
 
         LOD <- read_excel(LOD_file_dir)
         
-        LOD_dates_file_info <-file.info(list.files(path = boye_dir,pattern = "LOD", full.names = T)) %>%
+        LOD_dates_file_info <-file.info(list.files(path = paste0(dir,'/05_PublishReadyData/Interim_Boye_Files'),pattern = "LOD", full.names = T)) %>%
           rownames_to_column('File_Name') %>%
           tibble()
         
@@ -469,7 +466,7 @@ for (file in files) {
     
     # =================================== Write File ===============================
     
-    out_name <- glue('{boye_dir}{study_code}_{material}_{data_type}_Boye_{Sys.Date()}.csv' )
+    out_name <- glue('{dir}/05_PublishReadyData/{study_code}_{material}_{data_type}_Boye_{Sys.Date()}.csv' )
 
     write_csv(top, out_name, col_names = F)
 

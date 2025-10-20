@@ -24,13 +24,13 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 # dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v6/v6_CM_SSS_Data_Package/Sample_Data"
 
 # RC <- 'RC2'
 
 study_code <- 'CM_SSS'
 
-material <- 'Water'
+material <- 'Sediment'
 
 # ====================================== Build dir name ========================
 
@@ -42,13 +42,13 @@ material <- 'Water'
 
 # analyte_files <- analyte_files[!grepl('ReadyForBoye',analyte_files)]
 
-analyte_files <- list.files(paste0(dir, "/v5_CM_SSS_Data_Package/Sample_Data"), pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
+analyte_files <- list.files(dir, pattern = paste0(material, ".*\\.csv$"), full.names = T) # selects all csv files that contain the word provided in the "material" string
 analyte_files <- analyte_files[!grepl('Mass_Volume|FTICR',analyte_files)]
 print(basename(analyte_files))
 
 # qaqc_files <- list.files(boye_dir, 'CombinedQAQC', full.names = T)
 
-qaqc_files <- list.files(paste0(dir, '/Outlier_files'), pattern = material, full.names = T) # selects .csv files that contain the word "Outliers" or "CombinedQAQC" in the file name
+qaqc_files <- list.files("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v6/Outlier_Files", pattern = material, full.names = T) # selects .csv files that contain the word "Outliers" or "CombinedQAQC" in the file name
 print(basename(qaqc_files))
 
 # ====================== create combined data frames ===========================
@@ -664,17 +664,18 @@ if (length(MOI_file) > 0) {
   # create summary for MOI
   MOI_summary <- MOI_data %>%
     group_by(Sample_Name) %>%
-    mutate(count_MOI = sum(!is.na(`62948_Gravimetric_Moisture_g_per_g`))) %>% 
+    mutate(count_MOI = sum(!is.na(`62948_Gravimetric_Moisture_g_per_g`))) %>%
     summarise(
       Field_Name = NA,
       Material = unique(Material),
-      across(where(is.numeric), mean, .names = "Mean_{.col}"), # calculates mean of all numeric cols; converts rows where all sample reps were NA from NaN to NA, renames them to start with "Mean_"
+      across(where(is.numeric), mean, na.rm = TRUE, .names = "Mean_{.col}"), # calculates mean of all numeric cols; converts rows where all sample reps were NA from NaN to NA, renames them to start with "Mean_"
       Mean_Missing_Reps = case_when(count_MOI < 3 ~ TRUE, TRUE ~ FALSE),   # if col has fewer than 3 reps, mark missing reps col as TRUE
-      count_MOI = unique(count_MOI)) %>% 
-    ungroup() %>% 
-    filter(!is.na(Sample_Name)) %>% 
-    select(Field_Name, Sample_Name, Material, `Mean_62948_Gravimetric_Moisture_g_per_g`, Mean_Missing_Reps) %>% 
-    distinct() 
+      count_MOI = unique(count_MOI)
+    ) %>%
+    ungroup() %>%
+    filter(!is.na(Sample_Name)) %>%
+    select(Field_Name, Sample_Name, Material, `Mean_62948_Gravimetric_Moisture_g_per_g`, Mean_Missing_Reps) %>%
+    distinct()
   
   # join moi to all
   combine <- combine %>%
@@ -1170,4 +1171,3 @@ write_csv(combine_headers, summary_out_file, append = T, col_names = T)
 
 write_csv(combine, summary_out_file, append = T, na = '')
 
-shell.exec(dir)

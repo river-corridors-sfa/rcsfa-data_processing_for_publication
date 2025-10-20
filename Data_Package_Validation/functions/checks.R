@@ -394,6 +394,7 @@ initialize_report_df <- function(){
     num_rows = as.numeric(),
     num_unique_rows = as.numeric(),
     num_missing_rows = as.numeric(),
+    num_empty_cells = as.numeric(),
     top_counts = as.character(),
     range_min = NA_character_,
     range_max = NA_character_,
@@ -448,6 +449,12 @@ create_range_report <- function(input_df,
     current_column_name <- colnames(current_column)
     
     log_info(paste0("Creating range report for column ", k, " of ", length(input_df), ": ", current_column_name))
+    
+    # calculate number of cells that are NA or ""
+    current_n_empty_cells <- current_column  %>% 
+      mutate(across(everything(), ~ replace(., . %in% c("", " "), NA))) %>% # if cell is blank but not NA, convert to NA
+      filter(if_any(everything(), ~ is.na(.x) )) %>%
+      nrow()
     
     # convert to NA
     current_column <- current_column %>% 
@@ -620,6 +627,7 @@ create_range_report <- function(input_df,
       num_rows = current_nrow,
       num_unique_rows = current_unique_rows,
       num_missing_rows = current_n_misisng,
+      num_empty_cells = current_n_empty_cells,
       top_counts = current_top_counts,
       range_min = as.character(current_min),
       range_max = as.character(current_max),

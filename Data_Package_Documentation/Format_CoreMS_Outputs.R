@@ -5,7 +5,7 @@
 # ==============================================================================
 #
 # Author: Brieanne Forbes (brieanne.forbes@pnnl.gov)
-# 6 March 2025
+# 5 September 2025
 #
 # ==============================================================================
 
@@ -18,7 +18,7 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 #insert the path of the data package folder
-dir <- 'Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package'
+dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_Data_Package'
 
 # ============ set WD to the path of the data package ==========================
 
@@ -26,7 +26,7 @@ setwd(dir)
 
 # ================================= get files ================================
 
-corems_files <- list.files(path = './Sample_Data/FTICR', pattern = 'CoreMS.*\\.csv$', recursive = T, full.names = T, ignore.case = T)
+corems_files <- list.files(path = '.', pattern = 'CoreMS.*\\.csv$', recursive = T, full.names = T, ignore.case = T)
 
 data_files <- corems_files[grepl('CoreMS_Processed_ICR_Data', corems_files)]
 
@@ -40,7 +40,7 @@ output_files <- corems_files[grepl('.corems', corems_files)]
 
 for (i in data_files) {
   
-  data <- read_csv(i)%>%
+  data <- read_csv(i, show_col_types = FALSE)%>%
     rename_with(~ str_remove(.x, "\\.corems")) %>% # remove ".corems" from sample names
     rename_with(~ str_remove(.x, "_[^_]*$")) %>% # remove IAT from sample names
     rename(Calibrated_Mass = `Calibrated m/z`)
@@ -53,7 +53,7 @@ for (i in data_files) {
 
 for (j in mol_files) {
   
-  mol <- read_csv(j) %>%
+  mol <- read_csv(j, show_col_types = FALSE) %>%
     select(-`Molecular Formula`) %>% #remove column as it is the same as MolForm column 
     rename(Calibrated_Mass = `Calibrated m/z`,
            Is_Isotopologue = `Is Isotopologue`,
@@ -70,7 +70,7 @@ for (j in mol_files) {
 
 for (k in cal_files) {
   
-  cal <- read_csv(k) %>%
+  cal <- read_csv(k, show_col_types = FALSE) %>%
     rename(Sample_Name = Sample,
            Calibration_Points = "Cal. Points",
            Calibration_Threshold = "Cal. Thresh.",
@@ -86,7 +86,16 @@ for (k in cal_files) {
 
 for (m in output_files) {
 
-  output <- read_csv(m)%>%
+  output <- read_csv(m, show_col_types = FALSE,
+                     col_types = cols(
+                       `13C` = col_double(),
+                       `15N` = col_double(),
+                       `17O` = col_double(),
+                       `18O` = col_double(),
+                       `33S` = col_double(),
+                       `34S` = col_double(),
+                       .default = col_guess())
+                     )%>%
     rename_with(~ str_replace_all(.x, " ", "_")) %>% # replace all spaces in column names with underscores
     rename( Mass = `m/z`,
             Calibrated_Mass = `Calibrated_m/z`,

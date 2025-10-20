@@ -24,11 +24,11 @@ rm(list=ls(all=T))
 
 dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
-dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package/WHONDRS_AV1_Data_Package/Sample_Data/'
+dp_outdir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/TGW/Boye_Files/TGW/'
 
-RC <- 'RC4'
+RC <- 'TGW'
 
-study_code <- 'AV1'
+study_code <- 'TGW'
 
 material <- 'Water'
 
@@ -45,7 +45,7 @@ material_fixed <- case_when(material == 'Sediment' ~ 'Sediment',
 analyte_code <- case_when(material == 'Sediment' ~ 'SED',
                             material == 'Water' ~ 'ICR')
 
-combined_mapping <- list.files(paste0(dir, RC, '/FTICR/03_ProcessedData/', study_code, '_Data_Processed_FTICR'),'Mapping', full.names = T) %>%
+combined_mapping <- list.files(paste0(dir, RC, '/FTICR/03_ProcessedData/'),'Mapping', full.names = T) %>%
   read_csv() %>%
   filter(str_detect(Sample_ID, analyte_code)) %>% # pull samples with correct analyte code for the material
   filter(is.na(Notes) | !str_detect(Notes, 'OMIT')) %>% # remove samples that were rerun

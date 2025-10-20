@@ -17,9 +17,9 @@ library(readxl)
 
 # ================================= User inputs ================================
 
-dp_dir <- 'Y:/MEL/MEL_Data_Package_Staging'
+dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/YEP_Data_Package'
 
-out_file <- "WHONDRS_MEL_Metadata_IGSN-Mapping.csv"
+out_file <- "YEP_Metadata_IGSN-Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 

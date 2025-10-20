@@ -1,0 +1,142 @@
+name: Data Package Checks
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  data-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.3.0'
+        use-public-rspm: true  # Use binary packages for faster installation
+        
+    - name: Install system dependencies (including Pandoc)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev pandoc
+      
+    - name: Setup R dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: |
+          any::here
+          any::tidyverse
+          any::rlog
+          any::devtools
+          any::hms
+          any::fs
+          any::clipr
+          any::knitr
+          any::kableExtra
+          any::DT
+          any::rmarkdown
+          any::plotly
+          any::downloadthis
+          any::cli
+          any::rstudioapi
+        cache-version: 2
+      
+    - name: Verify Pandoc installation
+      run: pandoc --version
+      
+    - name: Run data package checks
+      run: |
+        # Load required libraries
+        library(here)
+        library(tidyverse)
+        library(rlog)
+        library(devtools)
+        library(hms)
+        library(fs)
+        library(clipr)
+        library(knitr)
+        library(kableExtra)
+        library(DT)
+        library(rmarkdown)
+        library(plotly)
+        library(downloadthis)
+        library(cli)
+        
+        # Set working directory to repo root
+        setwd(here())
+        
+        # User inputs (automated for GitHub Actions)
+        user_directory <- here()
+        report_author <- "${{ github.actor }}"
+        report_out_dir <- file.path(here(), "data_checks_reports")
+        user_input_has_header_rows <- FALSE
+        has_flmd <- FALSE
+        flmd_path <- ""
+        user_exclude_files <- NA_character_
+        user_include_files <- NA_character_
+        user_include_dot_files <- FALSE
+        
+        # Source required functions from GitHub
+        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
+        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
+        source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
+        
+        # Check if directory has files
+        if (length(list.files(user_directory, recursive = TRUE)) == 0) {
+          warning("Your directory has 0 files.")
+        }
+        
+        # 1. Get all files
+        dp_files <- get_files(directory = user_directory,
+                              exclude_files = user_exclude_files,
+                              include_files = user_include_files,
+                              include_dot_files = user_include_dot_files)
+        
+        # 2. Set flmd to NA (no existing flmd)
+        data_package_flmd <- NA
+        
+        # 3. Load data
+        data_package_data <- load_tabular_data(files_df = dp_files, 
+                                               flmd_df = data_package_flmd, 
+                                               query_header_info = user_input_has_header_rows)
+        
+        
+        # 4. Run checks (input_parameters defined in checks.R)
+        data_package_checks <- check_data_package(data_package_data = data_package_data, 
+                                                   input_parameters = input_parameters)
+        
+        # 5. Generate report
+        out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
+        
+        # Render report using the checks_report.Rmd in data_checks_reports folder
+        rmarkdown::render("data_checks_reports/checks_report.Rmd", 
+                         output_format = "html_document", 
+                         output_dir = report_out_dir, 
+                         output_file = out_file,
+                         envir = new.env())
+        
+        # Print success message
+        cat("Report generated successfully:", file.path(report_out_dir, out_file), "\n")
+        
+      shell: Rscript {0}
+      
+    - name: Commit and push report
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data_checks_reports/
+        git diff --staged --quiet || git commit -m "Auto-update data package checks report [skip ci]"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload report as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: data-checks-report
+        path: data_checks_reports/

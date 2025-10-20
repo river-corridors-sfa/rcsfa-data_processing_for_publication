@@ -37,6 +37,7 @@ load_tabular_data <- function(files_df,
     # the data are organized with column headers (not row headers)
     # data files can have header rows above and/or below the column headers
     # if the user selects `query_header_info = F`, then data will be read in skipping any rows that begin with "#" and then assuming column headers are on the first row and data begin on the second row. 
+    # rows containing "#End_Data" will be skipped.
   
   # Status: complete. 
     # Code authored by Bibi Powers-McCormack. Reviewed and approved by Brie Forbes on 2025-06-09 via https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/pull/61
@@ -295,6 +296,7 @@ load_tabular_data <- function(files_df,
       # read in current file (does NOT include comment = "#" and does NOT read in col headers)
       current_df_metadata <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, n_max = file_n_max)
       
+       
     } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
       
       # read in current file (does NOT include comment = "#" and does NOT read in col headers)
@@ -366,7 +368,8 @@ load_tabular_data <- function(files_df,
         if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
           
           # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-          current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, skip = current_df_k_row$Data_Start_Row - 1)
+          current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = F, show_col_types = F, skip = current_df_k_row$Data_Start_Row - 1)%>%
+            filter(!str_detect(X1, '#End_Data'))
           
         } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
           
@@ -380,8 +383,16 @@ load_tabular_data <- function(files_df,
         if (str_detect(current_df_metadata_file_path_absolute, "\\.csv$")) {
           
           # read in current file (does NOT include comment = "#" and does NOT read in col headers)
-          current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#")
-          
+          current_df_data <- read_csv(current_df_metadata_file_path_absolute, name_repair = "minimal", col_names = T, show_col_types = F, comment = "#") %>%
+          {
+            if ("Field_Name" %in% names(.)) {
+              # If "Field_Name" exists, filter it for rows NOT containing "#End_Data"
+              . <- filter(., Field_Name != "#End_Data")
+            } else {
+              # If "Field_Name" does not exist, return the dataset as-is
+              .
+            }
+          }
         } else if (str_detect(current_df_metadata_file_path_absolute, "\\.tsv$")) {
           
           # read in current file (does NOT include comment = "#" and does NOT read in col headers)

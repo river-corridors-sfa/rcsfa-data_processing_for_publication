@@ -14,71 +14,36 @@
 # 28 March 2025
 #
 # ==============================================================================
-
-library(tidyverse)
-library(readxl)
-library(crayon)
-library(fs)
-library(lubridate)
-library(openxlsx)
-
+require(pacman)
+p_load(tidyverse, crayon, fs, openxlsx)
 
 rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-pnnl_user <-  'forb086'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/NPOC_TN'
 
-dir <- paste0('C:/Users/', pnnl_user, '/OneDrive - PNNL/Data Generation and Files/')
+study_code <- 'YEP'
 
-RC <-  'RC2' # Options are RC2, RC3, or RC4
+analysis <- 'NPOC_TN'
 
-study_code <-  'RC2' 
+analyte_code <- 'OCN|SOC' # Options are ION, OCN, DIC, TSS
 
-analysis <-  'TN' # Options are Ions, TN, NPOC, DIC, TSS and NPOC_TN #for ions, need to change to ION to pull out samples correctly later, but folder is "Ions", similar for NPOC_TN, analysis needs to change to "OCN" to bc that's what is in sample names
+qaqc <- 'Y' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
-analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
-
-qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
-
-git_hub_dir <-  "C:/GitHub/QAQC_scripts/Functions_for_statistics/"
+git_hub_dir <-  "C:/Brieanne/GitHub/QAQC_scripts/Functions_for_statistics/"
 
 #coefficient of variation threshold
 cv <- 30
 # ================================= Build dir ================================
 
-if(RC == 'RC3'){
-  
-  mapping_file_dir <- paste0(dir, RC, '/00_Raw_data_by_analysis/', analysis, '/')
-  qaqc_file_dir <- paste0(dir, RC, '/', '01_Processed_data_by_analysis/', analysis, '/')
-  data_file_dir <- paste0(dir, RC, '/', '01_Processed_data_by_analysis/', analysis, '/')
-  
-} else {
+mapping_file_dir <- paste0(dir, '/', '01_RawData/')
 
-mapping_file_dir <- paste0(dir, RC, '/', analysis, '/', '01_RawData/')
-qaqc_file_dir <- paste0(dir, RC, '/', analysis, '/', '03_ProcessedData')
-
-if (analysis == 'Ions'){
-  
-  data_file_dir <- paste0(dir, RC, '/', analysis, '/', '03_ProcessedData/')
-  
-} else {
-  
-  data_file_dir <- paste0(dir, RC, '/', analysis, '/', '02_FormattedData/')
-  
-}
-
-}
-
-
-
-
-
-# out_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC2/Boye_Files/'
+qaqc_file_dir <- paste0(dir, '/', '03_ProcessedData')
 
 # ================================ create outdir ===============================
 
-study_out_dir <- paste0(dir,RC, '/Boye_Files/', study_code, '/')
+study_out_dir <- paste0(dir, '/05_PublishReadyData/Interim_Boye_Files/')
 
 
 dir_create(study_out_dir)
@@ -119,6 +84,7 @@ for (mapping_file in mapping_files) {
       mutate(Date = date) %>%
       select(!contains('...')) %>% 
       mutate(Method_Deviation = if("Method_Deviation" %in% names(.)) as.character(Method_Deviation) else NA_character_, 
+             Study_Code = if("Study_Code" %in% names(.)) as.character(Study_Code) else NA_character_, 
       Method_Notes = if("Method_Notes" %in% names(.)) as.character(Method_Notes) else NA_character_, 
       Instrument_MakeModel = if("Instrument_MakeModel" %in% names(.)) as.character(Instrument_MakeModel) else NA_character_, 
       Date_of_Run = if("Date_of_Run" %in% names(.)) as.Date(Date_of_Run, origin = "1899-12-30") else NA)
@@ -144,26 +110,10 @@ mapping_filtered <- combine_mapping %>%
   filter(str_detect(Sample_ID, study_code))%>%
   filter(str_detect(Sample_ID, analyte_code)) # analyte code should remove need for if statement below, but keeping for now
 
-# if(analysis == 'DIC'){
-#   
-#   mapping_filtered <- mapping_filtered %>%
-#     filter(str_detect(Sample_ID, 'DIC'))
-#   
-# }
 
 # ============================== combine QAQC data =============================
-  if(analysis != 'TSS'){
-  
-    
-    if(analysis == 'Ions'){
       
-      qaqc_files <- list.files(qaqc_file_dir, pattern = 'QAQCed',recursive = T, full.names = T)
-      
-    } else {
-      
-      qaqc_files <- list.files(qaqc_file_dir, pattern = 'Compiled_QAQC',recursive = T, full.names = T)
-      
-    }
+  qaqc_files <- list.files(qaqc_file_dir, pattern = 'Compiled_QAQC',recursive = T, full.names = T)
 
   qaqc_files <- qaqc_files[ !grepl('Archive',qaqc_files)]
   
@@ -186,31 +136,16 @@ mapping_filtered <- combine_mapping %>%
       bind_rows(qaqc_data)
     
     
-  } } else{
-    
-    combine_qaqc <- list.files(qaqc_file_dir, study_code, full.names = T, recursive = T) %>%
-      read_csv() %>%
-      mutate(Date = date,
-             across(everything(), as.character))
-    
-  } ## seems like this last else statement wouldn't really be doing anything because everything should be captured in first else statement?
+  }
   
   # ===================== filter data by study code and output =================
   
   data_filtered <- combine_qaqc %>%
     filter(str_detect(Sample_ID, study_code)) %>%
-    filter(str_detect(Sample_ID, analyte_code)) # filtering by analyte code should remove need for if statement below
-  
-  
-# if(analysis == 'DIC'){
-#   
-#   data_filtered <- data_filtered %>%
-#     filter(str_detect(Sample_ID, 'DIC'))
-#   
-# } 
+    filter(str_detect(Sample_ID, analyte_code)) 
   
   #file needed for summary stats code
-  write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_', analysis, '_CombinedQAQC_', Sys.Date(), '_by_', pnnl_user, '.csv'))
+  write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_CombinedQAQC_', Sys.Date(), '.csv'))
 
     
   
@@ -229,7 +164,7 @@ mapping_filtered <- combine_mapping %>%
                       Date_end = max(merged$Date))
   
   # Export LOD dates
-  write_csv(date_range,paste0(study_out_dir,'/', study_code, '_', analysis, '_LOD_Dates_', Sys.Date(), '_by_', pnnl_user, '.csv'))
+  write_csv(date_range,paste0(study_out_dir,'/', study_code, '_LOD_Dates_', Sys.Date(), '.csv'))
   
   # ========================= select necessary columns ===========================
   
@@ -285,37 +220,23 @@ mapping_filtered <- combine_mapping %>%
   # ================================ combine data ==============================
   
  
-      data_files <- list.files(data_file_dir, pattern = 'Matched', recursive = T, full.names = T)
+      data_files <- list.files(paste0(dir, '/', '02_FormattedData'), pattern = 'Matched', recursive = T, full.names = T)
 
   
   data_files <- data_files[ !grepl('Archive', data_files)]
   
-  combine_data <- read_csv(data_files[1])%>%
-    mutate(across(everything(), as.character)) %>%
-    filter(is.na(Sample_ID)) %>%
-    add_column(Date = 'N/A', .before = 1)
-  
-  colnames(combine_data) <- str_remove(colnames(combine_data), '_and_blanks')
-  
-  for (data_file in data_files){
-    
-    file_name <-  path_file(data_file)
-    date <- str_extract(file_name, '([A-Za-z0-9]+)')
-    
-    data <-  read_csv(data_file) %>%
-      mutate(across(everything(), as.character))%>%
-      select(-contains('Blank_corrected'))
-    
-    matched_date <- str_extract(file_name, '([A-Za-z0-9]+)')
-    
-    data <- data %>%
-      add_column(Date = matched_date, .before = 1)
-    
-    colnames(data) <- str_remove(colnames(data), '_and_blanks')
-    
-    combine_data <- combine_data %>%
-      add_row(data)
-  }
+  combine_data <- data_files %>%
+    map(~ {
+      file_name <- path_file(.x)
+      matched_date <- str_extract(file_name, '([A-Za-z0-9]+)')
+      
+      read_csv(.x) %>%
+        mutate(across(everything(), as.character)) %>%
+        select(-contains('Blank_corrected')) %>%
+        add_column(Date = matched_date, .before = 1) %>%
+        rename_with(~ str_remove(.x, '_and_blanks'))
+    }) %>%
+    bind_rows() 
   
   # ========================== filter data by study code =======================
   
@@ -330,7 +251,7 @@ mapping_filtered <- combine_mapping %>%
     mutate(across(contains('per_'), as.numeric)) %>%
     full_join(mapping_filtered2, by = c('Date', 'Randomized_ID', 'Sample_ID', 'Dilution_Factor'))
   
-  write_csv(qaqc_merge, paste0(study_out_dir,'/', study_code, '_', analysis, '_Data_Check-for-duplicates_', Sys.Date(), '_by_', pnnl_user, '.csv'))
+  write_csv(qaqc_merge, paste0(study_out_dir,'/', study_code, '_', analysis, '_Data_Check-for-duplicates_', Sys.Date(),  '.csv'))
   
   cat(
     red$bold(
@@ -340,9 +261,38 @@ mapping_filtered <- combine_mapping %>%
   
   readline(prompt = 'Have the duplicates been removed? Write Y if ready to proceed. \nOtherwise dont write anything until ready to proceed.')
   
-  df <- read_csv(list.files(study_out_dir, paste0(analysis, '_Data_Check-for-duplicates'), full.names = T)) %>%
-    select(colnames(combine_data))
+  if(study_code == 'YEP'){
   
+  df <- read_csv(list.files(study_out_dir, paste0(analysis, '_Data_Check-for-duplicates'), full.names = T)) 
+  
+  df <- df %>%
+    mutate(Sample_ID = if_else(Sample_ID == "YEP2A_OCN-H1", 
+                               "YEP2A_SOC-H1", 
+                               Sample_ID),
+           Sample_ID = if_else(Sample_ID == "YEP2A_OCN-U1", 
+                               "YEP2A_SOC-U1", 
+                               Sample_ID),
+           Sample_ID = if_else(Sample_ID == "YEP2A_OCN-S1", 
+                               "YEP2A_SOC-S1", 
+                               Sample_ID),
+           Sample_ID = if_else(Sample_ID == "YEP1A_OCN-H1", 
+                               "YEP1A_SOC-H1", 
+                               Sample_ID),
+           Sample_ID = if_else(Sample_ID == "YEP1A_OCN-U1", 
+                               "YEP1A_SOC-U1", 
+                               Sample_ID),
+           Sample_ID = if_else(Sample_ID == "YEP1A_OCN-S1", 
+                               "YEP1A_SOC-S1", 
+                               Sample_ID)) %>%
+    filter(!Sample_ID == 'YEP1A_SOC-H1') %>%
+    filter(!Sample_ID == 'YEP1A_SOC-U2')
+  
+  }else{
+    
+    df <- read_csv(list.files(study_out_dir, paste0(analysis, '_Data_Check-for-duplicates'), full.names = T)) %>%
+      select(colnames(combine_data))
+    
+  }
   
   # =============================== NPOC QAQC ==================================
   
@@ -597,31 +547,48 @@ mapping_filtered <- combine_mapping %>%
     
     # ============================= NPOC-TN QAQC ===============================
     
-    source(paste0(git_hub_dir,"Stats_fun_v2.R"))
+    if(study_code == 'YEP'){
+      
+      source(paste0(git_hub_dir,"Stats_fun_v2_YEP.R"))
+      
+      df_stats <-  suppressWarnings(Stats_fun_v2_YEP(df))  %>%
+        mutate(Sample_ID = Sample_name)
+      
+    } else{
+      
+      source(paste0(git_hub_dir,"Stats_fun_v2.R"))
+      
+      df_stats <-  suppressWarnings(Stats_fun_v2(df)) %>%
+        add_column(flags = NA, NPOC_mg_C_per_L = NA,TN_mg_N_per_L = NA, Dilution_factor = NA)
+      
+    }
     
-    df_stats <-  suppressWarnings(Stats_fun_v2(df)) %>%
-      add_column(flags = NA, NPOC_mg_C_per_L = NA,TN_mg_N_per_L = NA, Dilution_factor = NA)
+
 
     # Populating the columns just added in the stats matrix
-    for (j in 1:nrow(df_stats)){
-      df_stats$NPOC_mg_C_per_L[j] = signif(df$NPOC_mg_C_per_L[which(df$Sample_ID  == df_stats$Sample_ID[j])],3)
-      df_stats$TN_mg_N_per_L[j] = signif(df$TN_mg_N_per_L[which(df$Sample_ID  == df_stats$Sample_ID[j])],3)
-      df_stats$Dilution_factor[j] = df$Dilution_Factor[which(df$Sample_ID  == df_stats$Sample_ID[j])]
-    }
-
-    df_stats$flags = NA
-
-    # Adding flags based on the CV
-    for (i in 1:nrow(df_stats)){
-      if (df_stats$NPOC_CV[i] >= cv && df_stats$TN_CV[i] <= cv && is.na(df_stats$NPOC_CV[i])==F && is.na(df_stats$TN_CV[i])==F){
-        df_stats$flags[i] = paste0("NPOC_CV_",cv,"_Flag")
-      }else if (df_stats$TN_CV[i] >= cv && df_stats$NPOC_CV[i] <= cv && is.na(df_stats$NPOC_CV[i])==F && is.na(df_stats$TN_CV[i])==F){
-        df_stats$flags[i] = paste0("TN_CV_",cv,"_Flag")
-      }else if (df_stats$NPOC_CV[i] >= cv && df_stats$TN_CV >= cv && is.na(df_stats$NPOC_CV[i])==F && is.na(df_stats$TN_CV[i])==F){
-        df_stats$flags[i] = paste0("NPOC_CV_",cv,"_Flag,","TN_CV_",cv,"_Flag")
-      }
-    }
-
+    df_stats <- df_stats %>%
+      # Join with df to get the values, then add signif and flags
+      left_join(df %>% select(Sample_ID, NPOC_mg_C_per_L, TN_mg_N_per_L, Dilution_Factor), 
+                by = "Sample_ID") %>%
+      # Apply signif to the joined columns
+      mutate(
+        NPOC_mg_C_per_L = signif(NPOC_mg_C_per_L, 3),
+        TN_mg_N_per_L = signif(TN_mg_N_per_L, 3),
+        Dilution_factor = Dilution_Factor,
+        # Create flags based on CV values
+        flags = case_when(
+          !is.na(NPOC_CV) & !is.na(TN_CV) & NPOC_CV >= cv & TN_CV >= cv ~ 
+            paste0("NPOC_CV_", cv, "_Flag,TN_CV_", cv, "_Flag"),
+          !is.na(NPOC_CV) & !is.na(TN_CV) & NPOC_CV >= cv & TN_CV < cv ~ 
+            paste0("NPOC_CV_", cv, "_Flag"),
+          !is.na(NPOC_CV) & !is.na(TN_CV) & NPOC_CV < cv & TN_CV >= cv ~ 
+            paste0("TN_CV_", cv, "_Flag"),
+          TRUE ~ NA_character_
+        )
+      ) %>%
+      # Remove the temporary Dilution_Factor column if it wasn't originally there
+      select(-Dilution_Factor)
+    
     # Identify samples that are outliers based on the samples that are flagged for CV
     df_stats$NPOC.outlier = NA
     df_stats$TN.outlier = NA
@@ -699,13 +666,13 @@ mapping_filtered <- combine_mapping %>%
     # ==================== merge deviations and flags ==========================
 
   flags <- df_stats %>%
-      select('Sample_ID', 'flags')
+      select('Sample_ID', Randomized_ID, 'flags')
   
   outliers <- df_stats %>%
     select('Sample_ID', contains('outlier'), 'flags') 
     
     final_merged <- merged_clean %>%
-      full_join(flags, by=c('Sample_ID', 'Randomized_ID')) %>%
+      right_join(flags, by=c('Sample_ID', 'Randomized_ID')) %>%
       mutate(flags = as.character(flags),
              Methods_Deviation = as.character(Methods_Deviation))%>%
       mutate(Methods_Deviation = if_else(Methods_Deviation == "", NA, Methods_Deviation)) %>% 
@@ -713,13 +680,13 @@ mapping_filtered <- combine_mapping %>%
            c(Methods_Deviation, flags),
           sep = '; ',
             na.rm = T)%>% 
-    mutate(Methods_Deviation = ifelse(Methods_Deviation == '', NA, Methods_Deviation))
+    mutate(Methods_Deviation = ifelse(Methods_Deviation == '', NA, Methods_Deviation)) 
     
     data_filtered_fixed <- data_filtered %>%
       select(-contains('outlier'), -Flags)%>%
       full_join(outliers)
     
-    write_csv(data_filtered_fixed,paste0(study_out_dir,'/', study_code, '_', analysis, '_CombinedQAQC_', Sys.Date(), '_by_', pnnl_user, '.csv'))
+    write_csv(data_filtered_fixed,paste0(study_out_dir,'/', study_code, '_CombinedQAQC_', Sys.Date(), '.csv'))
     
     
   }
@@ -763,5 +730,6 @@ mapping_filtered <- combine_mapping %>%
     mutate(Methods_Deviation = paste(unique(unlist(strsplit(Methods_Deviation, split="; "))), collapse = '; ')) 
 
   
-  write_csv(final,  paste0(study_out_dir, '/', study_code, '_', analysis, '_Check_for_Duplicates_',Sys.Date(),'_by_', pnnl_user,'.csv'))
+  write_csv(final,  paste0(study_out_dir, '/', study_code, '_Check_for_Duplicates_',Sys.Date(),'.csv'))
+  
   
