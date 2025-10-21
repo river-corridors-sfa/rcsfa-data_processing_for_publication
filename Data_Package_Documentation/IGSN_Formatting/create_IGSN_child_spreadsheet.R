@@ -41,7 +41,7 @@ metadata_filepath <- file.choose()
 metadata_filepath <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo/Input/CoastalFires_BiogeochemData.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/TAP_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/minikits_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
@@ -86,13 +86,13 @@ print(colnames(metadata))
 a <- metadata$Parent_ID
 
 # (name of sampling campaign) 'Comment'
-i <- 'WHONDRS: The Americas Project (TAP)'
+i <- 'WHONDRS minikits'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Latitude
+j <- metadata$Sample_Latitude
 
 # 'Longitude (WGS 84)'
-k <- metadata$Longitude
+k <- metadata$Sample_Longitude
 
 # 'Primary physiographic feature'
 l <- 'stream'
@@ -103,7 +103,8 @@ m <- metadata$Stream_Name
 # m <- 'Columbia river'
 
 # (site ID) 'Locality'
-n <- metadata$Site_Name
+n <- ''
+# n <- metadata$Site_Name
 
 # 'Locality description'
 o <- 'In stream site'
@@ -114,7 +115,7 @@ o <- 'In stream site'
 p <- metadata$Country
 
 # 'State/Province'
-q <- metadata$Region
+q <- metadata$State
 # q <- "Washington"
 
 # 'City/Township'
@@ -129,7 +130,7 @@ s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydro
 t <- 'James Stegen'
 
 # 'Collection date' in mm/dd/yyyy format
-u <- metadata$Date
+u <- metadata$Sample_Date
 
 # 'Related URL'
 v <- 'https://whondrs.pnnl.gov'
@@ -152,7 +153,7 @@ f_water <- 'Surface water'
 g_water <- 'grab'
 
 # `Collection method description`
-h_water <- 'Surface water was either (1) pulled into syringe from 50% water column depth and expelled through 0.22 micron filter into sample vials or (2) was not filtered and collected into a bottle.'
+# h_water <- 'Surface water was either (1) pulled into syringe from 50% water column depth and expelled through 0.22 micron filter into sample vials or (2) was not filtered and collected into a bottle.'
 h_water <- 'Surface water was pulled into syringe from 50% water column depth and expelled through 0.22 micron filter into sample vials.'
 # h_water <- "Surface water was collected into a bottle."
 # h_water <- metadata$Collection_Method_Description
