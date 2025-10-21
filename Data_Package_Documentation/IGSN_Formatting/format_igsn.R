@@ -15,11 +15,13 @@ library(tidyverse)
 library(lubridate)
 library(readxl)
 
+rm(list=ls(all=T))
+
 # ================================= User inputs ================================
 
-dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/YEP_Data_Package'
+dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits'
 
-out_file <- "YEP_Metadata_IGSN-Mapping.csv"
+out_file <- "WHONDRS_Minikits_Metadata_IGSN-Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 
@@ -61,7 +63,7 @@ if (nrow(sample) > 0) {
       Parent_IGSN = "Parent IGSN",
       Field_Name_Informal_Classification = "Field name (informal classification)",
       Collection_Method = "Collection method",
-      # Collection_Method_Description = "Collection method description",
+      Collection_Method_Description = "Collection method description",
       Primary_Physiographic_Feature ="Primary physiographic feature",
       Physiographic_Feature_Name = "Name of physiographic feature",
       Locality_Description = "Locality description", 
