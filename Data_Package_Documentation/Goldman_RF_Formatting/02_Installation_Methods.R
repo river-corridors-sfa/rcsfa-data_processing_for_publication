@@ -21,9 +21,9 @@ rm(list=ls(all=T))
 
 # =========================== User inputs ======================================
 
-data_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/RC2_TemporalStudy_2022-2024_SensorData/RC2_TemporalStudy_2022-2024_SensorData/New folder/'
+data_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/SSS_Ecosystem_Respiration_Data_Package_v2/v2_SSS_Ecosystem_Respiration_Data_Package/New folder/'
 
-study_code <- 'RC2_2022-2024'
+study_code <- 'v2_SSS_ER'
 
 inst_database_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Installation_Methods.xlsx'
 
