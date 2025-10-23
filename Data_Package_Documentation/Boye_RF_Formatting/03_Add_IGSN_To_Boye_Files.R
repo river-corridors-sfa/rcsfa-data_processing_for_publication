@@ -23,7 +23,7 @@ dp_dir <- selectDirectory()
 
 
 #number of digits in the parent ID
-parent_id_number <- 6
+parent_id_number <- 7
 
 file <- file.choose()
 
@@ -143,7 +143,7 @@ if(nrow(igsn_missing) > 0){
   
   user <- (readline(prompt = "Is it okay that these samples are missing IGSNs? (Y/N) "))
   
-  if(user == 'Y'){
+  if(tolower(user) == 'y'){
     
     combine <- combine %>%
       mutate(IGSN = case_when(is.na(IGSN)~'N/A', 
@@ -152,14 +152,14 @@ if(nrow(igsn_missing) > 0){
                               TRUE ~ IGSN))
   }
 } else {
-  user <- "Y"
+  user <- "y"
 }
 
  
 # ======================== write out ===========================================   
 
 # if there are either no missing igsns or if missing igsns have been approved to be okay, then export
-if (user == "Y") {
+if (tolower(user) == 'y') {
 
   # update top count of columns
   top[1, 2] <- length(combine) - 1
