@@ -19,9 +19,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits'
+dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package'
 
-out_file <- "WHONDRS_Minikits_Metadata_IGSN-Mapping.csv"
+out_file <- "TGW_Metadata_IGSN-Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 
