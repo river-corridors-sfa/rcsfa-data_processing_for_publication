@@ -38,23 +38,23 @@ rm(list=ls(all=T))
 
 # select *_Field_Metadata.csv file (either use file.choose to select file or change filepath manually)
 metadata_filepath <- file.choose()
-metadata_filepath <- "C:/Users/powe419/Desktop/bpowers_github_repos/Barton_2025_Coastal_Fires_Levo/CoastalFiresLevo/Input/CoastalFires_BiogeochemData.csv"
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/minikits_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/TGW_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
-user_code <- 'IEWDR' # this is for WHONDRS
+# user_code <- 'IEWDR' # this is for WHONDRS
 # user_code <- 'IEPRS'  # this is not for WHONDRS
+user_code <- 'IETGW'
 
 # indicate if parent IGSNs exist
 # parent_igsn_present <- T
-parent_igsn_present <- F
+parent_igsn_present <- T
 
 # if parent_igsn_presnt == T, select the registered sites (parent IGSN) .xls file (either use file.choose to select file or change filepath manually); skip if not applicable
-# parent_filepath <- file.choose()
-parent_filepath <- ""
+parent_filepath <- file.choose()
+# parent_filepath <- ""
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
 # materials_list <- c("water", "sediment", "filter", "soil") # soil assumes no other material and is not appended to parent ID
@@ -86,33 +86,33 @@ print(colnames(metadata))
 a <- metadata$Parent_ID
 
 # (name of sampling campaign) 'Comment'
-i <- 'WHONDRS minikits'
+i <- 'Tanglewood Wetlands Floodpulse Study'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Sample_Latitude
+j <- metadata$Latitude
 
 # 'Longitude (WGS 84)'
-k <- metadata$Sample_Longitude
+k <- metadata$Longitude
 
 # 'Primary physiographic feature'
-l <- 'stream'
-# l <- ''
+# l <- 'stream'
+l <- 'floodplain'
 
 # 'Name of physiographic feature'
-m <- metadata$Stream_Name
-# m <- 'Columbia river'
+# m <- metadata$Stream_Name
+m <- 'Tanglewood Biological Station'
 
 # (site ID) 'Locality'
 n <- ''
-# n <- metadata$Site_Name
+n <- metadata$Site_ID
 
 # 'Locality description'
-o <- 'In stream site'
-# o <- ''
+# o <- 'In stream site'
+o <- metadata$Site_Category
 
 # 'Country'
-# p <- 'United States'
-p <- metadata$Country
+p <- 'United States'
+# p <- metadata$Country
 
 # 'State/Province'
 q <- metadata$State
@@ -123,22 +123,23 @@ r <- metadata$City
 # r <- "Richland"
 
 # 'Field program/cruise'
-s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
+s <- 'US Department of Energy: Investigating Hydrologic Connectivity as a Driver ofWetland Biogeochemical Response to Flood Disturbances'
 # s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
-t <- 'James Stegen'
+t <- 'Vanessa Garayburu-Caruso'
 
 # 'Collection date' in mm/dd/yyyy format
-u <- metadata$Sample_Date
+u <- metadata$Date
 
 # 'Related URL'
-v <- 'https://whondrs.pnnl.gov'
+# v <- 'https://whondrs.pnnl.gov'
 # v <- 'https://www.pnnl.gov/projects/river-corridor'
+v <- ''
 
 # Related URL Type
-w <- 'regular URL'
-
+# w <- 'regular URL'
+w <- ''
 
 ### User Inputs 3: material - water ############################################
 
@@ -352,22 +353,27 @@ output <- output %>%
 
 
 # add correct user code to top
+
+
 if (user_code == 'IEWDR') {
   
   header <- tibble('Object Type:'= as.character(),
                    'Individual Sample'= as.character(),
                    'SESAR Code:'= as.character(), 
                    'IEWDR' = as.character())
-}
-
-if (user_code == "IEPRS") {
+} else if (user_code == 'IEPRS'){
+  
   header <- tibble('Object Type:'= as.character(),
                    'Individual Sample'= as.character(),
                    'SESAR Code:'= as.character(), 
                    'IEPRS' = as.character())
+} else if (user_code == 'IETGW'){
+  
+  header <- tibble('Object Type:'= as.character(),
+                   'Individual Sample'= as.character(),
+                   'SESAR Code:'= as.character(), 
+                   'IETGW' = as.character())
 }
-
-
 
 # Export IGSN file #############################################################
 
