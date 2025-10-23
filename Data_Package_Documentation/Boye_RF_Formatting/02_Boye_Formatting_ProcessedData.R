@@ -20,15 +20,15 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-boye_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC2/Ions/03_ProcessedData/20241021_Data_Processed_Ions_SBR_RC2_SPS_1-47'
+boye_dir <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/DO/05_PublishReadyData"
 
-RC <- 'RC2'
+RC <- 'N/A'
 
-study_code <- 'SPS'
+study_code <- 'YEP'
 
-material <- 'Water'
+material <- 'Sediment'
 
-outdir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/RC2/Boye_Files/SPS/'
+outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/YEP_Data_Package/YEP_Data_Package/YEP_Sample_Data/'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
 
@@ -137,6 +137,8 @@ for (file in files) {
     analyte <-
       if (str_detect(column, 'NPOC')) {
         'NPOC'
+      }  else if (str_detect(data_type, 'INC')) {
+        'INC'
       } else if (str_detect(column, 'TN')) {
         'TN'
       } else if (str_detect(column, 'TSS')) {
@@ -149,7 +151,7 @@ for (file in files) {
         'pH'
       } else if (str_detect(data_type, 'MOI')) {
         'MOI'
-      } else{
+      }else{
         data_type
       }
     
@@ -314,6 +316,13 @@ for (file in files) {
       dplyr::mutate(across(contains('X'), replace_na, replace = '-9999'))%>%
       dplyr::mutate(across(!contains('X'), replace_na, replace = 'N/A'))%>%
       arrange(Sample_Name)
+    
+    if(any('DateTime' %in% colnames(data))){
+      
+      data <- data %>% 
+        mutate(DateTime = paste0(' ', DateTime))
+      
+    }
     
     data$Field_Name[1] <- '#Start_Data'
     
