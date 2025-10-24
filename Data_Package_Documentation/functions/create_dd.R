@@ -275,45 +275,48 @@ create_dd <- function(files_df,
       
       # if column is numeric, extract precision. 
       if(identical(class(pull(current_column)), "numeric")){
+        # Filter out NA values first, then check if any data remains
+        non_na_data <- current_column %>% filter(!is.na(name))
         
-        column_precision <- current_column %>%
-          filter(!is.na(name)) %>%
-          mutate(
-            num_decimals = nchar(sub("^[^\\.]*\\.?", "", as.character(format(name, scientific = FALSE, trim = FALSE)))), 
-            precision = 10^(-num_decimals) # Convert to precision
-          )%>%
-          summarise( min_precision = min(precision, na.rm = T),
-                     max_precision = max(precision, na.rm = T))
-        
-        # if min and max precision dont match, ask the user if okay to proceed
-        if(column_precision$max_precision != column_precision$min_precision){
+        if(nrow(non_na_data) == 0) {
+          # If all values are NA, set a default precision or handle as needed
+          precision <- -9999  # or whatever default you prefer for all-NA columns
+        } else {
+          column_precision <- non_na_data %>%
+            mutate(
+              # Add additional safety check for non-finite values
+              num_decimals = ifelse(is.finite(name), 
+                                    nchar(sub("^[^\\.]*\\.?", "", as.character(format(name, scientific = FALSE, trim = FALSE)))),
+                                    0),
+              precision = 10^(-num_decimals)
+            ) %>%
+            # Filter out any infinite precision values
+            filter(is.finite(precision)) %>%
+            summarise(
+              min_precision = min(precision, na.rm = TRUE),
+              max_precision = max(precision, na.rm = TRUE)
+            )
           
-          user_prompt_to_proceed_precision <- readline(prompt = cli_alert(paste0('Precision varies for ', column, '. Okay to proceed with maximum precision (',column_precision$max_precision ,'); Y/N?')))
-          
-          if(tolower(user_prompt_to_proceed_precision) == 'n'){ # if the user says not okay to proceed, stop the function
-            
-            stop('create_dd() function ended. Fix precision of data file and re-run dd function to proceed.')
-            
-            
-          } else if(tolower(user_prompt_to_proceed_precision) == 'y'){ # if user says its okay to proceed, report max as precision
-            
-            precision <- column_precision$max_precision
-            
+          # Check if we still have valid precision values after filtering
+          if(nrow(column_precision) == 0 || !is.finite(column_precision$max_precision)) {
+            precision <- -9999
+          } else {
+            # Your existing logic for handling precision differences
+            if(column_precision$max_precision != column_precision$min_precision){
+              user_prompt_to_proceed_precision <- readline(prompt = cli_alert(paste0('Precision varies for ', column, '. Okay to proceed with maximum precision (',column_precision$max_precision ,'); Y/N?')))
+              if(tolower(user_prompt_to_proceed_precision) == 'n'){
+                stop('create_dd() function ended. Fix precision of data file and re-run dd function to proceed.')
+              } else if(tolower(user_prompt_to_proceed_precision) == 'y'){
+                precision <- column_precision$max_precision
+              }
+            } else{
+              precision <- column_precision$max_precision
+            }
           }
-          
-          
-          
-        } else{ # if min and max precision do match, report the max as the precision 
-          
-          precision <- column_precision$max_precision
-          
         }
-        
-      } else{ # if column is not numeric, precision is -9999
-        
+      } else{
         precision <- -9999
-        
-      }
+      }f
       
       
       precision_df <- precision_df %>%
