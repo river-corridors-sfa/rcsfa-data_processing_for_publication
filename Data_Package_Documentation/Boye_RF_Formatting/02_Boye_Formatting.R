@@ -24,11 +24,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/NPOC_TN'
+dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits/VGC/Files for DP'
 
-study_code <- 'YEP'
+study_code <- 'Minikits'
   
-material <- 'Sediment'
+material <- 'Water'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
@@ -37,13 +37,13 @@ typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files
 colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/RC-SFA_ColumnHeader_Lookup.csv'
 
 # uncomment if data was run at EMSL
-# LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
+LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
 
 #uncomment if data was run at MCRL
 # LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
 
 #uncomment if data was run at BSF
-LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
+# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
  
  #uncomment if ions were run at EMSL and update file name
 ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv'
@@ -392,7 +392,7 @@ for (file in files) {
             LOD_final = paste0(LOD_min[1],"-",LOD_max[1])
           }
         
-          
+        
           boye_file_headers <- boye_file_headers %>%
             assign_in(list(data_column, 9), LOD_final)
           
@@ -404,7 +404,8 @@ for (file in files) {
       
       # ======================== fix column headers ==============================
       
-      for (colname in data_columns) {
+      
+    for (colname in data_columns) {
         
         colnames_lookup_filter <- colnames_lookup %>%
           dplyr::filter(col.in == colname)
