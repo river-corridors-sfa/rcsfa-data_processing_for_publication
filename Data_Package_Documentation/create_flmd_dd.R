@@ -30,7 +30,7 @@ my_dp_keyword = "TGW"
 my_out_dir = 'Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_Data_Package'
 
 # populate_dd_flmd = indicate if you would like query the database to populate the dd and flmd. T/F
-populate_dd_flmd = T
+populate_dd_flmd = F
 
 #### OPTIONAL ----
 
@@ -710,36 +710,30 @@ my_dd <- create_dd(files_df = my_files,
 
 if(populate_dd_flmd == T){
 
-# dd_populated <-  query_dd_database(dd_database_abs_path = user_dd_database_path, 
-#                                    dd_skeleton = my_dd)
-# 
-# flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_database_path, 
-#                                     flmd_skeleton = my_flmd)
+dd_populated <-  query_dd_database(dd_database_abs_path = user_dd_database_path,
+                                   dd_skeleton = my_dd)
+
+flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_database_path,
+                                    flmd_skeleton = my_flmd)
 
 
 ### Data Package Specific Edits ################################################
 
-prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_dd_prelim.csv") %>%
-  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
-
-
-dd_populated <- my_dd %>%
-  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>%
-  mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header",
-                               T ~ Term_Type))
-
-prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_flmd_prelim.csv") %>%
-  select(File_Name, File_Description)
-
-
-flmd_populated <- my_flmd %>%
-  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
-
-dd_populated <-  query_dd_database(dd_database_abs_path = user_dd_database_path,
-                                   dd_skeleton = dd_populated)
-
-flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_database_path,
-                                    flmd_skeleton = flmd_populated)
+# prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_dd_prelim.csv") %>%
+#   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
+# 
+# 
+# dd_populated <- my_dd %>%
+#   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>%
+#   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header",
+#                                T ~ Term_Type))
+# 
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_flmd_prelim.csv") %>%
+#   select(File_Name, File_Description)
+# 
+# 
+# flmd_populated <- my_flmd %>%
+#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 
 ### Export #####################################################################
