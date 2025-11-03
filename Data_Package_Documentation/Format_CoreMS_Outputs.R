@@ -41,6 +41,7 @@ output_files <- corems_files[grepl('.corems', corems_files)]
 for (i in data_files) {
   
   data <- read_csv(i, show_col_types = FALSE)%>%
+    mutate_if(is.numeric, ~round(., 9)) %>%
     rename_with(~ str_remove(.x, "\\.corems")) %>% # remove ".corems" from sample names
     rename_with(~ str_remove(.x, "_[^_]*$")) %>% # remove IAT from sample names
     rename(Calibrated_Mass = `Calibrated m/z`)
@@ -54,6 +55,7 @@ for (i in data_files) {
 for (j in mol_files) {
   
   mol <- read_csv(j, show_col_types = FALSE) %>%
+    mutate_if(is.numeric, ~round(., 9)) %>%
     select(-`Molecular Formula`) %>% #remove column as it is the same as MolForm column 
     rename(Calibrated_Mass = `Calibrated m/z`,
            Is_Isotopologue = `Is Isotopologue`,
@@ -71,6 +73,7 @@ for (j in mol_files) {
 for (k in cal_files) {
   
   cal <- read_csv(k, show_col_types = FALSE) %>%
+    mutate_if(is.numeric, ~round(., 9)) %>%
     rename(Sample_Name = Sample,
            Calibration_Points = "Cal. Points",
            Calibration_Threshold = "Cal. Thresh.",
@@ -96,6 +99,7 @@ for (m in output_files) {
                        `34S` = col_double(),
                        .default = col_guess())
                      )%>%
+    mutate_if(is.numeric, ~round(., 9)) %>%
     rename_with(~ str_replace_all(.x, " ", "_")) %>% # replace all spaces in column names with underscores
     rename( Mass = `m/z`,
             Calibrated_Mass = `Calibrated_m/z`,
