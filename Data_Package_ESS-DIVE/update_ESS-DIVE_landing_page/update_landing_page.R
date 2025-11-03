@@ -31,16 +31,23 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 
 # USER INPUTS
-your_essdive_metadata_file <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Forbes_2025_ICON_ModEx/ESSDIVE_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
+your_essdive_metadata_file <- "Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_ESSDIVE_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
 your_author_spreadsheet <- "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-2be98227a814b48-20251010T215134834" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-15d2d0a16138756-20251103T202347556" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
 # RUN functions (no modifications needed)
 # get authors from ESS-DIVE metadata file
-author_names <- get_authors_from_essdive_metadata(essdive_metadata_file = your_essdive_metadata_file)
+author_names <- get_authors_from_essdive_metadata(essdive_metadata_file = your_essdive_metadata_file) %>%
+  mutate(first_name = case_when(last_name == 'Jones' ~ 'C. Nathan',
+                                last_name == 'Serpas' ~ NA,
+                                TRUE ~ first_name),
+         middle_name  = case_when(last_name == 'Jones' ~ NA,
+                                TRUE ~ middle_name ),
+         last_name = case_when(last_name == 'Serpas' ~ 'Molina Serpas',
+                                TRUE ~ last_name))
 
 
 # get author info from spreadsheet
@@ -63,9 +70,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 
 # USER INPUTS
-your_coordinates_file_path <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Forbes_2025_ICON_ModEx/coordinates.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
+your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_Geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-972c735ad304a54-20251014T160045792" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-f1b29203e3e02ea-20251103T204359643553" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
