@@ -20,7 +20,7 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-boye_dir <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/DO/05_PublishReadyData"
+boye_dir <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/GAS/03_ProcessedData/20251001_Data_Processed_GAS_YEP_R1-39"
 
 RC <- 'N/A'
 
