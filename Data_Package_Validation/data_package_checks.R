@@ -54,7 +54,11 @@ flmd_path <- ""
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = NA_character_
+user_exclude_files = c('Microbial_Data/GROWsed_FeatureOut.csv',
+                       'Microbial_Data/GROWsed_FeatureOut_Length.csv',
+                       'Microbial_Data/GROWsed_MICROPHERRET_predict_functions.csv',
+                       'Microbial_Data/GROWsed_Pathway_Completion_Expressed.csv',
+                       'Microbial_Data/GROWsed_Pathway_Completion_Potential.csv')
   
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
