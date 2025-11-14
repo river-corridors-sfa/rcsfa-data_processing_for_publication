@@ -470,7 +470,7 @@ create_dd <- function(files_df,
       Definition = first(na.omit(Definition)),
       Data_Type = first(na.omit(Data_Type)),
       Term_Type = paste(na.omit(Term_Type), collapse = "; "),
-      Missing_Value_Code = case_when(Reported_Precision == -9999 ~ 'N/A', # make N/A if non-numeric and -9999 if numeric
+      Missing_Value_Code = case_when(Reported_Precision == "-9999" ~ 'N/A', # make N/A if non-numeric and -9999 if numeric
                                      TRUE ~ '-9999'),
       Reported_Precision = first(Reported_Precision),
       header_count = sum(header_count, na.rm = TRUE), # sum all files with given header
