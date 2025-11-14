@@ -86,10 +86,25 @@ test_that("expected typical inputs", {
   expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T, add_flmd_dd_headers = T, include_filenames = T) %>% filter(str_detect(associated_files, "\\bboye template\\b|\\bflmd template\\b|\\bdd template\\b")) %>% select(Column_or_Row_Name),
                expected = tibble(Column_or_Row_Name = c("Analysis_DetectionLimit", "Analysis_Precision", "Column_or_Row_Name", "Column_or_Row_Name_Position", "Data_Status", "Data_Type", "Definition", "File_Description", "File_Name", "File_Path", "Header_Rows", "MethodID_Analysis", "MethodID_DataProcessing", "MethodID_Inspection", "MethodID_Preparation", "MethodID_Preservation", "MethodID_Storage", "Missing_Value_Code", "Standard", "Term_Type", "Unit", "Unit_Basis")))
 
-  # populates Missing_Value_Code column  with '"-9999"; "N/A"; "": NA"'
-  expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T, add_flmd_dd_headers = F) %>% select(Missing_Value_Code) %>% unique() %>% pull(),
-               expected = '"N/A"; "-9999"; ""; "NA"')
-
+  # populates Missing_Value_Code column dynamically based on data type
+  result <- create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T, add_flmd_dd_headers = F)
+  
+  # Check that Missing_Value_Code contains only the expected values
+  unique_missing_codes <- result %>% select(Missing_Value_Code) %>% unique() %>% pull()
+  expect_true(all(unique_missing_codes %in% c("N/A", "-9999")))
+  
+  # Check that non-numeric columns (Reported_Precision == "-9999") have Missing_Value_Code = "N/A"
+  non_numeric_cols <- result %>% filter(Reported_Precision == "-9999")
+  if(nrow(non_numeric_cols) > 0) {
+    expect_true(all(non_numeric_cols$Missing_Value_Code == "N/A"))
+  }
+  
+  # Check that numeric columns have Missing_Value_Code = "-9999"
+  numeric_cols <- result %>% filter(Reported_Precision != "-9999")
+  if(nrow(numeric_cols) > 0) {
+    expect_true(all(numeric_cols$Missing_Value_Code == "-9999"))
+  }
+  
   # returns a tibble with all column headers
   expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = F, add_flmd_dd_headers = F) %>% select(Column_or_Row_Name),
                expected = tibble(Column_or_Row_Name = c("00602_TN_mg_per_L_as_N", "00681_NPOC_mg_per_L_as_C", "Battery",

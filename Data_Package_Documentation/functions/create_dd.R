@@ -343,7 +343,7 @@ create_dd <- function(files_df,
            Definition = NA_character_,
            Data_Type = NA_character_,
            Term_Type = NA_character_,
-           Missing_Value_Code = '"N/A"; "-9999"; ""; "NA"',
+           Missing_Value_Code = NA_character_,
            header_count = 1) %>%
     select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type, Missing_Value_Code, header_count, associated_files) %>%
     
@@ -470,7 +470,8 @@ create_dd <- function(files_df,
       Definition = first(na.omit(Definition)),
       Data_Type = first(na.omit(Data_Type)),
       Term_Type = paste(na.omit(Term_Type), collapse = "; "),
-      Missing_Value_Code = first(na.omit(Missing_Value_Code)),
+      Missing_Value_Code = case_when(Reported_Precision == "-9999" ~ 'N/A', # make N/A if non-numeric and -9999 if numeric
+                                     TRUE ~ '-9999'),
       Reported_Precision = first(Reported_Precision),
       header_count = sum(header_count, na.rm = TRUE), # sum all files with given header
       associated_files = paste(associated_files, collapse = ", "), # for associated_files, concatenate with comma separator
