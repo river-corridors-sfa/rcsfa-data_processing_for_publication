@@ -88,7 +88,7 @@ test_that("expected typical inputs", {
 
   # populates Missing_Value_Code column  with '"-9999"; "N/A"; "": NA"'
   expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = T, add_flmd_dd_headers = F) %>% select(Missing_Value_Code) %>% unique() %>% pull(),
-               expected = '"N/A"; "-9999"; ""; "NA"')
+               expected = '"N/A"; "-9999"; ""; "NA"') #this needs to be updated
 
   # returns a tibble with all column headers
   expect_equal(object = create_dd(files_df = my_files, flmd_df = my_flmd, add_boye_headers = F, add_flmd_dd_headers = F) %>% select(Column_or_Row_Name),
