@@ -21,15 +21,15 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/NPOC_TN'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_TAP/Ions'
 
-study_code <- 'YEP'
+study_code <- 'TAP'
 
-analysis <- 'NPOC_TN'
+analysis <- 'Ions'
 
-analyte_code <- 'OCN|SOC' # Options are ION, OCN, DIC, TSS
+analyte_code <- 'WIN' # Options are ION, OCN, DIC, TSS
 
-qaqc <- 'Y' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
+qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
 git_hub_dir <-  "C:/Brieanne/GitHub/QAQC_scripts/Functions_for_statistics/"
 
