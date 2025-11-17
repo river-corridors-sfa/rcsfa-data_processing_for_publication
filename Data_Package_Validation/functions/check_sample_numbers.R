@@ -13,6 +13,7 @@
 #
 # ==============================================================================
 require(pacman)
+
 p_load(tidyverse,
        cli)
 
@@ -154,14 +155,27 @@ check_sample_numbers <- function(data_package_data){
   full_summary <- tibble(file = as.character(),
                          expected_number_of_reps = as.numeric(),
                          all_sample_number_reps_match_expected = as.logical(),
-                         all_samples_have_metadata = as.logical())
+                         all_samples_have_metadata = as.logical(),
+                         has_duplicate_sample = as.logical())
   
   output_list <- list()
 
   # ---- loop through files ---- 
   
+  if (length(sample_file_paths) > 3) {
+    pb <- cli_progress_bar("Processing files", total = length(sample_file_paths))
+  }
+  
 
   for (sample_file in sample_file_paths) {
+
+      
+      if (exists("pb")) {
+        cli_progress_update(pb)
+      }
+      
+
+    cli_alert_info("Processing file {match(sample_file, sample_file_paths)} of {length(sample_file_paths)}: {basename(sample_file)}")
     
     data <- data_package_data[["tabular_data"]][[sample_file]] %>%
       mutate(Parent_ID_step1 = str_remove(Sample_Name, "_r\\d+$"), # extra Parent_ID piece by piece so that it works with multiple formats
@@ -205,7 +219,9 @@ check_sample_numbers <- function(data_package_data){
               all_sample_number_reps_match_expected = case_when(any(FALSE %in% data_summary$number_reps_match_expected) == TRUE ~ FALSE,
                                                          TRUE ~ TRUE),
               all_samples_have_metadata = case_when(any(FALSE %in% data_summary$has_metadata) == TRUE ~ FALSE,
-                                           TRUE ~ TRUE))
+                                           TRUE ~ TRUE),
+              has_duplicate_sample = case_when(any(TRUE %in% data_summary$duplicate) == TRUE ~ TRUE,
+                                               TRUE ~ FALSE))
     
     # add reports to  output 
     output_list[['full_summary']] <- full_summary
@@ -213,11 +229,16 @@ check_sample_numbers <- function(data_package_data){
     output_list[['summary_by_file']][[basename(sample_file)]] <- data_summary %>%
       select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata, duplicate)
     
+    if (exists("pb")) {
+      cli_progress_done(pb)
+    }
+    
   }
   
   if(has_icr_files == T){
     
-    # check that all samples are in icr methods files, all samples have metadata and vice versa
+    cli_alert_info("Processing FTICR files")
+    
     
     icr_methods_file <- data_package_data$tabular_data[[
       names(data_package_data$tabular_data)[grepl("FTICR_Methods\\.csv", names(data_package_data$tabular_data))][1]
@@ -293,6 +314,38 @@ check_sample_numbers <- function(data_package_data){
     
     output_list[['summary_by_file']][['FTICR Folder']] <- icr_check
     
+  }
+  
+  # ---- Summary-based CLI alerts ----
+  
+  # Check for replication issues
+  if (any(output_list[['full_summary']]$all_sample_number_reps_match_expected == FALSE, na.rm = TRUE)) {
+    cli_alert_danger("Some files have inconsistent replicate counts")
+  }
+  
+  # Check for metadata completeness issues
+  if (any(output_list[['full_summary']]$all_samples_have_metadata == FALSE, na.rm = TRUE)) {
+    cli_alert_danger("Some files have samples that were not found in the field metadata")
+  }
+  
+  # Check for FTICR methods issues
+  if (any(output_list[['full_summary']]$all_samples_in_icr_methods == FALSE, na.rm = TRUE)) {
+    cli_alert_danger("Some FTICR files in the FTICR folder are missing from the FTICR methods file")
+  }
+  
+  # Check for FTICR folder issues
+  if (any(output_list[['full_summary']]$all_samples_in_icr_folder == FALSE, na.rm = TRUE)) {
+    cli_alert_danger("Some samples in the FTICR methods file are missing from the FTICR folder")
+  }
+  
+  # Check for duplicate samples
+  if (any(output_list[['full_summary']]$has_duplicate_samples == TRUE, na.rm = TRUE)) {
+    cli_alert_danger("Some files contain duplicate samples")
+  }
+  
+  # Check for missing metadata entries
+  if (any(output_list[['metadata_summary']]$samples_missing_metadata != 'NONE', na.rm = TRUE)) {
+    cli_alert_danger("Some samples were not found in the field metadata")
   }
   
   return(output_list)
