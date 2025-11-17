@@ -149,13 +149,11 @@ check_sample_numbers <- function(data_package_data){
   
   # ---- initialize dataframes and output list ---- 
   
-  metadata_summary <- tibble(file = as.character(),
-                             samples_missing_metadata = as.character())
-  
   full_summary <- tibble(file = as.character(),
                          expected_number_of_reps = as.numeric(),
                          all_sample_number_reps_match_expected = as.logical(),
                          all_samples_have_metadata = as.logical(),
+                         metadata_ParentID_missing_from_data = as.logical(),
                          has_duplicate_sample = as.logical())
   
   output_list <- list()
@@ -202,16 +200,9 @@ check_sample_numbers <- function(data_package_data){
              has_metadata = case_when(is.na(metadata_parent_ID) ~ FALSE,
                                       TRUE ~ TRUE),
              duplicate = case_when(sample_count == 1 ~ FALSE,
-                                   TRUE ~ TRUE)) 
-    
-    missing_metadata <- data_summary %>%
-      filter(is.na(sample_count)) %>%
-      pull(Parent_ID)
-      
-    metadata_summary <- metadata_summary %>%
-      add_row(file = basename(sample_file),
-              samples_missing_metadata = case_when(is_empty(missing_metadata) == T ~ 'NONE',
-                                                   TRUE ~ paste(missing_metadata, collapse = '; ')))
+                                   TRUE ~ TRUE),
+             metadata_ParentID_missing_from_data = case_when(is.na(Sample_Name) ~ TRUE,
+                                                    TRUE ~ FALSE)) 
     
     full_summary <- full_summary %>%
       add_row(file = basename(sample_file),
@@ -220,12 +211,13 @@ check_sample_numbers <- function(data_package_data){
                                                          TRUE ~ TRUE),
               all_samples_have_metadata = case_when(any(FALSE %in% data_summary$has_metadata) == TRUE ~ FALSE,
                                            TRUE ~ TRUE),
+              metadata_ParentID_missing_from_data = case_when(any(TRUE %in% data_summary$metadata_ParentID_missing_from_data) ~ TRUE,
+                                                     TRUE ~ FALSE),
               has_duplicate_sample = case_when(any(TRUE %in% data_summary$duplicate) == TRUE ~ TRUE,
                                                TRUE ~ FALSE))
     
     # add reports to  output 
     output_list[['full_summary']] <- full_summary
-    output_list[['metadata_summary']] <- metadata_summary
     output_list[['summary_by_file']][[basename(sample_file)]] <- data_summary %>%
       select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata, duplicate)
     
@@ -344,9 +336,10 @@ check_sample_numbers <- function(data_package_data){
   }
   
   # Check for missing metadata entries
-  if (any(output_list[['metadata_summary']]$samples_missing_metadata != 'NONE', na.rm = TRUE)) {
-    cli_alert_danger("Some samples were not found in the field metadata")
+  if (any(output_list[['full_summary']]$metadata_ParentID_missing_from_data == TRUE, na.rm = TRUE)) {
+    cli_alert_danger("Some Parent IDs in the field metadata were not found in all data files")
   }
   
   return(output_list)
+  
   }
