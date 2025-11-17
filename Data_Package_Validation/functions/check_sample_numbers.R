@@ -20,7 +20,7 @@ p_load(tidyverse,
 # ================================= functions ================================
 
 check_sample_numbers <- function(data_package_data,
-                                 pattern_to_exclude_from_metadata_check){
+                                 pattern_to_exclude_from_metadata_check = NULL){
   
   # ---- Input validation ----
   
@@ -193,18 +193,27 @@ check_sample_numbers <- function(data_package_data,
       arrange(desc(mode)) %>%
       head(1) %>%
       pull(rep_count_per_parent_id)
-     
+    
+    # Create exclusion pattern or set to impossible match
+    exclude_pattern <- if(!is.null(pattern_to_exclude_from_metadata_check)) {
+      paste(pattern_to_exclude_from_metadata_check, collapse = '|')
+    } else {
+      "^$"  # Pattern that matches nothing
+    }
+    
     data_summary <- sample_summary %>%
       full_join(metadata, by = 'Parent_ID') %>%
       mutate(expected_number_of_reps = mode_rep_count,
              number_reps_match_expected = rep_count_per_parent_id == mode_rep_count,
-             has_metadata = case_when(str_detect(Sample_Name, paste(pattern_to_exclude_from_metadata_check, collapse = '|')) ~ NA,
-                                      is.na(metadata_parent_ID) ~ FALSE,
-                                      TRUE ~ TRUE),
+             has_metadata = case_when(
+               str_detect(Sample_Name, exclude_pattern) ~ NA,
+               is.na(metadata_parent_ID) ~ FALSE,
+               TRUE ~ TRUE
+             ),
              duplicate = case_when(sample_count == 1 ~ FALSE,
                                    TRUE ~ TRUE),
              metadata_ParentID_missing_from_data = case_when(is.na(Sample_Name) ~ TRUE,
-                                                    TRUE ~ FALSE)) 
+                                                             TRUE ~ FALSE))
     
     full_summary <- full_summary %>%
       add_row(file = basename(sample_file),
