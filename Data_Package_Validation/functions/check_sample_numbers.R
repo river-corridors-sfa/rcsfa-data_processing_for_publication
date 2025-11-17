@@ -4,24 +4,23 @@
 #    - there are no duplicates
 #    - rep numbers match
 #    - each sample in data file has metadata and vice versa
+#    - ICR files in the FTICR folder also match 
 #
-# Status: in progress
-# 
 # ==============================================================================
 #
 # Author: Brieanne Forbes
 # 14 Nov 2025
 #
 # ==============================================================================
-
-library(tidyverse)
-library(cli)
+require(pacman)
+p_load(tidyverse,
+       cli)
 
 # ================================= functions ================================
 
 check_sample_numbers <- function(data_package_data){
   
-  # ---- TO DO add some checks for data package data ----
+  # ---- TO DO add some validation for inputs ----
   
   # ---- get file paths ----
 
@@ -30,7 +29,7 @@ check_sample_numbers <- function(data_package_data){
     filter(!str_detect(file, "Methods_Codes")) %>% # filter out methods code file since it doesnt have sample IDs
     pull(all)
   
-  has_icr_file <- data_package_data$inputs$files_df %>%
+  has_icr_files <- data_package_data$inputs$files_df %>%
     filter(str_detect(relative_dir, "/FTICR/")) %>% # pull all files within the ICR folder
     pull(all) %>%
     length() > 1
@@ -115,37 +114,85 @@ check_sample_numbers <- function(data_package_data){
     
   }
   
-  if(length(icr_file_paths) > 0){
+  if(has_icr_files == T){
     
     # check that all samples are in icr methods files, all samples have metadata and vice versa
-    
-    xml_files <- data_package_data$inputs$files_df %>%
-      filter(str_detect(relative_dir, "/FTICR"),
-             str_detect(file, 'xml')) %>% # pull all files within the ICR folder
-      pull(file) 
-    
-    processed_data_paths <- data_package_data$inputs$files_df %>%
-      filter(str_detect(relative_dir, "/FTICR"),
-             str_detect(file, 'CoreMS_Processed_ICR_Data.csv')) %>% # pull all files within the ICR folder
-      pull(all) 
-    
-    outputs_files <- data_package_data$inputs$files_df %>%
-      filter(str_detect(relative_dir, "/FTICR"),
-             str_detect(file, '.corems.csv')) %>% # pull all files within the ICR folder
-      pull(file) 
     
     icr_methods_file <- data_package_data$tabular_data[[
       names(data_package_data$tabular_data)[grepl("FTICR_Methods\\.csv", names(data_package_data$tabular_data))][1]
     ]] %>%
       filter(`FTICR-MS` != '-9999') %>%
-      select(Sample_Name)
+      select(Sample_Name)%>%
+      mutate(Methods_Sample_Name = Sample_Name)
     
-    xml_check <- tibble(xml = xml_files) %>%
-      mutate(Sample_Name = str_remove(xml_files, "_p\\d+\\.xml$"),
+    xml_files <- data_package_data$inputs$files_df %>%
+      filter(str_detect(relative_dir, "/FTICR"),
+             str_detect(file, 'xml')) %>% # pull all files within the ICR folder
+      pull(file) %>%
+      tibble(xml = .) %>%
+      mutate(Sample_Name = str_remove(xml, "_p\\d+\\.xml$"),
              XML_Sample_Name = Sample_Name) %>%
+      select(-xml)%>%
       full_join(icr_methods_file, by = 'Sample_Name')
+    
+    processed_file <- data_package_data$inputs$files_df %>%
+      filter(str_detect(relative_dir, "/FTICR"),
+             str_detect(file, 'CoreMS_Processed_ICR_Data.csv')) %>% # pull all files within the ICR folder
+      pull(all) %>%
+      data_package_data[["tabular_data"]][[.]] %>%
+      select(-Calibrated_Mass) %>%
+      colnames() %>%
+      tibble(Sample_Name = .) %>%
+      mutate(Processed_Sample_Name = Sample_Name)%>%
+      full_join(icr_methods_file, by = 'Sample_Name')
+    
+    outputs_files <- data_package_data$inputs$files_df %>%
+      filter(str_detect(relative_dir, "/FTICR"),
+             str_detect(file, '.corems.csv')) %>% # pull all files within the ICR folder
+      pull(file) %>%
+      tibble(output = .) %>%
+      mutate(Sample_Name = str_remove(output, "_p\\d+\\.corems.csv$"),
+             Outputs_Sample_Name = Sample_Name) %>%
+      select(-output)%>%
+      full_join(icr_methods_file, by = 'Sample_Name')
+    
+    icr_check <- icr_methods_file %>%
+      full_join(xml_files)%>%
+      full_join(processed_file)%>%
+      full_join(outputs_files)
+    
+    # add reports to  output 
+    output_list[['full_summary']] <- output_list[['full_summary']] %>%
+      add_column(all_samples_in_icr_methods = NA,
+                 all_samples_in_icr_folder = NA) %>%  
+      add_row(
+        file = 'xml files', 
+        expected_number_of_reps = NA, 
+        all_sample_number_reps_match_expected = NA,  
+        all_samples_have_metadata = NA,  
+        all_samples_in_icr_methods = !any(is.na(xml_files))
+      ) %>%
+      add_row(
+        file = 'processed icr', 
+        expected_number_of_reps = NA, 
+        all_sample_number_reps_match_expected = NA, 
+        all_samples_have_metadata = NA, 
+        all_samples_in_icr_methods = !any(is.na(processed_file))
+      ) %>%
+      add_row(
+        file = 'icr outputs', 
+        expected_number_of_reps = NA, 
+        all_sample_number_reps_match_expected = NA, 
+        all_samples_have_metadata = NA, 
+        all_samples_in_icr_methods = !any(is.na(outputs_files))
+      ) %>%
+      mutate(all_samples_in_icr_folder = case_when(str_detect(file, 'FTICR_Methods') & any(is.na(icr_check$Methods_Sample_Name)) ~ FALSE,
+                                                   str_detect(file, 'FTICR_Methods') & !any(is.na(icr_check$Methods_Sample_Name)) ~ TRUE,
+                                                   TRUE ~ NA))
+    
+    output_list[['summary_by_file']][['FTICR Folder']] <- icr_check
     
   }
   
-  
+  return(output_list)
   }
