@@ -20,7 +20,108 @@ p_load(tidyverse,
 
 check_sample_numbers <- function(data_package_data){
   
-  # ---- TO DO add some validation for inputs ----
+  # ---- Input validation ----
+  
+  # Check if data_package_data is provided
+  if (missing(data_package_data) || is.null(data_package_data)) {
+    cli_abort("data_package_data is required and cannot be NULL")
+  }
+  
+  # Check if data_package_data is a list
+  if (!is.list(data_package_data)) {
+    cli_abort("data_package_data must be a list")
+  }
+  
+  # Check for required top-level components
+  required_components <- c("inputs", "tabular_data")
+  missing_components <- setdiff(required_components, names(data_package_data))
+  if (length(missing_components) > 0) {
+    cli_abort("Missing required components in data_package_data: {paste(missing_components, collapse = ', ')}")
+  }
+  
+  # Check inputs structure
+  if (!is.list(data_package_data$inputs)) {
+    cli_abort("data_package_data$inputs must be a list")
+  }
+  
+  if (!"files_df" %in% names(data_package_data$inputs)) {
+    cli_abort("data_package_data$inputs must contain 'files_df'")
+  }
+  
+  # Check files_df structure
+  files_df <- data_package_data$inputs$files_df
+  if (!is.data.frame(files_df)) {
+    cli_abort("data_package_data$inputs$files_df must be a data frame")
+  }
+  
+  required_columns <- c("relative_dir", "file", "all")
+  missing_columns <- setdiff(required_columns, names(files_df))
+  if (length(missing_columns) > 0) {
+    cli_abort("files_df is missing required columns: {paste(missing_columns, collapse = ', ')}")
+  }
+  
+  # Check if files_df has any rows
+  if (nrow(files_df) == 0) {
+    cli_abort("files_df cannot be empty")
+  }
+  
+  # Check tabular_data structure
+  if (!is.list(data_package_data$tabular_data)) {
+    cli_abort("data_package_data$tabular_data must be a list")
+  }
+  
+  # Check if there are sample data files
+  sample_files_exist <- files_df %>%
+    filter(str_detect(relative_dir, "Sample_Data$")) %>%
+    filter(!str_detect(file, "Methods_Codes")) %>%
+    nrow() > 0
+  
+  if (!sample_files_exist) {
+    cli_abort("No sample data files found in Sample_Data folder")
+  }
+  
+  # Check if metadata file exists
+  metadata_files_exist <- files_df %>%
+    filter(str_detect(file, "Field_Metadata")) %>%
+    nrow() > 0
+  
+  if (!metadata_files_exist) {
+    cli_abort("No Field_Metadata file found")
+  }
+  
+  # Check if metadata file exists in tabular_data
+  metadata_file_path <- files_df %>%
+    filter(str_detect(file, "Field_Metadata")) %>%
+    pull(all)
+  
+  if (!metadata_file_path %in% names(data_package_data$tabular_data)) {
+    cli_abort("Metadata file '{metadata_file_path}' not found in tabular_data")
+  }
+  
+  # Check if metadata has required columns
+  metadata <- data_package_data$tabular_data[[metadata_file_path]]
+  if (!"Parent_ID" %in% names(metadata)) {
+    cli_abort("Metadata file must contain 'Parent_ID' column")
+  }
+  
+  # Validate that sample data files exist in tabular_data
+  sample_file_paths <- files_df %>%
+    filter(str_detect(relative_dir, "Sample_Data$")) %>%
+    filter(!str_detect(file, "Methods_Codes")) %>%
+    pull(all)
+  
+  missing_sample_files <- setdiff(sample_file_paths, names(data_package_data$tabular_data))
+  if (length(missing_sample_files) > 0) {
+    cli_abort("Sample data files not found in tabular_data: {paste(basename(missing_sample_files), collapse = ', ')}")
+  }
+  
+  # Check if sample data files have required columns
+  for (sample_file in sample_file_paths) {
+    sample_data <- data_package_data$tabular_data[[sample_file]]
+    if (!"Sample_Name" %in% names(sample_data)) {
+      cli_abort("Sample data file '{basename(sample_file)}' must contain 'Sample_Name' column")
+    }
+  }
   
   # ---- get file paths ----
 
