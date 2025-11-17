@@ -24,9 +24,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits/VGC/Files for DP'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_TAP/Ions'
 
-study_code <- 'Minikits'
+study_code <- 'TAP'
   
 material <- 'Water'
 
