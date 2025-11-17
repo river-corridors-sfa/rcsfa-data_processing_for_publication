@@ -19,7 +19,8 @@ p_load(tidyverse,
 
 # ================================= functions ================================
 
-check_sample_numbers <- function(data_package_data){
+check_sample_numbers <- function(data_package_data,
+                                 pattern_to_exclude_from_metadata_check){
   
   # ---- Input validation ----
   
@@ -180,7 +181,7 @@ check_sample_numbers <- function(data_package_data){
              Parent_ID_step2 = str_remove(Parent_ID_step1, "-\\d+$"),
              Parent_ID = str_remove(Parent_ID_step2, "_[A-Za-z]{2,3}$")
              ) %>%
-      select(Sample_Name, Parent_ID)
+      select(Sample_Name, Parent_ID) 
     
     sample_summary <- data %>%
       add_count(Parent_ID, name = "rep_count_per_parent_id") %>%
@@ -197,7 +198,8 @@ check_sample_numbers <- function(data_package_data){
       full_join(metadata, by = 'Parent_ID') %>%
       mutate(expected_number_of_reps = mode_rep_count,
              number_reps_match_expected = rep_count_per_parent_id == mode_rep_count,
-             has_metadata = case_when(is.na(metadata_parent_ID) ~ FALSE,
+             has_metadata = case_when(str_detect(Sample_Name, paste(pattern_to_exclude_from_metadata_check, collapse = '|')) ~ NA,
+                                      is.na(metadata_parent_ID) ~ FALSE,
                                       TRUE ~ TRUE),
              duplicate = case_when(sample_count == 1 ~ FALSE,
                                    TRUE ~ TRUE),
@@ -322,7 +324,7 @@ check_sample_numbers <- function(data_package_data){
   
   # Check for FTICR methods issues
   if (any(output_list[['full_summary']]$all_samples_in_icr_methods == FALSE, na.rm = TRUE)) {
-    cli_alert_danger("Some FTICR files in the FTICR folder are missing from the FTICR methods file")
+    cli_alert_danger("Some files in the FTICR folder are missing from the FTICR methods file")
   }
   
   # Check for FTICR folder issues
