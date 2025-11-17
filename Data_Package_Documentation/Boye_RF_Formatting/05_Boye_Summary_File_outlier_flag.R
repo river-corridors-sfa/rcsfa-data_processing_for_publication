@@ -61,11 +61,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_AV1_Data_Package_v2/v2_WHONDRS_AV1_Data_Package/Sample_Data"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Sample_Data"
 
-study_code <- 'v2_WHONDRS_AV1' # this is used to rename the output file
+study_code <- 'WHONDRS_TAP' # this is used to rename the output file
 
-material <- 'Sediment' # the material entered here is how the data files are located and the keyword that's used in the sample name
+material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 # ====================== functions used in this script =========================
 
