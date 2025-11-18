@@ -238,13 +238,17 @@ check_sample_numbers <- function(data_package_data,
     mutate(metadata_parent_ID = Parent_ID)
   
   # ---- Initialize dataframes and output list ---- 
-  # Create empty summary dataframe to store results for each file
-  full_summary <- tibble(file = as.character(),
-                         expected_number_of_reps = as.numeric(),
-                         all_sample_number_reps_match_expected = as.logical(),
-                         all_samples_have_metadata = as.logical(),
-                         metadata_ParentID_missing_from_data = as.logical(),
-                         has_duplicate_sample = as.logical())
+  # Initialize summary dataframe to store results for each file
+  full_summary <- tibble(
+    file = "** EXPECTED VALUES **",
+    expected_number_of_reps = NA_real_,
+    all_sample_number_reps_match_expected = TRUE,
+    all_samples_have_metadata = TRUE,
+    metadata_ParentID_missing_from_data = FALSE,
+    has_duplicate_sample = FALSE,
+    all_samples_in_icr_methods = if(has_icr_files) TRUE else NA,
+    all_samples_in_icr_folder = if(has_icr_files) TRUE else NA
+  )
   
   # Initialize output list to store all results
   output_list <- list()
@@ -326,7 +330,17 @@ check_sample_numbers <- function(data_package_data,
     # Store results in output list
     output_list[['full_summary']] <- full_summary
     output_list[['summary_by_file']][[basename(sample_file)]] <- data_summary %>%
-      select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata, duplicate)
+      select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata, duplicate)%>%
+      # Add optimal values reference row at the top
+      add_row(
+        Sample_Name = "** EXPECTED VALUES **",
+        Parent_ID = "** EXPECTED VALUES **", 
+        expected_number_of_reps = NA,
+        number_reps_match_expected = TRUE,
+        has_metadata = TRUE,
+        duplicate = FALSE,
+        .before = 1  # Adds the row at the top
+      )
     
   }
   
@@ -384,9 +398,9 @@ check_sample_numbers <- function(data_package_data,
     
     # Combine all FTICR checks
     icr_check <- icr_methods_file %>%
-      full_join(xml_files)%>%
-      full_join(processed_file)%>%
-      full_join(outputs_files)
+      full_join(xml_files, by = c('Sample_Name', 'Methods_Sample_Name'))%>%
+      full_join(processed_file, by = c('Sample_Name', 'Methods_Sample_Name'))%>%
+      full_join(outputs_files, by = c('Sample_Name', 'Methods_Sample_Name'))
     
     # Add FTICR results to output summary
     output_list[['full_summary']] <- output_list[['full_summary']] %>%
@@ -446,7 +460,7 @@ check_sample_numbers <- function(data_package_data,
   }
   
   # Check for duplicate samples
-  if (any(output_list[['full_summary']]$has_duplicate_samples == TRUE, na.rm = TRUE)) {
+  if (any(output_list[['full_summary']]$has_duplicate_sample  == TRUE, na.rm = TRUE)) {
     cli_alert_danger("Some files contain duplicate samples")
   }
   
