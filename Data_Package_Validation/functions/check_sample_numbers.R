@@ -23,66 +23,113 @@ p_load(tidyverse,
 
 #' Check sample numbers across a data package
 #'
-#' This function validates sample names and replicate counts across all data files
-#' in a data package, ensuring consistency between data files, metadata, and
-#' FTICR files if present. It checks for duplicates, consistent replicate numbers,
-#' and complete metadata coverage.
+#' This function validates sample identifiers and replicate counts across all sample
+#' data files in a data package, ensuring consistency between:
+#' \itemize{
+#'   \item Sample data files (in the `Sample_Data` directory)
+#'   \item The Field Metadata file (containing `Parent_ID`)
+#'   \item FTICR files (if a `FTICR` folder exists)
+#'   \item An IGSN mapping file (file name must contain `IGSN-Mapping`)
+#' }
 #'
-#' @param data_package_data A list output from load_tabular_data() function containing the data package structure with
-#'   the following required components:
-#'   \describe{
-#'     \item{inputs}{A list containing 'files_df' - a data frame with columns
-#'       'relative_dir', 'file', and 'all' }
-#'     \item{tabular_data}{A named list where names are file paths and values
-#'       are the corresponding data frames}
-#'   }
+#' The function performs integrity checks, summarizes results per file, and emits
+#' CLI alerts for potential issues (e.g., missing metadata, inconsistent replicates,
+#' duplicates, FTICR mismatches, and metadata Parent IDs not represented in data or IGSN).
+#'
+#' @param data_package_data A list produced by `load_tabular_data()` containing:
+#' \describe{
+#'   \item{inputs}{A list that includes `files_df` (data frame with columns
+#'     `relative_dir`, `file`, and `all` for fully qualified relative paths).}
+#'   \item{tabular_data}{A named list of data frames keyed by the `all` paths from `files_df`.}
+#' }
 #' @param pattern_to_exclude_from_metadata_check A character vector of regex
-#'   patterns. Samples matching these patterns will be excluded from metadata
-#'   validation checks. Default is NULL (no exclusions).
+#' patterns. Any `Sample_Name` matching one or more of these patterns will be
+#' excluded from metadata presence checks (they will receive `NA` in `has_metadata`).
+#' Default = `NULL` (no exclusions). These exclusion patterns are applied only to
+#' sample data files, not to the IGSN mapping file.
 #'
-#' @return A list containing validation results:
-#'   \describe{
-#'     \item{full_summary}{A data frame with one row per file containing overall
-#'       validation status including expected replicate counts, metadata
-#'       completeness, and duplicate detection}
-#'     \item{summary_by_file}{A named list where each element contains detailed
-#'       sample-level validation results for each data file}
-#'   }
+#' @return A list with two elements:
+#' \describe{
+#'   \item{full_summary}{A tibble with one row per processed file (sample files,
+#'     IGSN mapping file, optional FTICR checks). Columns include:
+#'       \itemize{
+#'         \item `file` - basename or label for the file / check group
+#'         \item `expected_number_of_reps` - modal replicate count (NA for non-sample/IGSN/FTICR rows)
+#'         \item `all_sample_number_reps_match_expected` - TRUE if all Parent_ID groups have the modal replicate count
+#'         \item `all_samples_have_metadata` - TRUE if all non-excluded samples have matching metadata
+#'         \item `metadata_ParentID_missing_from_data` - TRUE if any metadata Parent_ID not found in the particular file (or mapping)
+#'         \item `has_duplicate_sample` - TRUE if duplicate `Sample_Name` values are detected
+#'         \item `all_samples_in_icr_methods` - FTICR-related check (NA for non-FTICR rows)
+#'         \item `all_samples_in_icr_folder` - FTICR-related check (NA for non-FTICR rows)
+#'       }}
+#'   \item{summary_by_file}{A named list of per-file tibbles. Each tibble for a sample
+#'     data file includes (with an initial "** EXPECTED VALUES **" reference row):
+#'       \itemize{
+#'         \item `Sample_Name`
+#'         \item `Parent_ID` (derived from `Sample_Name`)
+#'         \item `expected_number_of_reps`
+#'         \item `number_reps_match_expected` (logical)
+#'         \item `has_metadata` (logical/NA for excluded samples)
+#'         \item `metadata_ParentID_missing_from_data` (logical)
+#'         \item `duplicate` (logical)
+#'       }
+#'     The required IGSN mapping tibble includes:
+#'       \itemize{
+#'         \item `Parent_ID` (derived from IGSN `Sample_Name`)
+#'         \item `igsn_parent_ID` (original derived ID before join; retained for transparency)
+#'         \item `metadata_parent_ID` (from Field Metadata)
+#'         \item `has_metadata` (logical)
+#'         \item `metadata_ParentID_missing_from_data` (TRUE for metadata IDs absent in IGSN mapping)
+#'       }
+#'     If FTICR data are present, a combined "FTICR Folder" tibble shows merged checks
+#'     across Methods, XML, processed, and output files.
+#' }
 #'
 #' @details
-#' The function performs several validation checks:
+#' Core validations:
 #' \itemize{
-#'   \item \strong{Replicate consistency}: Verifies that all samples have the
-#'     expected number of replicates (determined by the most common replicate count)
-#'   \item \strong{Metadata coverage}: Ensures all samples have corresponding
-#'     entries in the Field_Metadata file
-#'   \item \strong{Duplicate detection}: Identifies any duplicate Sample_Name entries
-#'   \item \strong{FTICR validation}: If FTICR files are present, checks consistency
-#'     between methods files, XML files, processed data, and output files
+#'   \item \strong{Replicate consistency} - Determines the mode (most frequent) replicate count per Parent_ID and verifies uniformity.
+#'   \item \strong{Metadata coverage} - Confirms every non-excluded sample has a matching Parent_ID in the Field Metadata.
+#'   \item \strong{Duplicate detection} - Flags repeated `Sample_Name` entries within each sample data file.
+#'   \item \strong{FTICR validation} - Ensures samples listed in the FTICR methods file are represented across XML, processed, and output files, and vice versa (if FTICR folder present).
+#'   \item \strong{IGSN mapping validation (required)} - Aligns IGSN-derived Parent_ID values with metadata Parent_IDs and identifies metadata Parent_IDs missing from the mapping.
 #' }
 #'
-#' Sample names are parsed to extract Parent_ID by removing:
-#' \itemize{
-#'   \item Replicate suffixes (e.g., "_r1", "_r2")
-#'   \item Numeric suffixes (e.g., "-1", "-2")
-#'   \item Sample type suffixes (e.g., "_OCN")
+#' \strong{Parent_ID extraction from Sample_Data files}:
+#' \enumerate{
+#'   \item Remove replicate suffix: `_r<digit>` (e.g., `_r1`).
+#'   \item Remove terminal numeric suffix: `-<digit>` (e.g., `-2`).
+#'   \item Remove terminal analyte/code suffix: `_[A-Za-z]{2,3}` (e.g., `_OCN`).
 #' }
+#'
+#' @section IGSN Mapping (Required):
+#' A file whose name contains `IGSN-Mapping` MUST be present. Its `Sample_Name`
+#' values are transformed into `Parent_ID` by stripping *terminal* sample-type
+#' suffixes: `_RNA`, `_Sediment`, `_Water` (pattern: `_(RNA|Sediment|Water)$`).
+#' After transformation:
+#' \itemize{
+#'   \item `has_metadata` = TRUE if the derived Parent_ID exists in Field Metadata.
+#'   \item `metadata_ParentID_missing_from_data` = TRUE for metadata Parent_IDs with no corresponding IGSN-derived Parent_ID.
+#' }
+#' If the IGSN file is missing or lacks the `Sample_Name` column, the function aborts.
 #'
 #' @section Input Validation:
-#' The function performs extensive input validation and will throw errors if:
+#' The function aborts when:
 #' \itemize{
-#'   \item Required components are missing from data_package_data
-#'   \item Files referenced in files_df are not found in tabular_data
-#'   \item Required columns are missing from data files or metadata
-#'   \item No sample data files or metadata files are found
+#'   \item Required top-level list elements (`inputs`, `tabular_data`) are missing.
+#'   \item `files_df` is missing required columns or is empty.
+#'   \item No sample data files are found under `Sample_Data`.
+#'   \item Field Metadata file is missing or lacks `Parent_ID`.
+#'   \item Any sample data file lacks `Sample_Name`.
+#'   \item IGSN mapping file is missing OR not found in `tabular_data` OR lacks `Sample_Name`.
 #' }
 #'
 #' @section CLI Output:
-#' The function provides real-time progress updates and summary alerts:
+#' Uses the `cli` package for:
 #' \itemize{
-#'   \item Progress bar for processing multiple files
-#'   \item Info messages for each file being processed
-#'   \item Danger alerts for any validation failures found
+#'   \item Progress updates when multiple files are processed.
+#'   \item Informational messages per file.
+#'   \item Danger alerts summarizing any validation class that failed (replicates, metadata coverage, duplicates, FTICR, IGSN).
 #' }
 #'
 #' @examples
@@ -90,17 +137,23 @@ p_load(tidyverse,
 #' # Basic usage
 #' results <- check_sample_numbers(my_data_package)
 #'
-#' # Exclude QC samples from metadata validation
+#' # Exclude QC and blank samples from metadata presence checks
 #' results <- check_sample_numbers(
 #'   my_data_package,
 #'   pattern_to_exclude_from_metadata_check = c("_QC", "_BLK")
 #' )
 #'
-#' # View summary results
+#' # Inspect file-level summary
 #' View(results$full_summary)
 #'
-#' # View detailed results for a specific file
-#' View(results$summary_by_file$"my_data_file.csv")
+#' # Drill into a specific sample data file
+#' View(results$summary_by_file$"my_sample_file.csv")
+#'
+#' # Inspect required IGSN mapping summary
+#' View(results$summary_by_file$"IGSN-Mapping.csv")
+#'
+#' # If FTICR folder present
+#' View(results$summary_by_file$"FTICR Folder")
 #' }
 #'
 #' @author Brieanne Forbes
@@ -192,7 +245,9 @@ check_sample_numbers <- function(data_package_data,
     filter(str_detect(file, "IGSN-Mapping")) %>%
     pull(all)
   
-  if (!metadata_file_path %in% names(data_package_data$tabular_data)) {
+  has_igsn_file <- length(igsn_file_path) == 1
+  
+  if (has_igsn_file && !igsn_file_path %in% names(data_package_data$tabular_data)) {
     cli_abort("IGSN file '{igsn_file_path}' not found in tabular_data")
   }
   
@@ -201,6 +256,13 @@ check_sample_numbers <- function(data_package_data,
   if (!"Parent_ID" %in% names(metadata)) {
     cli_abort("Metadata file must contain 'Parent_ID' column")
   }
+  
+  # Check if igsn has required columns
+    igsn_df <- data_package_data$tabular_data[[igsn_file_path]]
+    if (!"Sample_Name" %in% names(igsn_df)) {
+      cli_abort("IGSN file '{basename(igsn_file_path)}' must contain 'Sample_Name' column")
+    }
+
   
   # Validate that sample data files exist in tabular_data
   sample_file_paths <- files_df %>%
