@@ -245,9 +245,11 @@ check_sample_numbers <- function(data_package_data,
     filter(str_detect(file, "IGSN-Mapping")) %>%
     pull(all)
   
-  has_igsn_file <- length(igsn_file_path) == 1
+  if (length(igsn_file_path) != 1) {
+    cli_abort("Exactly one IGSN mapping file is required, but found {length(igsn_file_path)}.")
+  }
   
-  if (has_igsn_file && !igsn_file_path %in% names(data_package_data$tabular_data)) {
+  if (!igsn_file_path %in% names(data_package_data$tabular_data)) {
     cli_abort("IGSN file '{igsn_file_path}' not found in tabular_data")
   }
   
@@ -258,10 +260,12 @@ check_sample_numbers <- function(data_package_data,
   }
   
   # Check if igsn has required columns
+  if (has_igsn_file) {
     igsn_df <- data_package_data$tabular_data[[igsn_file_path]]
     if (!"Sample_Name" %in% names(igsn_df)) {
       cli_abort("IGSN file '{basename(igsn_file_path)}' must contain 'Sample_Name' column")
     }
+  }
 
   
   # Validate that sample data files exist in tabular_data
@@ -294,7 +298,7 @@ check_sample_numbers <- function(data_package_data,
   has_icr_files <- data_package_data$inputs$files_df %>%
     filter(str_detect(relative_dir, "/FTICR/")) %>% # pull all files within the ICR folder
     pull(all) %>%
-    length() > 1
+    length() > 0
   
   # Get path to field metadata file
   metadata_file_path <- data_package_data$inputs$files_df %>%
@@ -448,7 +452,7 @@ check_sample_numbers <- function(data_package_data,
             expected_number_of_reps = NA,
             all_sample_number_reps_match_expected = NA,
             
-            all_samples_have_metadata = case_when(any(FALSE %in% igsn_summary$has_metadata) == TRUE ~ FALSE,
+            all_samples_have_metadata = case_when(any(igsn_summary$has_metadata == FALSE, na.rm = TRUE) ~ FALSE,
                                                   TRUE ~ TRUE),
             metadata_ParentID_missing_from_data = case_when(any(TRUE %in% igsn_summary$metadata_ParentID_missing_from_data) ~ TRUE,
                                                             TRUE ~ FALSE),
