@@ -384,8 +384,7 @@ check_sample_numbers <- function(data_package_data,
                is.na(metadata_parent_ID) ~ FALSE, # no metadata found
                TRUE ~ TRUE # has metadata
              ),
-             duplicate = case_when(sample_count == 1 ~ FALSE,
-                                   TRUE ~ TRUE),
+             duplicate = sample_count > 1,
              metadata_ParentID_missing_from_data = case_when(is.na(Sample_Name) ~ TRUE,
                                                              TRUE ~ FALSE))
     
@@ -393,19 +392,19 @@ check_sample_numbers <- function(data_package_data,
     full_summary <- full_summary %>%
       add_row(file = basename(sample_file),
               expected_number_of_reps = mode_rep_count,
-              all_sample_number_reps_match_expected = case_when(any(FALSE %in% data_summary$number_reps_match_expected) == TRUE ~ FALSE,
+              all_sample_number_reps_match_expected = case_when(any(FALSE %in% data_summary$number_reps_match_expected) ~ FALSE,
                                                                 TRUE ~ TRUE),
-              all_samples_have_metadata = case_when(any(FALSE %in% data_summary$has_metadata) == TRUE ~ FALSE,
+              all_samples_have_metadata = case_when(any(FALSE %in% data_summary$has_metadata) ~ FALSE,
                                                     TRUE ~ TRUE),
               metadata_ParentID_missing_from_data = case_when(any(TRUE %in% data_summary$metadata_ParentID_missing_from_data) ~ TRUE,
                                                               TRUE ~ FALSE),
-              has_duplicate_sample = case_when(any(TRUE %in% data_summary$duplicate) == TRUE ~ TRUE,
+              has_duplicate_sample = case_when(any(TRUE %in% data_summary$duplicate) ~ TRUE,
                                                TRUE ~ FALSE))
     
     # Store results in output list
     output_list[['full_summary']] <- full_summary
     output_list[['summary_by_file']][[basename(sample_file)]] <- data_summary %>%
-      select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata,metadata_ParentID_missing_from_data, duplicate)%>%
+      select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata, metadata_ParentID_missing_from_data, duplicate)%>%
       # Add optimal values reference row at the top
       add_row(
         Sample_Name = "** EXPECTED VALUES **",
@@ -413,6 +412,7 @@ check_sample_numbers <- function(data_package_data,
         expected_number_of_reps = NA,
         number_reps_match_expected = TRUE,
         has_metadata = TRUE,
+        metadata_ParentID_missing_from_data = FALSE,
         duplicate = FALSE,
         .before = 1  # Adds the row at the top
       )
@@ -431,14 +431,14 @@ check_sample_numbers <- function(data_package_data,
     mutate(Parent_ID = str_remove(Sample_Name, '_RNA|_Sediment|_Water'),
             igsn_parent_ID = Parent_ID) %>%
     select(-Sample_Name) %>%
-    full_join(metadata) %>%
+    full_join(metadata, by = 'Parent_ID') %>%
     mutate(has_metadata = case_when(
              is.na(metadata_parent_ID) ~ FALSE, # no metadata found
              TRUE ~ TRUE # has metadata
            ),
            metadata_ParentID_missing_from_data = case_when(
-             is.na(igsn_parent_ID) ~ TRUE, # no metadata found
-             TRUE ~ FALSE # has metadata
+             is.na(igsn_parent_ID) ~ TRUE, # Parent_ID not in IGSN data
+             TRUE ~ FALSE # Parent_ID exists in IGSN data
            ))%>%
     select(-igsn_parent_ID, -metadata_parent_ID)
   
@@ -466,7 +466,7 @@ check_sample_numbers <- function(data_package_data,
     )
   
   # ---- Process FTICR files if present ----
-  if(has_icr_files == T){
+  if(has_icr_files == TRUE){
     
     cli_alert_info("Processing FTICR files")
     
@@ -525,25 +525,31 @@ check_sample_numbers <- function(data_package_data,
         expected_number_of_reps = NA, 
         all_sample_number_reps_match_expected = NA,  
         all_samples_have_metadata = NA,  
-        all_samples_in_icr_methods = !any(is.na(xml_files$Methods_Sample_Name))
+        all_samples_in_icr_methods = !any(is.na(xml_files$Methods_Sample_Name)),
+        metadata_ParentID_missing_from_data = NA,
+        has_duplicate_sample = NA,
+        all_samples_in_icr_folder = NA
       ) %>%
       add_row(
         file = 'processed icr', 
         expected_number_of_reps = NA, 
         all_sample_number_reps_match_expected = NA, 
         all_samples_have_metadata = NA, 
-        all_samples_in_icr_methods = !any(is.na(processed_file$Methods_Sample_Name))
+        all_samples_in_icr_methods = !any(is.na(processed_file$Methods_Sample_Name)),
+        metadata_ParentID_missing_from_data = NA,
+        has_duplicate_sample = NA,
+        all_samples_in_icr_folder = NA
       ) %>%
       add_row(
         file = 'icr outputs', 
         expected_number_of_reps = NA, 
         all_sample_number_reps_match_expected = NA, 
         all_samples_have_metadata = NA, 
-        all_samples_in_icr_methods = !any(is.na(outputs_files$Methods_Sample_Name))
-      ) %>%
-      mutate(all_samples_in_icr_folder = case_when(str_detect(file, 'FTICR_Methods') & any(is.na(icr_check$Methods_Sample_Name)) ~ FALSE,
-                                                   str_detect(file, 'FTICR_Methods') & !any(is.na(icr_check$Methods_Sample_Name)) ~ TRUE,
-                                                   TRUE ~ NA))
+        all_samples_in_icr_methods = !any(is.na(outputs_files$Methods_Sample_Name)),
+        metadata_ParentID_missing_from_data = NA,
+        has_duplicate_sample = NA,
+        all_samples_in_icr_folder = NA
+      )
     
     # Store FTICR detailed results
     output_list[['summary_by_file']][['FTICR Folder']] <- icr_check

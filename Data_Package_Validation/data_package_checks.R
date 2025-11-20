@@ -202,8 +202,6 @@ dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
 
 ## look at missing values, negative values, num_empty_cells, duplicate rows, and non numeric data ####
 
-## look at missing values, negative values, num_empty_cells, duplicate rows, and non numeric data ####
-
 cli_alert_info("Displaying files with missing values (num_missing_rows > 0)")
 view(tabular_data %>%
        filter(num_missing_rows>0))
