@@ -187,6 +187,15 @@ check_sample_numbers <- function(data_package_data,
     cli_abort("Metadata file '{metadata_file_path}' not found in tabular_data")
   }
   
+  # Check if igsn file exists in tabular_data
+  igsn_file_path <- files_df %>%
+    filter(str_detect(file, "IGSN-Mapping")) %>%
+    pull(all)
+  
+  if (!metadata_file_path %in% names(data_package_data$tabular_data)) {
+    cli_abort("IGSN file '{igsn_file_path}' not found in tabular_data")
+  }
+  
   # Check if metadata has required columns
   metadata <- data_package_data$tabular_data[[metadata_file_path]]
   if (!"Parent_ID" %in% names(metadata)) {
@@ -230,6 +239,10 @@ check_sample_numbers <- function(data_package_data,
     filter(str_detect(file, "Field_Metadata")) %>% # pull metadata file
     pull(all)
   
+  # Get path to IGSN metadata file
+  igsn_file_path <- data_package_data$inputs$files_df %>%
+    filter(str_detect(file, "IGSN-Mapping")) %>% # pull IGSN file
+    pull(all)
   
   # ---- Read metadata ---- 
   # Load metadata and prepare for joining with sample data
@@ -330,7 +343,7 @@ check_sample_numbers <- function(data_package_data,
     # Store results in output list
     output_list[['full_summary']] <- full_summary
     output_list[['summary_by_file']][[basename(sample_file)]] <- data_summary %>%
-      select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata, duplicate)%>%
+      select(Sample_Name, Parent_ID, expected_number_of_reps, number_reps_match_expected, has_metadata,metadata_ParentID_missing_from_data, duplicate)%>%
       # Add optimal values reference row at the top
       add_row(
         Sample_Name = "** EXPECTED VALUES **",
@@ -348,6 +361,47 @@ check_sample_numbers <- function(data_package_data,
   if (exists("pb")) {
     cli_progress_done(pb)
   }
+  
+  # ---- Process IGSN ----
+  
+  igsn_summary <- data_package_data[["tabular_data"]][[igsn_file_path]] %>%
+    select(Sample_Name) %>%
+    mutate(Parent_ID = str_remove(Sample_Name, '_RNA|_Sediment|_Water'),
+            igsn_parent_ID = Parent_ID) %>%
+    select(-Sample_Name) %>%
+    full_join(metadata) %>%
+    mutate(has_metadata = case_when(
+             is.na(metadata_parent_ID) ~ FALSE, # no metadata found
+             TRUE ~ TRUE # has metadata
+           ),
+           metadata_ParentID_missing_from_data = case_when(
+             is.na(igsn_parent_ID) ~ TRUE, # no metadata found
+             TRUE ~ FALSE # has metadata
+           ))%>%
+    select(-igsn_parent_ID, -metadata_parent_ID)
+  
+  # Store results in output list
+  output_list[['full_summary']] <- output_list[['full_summary']] %>%
+    add_row(file = basename(igsn_file_path),
+            expected_number_of_reps = NA,
+            all_sample_number_reps_match_expected = NA,
+            
+            all_samples_have_metadata = case_when(any(FALSE %in% igsn_summary$has_metadata) == TRUE ~ FALSE,
+                                                  TRUE ~ TRUE),
+            metadata_ParentID_missing_from_data = case_when(any(TRUE %in% igsn_summary$metadata_ParentID_missing_from_data) ~ TRUE,
+                                                            TRUE ~ FALSE),
+            has_duplicate_sample = NA,
+            all_samples_in_icr_methods = NA,
+            all_samples_in_icr_folder = NA)
+  
+  output_list[['summary_by_file']][[basename(igsn_file_path)]] <- igsn_summary %>%
+    # Add optimal values reference row at the top
+    add_row(
+      Parent_ID = "** EXPECTED VALUES **", 
+      has_metadata = TRUE,
+      metadata_ParentID_missing_from_data = FALSE,
+      .before = 1  # Adds the row at the top
+    )
   
   # ---- Process FTICR files if present ----
   if(has_icr_files == T){
@@ -403,9 +457,7 @@ check_sample_numbers <- function(data_package_data,
       full_join(outputs_files, by = c('Sample_Name', 'Methods_Sample_Name'))
     
     # Add FTICR results to output summary
-    output_list[['full_summary']] <- output_list[['full_summary']] %>%
-      add_column(all_samples_in_icr_methods = NA,
-                 all_samples_in_icr_folder = NA) %>%  
+    output_list[['full_summary']] <- output_list[['full_summary']]  %>%  
       add_row(
         file = 'xml files', 
         expected_number_of_reps = NA, 
