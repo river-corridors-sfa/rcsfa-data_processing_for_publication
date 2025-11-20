@@ -90,6 +90,9 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
 
+# update after merging to main
+source('./Data_Package_Validation/functions/check_sample_numbers.R')
+
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
@@ -137,32 +140,9 @@ out_file <- paste0("Checks_Report_", Sys.Date(), ".html")
 render("./Data_Package_Validation/functions/checks_report.Rmd", output_format = "html_document", output_dir = report_out_dir, output_file = out_file)
 browseURL(paste0(report_out_dir, "/", out_file))
 
-# 6. Check for duplicate sample names
-for (file_path in names(data_package_data[["tabular_data"]])) {
-  df <- data_package_data[["tabular_data"]][[file_path]]
-  file_name <- basename(file_path)
-  
-  # Check if either Sample_Name or Sample_ID exists
-  if ("Sample_Name" %in% colnames(df)) {
-    # Check for duplicates in Sample_Name
-    if (any(duplicated(df$Sample_Name))) {
-      cli_alert_danger(paste("Duplicate Sample_Name values found in file:", file_name))
-    } else {
-      
-      cli_alert_success('No duplicate Sample_Name values found')
-    }
-  }
-  
-  if ("Sample_ID" %in% colnames(df)) {
-    # Check for duplicates in Sample_ID
-    if (any(duplicated(df$Sample_ID))) {
-      cli_alert_danger(paste("Duplicate Sample_ID values found in file:", file_name))
-    }else {
-      
-      cli_alert_success('No duplicates Sample_ID values found')
-    }
-  }
-}
+# 6. Check sample numbers
+sample_numbers <- check_sample_numbers(data_package_data = data_package_data,
+                                       pattern_to_exclude_from_metadata_check = c('BLK', 'QC', 'SPE'))
 
 # 7. Check that all numeric columns contain a Reported_Precision
 
@@ -218,18 +198,23 @@ dd <- data_package_checks$input$tabular_data[[dd_path]]%>%
 
 ## look at missing values, negative values, num_empty_cells, duplicate rows, and non numeric data ####
 
+cli_alert_info("Displaying files with missing values (num_missing_rows > 0)")
 view(tabular_data %>%
        filter(num_missing_rows>0))
 
+cli_alert_info("Displaying files with negative values (num_negative_rows > 0)")
 view(tabular_data %>%
        filter(num_negative_rows>0))
 
+cli_alert_info("Displaying files with empty cells (num_empty_cells > 0)")
 view(tabular_data %>%
        filter(num_empty_cells>0))
 
+cli_alert_info("Displaying files with duplicate rows (num_unique_rows != num_rows)")
 view(tabular_data %>%
        filter(num_unique_rows!=num_rows))
 
+cli_alert_info("Displaying non-numeric columns (column_type != 'numeric')")
 view(tabular_data %>%
        filter(column_type != 'numeric'))
 
