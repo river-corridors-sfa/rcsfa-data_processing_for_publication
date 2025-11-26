@@ -54,10 +54,10 @@ populate_header_rows <- function(data_dfs,
   }
   
   
-  # initilize output list
+  # initialize output list
   output_list <- list()
   
-  # initilize warnings
+  # initialize warnings
   warnings <- tibble(directory = dirname(names(data_dfs)),
                       file_name = basename(names(data_dfs)),
                       populate_empty_cells = 0,

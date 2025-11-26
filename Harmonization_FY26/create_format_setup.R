@@ -65,12 +65,9 @@ user_outdir <- NULL
 # Indicate if you would like to populate the header rows with the input file
 # Default (FALSE) = the file will output with header rows that need to be populated
 user_populate_header_rows <- FALSE
-user_populate_header_rows <- TRUE
-
 # If you would like to populate header rows, enter the path to the header row input file
 # Default (NULL) = the file will output with header rows that need to be populated
 # Can use file.choose() to find file path 
-user_populate_header_rows_input <- NULL
 user_populate_header_rows_input <- file.choose()
 # =============================== run function =================================
 
