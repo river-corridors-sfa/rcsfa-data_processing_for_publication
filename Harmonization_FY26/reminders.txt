@@ -1,0 +1,10 @@
+15 Oct 2025
+Brieanne Forbes
+
+Reminders related to updating the code or including in the documentation 
+
+- update source if merging to main or moving to ESS-DIVE GitHub 
+- update "XYZ" in populate_header_rows_setup.R (line 40) with actual example
+- make documentation on input file for populate_header_rows_setup.R
+	- be sure to note that file name needs to be updated if running the create function first
+- make workflow diagram to show how users can work with the different functions
