@@ -5,7 +5,8 @@
 # Status: In progress
 #
 # next steps:
-# - precip: fill in  where it was no change or for obstructions (including height)
+# - remove unnecessary columns 
+# - reorder columns
 # - add veg to combine
 #
 # ==============================================================================
@@ -64,13 +65,35 @@ precip <- gsheet2tbl(precip_link)%>%
   mutate(Time_Arriving_PST = as.character(Time_Arriving_PST),
          Time_Leaving_PST = as.character(Time_Leaving_PST),
          Latitude = as.character(Latitude),
-         Longitude = as.character(Longitude)) %>%
+         Longitude = as.character(Longitude),
+         # when input is "No change", make NA so fill can fill in last answer
+         Terrain_Gradient = case_when(Terrain_Gradient == 'No change' ~ NA,
+                                      TRUE ~ Terrain_Gradient),
+         Vegetation = case_when(Vegetation == 'No change' ~ NA,
+                                TRUE ~ Vegetation),
+         Sample_Type = case_when(!is.na(Parent_ID) ~ 'Precipitation',
+                                 TRUE ~ NA)) %>%
   select(-"Where there changes to the obstructions?") %>%
   rename(Precipitation_Sampler_Bottle1_Fullness = "Precipitation_Sampler_Bottle_Fullness [Bottle 1]",
          Precipitation_Sampler_Bottle2_Fullness = "Precipitation_Sampler_Bottle_Fullness [Bottle 2]",
          Precipitation_Sampler_Bottle3_Fullness = "Precipitation_Sampler_Bottle_Fullness [Bottle 3]",
          Precipitation_Sampler_Bottle4_Fullness = "Precipitation_Sampler_Bottle_Fullness [Bottle 4]",
-         Precipitation_Sampler_Bottle5_Fullness = "Precipitation_Sampler_Bottle_Fullness [Bottle 5]"  )
+         Precipitation_Sampler_Bottle5_Fullness = "Precipitation_Sampler_Bottle_Fullness [Bottle 5]"  ) %>%
+  mutate(across(where(is.numeric), ~na_if(.x, -9999))) %>%
+  group_by(Site_ID) %>%
+  fill(Rain_Gauge_Height, 
+       NE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object, 
+       NE_Tallest_Object_Distance_From_Gauge,
+       SE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
+       SE_Tallest_Object_Distance_From_Gauge,
+       SW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
+       SW_Tallest_Object_Distance_From_Gauge,
+       NW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
+       NW_Tallest_Object_Distance_From_Gauge,
+       Vegetation,
+       Terrain_Gradient,
+       .direction = "down") %>%
+  ungroup()
 
 veg <- gsheet2tbl(veg_link)
 
@@ -114,6 +137,8 @@ combine_clean <- combine %>%
  # clean up lat/long
   mutate(Latitude = as.numeric(str_remove_all(Latitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] ')),
          Longitude = as.numeric(str_remove_all(Longitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] ')))
+  # reorganize column headers
+  
 
 
 
