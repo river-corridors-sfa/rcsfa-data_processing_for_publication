@@ -2,7 +2,7 @@
 #
 # Set up script for create_format.R function
 #
-# Status: needs review
+# Status: complete
 #
 # ==============================================================================
 #
@@ -14,8 +14,8 @@
 rm(list=ls(all=T))
 
 # this link will have to be updated once the function moves to the ESS-DIVE repo
-source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/Harmonization_FY26/Harmonization_FY26/create_format_function.R')
-source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/Harmonization_FY26/Harmonization_FY26/populate_header_rows_function.R')
+source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Harmonization_FY26/create_format_function.R')
+source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Harmonization_FY26/populate_header_rows_function.R')
 
 # ================================ Documentation ===============================
 
@@ -64,7 +64,7 @@ user_outdir <- NULL
 
 # Indicate if you would like to populate the header rows with the input file
 # Default (FALSE) = the file will output with header rows that need to be populated
-user_populate_header_rows <- FALSE
+user_populate_header_rows <- TRUE
 # If you would like to populate header rows, enter the path to the header row input file
 # Default (NULL) = the file will output with header rows that need to be populated
 # Can use file.choose() to find file path 

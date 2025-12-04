@@ -4,9 +4,7 @@
 # in data and metadata that are formatted in compliance with the 
 # Soil, Sediment, Water and/or Hydrologic Monitoring reporting formats
 #
-# Status: needs review
-#
-#  remove combined metadata
+# Status: complete
 # 
 # ==============================================================================
 #
@@ -18,7 +16,7 @@
 rm(list=ls(all=T))
 
 # this link will have to be updated once the function moves to the ESS-DIVE repo
-source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/Harmonization_FY26/Harmonization_FY26/read_in_formats_function.R')
+source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Harmonization_FY26/read_in_formats_function.R')
 
 # =============================== Documentation ================================
 # 

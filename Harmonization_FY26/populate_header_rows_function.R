@@ -3,8 +3,7 @@
 # Function for populating the metadata headers in the soil, sediment, 
 # water chemistry or hydrologic monitoring formats. 
 #
-# Status: needs review
-#
+# Status: complete
 #
 # ==============================================================================
 #

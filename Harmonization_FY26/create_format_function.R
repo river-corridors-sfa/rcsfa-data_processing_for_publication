@@ -3,7 +3,7 @@
 # Function for formatting the users data in the soil, sediment, 
 # water chemistry or hydrologic monitoring formats. 
 #
-# Status: needs review
+# Status: complete
 #
 # ==============================================================================
 #

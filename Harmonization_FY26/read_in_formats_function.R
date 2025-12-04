@@ -3,7 +3,7 @@
 # Function to read in data and metadata that are formatted in compliance with the 
 # Soil, Sediment, Water and/or Hydrologic Monitoring reporting formats
 #
-# Status:  needs review
+# Status: complete
 #
 # ==============================================================================
 #

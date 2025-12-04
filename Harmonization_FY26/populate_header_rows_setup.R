@@ -2,7 +2,7 @@
 #
 # Set up script for populate_header_rows_function.R function
 #
-# Status: needs review
+# Status: complete
 #
 # ==============================================================================
 #
@@ -14,7 +14,7 @@
 rm(list=ls(all=T))
 
 # this link will have to be updated once the function moves to the ESS-DIVE repo
-source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/Harmonization_FY26/Harmonization_FY26/populate_header_rows_function.R')
+source('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Harmonization_FY26/populate_header_rows_function.R')
 
 # ================================ Documentation ===============================
 
