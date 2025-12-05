@@ -5,9 +5,10 @@
 # Status: In progress
 #
 # next steps:
-# - remove unnecessary columns 
-# - reorder columns
+# - fill in deployment calibration info
 # - add veg to combine
+# - reorder columns 
+# - split sensor, game cam, rain gauge into its own file
 #
 # ==============================================================================
 #
@@ -129,16 +130,49 @@ combine <- deploy  %>%
 
 
 combine_clean <- combine %>%
+  # remove polygon ID
+  select(-Polygon_ID) %>%
   # some columns were not included in later metadata because they do not change,
   # we want to populate these for all visits though so populating those
   group_by(Site_ID) %>%
   fill(Stream_Hydrogeomorphology, Stream_Gradient, .direction = "down") %>%
   ungroup() %>%
  # clean up lat/long
-  mutate(Latitude = as.numeric(str_remove_all(Latitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] ')),
-         Longitude = as.numeric(str_remove_all(Longitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] ')))
-  # reorganize column headers
-  
+  mutate(Latitude = as.numeric(str_remove_all(Latitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] |\\[G01\\] |\\[G02\\] |\\[M01A\\] ')),
+         Longitude = as.numeric(str_remove_all(Longitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] |\\[G01\\] |\\[G02\\] |\\[M01A\\] '))) %>%
+  # clean up column names
+  rename(Surface_Water_Parent_ID = SW_Parent_ID,
+         Camera_Height = Camera_Height_cm,
+         Point_A_Depth = Point_A_Depth_cm,
+         Point_B_Depth = Point_B_Depth_cm,
+         Point_C_Depth = Point_C_Depth_cm,
+         Point_D_Depth = Point_D_Depth_cm,
+         Point_E_Depth = Point_E_Depth_cm,
+         Depth_At_Sensor = Depth_At_Sensor_cm,
+         Distance_Between_Sonde_and_Casing = Distance_Between_Sonde_and_Casing_cm,
+         River_Width = River_Width_m,
+         DO_Good_QC_Score = `Good_QC_Score [DO]`,
+         fDOM_Good_QC_Score = `Good_QC_Score [fDOM]`,
+         pH_Good_QC_Score = `Good_QC_Score [pH]`,
+         SpC_Good_QC_Score = `Good_QC_Score [SpC]`,
+         Turbidity_Good_QC_Score = `Good_QC_Score [Turbidity]`,
+         NE_Horizontal_Distance_Tallest_Obstruction =  NE_Tallest_Object_Distance_From_Gauge,
+         SE_Horizontal_Distance_Tallest_Obstruction =  SE_Tallest_Object_Distance_From_Gauge,
+         NW_Horizontal_Distance_Tallest_Obstruction =  NW_Tallest_Object_Distance_From_Gauge,
+         SW_Horizontal_Distance_Tallest_Obstruction =  SW_Tallest_Object_Distance_From_Gauge
+         ) 
+# %>%
+#   # calculate height of obstructions using hypotenuse, distance, and eye height (asumming Jake's eye height)
+#   # introducing NA when horizontal is greter than hypoteneuse 
+#   mutate(NE_Height_Tallest_Obstruction = sqrt(NE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object^2 - NE_Horizontal_Distance_Tallest_Obstruction^2) + 1.6,
+#          SE_Height_Tallest_Obstruction = sqrt(SE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object^2 - SE_Horizontal_Distance_Tallest_Obstruction^2) + 1.6,
+#          NW_Height_Tallest_Obstruction = sqrt(NW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object^2 - NW_Horizontal_Distance_Tallest_Obstruction^2) + 1.6,
+#          SW_Height_Tallest_Obstruction = sqrt(SW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object^2 - SW_Horizontal_Distance_Tallest_Obstruction^2) + 1.6
+#   ) %>%
+#   select(-NE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
+#          -SE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
+#          -NW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
+#          -SW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object)
 
 
 
