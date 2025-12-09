@@ -89,10 +89,7 @@ setwd("./..")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Documentation/functions/create_flmd.R")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Transformation/functions/load_tabular_data.R")
 source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/main/Data_Package_Validation/functions/checks.R")
-
-# update after merging to main
-source('./Data_Package_Validation/functions/check_sample_numbers.R')
-
+source_url("https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_Validation/functions/check_sample_numbers.R")
 
 ### Run Functions ##############################################################
 # Directions: Run this chunk without modification. Answer inline prompts as they appear.
