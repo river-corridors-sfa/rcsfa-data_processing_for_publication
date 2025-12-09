@@ -19,13 +19,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- 'C:/Users/forb086/Downloads/DataPackage 1/DataPackage'
+user_directory <- 'C:/Brieanne/GitHub/rcsfa-ST-2B-SSS-cotton-strip'
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- 'C:/Users/forb086/Downloads/DataPackage 1'
+report_out_dir <- 'Z:/00_ESSDIVE/03_Manuscript_DPs/Stegen_2025_SSS_Cotton_Strips'
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- F
@@ -54,7 +54,8 @@ flmd_path <- ""
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = NA_character_
+user_exclude_files = list.files("C:/Brieanne/GitHub/rcsfa-ST-2B-SSS-cotton-strip/Published_Data", recursive = T, full.names = T) %>%
+  str_remove('C:/Brieanne/GitHub/rcsfa-ST-2B-SSS-cotton-strip/')
   
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
