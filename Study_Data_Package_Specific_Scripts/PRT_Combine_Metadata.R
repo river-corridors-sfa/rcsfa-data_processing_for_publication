@@ -5,8 +5,8 @@
 # Status: In progress
 #
 # next steps:
-# - fill in deployment calibration info
-# - add veg to combine
+# - change pushpoints to 1, 2, 3 and add column to indicate where sample was taken
+# - add veg metadata and combine
 # - reorder columns 
 # - split sensor, game cam, rain gauge into its own file
 #
@@ -60,7 +60,16 @@ gw <- gsheet2tbl(gw_link) %>%
   group_by(Site_ID) %>%
   fill(Terrain_Gradient, Vegetation, .direction = "down") %>%
   ungroup() %>%
-  rename(Parent_ID = GW_Parent_ID)
+  rename(Parent_ID = GW_Parent_ID)%>%
+  #change all US/MD/DS to Rep1/2/3
+  rename_with(~ str_replace_all(.x, c("US" = "Rep1", "MS" = "Rep2", "DS" = "Rep3"))) %>%
+  # add location of replicates for samples that were originally marked U/M/D 
+  mutate(Rep1_Location = case_when(Date < '2025-12-11' ~ 'Upstream',
+                                   TRUE ~ Rep1_Location),
+         Rep2_Location = case_when(Date < '2025-12-11' ~ 'Midstream',
+                                   TRUE ~ Rep2_Location),
+         Rep3_Location = case_when(Date < '2025-12-11' ~ 'Downstream',
+                                   TRUE ~ Rep3_Location))
 
 precip <- gsheet2tbl(precip_link)%>%
   mutate(Time_Arriving_PST = as.character(Time_Arriving_PST),
@@ -96,7 +105,7 @@ precip <- gsheet2tbl(precip_link)%>%
        .direction = "down") %>%
   ungroup()
 
-veg <- gsheet2tbl(veg_link)
+# veg <- gsheet2tbl(veg_link)
 
 # =================================== fix spc/temp ==========================
 # move SW spc/temp from GW metadata to SW metadata
@@ -119,6 +128,8 @@ sw_exo <- sw_exo %>%
 
 gw <- gw %>%
   select(-SW_Specific_Conductance, -SW_Water_Temperature)
+
+rm(gw_sw)
 
 # =================================== combine ==========================
 
@@ -160,7 +171,31 @@ combine_clean <- combine %>%
          SE_Horizontal_Distance_Tallest_Obstruction =  SE_Tallest_Object_Distance_From_Gauge,
          NW_Horizontal_Distance_Tallest_Obstruction =  NW_Tallest_Object_Distance_From_Gauge,
          SW_Horizontal_Distance_Tallest_Obstruction =  SW_Tallest_Object_Distance_From_Gauge
-         ) 
+         ) %>%
+  # add in calibration info for deployment, all were lab calibrated (except M01) with the usual standard
+  mutate(
+    Calibration = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'Lab calibration', 
+                            TRUE ~ Calibration),
+    Probes_Calibrated = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'pH, SpC, DO, Turbidity, fDOM', 
+                                  TRUE ~ Probes_Calibrated),
+    across(ends_with('_Good_QC_Score'), 
+           ~ case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'Yes', 
+                       TRUE ~ .x)),
+    pH_Standard = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'Fisher (4.01, 7.00, and 10.01)', 
+                            pH_Standard == 'Fisher 7.00, 10.01' ~  'Fisher (7.00, 10.01)',
+                            TRUE ~ pH_Standard),
+    DO_Standard = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'Tap Water', 
+                            TRUE ~ DO_Standard),
+    SpC_Standard = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'YSI (1000 us/cm)', 
+                             TRUE ~ SpC_Standard),
+    fDOM_Standard = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'VWR (300 QSU/100 RFU)', 
+                              TRUE ~ fDOM_Standard),
+    Turbidity_Standard = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'YSI (124 FNU)', 
+                                   TRUE ~ Turbidity_Standard)
+  )
+
+
+
 # %>%
 #   # calculate height of obstructions using hypotenuse, distance, and eye height (asumming Jake's eye height)
 #   # introducing NA when horizontal is greter than hypoteneuse 
