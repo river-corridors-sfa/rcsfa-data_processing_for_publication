@@ -5,10 +5,7 @@
 # Status: In progress
 #
 # next steps:
-# - change pushpoints to 1, 2, 3 and add column to indicate where sample was taken
-# - add veg metadata and combine
-# - reorder columns 
-# - split sensor, game cam, rain gauge into its own file
+# - calculate height of obstruction
 #
 # ==============================================================================
 #
@@ -105,7 +102,13 @@ precip <- gsheet2tbl(precip_link)%>%
        .direction = "down") %>%
   ungroup()
 
-# veg <- gsheet2tbl(veg_link)
+veg <- gsheet2tbl(veg_link) %>% 
+  rename_with(~ str_replace_all(.x, c(" \\[" = "_", "\\]" = "")))%>%
+  rename(Time_Arriving_PST = Time_Start_PST,
+         Time_Leaving_PST = Time_End_PST)%>%
+  mutate(Time_Arriving_PST = as.character(Time_Arriving_PST),
+         Time_Leaving_PST = as.character(Time_Leaving_PST)) %>%
+  add_column(Sample_Type = 'Vegetation')
 
 # =================================== fix spc/temp ==========================
 # move SW spc/temp from GW metadata to SW metadata
@@ -137,12 +140,13 @@ rm(gw_sw)
 combine <- deploy  %>%
   bind_rows(sw_exo) %>%
   bind_rows(gw) %>%
-  bind_rows(precip)
+  bind_rows(precip) %>%
+  bind_rows(veg)
 
 
 combine_clean <- combine %>%
   # remove polygon ID
-  select(-Polygon_ID) %>%
+  select(-Polygon_ID, -Timestamp) %>%
   # some columns were not included in later metadata because they do not change,
   # we want to populate these for all visits though so populating those
   group_by(Site_ID) %>%
@@ -194,8 +198,6 @@ combine_clean <- combine %>%
                                    TRUE ~ Turbidity_Standard)
   )
 
-
-
 # %>%
 #   # calculate height of obstructions using hypotenuse, distance, and eye height (asumming Jake's eye height)
 #   # introducing NA when horizontal is greter than hypoteneuse 
@@ -208,16 +210,86 @@ combine_clean <- combine %>%
 #          -SE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
 #          -NW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
 #          -SW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object)
+  
+        
+
+final_metadata <- combine_clean %>%
+  select(Parent_ID, Sample_Type, Site_ID, Date, Time_Arriving_PST, Time_Leaving_PST, Latitude, Longitude, GPS_Accuracy_ft,
+         Field_Crew, Weather, Dominant_Sediment_Type, Water_Status, Canopy_Coverage, Macrophyte_Coverage,
+         Algal_Mat_Coverage, Vegetation, Stream_Hydrogeomorphology, Stream_Gradient, 
+         Ground_Coverage, Terrain_Gradient, River_Width, 
+         Depth_At_Sensor, Point_A_Depth, Point_B_Depth, Point_C_Depth, Point_D_Depth, Point_E_Depth, 
+         Specific_Conductance, Water_Temperature, Surface_Water_Parent_ID, Rep1_Specific_Conductance, Rep1_Water_Temperature, 
+         Rep1_Side_of_Stream, Rep1_Horizontal_Distance_To_Stream_Edge, Rep1_Vertical_Distance_Stream_To_Ground, 
+         Rep1_Sampling_Depth, Rep1_Depth_To_GW, Rep2_Specific_Conductance, Rep2_Water_Temperature, Rep2_Side_of_Stream, 
+         Rep2_Horizontal_Distance_To_Stream_Edge, Rep2_Vertical_Distance_Stream_To_Ground, Rep2_Sampling_Depth, 
+         Rep2_Depth_To_GW, Rep3_Specific_Conductance, Rep3_Water_Temperature, Rep3_Side_of_Stream, 
+         Rep3_Horizontal_Distance_To_Stream_Edge, Rep3_Vertical_Distance_Stream_To_Ground, 
+         Rep3_Sampling_Depth, Rep3_Depth_To_GW, Distance_Between_Rep1_and_Rep2, 
+         Distance_Between_Rep2_and_Rep3, Rep1_Location, 
+         Rep2_Location, Rep3_Location, Rain_Gauge_Logger_SN, Rain_Gauge_Tipping_Bucket_SN, 
+         Rain_Gauge_Height, Rain_Gauge_Time_Start_PST, Rain_Gauge_Time_End_PST, 
+         # NE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object 
+         # NE_Horizontal_Distance_Tallest_Obstruction SE_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object 
+         # SE_Horizontal_Distance_Tallest_Obstruction SW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object 
+         # SW_Horizontal_Distance_Tallest_Obstruction NW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object 
+         # NW_Horizontal_Distance_Tallest_Obstruction 
+         contains('Precipitation_Sampler'),
+         contains('Site_ID_'),
+         contains('Moisture_Conditions_'),
+         contains('Surrounding_Burn_Severity_'),
+         Notes)
+
+final_sensor_metadata <- combine_clean %>%
+  select(Site_ID, Date, EXO_Time_Start_PST, Casing_Angle_At_Deployment, Distance_Between_Sonde_and_Casing, 
+         Sonde_SN, Wiper_SN, FDOM_SN, DO_SN, SpC_Temp_SN, Turbidity_SN, pH_SN, BaroTROLL_Time_Start_PST, 
+         BaroTROLL_SN, Game_Camera_SN, Camera_Height, Casing_Angle_At_Arrival, 
+         EXO_Time_End_PST, BaroTROLL_Time_End_PST, Calibration, Probes_Calibrated, pH_Good_QC_Score, 
+         SpC_Good_QC_Score, DO_Good_QC_Score, Turbidity_Good_QC_Score, fDOM_Good_QC_Score, pH_Standard, 
+         SpC_Standard, DO_Standard, Turbidity_Standard, fDOM_Standard )
 
 
+verify_split <- function(original_df, df1, df2) {
+  original_cols <- names(original_df)
+  df1_cols <- names(df1)
+  df2_cols <- names(df2)
+  
+  # Find shared columns
+  shared_cols <- intersect(df1_cols, df2_cols)
+  
+  # Find unique columns in each df
+  df1_unique <- setdiff(df1_cols, df2_cols)
+  df2_unique <- setdiff(df2_cols, df1_cols)
+  
+  # Check coverage
+  all_split_cols <- c(df1_unique, df2_unique, shared_cols)
+  missing_cols <- setdiff(original_cols, all_split_cols)
+  
+  cat("=== SPLIT VERIFICATION ===\n")
+  cat("Original columns:", length(original_cols), "\n")
+  cat("final_metadata columns:", length(df1_cols), "(", length(df1_unique), "unique +", length(shared_cols), "shared)\n")
+  cat("final_sensor_metadata columns:", length(df2_cols), "(", length(df2_unique), "unique +", length(shared_cols), "shared)\n\n")
+  
+  if (length(missing_cols) == 0) {
+    cat("✅ ALL COLUMNS ACCOUNTED FOR!\n")
+  } else {
+    cat("❌ MISSING COLUMNS:", paste(missing_cols, collapse = ", "), "\n")
+  }
+  
+  if (length(shared_cols) > 0) {
+    cat("\n📎 Shared columns:", paste(shared_cols, collapse = ", "), "\n")
+  }
+  
+  return(list(
+    missing = missing_cols,
+    shared = shared_cols,
+    metadata_unique = df1_unique,
+    sensor_unique = df2_unique
+  ))
+}
 
-
-
-
-
-
-
-
+# Run the verification
+result <- verify_split(combine_clean, final_metadata, final_sensor_metadata)
 
 
 
