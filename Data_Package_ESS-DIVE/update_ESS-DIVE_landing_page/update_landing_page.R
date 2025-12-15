@@ -31,10 +31,10 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 
 # USER INPUTS
-your_essdive_metadata_file <- "Z:/00_ESSDIVE/01_Study_DPs/YEP_Data_Package/YEP_ESSDIVE_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
+your_essdive_metadata_file <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Stegen_2025_SSS_Cotton_Strips/ESSDIVE_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
 your_author_spreadsheet <- "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-88b940735dcea40-20251111T003304828" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-bfa5e9bc3b70ad9-20251212T215113622" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
@@ -63,9 +63,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 
 # USER INPUTS
-your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_Geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
+your_coordinates_file_path <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Stegen_2025_SSS_Cotton_Strips/geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-f1b29203e3e02ea-20251103T204359643553" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-7fba4d8701a0609-20251212T220119710157" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
