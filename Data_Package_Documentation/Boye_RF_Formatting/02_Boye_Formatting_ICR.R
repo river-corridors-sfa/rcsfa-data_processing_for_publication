@@ -22,15 +22,15 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA'
 
-dp_outdir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/TGW/Boye_Files/TGW/'
+dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Sample_Data'
 
-RC <- 'TGW'
-
-study_code <- 'TGW'
+study_code <- 'TAP'
 
 material <- 'Water'
+
+data_status <- 'L0_L1_L2_ICR'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
@@ -45,11 +45,10 @@ material_fixed <- case_when(material == 'Sediment' ~ 'Sediment',
 analyte_code <- case_when(material == 'Sediment' ~ 'SED',
                             material == 'Water' ~ 'ICR')
 
-combined_mapping <- list.files(paste0(dir, RC, '/FTICR/03_ProcessedData/'),'Mapping', full.names = T) %>%
+combined_mapping <- list.files(paste0(dir,'/Study_', study_code, '/FTICR/03_ProcessedData/'),'Mapping', full.names = T, recursive = T) %>%
   read_csv() %>%
   filter(str_detect(Sample_ID, analyte_code)) %>% # pull samples with correct analyte code for the material
-  filter(is.na(Notes) | !str_detect(Notes, 'OMIT')) %>% # remove samples that were rerun
-  filter(!str_detect(Sample_ID, 'Blk')) # remove blanks
+  filter(if_any(matches("(?i)notes"), ~ is.na(.x) | !str_detect(.x, 'OMIT'), .default = TRUE)) # remove samples that were rerun
 
 if('FALSE' %in% combined_mapping$Method_Status | NA %in% combined_mapping$Method_Status){
   
@@ -133,8 +132,6 @@ boye_file_headers <- tibble(
       unit <- 'N/A'
 
       unit_basis <- 'N/A'
-      
-      data_status <- 'raw'
 
 
       boye_file_headers <- boye_file_headers %>%
@@ -156,7 +153,7 @@ boye_file_headers <- tibble(
     
     # =================================== Write File ===============================
     
-    out_name <- glue('{dp_outdir}{study_code}_{material}_FTICR_Methods_{Sys.Date()}.csv' )
+    out_name <- glue('{dp_outdir}/{study_code}_{material}_FTICR_Methods_{Sys.Date()}.csv' )
 
     write_csv(top, out_name, col_names = F)
 
