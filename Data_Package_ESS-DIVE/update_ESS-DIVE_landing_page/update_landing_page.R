@@ -31,10 +31,10 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 
 # USER INPUTS
-your_essdive_metadata_file <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Stegen_2025_SSS_Cotton_Strips/ESSDIVE_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
+your_essdive_metadata_file <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Garayburu-Caruso_2025_SPS_Null_Modeling/ESSDIVE_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
 your_author_spreadsheet <- "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-bfa5e9bc3b70ad9-20251212T215113622" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-2e77542aebaa11a-20251217T203449247" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
