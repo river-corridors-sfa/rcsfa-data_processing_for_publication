@@ -76,48 +76,6 @@ warnings <- create_format(unformatted_data_file = user_unformatted_data_file,
                            outdir = user_outdir,
                            populate_header_rows_indicate = user_populate_header_rows,
                             populate_header_rows_input = user_populate_header_rows_input)
-# view warnings
-view(warnings)
-
-# ============================= Warnings =================================
-# The warnings are meant to help the user comply with the reporting formats. 
-# We recommend the user take action when applicable. 
-
-# The directory is included in case there are multiple files with the same name. If 
-# there are not duplicate file names, this column can be disregarded
-
-# The column names indicate the warning. The rows indicate the file. 0 indicates
-# the warning is NOT applicable to the associated file. 1 indicates the warning
-# is applicable to the associated file.
-
-# Definitions: 
-# - confirm_date_format: there is a date column in your file; it is recommended 
-#                        to format dates as YYYY-MM-DD
-# - confirm_time_format: there is a time column in your file; it is recommended 
-#                        to format time as hh:mm:ss 
-# - confirm_datetime_format: there is a datetime column in your file; it is  
-#                       recommended to format dates as YYYY-MM-DD hh:mm:ss 
-# - report_utc_offset: there is a datetime or time column in your file; it is 
-#                      recommended to specify the UTC offset in the unit
-# - use_sample_rf: there is a sample column; you must comply with the Sample 
-#                   Reporting Format  
-# - confirm_material_vocab: there is a material column; it is recommended to use 
-#                           the controlled vocab specified in the Sample Reporting Format  
-# - fix_duplicate_sample: there is a duplicate within a sample column; this may 
-#                         be okay depending on your data structure
-# - use_location_rf: there is a latitude and/or longitude column; you must comply 
-#                    with the Location Reporting Format
-# - report_crs: there is a latitude and/or longitude column; it is recommended to
-#               report the coordinate reference system (CRS) in the unit
-# - populate_empty_cells: there are empty cells in your file; it is recommended to use
-#                         -9999 for numeric columns and N/A for non-numeric columns
-# - populate_header_rows: there are cells in the header rows that must be populated
-# -ignored_extra_header_input: if provided, the header rows input file contained 
-#                              additional information that was ignored 
-
-
-
-
-
-
+# view warnings 
+view(warnings)# see the function instructions for a description of the warnings 
 

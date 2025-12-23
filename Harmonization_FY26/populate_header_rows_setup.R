@@ -59,22 +59,4 @@ output_files <- populated_data[names(populated_data) != "Warnings"]
 # overwrites existing file with populated file
 iwalk(output_files, ~ write_csv(.x, .y, na = ''))
 
-view(populated_data$Warnings)
-
-# ============================= Warnings =================================
-# The warnings are meant to help the user comply with the reporting formats. 
-# We recommend the user take action when applicable. 
-
-# The directory is included in case there are multiple files with the same name. If 
-# there are not duplicate file names, this column can be disregarded
-
-# The column names indicate the warning. The rows indicate the file. 0 indicates
-# the warning is NOT applicable to the associated file. 1 indicates the warning
-# is applicable to the associated file.
-
-# Definitions: 
-# - populate_empty_cells: there are empty cells in you file; it is recommended to 
-#                         -9999 for numeric columns and N/A for non-numeric columns
-# - populate_header_rows: there are cells in the header rows that must be populated
-# -ignored_extra_header_input: if provided, the header rows input file contained 
-#                              additional information that was ignored 
+view(populated_data$Warnings) # see the function instructions for a description of the warnings 

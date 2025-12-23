@@ -1,6 +1,6 @@
 # ==============================================================================
 #
-# Function for formatting the users data in the soil, sediment, 
+# Function for formatting the users data into the soil, sediment, 
 # water chemistry or hydrologic monitoring formats. 
 #
 # Status: complete
