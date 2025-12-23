@@ -2,7 +2,9 @@
 #
 # Rename PRT field photos
 # 
-# Status: In progress
+# Status: complete
+# 
+# Note: renamed all env context photos/videos through Nov trip
 # 
 # ==============================================================================
 #
