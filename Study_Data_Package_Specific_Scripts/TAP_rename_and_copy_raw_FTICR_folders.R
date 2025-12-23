@@ -214,7 +214,7 @@ tap_lookup_df <- tap_lookup_df %>%
 
 ### Run function ###############################################################
 
-rename_and_copy_folders(tap_lookup_df[1,])
+rename_and_copy_folders(tap_lookup_df)
 
 
 ### Test that it ran correctly #################################################
@@ -223,13 +223,13 @@ test_that("folders were correctly copied and renamed", {
   
   # uses the FTICR file names as the source of truth for checking
   
-  raw_water_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package') %>%
+  raw_water_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_FTICR_Raw_Data') %>%
     tibble() %>%
     mutate(across(where(is.character), ~ gsub("\\.d", "", .))) %>% 
     pull(.) %>% 
     sort()
   
-  xml_water_files <-  list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/Sample_Data/FTICR/Water_FTICR_Data') %>%
+  xml_water_files <-  list.files('Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Sample_Data/FTICR/Water_XML_Files') %>%
     tibble()%>%
     mutate(across(where(is.character), ~ gsub("\\.xml", "", .))) %>% 
     pull(.) %>% 
