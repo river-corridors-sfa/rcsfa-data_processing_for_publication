@@ -61,9 +61,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Sample_Data"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits/WHONDRS_Minikits_Data_Package/WHONDRS_Minikits_Sample_Data"
 
-study_code <- 'WHONDRS_TAP' # this is used to rename the output file
+study_code <- 'WHONDRS_Minikits' # this is used to rename the output file
 
 material <- 'Water' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
@@ -612,6 +612,7 @@ combine_headers <- reduce(data_headers_renamed, left_join, by = c("Field_Name", 
 
 # verify column order matches
 identical(names(combine_headers), names(summary)) # Should return TRUE
+
 
 
 # =================================== Write File ===============================

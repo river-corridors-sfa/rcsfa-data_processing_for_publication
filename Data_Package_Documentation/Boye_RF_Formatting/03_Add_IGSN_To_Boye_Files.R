@@ -23,7 +23,7 @@ dp_dir <- selectDirectory()
 
 
 #number of digits in the parent ID
-parent_id_number <- 6
+parent_id_number <- 7
 
 file <- file.choose()
 

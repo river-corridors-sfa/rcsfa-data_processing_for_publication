@@ -63,5 +63,61 @@ for (i in file_list){
 
 }
 
+# ======================== for photos without parent ID in name ================
+
+library(exifr)  # Main package for reading EXIF data
+library(fs)     # For file system operations
+library(av)
+
+new_list <- list.files(file.path(photo_dir,'Not renamed'), full.names = T)
+
+metadata_combined <- tibble(file_name = as.character(),
+                            datetime = as.character(),
+                            latitude = as.numeric(),
+                            longitude = as.numeric(),
+                            altitude = as.numeric(),
+                            coords = as.character())
+
+for (j in new_list) {
+  
+  
+  # Extract only location-relevant metadata
+  location_metadata <- exifr::read_exif(j, 
+                                        tags = c("GPS*", "DateTime*", "FileName")) %>%
+    as_tibble() %>%
+    # Extract just filename without path
+    mutate(
+      file_name = fs::path_file(SourceFile),
+      coords = paste0(GPSLatitude, ', ', GPSLongitude)
+    )%>%
+    # Clean and select key columns
+    select(
+      file_name,
+      datetime = DateTimeOriginal,
+      latitude = GPSLatitude,
+      longitude = GPSLongitude,
+      altitude = GPSAltitude,
+      coords
+    ) 
+  
+  metadata_combined <- metadata_combined %>%
+    bind_rows(location_metadata)
+  
+  if(str_detect(j, 'heic|HEIC')){
+    
+    photo_read <- magick::image_read(j)
+    
+    # this rewrites with the same extension, if I reuse this code make sure to fix this
+    # image_write(photo_read, j, format = 'jpeg')
+    
+  } 
+  
+  
+}
+
+mov <- new_list[grepl('.MOV',new_list)]
+
+av_video_convert(mov, str_replace(mov, 'MOV', 'mp4'))
 
 
+write_csv(metadata_combined, file.path(photo_dir, 'Photo_Metdata.csv'))
