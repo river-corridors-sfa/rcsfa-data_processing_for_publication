@@ -4,9 +4,6 @@
 #
 # Status: In progress
 #
-# next steps:
-# - confirm guage isnt mispelled anywhere (guage)
-# - add info about rain gauge obstructions to notes (peter wrote info, jake providing measurments)
 # ==============================================================================
 #
 # Author: Brieanne Forbes 
@@ -209,7 +206,17 @@ combine_clean <- combine %>%
     fDOM_Standard = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'VWR (300 QSU/100 RFU)', 
                               TRUE ~ fDOM_Standard),
     Turbidity_Standard = case_when(Date %in% c('2024-11-16', '2024-11-17', '2024-11-18') ~ 'YSI (124 FNU)', 
-                                   TRUE ~ Turbidity_Standard)
+                                   TRUE ~ Turbidity_Standard),
+    #fill in -9999 for date and time columns
+    across(contains(c("Date", "Time")), ~ replace_na(.x, '-9999')),
+    across(contains(c("SN", "Weather")), ~ ifelse(.x == "-9999", "N/A", .x)),
+    across(contains("BaroTROLL_SN"), ~ ifelse(.x == "N/A", "-9999", .x)),
+    across(where(is.character), ~ ifelse(is.na(.x), "N/A", .x)),
+    across(where(is.numeric), ~ ifelse(is.na(.x), -9999, .x)),
+    Date = as.character(paste0(" ", Date)),
+    Field_Crew = str_replace(Field_Crew, ",", ";"),
+    Weather = str_replace(Weather, ",", ";"),
+    Vegetation = str_replace(Vegetation, ",", ";")
   ) %>%
   arrange(Date)
         
@@ -253,6 +260,8 @@ final_sensor_metadata <- combine_clean %>%
 # need to figure this out later 
 final_game_cam_metadata <- combine_clean %>%
   select(Site_ID, Date, Metadata_Type, Game_Camera_SN, Camera_Height, Notes)
+
+# =================================== verify cols ==========================
 
 verify_split <- function(original_df, df1, df2, df3) {
   original_cols <- names(original_df)
@@ -321,3 +330,7 @@ verify_split <- function(original_df, df1, df2, df3) {
 
 # Run the verification with three data frames
 result <- verify_split(combine_clean, final_metadata, final_sensor_metadata, final_game_cam_metadata)
+
+# =================================== output for v1  ==========================
+
+write_csv(final_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_Data_Package/PRT_Field_Metadata.csv')
