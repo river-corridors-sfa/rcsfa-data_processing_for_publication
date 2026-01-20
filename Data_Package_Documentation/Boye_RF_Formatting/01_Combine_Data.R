@@ -21,13 +21,13 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_TAP/Ions'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_PRT/NPOC_TN'
 
-study_code <- 'TAP'
+study_code <- 'PRT'
 
-analysis <- 'Ions'
+analysis <- 'NPOC_TN'
 
-analyte_code <- 'WIN' # Options are ION, OCN, DIC, TSS
+analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
 
 qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
@@ -107,8 +107,10 @@ for (mapping_file in mapping_files) {
 # ========================= filter mapping by study code =======================
 
 mapping_filtered <- combine_mapping %>%
-  filter(str_detect(Sample_ID, study_code))%>%
-  filter(str_detect(Sample_ID, analyte_code)) # analyte code should remove need for if statement below, but keeping for now
+  filter(str_detect(Sample_ID, study_code))
+
+# %>%
+#   filter(str_detect(Sample_ID, analyte_code)) # analyte code should remove need for if statement below, but keeping for now
 
 
 # ============================== combine QAQC data =============================
@@ -141,8 +143,10 @@ mapping_filtered <- combine_mapping %>%
   # ===================== filter data by study code and output =================
   
   data_filtered <- combine_qaqc %>%
-    filter(str_detect(Sample_ID, study_code)) %>%
-    filter(str_detect(Sample_ID, analyte_code)) 
+    filter(str_detect(Sample_ID, study_code)) 
+  
+  # %>%
+  #   filter(str_detect(Sample_ID, analyte_code)) 
   
   #file needed for summary stats code
   write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_CombinedQAQC_', Sys.Date(), '.csv'))
