@@ -24,9 +24,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_TAP/Ions'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_HJW/NPOC_TN'
 
-study_code <- 'TAP'
+study_code <- 'HJW'
   
 material <- 'Water'
 
@@ -37,13 +37,13 @@ typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files
 colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/RC-SFA_ColumnHeader_Lookup.csv'
 
 # uncomment if data was run at EMSL
-LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
+# LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
 
 #uncomment if data was run at MCRL
 # LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
 
 #uncomment if data was run at BSF
-# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
+LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
  
  #uncomment if ions were run at EMSL and update file name
 ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv'
@@ -168,11 +168,16 @@ for (file in files) {
         filter(col.in == column) %>%
         select(Data_Status)%>%
         pull(n=1)
+      
+      precision <- colnames_lookup %>%
+        filter(col.in == column) %>%
+        select(Analysis_Precision)%>%
+        pull(n=1)
 
 
       boye_file_headers <- boye_file_headers %>%
         add_column(
-          !!column := c(unit, unit_basis, column_typical_codes, '-9999', '-9999', data_status))
+          !!column := c(unit, unit_basis, column_typical_codes, '-9999', precision, data_status))
     }
 
     boye_file_headers <- boye_file_headers %>%
