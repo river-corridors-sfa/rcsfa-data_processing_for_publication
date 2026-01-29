@@ -21,13 +21,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/Cross-RCSFA_Geospatial_Data_Package_v5/v5_RCSFA_Geospatial_Data_Package'
+my_directory = 'C:/Brieanne/GitHub/rc_sfa-rc-3-wenas-modeling/Wampler_2025_Thresholds_Manuscript_Data_Package'
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "v5_RCSFA_Geospatial"
+my_dp_keyword = "Wampler_2025_Thresholds"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = 'Z:/00_ESSDIVE/01_Study_DPs/Cross-RCSFA_Geospatial_Data_Package_v5'
+my_out_dir = my_directory
 
 # populate_dd_flmd = indicate if you would like query the database to populate the dd and flmd. T/F
 populate_dd_flmd = F
@@ -135,21 +135,22 @@ flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_databas
 
 ### Data Package Specific Edits ################################################
 
-# prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_dd_prelim.csv") %>%
-#   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
-# 
-# 
-# dd_populated <- my_dd %>%
-#   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>%
-#   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header",
-#                                T ~ Term_Type))
-# 
-# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_flmd_prelim.csv") %>%
-#   select(File_Name, File_Description)
-# 
-# 
-# flmd_populated <- my_flmd %>%
-#   rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
+prelim_dd <- read_csv("C:/Brieanne/GitHub/rc_sfa-rc-3-wenas-modeling/archive/Wampler_2025_Thresholds_dd.csv") %>%
+  select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
+
+
+dd_populated <- my_dd %>%
+  rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>%
+  mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header",
+                               T ~ Term_Type)) %>%
+  distinct()
+
+prelim_flmd <- read_csv("C:/Brieanne/GitHub/rc_sfa-rc-3-wenas-modeling/archive/Wampler_2025_Thresholds_flmd.csv") %>%
+  select(File_Name, File_Description)
+
+
+flmd_populated <- my_flmd %>%
+  rows_patch(prelim_flmd, by = c("File_Name"), unmatched = 'ignore')
 
 
 ### Export #####################################################################
