@@ -19,22 +19,22 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Zeng_2026_TEM_PFLOTRAN/Zeng_2026_TEM_PFLOTRAN'
+user_directory <- 'Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package'
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Zeng_2026_TEM_PFLOTRAN'
+report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2'
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
-user_input_has_header_rows <- F
+user_input_has_header_rows <- T
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- F
+has_flmd <- T
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- ""
+flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package/v2_EC_flmd.csv"
 
 #### OPTIONAL ----
 
@@ -139,7 +139,7 @@ browseURL(paste0(report_out_dir, "/", out_file))
 
 # 6. Check sample numbers
 sample_numbers <- check_sample_numbers(data_package_data = data_package_data,
-                                       pattern_to_exclude_from_metadata_check = c('BLK', 'QC', 'SPE'))
+                                       pattern_to_exclude_from_metadata_check = c('Blk'))
 
 # 7. Check that all numeric columns contain a Reported_Precision
 
