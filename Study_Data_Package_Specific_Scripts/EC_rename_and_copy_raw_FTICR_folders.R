@@ -35,7 +35,7 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 directory <- "Z:/Large_File_Storage_For_Raw_Instrument_Data/UA FTICR Bruker SolariX 9T"
 
 xml_file_names <- list.files(directory, pattern = "\\.xml$", recursive = T, full.names = T) %>% 
-  tibble(file_path = .)  # yes, 1750 xmls present
+  tibble(file_path = .)  # yes, 629 xmls present
 
 # filter out entries that contain "2020-Usethis.m" in the path
 filtered_xml_file_names <- xml_file_names %>% # all of them are within 2020-Usethis.m folders, this result should be zero
@@ -98,66 +98,37 @@ test_that("IAT converts to 'p' correctly", {
 })
 
 # read in mapping files
-source_mapping_file_cm <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents - Core Richland and Sequim Lab-Field Team/Data Generation and Files/RC4/FTICR/03_ProcessedData/CM_Data_Processed_FTICR/CM_Mapping.csv")
-
-source_mapping_file_sss <- read_csv("C:/Users/powe419/OneDrive - PNNL/Documents - Core Richland and Sequim Lab-Field Team/Data Generation and Files/RC2/FTICR/03_ProcessedData/SSS_Data_Processed_FTICR/SSS_Mapping.csv")
+source_mapping_file <- read_csv("C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/ECA/FTICR/03_ProcessedData/EC_Data_Processed_FTICR/EC_Mapping.csv")
 
 
 # clean mapping files
-mapping_file_cm <- source_mapping_file_cm %>% 
-# drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time and those that have "Blk" in their sample name
+mapping_file <- source_mapping_file %>% 
+# drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time 
   filter(!is.na(Accumulation_Time)) %>% 
   filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b")) %>% 
-  filter(!str_detect(Sample_ID, "Blk")) %>% 
   
   # convert IAT to IAT_p
   rowwise() %>% 
   mutate(iat_p = convert_IAT(Accumulation_Time)) %>% 
   ungroup() %>% 
-  
-  # identify sub folder based on analyte code
-  mutate(analyte_subdir = case_when(str_detect(Sample_ID, "ICR") ~ "Water",
-                                    str_detect(Sample_ID, "SED") ~ "Sediment")) %>% 
-  
   # select needed cols
-  select(Randomized_ID, Sample_ID, iat_p, analyte_subdir)
+  select(Randomized_ID, Sample_ID, iat_p) 
 
 # print the files that were removed
-source_mapping_file_cm %>% 
+source_mapping_file %>% 
   filter(is.na(Accumulation_Time)) %>% 
   filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b"))
   
-
-mapping_file_sss <- source_mapping_file_sss %>%
-  # drop rows that say OMIT in the Notes column and those that are missing an ion accumulation time and those that have "Blk" in their sample name
-  filter(!is.na(Accumulation_Time)) %>% 
-  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b")) %>% 
-  filter(!str_detect(Sample_ID, "Blk")) %>% 
-  
-  # convert IAT to IAT_p
-  rowwise() %>% 
-  mutate(iat_p = convert_IAT(Accumulation_Time)) %>% 
-  ungroup() %>% 
-  
-  # identify sub folder based on analyte code
-  mutate(analyte_subdir = case_when(str_detect(Sample_ID, "ICR") ~ "Water",
-                                    str_detect(Sample_ID, "SED") ~ "Sediment")) %>% 
-  
-  # select needed cols
-  select(Randomized_ID, Sample_ID, iat_p, analyte_subdir)
-
-# print the files that were removed
-source_mapping_file_sss %>% 
-  filter(is.na(Accumulation_Time)) %>% 
-  filter(is.na(Notes) | !str_detect(Notes, "\\bOMIT\\b"))
 
 
 # combine into single file
-mapping_file <- mapping_file_cm %>% 
-  add_row(mapping_file_sss) %>% 
+mapping_file <- mapping_file %>% 
   arrange(Sample_ID) %>% 
-  mutate(out_dir_relative = paste0(analyte_subdir, "_FTICR_Raw_Data/", Sample_ID, "_", iat_p, ".d"),
-         randomized_id_dot_d = paste0(Randomized_ID, ".d"))
+  mutate(out_dir_relative = paste0( "EC_FTICR_Raw_Data/", Sample_ID, "_", iat_p, ".d"),
+         randomized_id_dot_d = paste0(Randomized_ID, ".d"))%>%
+  # some folders were named by sample ID instead of randomized
+  mutate(match_source = case_when(str_detect(Randomized_ID, "_A|_B") ~ paste0(Sample_ID, '.d'),
+                                  TRUE ~ randomized_id_dot_d))
 
 
 ### Create lookup df from mapping file #########################################
@@ -165,48 +136,36 @@ mapping_file <- mapping_file_cm %>%
 
 # create directories
 in_dir <- "Z:/Large_File_Storage_For_Raw_Instrument_Data/UA FTICR Bruker SolariX 9T"
-out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/CM_SSS_FTICR_Raw_Data"
+out_dir <- "Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/EC_FTICR_Raw_Data"
 
 # list all folders
 source_dirs <- list.dirs(in_dir, recursive = F, full.names = T) %>% # get all parent folders
-  .[str_detect(., "CM|SSS")] %>%  # filter for parent (SHIP) files that have CM or SSS in them
+  .[str_detect(., "EC")] %>%  # filter for parent (SHIP) files that have EC in them
   list.dirs(., recursive = F) %>% # get all sub folders from those parent dirs
-  str_subset(., "/CM_|/SSS_")  # filter those for CM or SSS
+  str_subset(., "/EC_|/")  # filter those for EC
 
 # convert folders into df
 source_dirs_df <- tibble(source = source_dirs) %>% 
-  mutate(source_folder = basename(source))
-
+  mutate(source_folder = basename(source),
+         source_folder = str_remove(source_folder, "_0000\\d{2}(?=\\.d)"),
+         source_folder = str_replace(source_folder, "^EC_(\\d{2})_", "EC_0\\1_"))
 
 # show the files that we have a .d folder for but is not included in the filtered mapping files
 source_dirs_df %>% 
-  anti_join(mapping_file, by = join_by(source_folder == randomized_id_dot_d)) 
+  anti_join(mapping_file, by = join_by(source_folder == match_source)) 
 # I checked these against the original mapping files. The following are okay to be omitted: 
-  # CM_O1 - BLK
-  # CM_O98 - BLK
-  # CM_P1 - BLK
-  # CM_P98 - BLK
-  # CM_Q01 - BLK
-  # CM_Q98 - BLK
-  # CM_R54 - omit
-  # CM_R82 - omit
-  # CM_R98 - BLK
-  # CM_S120_RR - omit
-  # CM_S123_RR - omit
-  # CM_S135_RR - BLK
-  # CM_S136_RR - omit
-  # CM_S138_RR - BLK
+  # EC_F71.d - blank where spectra wasnt resolved
 
 # show the files that are in the filtered mapping file but we don't have a folder
 mapping_file %>% 
-  anti_join(source_dirs_df, by = join_by(randomized_id_dot_d == source_folder)) # none
+  anti_join(source_dirs_df, by = join_by(match_source == source_folder)) # none
   
 
 # create look up df 
-CM_SSS_lookup_df <- mapping_file %>% # uses mapping file as source of truth for which files to move
+lookup_df <- mapping_file %>% # uses mapping file as source of truth for which files to move
   
   # join mapping file
-  left_join(source_dirs_df, by = join_by(randomized_id_dot_d == source_folder)) %>% 
+  left_join(source_dirs_df, by = join_by(match_source == source_folder)) %>% 
 
   # create destination col
   rowwise() %>% 
@@ -222,61 +181,38 @@ CM_SSS_lookup_df <- mapping_file %>% # uses mapping file as source of truth for 
 
 
 # confirms that all samples that will be moved match the boye file in the data packages
-test_that("All sediment samples are present", {
+test_that("All  samples are present", {
   
   # read in boye sediment file - this is the source of truth for which samples we should have
-  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/CM_SSS_Sediment_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
+  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package/Sample_Data/EC_Sediment_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
     filter(!is.na(Sample_Name)) %>%
     filter(Sample_Name != "") %>% 
     filter(!is.na(`FTICR-MS`)) %>% 
     arrange(Sample_Name)
   
   # filter lookup to only include sediment samples
-  sed_filter <- CM_SSS_lookup_df %>%
-    filter(str_detect(Sample_ID, "SED")) %>% 
+  filter <- lookup_df %>%
     arrange(Sample_ID)
   
   # compares the boye sample names with those in the lookup 
-  expect_equal(boye$Sample_Name, sed_filter$Sample_ID)
+  expect_equal(boye$Sample_Name, filter$Sample_ID)
   
   # join look up to boye to look if there are issues
-  boye_lookup_join <- boye %>% 
-    left_join(CM_SSS_lookup_df, by = join_by(Sample_Name == Sample_ID))
+  lookup_join <- boye %>% 
+    left_join(lookup_df, by = join_by(Sample_Name == Sample_ID))
 
 })
 
-test_that("All water samples are present", {
-  
-  # read in boye water file - this is the source of truth for which samples we should have
-  boye <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/CM_SSS_Water_FTICR_Methods.csv", skip = 2, na = c("N/A", "-9999")) %>%
-    filter(!is.na(Sample_Name)) %>%
-    filter(Sample_Name != "") %>% 
-    filter(!is.na(`FTICR-MS`)) %>% 
-    arrange(Sample_Name)
-  
-  # filter lookup to only include sediment samples
-  water_filter <- CM_SSS_lookup_df %>%
-    filter(str_detect(Sample_ID, "ICR")) %>% 
-    arrange(Sample_ID)
-  
-  # compares the boye sample names with those in the lookup
-  expect_equal(boye$Sample_Name, water_filter$Sample_ID)
-  
-  # join look up to boye to look if there are issues
-  boye_lookup_join <- boye %>% 
-    left_join(CM_SSS_lookup_df, by = join_by(Sample_Name == Sample_ID))
-  
-})
   
 
 # clean up 
-CM_SSS_lookup_df <- CM_SSS_lookup_df %>% 
+lookup_df <- lookup_df %>% 
   select(source, destination)
 
 
 ### Run function ###############################################################
 
-rename_and_copy_folders(CM_SSS_lookup_df)
+rename_and_copy_folders(lookup_df)
 
 
 ### Test that it ran correctly #################################################
@@ -284,36 +220,22 @@ rename_and_copy_folders(CM_SSS_lookup_df)
 test_that("folders were correctly copied and renamed", {
   
   # uses the FTICR file names as the source of truth for checking
-  
-  raw_water_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/CM_SSS_FTICR_Raw_Data/Water_FTICR_Raw_Data') %>%
+  raw_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/EC_FTICR_Raw_Data/EC_FTICR_Raw_Data') %>%
     tibble() %>%
     mutate(across(where(is.character), ~ gsub("\\.d", "", .))) %>% 
     pull(.) %>% 
     sort()
   
-  raw_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/CM_SSS_FTICR_Raw_Data/Sediment_FTICR_Raw_Data') %>%
-    tibble() %>%
-    mutate(across(where(is.character), ~ gsub("\\.d", "", .))) %>% 
-    pull(.) %>% 
-    sort()
   
-  xml_water_files <-  list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/FTICR/Water_FTICR_Data') %>%
+  xml_files <-  list.files('Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package/Sample_Data/FTICR/Sediment_XML_Files') %>%
     tibble()%>%
     mutate(across(where(is.character), ~ gsub("\\.xml", "", .))) %>% 
     pull(.) %>% 
     sort()
   
-  xml_sed_files <- list.files('Z:/00_ESSDIVE/01_Study_DPs/CM_SSS_Data_Package_v5/v5_CM_SSS_Data_Package/Sample_Data/FTICR/Sediment_FTICR_Data') %>%
-    tibble() %>%
-    mutate(across(where(is.character), ~ gsub("\\.xml", "", .))) %>% 
-    pull(.) %>% 
-    sort()
-  
-  expect_equal(xml_water_files, raw_water_files)
-  expect_equal(xml_sed_files, raw_sed_files)
+  expect_equal(xml_files, raw_files)
 
   # if they don't return zero, then you can use this to see what's different  
-  water_diff <- setdiff(xml_water_files, raw_water_files) # should return 0 if passes check
-  sed_diff <- setdiff(xml_sed_files, raw_sed_files) # should return 0 if passes check
+  diff <- setdiff(xml_files, raw_files) # should return 0 if passes check
   
 })
