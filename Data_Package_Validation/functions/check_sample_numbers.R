@@ -494,6 +494,10 @@ check_sample_numbers <- function(data_package_data,
       pull(all)
     
     if (length(processed_file_path) > 0) {
+      if (length(processed_file_path) > 1) {
+        cli_alert_warning("Multiple CoreMS_Processed_ICR_Data.csv files found in FTICR folder. Using the first one: {processed_file_path[1]}")
+        processed_file_path <- processed_file_path[1]
+      }
       has_processed_file <- TRUE
       processed_file <- data_package_data[["tabular_data"]][[processed_file_path]] %>%
         select(-Calibrated_Mass) %>%
