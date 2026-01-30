@@ -520,7 +520,7 @@ check_sample_numbers <- function(data_package_data,
       
       output_dir <- unique(dirname(output_file_list))
       
-      outputs_files <- map(output_dir, ~list.files(.x, pattern = '\\.csv$', full.names = FALSE))%>%
+      outputs_files <- map(output_dir, ~list.files(.x, pattern = '\\.corems\\.csv$', full.names = FALSE))%>%
         unlist() %>% 
         tibble(output = .) %>%
         mutate(Sample_Name = str_remove(output, "_p\\d+\\.corems\\.csv$"),
