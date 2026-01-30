@@ -85,9 +85,9 @@ p_load(tidyverse,
 check_sample_numbers <- function(data_package_data,
                                  pattern_to_exclude_from_metadata_check = NULL){
   
-  cli_alert("{.emph {col_green('All ICR xml files and output files will be reviewed even in excluded in data_pacakage_data.')}}")
-  
   # ---- Input validation ----
+  
+  # Check if data_package_data is provided
   
   # Check if data_package_data is provided
   if (missing(data_package_data) || is.null(data_package_data)) {
