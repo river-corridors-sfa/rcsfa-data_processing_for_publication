@@ -37,7 +37,8 @@ for (v1_input in v1_files) {
   
   v2 <- v1 %>%
     add_row(!!!header_row_data, .before = which(v1$Field_Name == "#Start_Data")) %>%
-    mutate(Field_Name = str_replace(Field_Name, 'Unit_Basis', '#unit_basis'),
+    mutate(Field_Name = str_replace(Field_Name, 'Field_Name', 'field_name'),
+           Field_Name = str_replace(Field_Name, 'Unit_Basis', '#unit_basis'),
            Field_Name = str_replace(Field_Name, 'Unit', '#unit'),
            Field_Name = str_replace(Field_Name, 'MethodID_Analysis', '#method_id_analysis'),
            Field_Name = str_replace(Field_Name, 'MethodID_Inspection', '#method_id_inspection'),
@@ -53,7 +54,7 @@ for (v1_input in v1_files) {
            Field_Name = str_replace(Field_Name, 'MethodID', 'method_id')
     ) %>%
     filter(Field_Name != '#End_Data')  %>%
-    rename('#Field_Name' = Field_Name)
+    rename('#field_name' = Field_Name)
   
   write_csv(v2, v1_input)
   

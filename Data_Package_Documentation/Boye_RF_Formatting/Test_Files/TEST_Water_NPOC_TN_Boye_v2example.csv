@@ -1,4 +1,4 @@
-#Field_Name,Sample_Name,Material,00681_NPOC_mg_per_L_as_C,00602_TN_mg_per_L_as_N,Methods_Deviation
+#field_name,Sample_Name,Material,00681_NPOC_mg_per_L_as_C,00602_TN_mg_per_L_as_N,Methods_Deviation
 #unit,N/A,N/A,milligrams per liter,milligrams per liter,N/A
 #unit_basis,N/A,N/A,as dissolvable Carbon,as dissolvable Nitrogen,N/A
 #method_id_analysis,N/A,N/A,NPOC_T_AN_018,TN_T_AN_016,N/A
@@ -10,7 +10,7 @@
 #analysis_detection_limit,-9999,-9999,0.10-0.33,0.02-0.04,N/A
 #analysis_precision,-9999,-9999,0.004,0.005,N/A
 #data_status,N/A,N/A,ready_to_use,ready_to_use,N/A
-Field_Name,Sample_Name,Material,00681_NPOC_mg_per_L_as_C,00602_TN_mg_per_L_as_N,Methods_Deviation
+field_name,Sample_Name,Material,00681_NPOC_mg_per_L_as_C,00602_TN_mg_per_L_as_N,Methods_Deviation
 N/A,PRT001_OCN-1,Liquid>aqueous,2.23,0.19,NPOC_TN_RERUN_006
 N/A,PRT001_OCN-2,Liquid>aqueous,2.12,0.22,NPOC_TN_RERUN_006
 N/A,PRT001_OCN-3,Liquid>aqueous,2.22,0.21,NPOC_TN_RERUN_006
