@@ -168,7 +168,7 @@ combine_clean <- combine %>%
          Longitude = as.numeric(str_remove_all(Longitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] |\\[G01\\] |\\[G02\\] |\\[M01A\\] '))) %>%
   # clean up column names
   rename(Surface_Water_Parent_ID = SW_Parent_ID,
-         Camera_Height = Camera_Height_cm,
+         Camera_Height = Game_Camera_Height_cm,
          Point_A_Depth = Point_A_Depth_cm,
          Point_B_Depth = Point_B_Depth_cm,
          Point_C_Depth = Point_C_Depth_cm,
@@ -259,7 +259,19 @@ final_sensor_metadata <- combine_clean %>%
 # Reminder: I will probably need to filter out early game cam metadata since the pics were bad,
 # need to figure this out later 
 final_game_cam_metadata <- combine_clean %>%
-  select(Site_ID, Date, Metadata_Type, Game_Camera_SN, Camera_Height, Notes)
+  select(Site_ID, Date, Latitude, Longitude, Game_Camera_SN, Camera_Height, 
+         River_Width, Depth_At_Sensor, Point_A_Depth, Point_B_Depth, Point_C_Depth,
+         Point_D_Depth, Point_E_Depth, Notes) %>%
+  filter(Game_Camera_SN != 'N/A') %>%
+  mutate( # add game camera model based on table that Lupita gave
+    Game_Camera_Model = case_when(
+      Game_Camera_SN %in% c("64IE", "440X", "QJQ4", "P2Y3", "ETMA", "DGE7", "641E", "2JQ4", "B2YE") ~ "Spypoint Flex Plus",
+      Game_Camera_SN %in% c("7207", "8022", "8023") ~ "RECONYX HyperFire 4K",
+      TRUE ~ NA_character_  
+    ), .after = Game_Camera_SN
+  ) %>%
+  mutate(Notes = case_when(str_detect(Notes, regex("cam", ignore_case = TRUE)) ~ Notes,
+                           TRUE ~ 'N/A'))
 
 # =================================== verify cols ==========================
 
@@ -334,3 +346,7 @@ result <- verify_split(combine_clean, final_metadata, final_sensor_metadata, fin
 # =================================== output for v1  ==========================
 
 write_csv(final_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_Data_Package/PRT_Field_Metadata.csv')
+
+# =================================== output for v1 game cam dp ==========================
+
+write_csv(final_game_cam_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_GameCamera_Data_Package/PRT_GameCamera_Data_Package/PRT_GameCamera_Field_Metadata.csv') #outputted on 2026-02-06 for v1 
