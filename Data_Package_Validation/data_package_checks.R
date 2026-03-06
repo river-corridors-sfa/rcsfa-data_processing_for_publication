@@ -19,13 +19,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- 'Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package'
+user_directory <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Data_Package'
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2'
+report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package'
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- T
@@ -34,7 +34,7 @@ user_input_has_header_rows <- T
 has_flmd <- T
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package/v2_EC_flmd.csv"
+flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Data_Package/WHONDRS_HJW_flmd.csv"
 
 #### OPTIONAL ----
 
@@ -214,6 +214,11 @@ view(tabular_data %>%
 cli_alert_info("Displaying non-numeric columns (column_type != 'numeric')")
 view(tabular_data %>%
        filter(column_type != 'numeric'))
+
+cli_alert_info("Displaying non-character columns (column_type != 'character')")
+view(tabular_data %>%
+       filter(column_type != 'character') %>%
+       select(file_name, column_name, top_counts, range_min, range_max))
 
 ## look at min/max values ####
 

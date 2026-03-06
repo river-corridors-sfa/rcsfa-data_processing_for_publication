@@ -20,7 +20,7 @@ library(magick)
 
 photo_dir <- "C:/Users/forb086/Downloads/Site Photos_WHONDERS"
 
-metadata <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Data_Package/HJW_Field_Metadata.csv" %>%
+metadata <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Field_Metadata.csv" %>%
   read_csv()
 
 out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Field_Photos'
@@ -39,6 +39,11 @@ file_names <- tibble(path = file_list,
          site_fixed = str_replace(site_fixed, 'WS3 1-30cm', 'WS3-1'),
          site_fixed = str_replace(site_fixed, 'WS1_S', 'WS1-'),
          site_fixed = str_replace(site_fixed, 'WS3_S', 'WS3-'),
+         site_fixed = case_when(site_fixed == 'WS1-1' ~ 'WS1-2',
+                                site_fixed == 'WS1-2' ~ 'WS1-3',
+                                site_fixed == 'WS1-3' ~ 'WS1-4',
+                                site_fixed == 'WS1-4' ~ 'WS1-5',
+                                TRUE ~ site_fixed),
          indicator = case_when(str_detect(tolower(file_name), 'sed') ~ 'sed',
                                str_detect(tolower(file_name), 'down') ~ 'down',
                                str_detect(tolower(file_name), 'up') ~ 'up',
@@ -89,7 +94,8 @@ new_names <- combine %>%
            tolower(ext) == 'heic' ~ "jpeg",
            TRUE ~ ext
          ),
-    new_name = paste0(Parent_ID, "_Site", Site_ID, '-', final_indicator,".", output_ext))
+    new_name = paste0(Parent_ID, "_Site", Site_ID, '-', final_indicator,".", output_ext)) %>%
+  filter(!is.na(path))
 
 # ============= output mapping of file names to send to yunxiang ===============
 
@@ -111,9 +117,9 @@ for (i in file_list){
   
   if(str_detect(i, 'heic|HEIC')){ # convert images if they are heic, otherwise just output into shared drive folder 
     
-    photo_read <- magick::image_read(j)
+    photo_read <- magick::image_read(i)
     
-    image_write(photo_read, new_name, format = 'jpeg')
+    image_write(photo_read, out_file, format = 'jpeg')
     
   } else{
     
