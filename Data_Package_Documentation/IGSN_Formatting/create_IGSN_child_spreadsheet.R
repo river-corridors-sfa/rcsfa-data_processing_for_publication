@@ -40,13 +40,13 @@ rm(list=ls(all=T))
 metadata_filepath <- file.choose()
 
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/TGW_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/HJW_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
-# user_code <- 'IEWDR' # this is for WHONDRS
+user_code <- 'IEWDR' # this is for WHONDRS
 # user_code <- 'IEPRS'  # this is not for WHONDRS
-user_code <- 'IETGW'
+# user_code <- 'IETGW'
 
 # indicate if parent IGSNs exist
 # parent_igsn_present <- T
@@ -58,7 +58,7 @@ parent_filepath <- file.choose()
 
 # indicate which materials were collected (options include: "water", "sediment", "filter")
 # materials_list <- c("water", "sediment", "filter", "soil") # soil assumes no other material and is not appended to parent ID
-materials_list <- c("water")
+materials_list <- c("water", "sediment")
 
 
 ### Load data ##################################################################
@@ -86,7 +86,7 @@ print(colnames(metadata))
 a <- metadata$Parent_ID
 
 # (name of sampling campaign) 'Comment'
-i <- 'Tanglewood Wetlands Floodpulse Study'
+i <- '2025 HJ Andrews River Corridor Critical Zone Workshop'
 
 # 'Latitude (WGS 84)'
 j <- metadata$Latitude
@@ -95,35 +95,34 @@ j <- metadata$Latitude
 k <- metadata$Longitude
 
 # 'Primary physiographic feature'
-# l <- 'stream'
-l <- 'floodplain'
+l <- 'stream'
 
 # 'Name of physiographic feature'
-# m <- metadata$Stream_Name
-m <- 'Tanglewood Biological Station'
+m <- metadata$Stream_Name
+# m <- 'Tanglewood Biological Station'
 
 # (site ID) 'Locality'
-n <- ''
+# n <- ''
 n <- metadata$Site_ID
 
 # 'Locality description'
-# o <- 'In stream site'
-o <- metadata$Site_Category
+o <- 'In stream site'
+# o <- metadata$Site_Category
 
 # 'Country'
 p <- 'United States'
 # p <- metadata$Country
 
 # 'State/Province'
-q <- metadata$State
-# q <- "Washington"
+# q <- metadata$State
+q <- "Oregon"
 
 # 'City/Township'
-r <- metadata$City
-# r <- "Richland"
+# r <- metadata$City
+r <- ""
 
 # 'Field program/cruise'
-s <- 'US Department of Energy: Investigating Hydrologic Connectivity as a Driver ofWetland Biogeochemical Response to Flood Disturbances'
+s <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
 # s <- 'US Department of Energy River Corridor Science Focus Area'
 
 # 'Collector/Chief Scientist'
@@ -133,12 +132,12 @@ t <- 'Vanessa Garayburu-Caruso'
 u <- metadata$Date
 
 # 'Related URL'
-# v <- 'https://whondrs.pnnl.gov'
+v <- 'https://whondrs.pnnl.gov'
 # v <- 'https://www.pnnl.gov/projects/river-corridor'
 v <- ''
 
 # Related URL Type
-# w <- 'regular URL'
+w <- 'regular URL'
 w <- ''
 
 ### User Inputs 3: material - water ############################################

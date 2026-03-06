@@ -15,13 +15,13 @@ library(tidyverse)
 
 # ================================= User inputs ================================
 metadata_filepath <- file.choose()
-metadata <- read_csv(metadata_filepath)
+metadata <- read_csv(metadata_filepath, na = c('-9999', 'N/A', 'NA', NA))
 
-# user_code <- 'IEWDR' # this if for WHONDRS
-user_code <- 'IEPRS' # this is NOT for WHONDRS
-user_code <- 'IETGW'#this is for TGW
+user_code <- 'IEWDR' # this if for WHONDRS
+# user_code <- 'IEPRS' # this is NOT for WHONDRS
+# user_code <- 'IETGW'#this is for TGW
 
-outdir <- 'Z:/IGSN/TGW_IGSN_Site_ToBeRegistered.csv'
+outdir <- 'Z:/IGSN/HJW_IGSN_Site_ToBeRegistered.csv'
 
 
 # ======================== input column names ============================
@@ -52,17 +52,17 @@ f <- as.character(metadata$Latitude)
 g <- as.character(metadata$Longitude)
 
 # Primary physiographic feature: Stream 
-# h <- 'stream'
-h <- 'floodplain'
+h <- 'stream'
+# h <- 'floodplain'
  
 # Name of physiographic feature: Insert stream name 
-# i <- as.character(metadata$Watershed)
-i <- 'Tanglewood Biological Station'
+i <- as.character(metadata$Stream_Name)
+# i <- 'Tanglewood Biological Station'
  
 # Field program/Cruise
 # j <- 'US Department of Energy River Corridor Science Focus Area'
-# j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
-j <- 'US Department of Energy: Investigating Hydrologic Connectivity as a Driver ofWetland Biogeochemical Response to Flood Disturbances'
+j <- 'US Department of Energy River Corridor Science Focus Area, Worldwide Hydrobiogeochemical Observation Network for Dynamic River Systems (WHONDRS)'
+# j <- 'US Department of Energy: Investigating Hydrologic Connectivity as a Driver ofWetland Biogeochemical Response to Flood Disturbances'
   
 # Country  
 k <- 'United States'
@@ -70,16 +70,16 @@ k <- 'United States'
 
 # State/Province
 # Use second line if not needed
-l <- metadata$State
-# l <- 'California'
+# l <- metadata$State
+l <- 'Oregon'
 
 # (optional) City/Township 
 # Use second line if not needed
-m <- as.character(metadata$City)
-# m <- ''
+# m <- as.character(metadata$City)
+m <- ''
 
 #name of study
-n <- 'Tanglewood Wetlands Floodpulse Study'
+n <- '2025 HJ Andrews River Corridor Critical Zone Workshop'
 
 # =========================== create dataframe and add the data =================
 
