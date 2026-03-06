@@ -19,22 +19,22 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- 'Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package'
+user_directory <- 'C:/Chen_2025_AI_For_Grain_Size'
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2'
+report_out_dir <- 'C:/Chen_2025_AI_For_Grain_Size'
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
-user_input_has_header_rows <- T
+user_input_has_header_rows <- F
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
-has_flmd <- T
+has_flmd <- F
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package/v2_EC_flmd.csv"
+flmd_path <- ""
 
 #### OPTIONAL ----
 
@@ -54,7 +54,10 @@ flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/ECA_Data_Package_v2/v2_EC_Data_Package/
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
 
-user_exclude_files = NA_character_
+user_exclude_files = c("Chen_2025_AI_For_Grain_Size_ESSDIVE_Metadata_Template.docx",
+                       'CFD.zip',
+                       'TrainValTestData.zip',
+                       'Checks_Report_2026-02-19.html')
   
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
