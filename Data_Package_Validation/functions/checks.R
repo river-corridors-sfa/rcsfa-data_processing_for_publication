@@ -499,7 +499,7 @@ create_range_report <- function(input_df,
       # check if col is mixed - separate out numeric vs chr rows
       current_mixed <- current_column %>% 
         
-        mutate(is_numeric = case_when(str_detect(current_column[[1]], "[A-Za-z]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
+        mutate(is_numeric = case_when(str_detect(current_column[[1]], "[A-Za-z/]") ~ F, T ~ T)) %>%  # flag with F values that have a letter in them
         mutate(character_col = case_when(is_numeric == FALSE ~ as.character(current_column[[1]]), T ~ NA_character_)) %>% # anything flagged with a letter is kept as is
         mutate(numeric_col = case_when(is_numeric == TRUE ~ current_column[[1]], T ~ NA_character_)) %>% # bring over numeric values
         mutate(numeric_col = parse_number(numeric_col)) %>%  # convert numeric col to numeric
