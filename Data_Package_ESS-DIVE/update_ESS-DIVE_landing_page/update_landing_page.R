@@ -4,6 +4,7 @@
 
 
 ### Prep Script ################################################################
+rm(list=ls(all=T))
 
 # load libraries
 library(tidyverse)
@@ -32,10 +33,10 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 # USER INPUTS
 
-your_essdive_metadata_file <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Zheng_2026_KGML/Zheng_2026_KGML_ESSDIVE_Metadata.docx"# absolute file path of ESS-DIVE metadata .docx
+your_essdive_metadata_file <- "Z:/00_ESSDIVE/03_Manuscript_DPs/Niroula_2026_VI_in_PNW/Niroula_2026_VI_in_PNW_ESSDIVE_Metadata.docx"# absolute file path of ESS-DIVE metadata .docx
 your_author_spreadsheet <- "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-b2f57c9a1bdf27e-20260121T000256649" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-0910f8cfc73e0c6-20260316T204047664" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 # RUN functions (no modifications needed)
@@ -63,9 +64,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 
 # USER INPUTS
-your_coordinates_file_path <- "C:/Users/forb086/Downloads/v4_WHONDRS_S19S_Metadata.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
+your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package/WHONDRS_HJW_geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-22b62c56a7ecb50-20260121T001127122874" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-e05398f925f3083-20260311T210425952" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
