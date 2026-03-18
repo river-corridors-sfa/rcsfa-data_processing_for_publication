@@ -18,7 +18,7 @@ rm(list=ls(all=T))
 # ================================= User inputs ================================
 
 #insert the path of the data package folder
-dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TGW_Data_Package/TGW_Data_Package'
+dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits/WHONDRS_Minikits_Data_Package'
 
 # ============ set WD to the path of the data package ==========================
 
