@@ -24,12 +24,12 @@ dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
 RC <- 'RC4'
 
-study_code <- 'WHONDRS_HJW'
+study_code <- 'WHONDRS_Minikits'
 
 
 # ================================= Build dir ================================
 # boye_dir <- paste0(dir, RC, '/Boye_Files/', study_code, '/')
-boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Data_Package/WHONDRS_HJW_Sample_Data'
+boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits/WHONDRS_Minikits_Data_Package/WHONDRS_Minikits_Sample_Data'
 
 typical_codes <- paste0(dir, 'Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx')
   
