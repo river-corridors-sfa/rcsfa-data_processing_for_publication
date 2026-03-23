@@ -25,9 +25,9 @@ dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_PRT/NPOC_TN'
 
 study_code <- 'PRT'
 
-analysis <- 'NPOC_TN'
+analysis <- 'OCN'
 
-analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS
+analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS, ISO
 
 qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
@@ -736,4 +736,79 @@ mapping_filtered <- combine_mapping %>%
   
   write_csv(final,  paste0(study_out_dir, '/', study_code, '_Check_for_Duplicates_',Sys.Date(),'.csv'))
   
+  
+  # ==================== extract precision for ISO ==========================
+   
+  if(analysis == 'ISO'){
+    
+    library(tidyverse)
+    library(readxl)
+    library(janitor)
+    library(stringr)
+    library(lubridate)
+    
+    # List all candidate files
+    raw_data <- list.files(mapping_file_dir, pattern = "Data_Raw", full.names = TRUE, recursive = TRUE)
+    
+    # Container for per-file outputs
+    out_list <- vector("list", length(raw_data))
+    
+    for (i in seq_along(raw_data)) {
+      path <- raw_data[i]
+      
+      # Read without assuming headers
+      raw <- tryCatch(read_excel(path, col_names = FALSE), error = function(e) NULL)
+      if (is.null(raw)) { out_list[[i]] <- tibble(); next }
+      
+      # Find the header row containing "Standards"
+      raw_idx <- raw %>% mutate(.row = row_number())
+      header_row <- raw_idx %>%
+        unite(.text, - .row, sep = " ", remove = FALSE) %>%
+        filter(str_detect(str_to_lower(.text), "\\bstandards\\b")) %>%
+        summarize(h = suppressWarnings(min(.row, na.rm = TRUE))) %>%
+        pull(h)
+      
+      header_row <- if (length(header_row) == 0 || is.na(header_row)) 1L else header_row
+      
+      # Promote header and clean names
+      df <- raw %>% row_to_names(row_number = header_row) %>% clean_names()
+      
+      # Identify the *accuracy* columns for δD and δ18O by name (flexible regex)
+      cn <- names(df)
+      i_dD_acc   <- which(str_detect(cn, "(^|_)d.*(d|2h).*vsmow$|^d_d_vsmow$")) %>% first()
+      i_d18O_acc <- which(str_detect(cn, "(^|_)d.*18.*o.*vsmow$|^d18o_vsmow$")) %>% first()
+      
+      # If we can't locate those columns, skip this file
+      if (is.na(i_dD_acc) || is.na(i_d18O_acc)) { out_list[[i]] <- tibble(); next }
+      
+      # The correct values are in the columns immediately to the right
+      i_dD_val   <- i_dD_acc + 1L
+      i_d18O_val <- i_d18O_acc + 1L
+      if (i_dD_val > ncol(df) || i_d18O_val > ncol(df)) { out_list[[i]] <- tibble(); next }
+      
+      # Rows containing "Accuracy/Precision" anywhere across the row
+      acc_rows <- df %>%
+        filter(if_any(everything(), ~ str_detect(str_to_lower(as.character(.)), "accuracy/precision")))
+      
+      if (nrow(acc_rows) == 0) { out_list[[i]] <- tibble(); next }
+      
+      # Build per-file tibble from the right-adjacent (headerless) columns
+      res <- tibble(
+        del_2H_per_mil  = suppressWarnings(as.numeric(acc_rows[[i_dD_val]])),
+        del_18O_per_mil = suppressWarnings(as.numeric(acc_rows[[i_d18O_val]])),
+        run_date        = str_extract(basename(path), "^\\d{8}"),
+        source_file     = basename(path)
+      )
+      
+      out_list[[i]] <- res
+    }
+    
+    # One combined data frame
+    precision_all <- bind_rows(out_list)
+
+    
+    write_csv(precision_all, paste0(study_out_dir, '/', study_code, '_Precision_',Sys.Date(),'.csv'))
+
+
+  }
   
