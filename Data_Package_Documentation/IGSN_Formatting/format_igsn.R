@@ -21,7 +21,7 @@ rm(list=ls(all=T))
 
 dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package'
 
-out_file <- "WHONDRS_HJW_Metadata_IGSN-Mapping.csv"
+out_file <- "WHONDRS_HJW_Metadata_IGSN_Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 
