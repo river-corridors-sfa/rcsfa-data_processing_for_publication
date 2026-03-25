@@ -24,9 +24,9 @@ rm(list=ls(all=T))
 
 dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA'
 
-dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Sample_Data'
+dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_Data_Package/PRT_Sample_Data'
 
-study_code <- 'TAP'
+study_code <- 'PRT'
 
 material <- 'Water'
 

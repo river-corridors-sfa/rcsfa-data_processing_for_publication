@@ -20,7 +20,7 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-boye_dir <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/GAS/03_ProcessedData/20251001_Data_Processed_GAS_YEP_R1-39"
+boye_dir <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/Ions/03_ProcessedData/20250918_Data_Processed_Ions_YEP_R1-51"
 
 RC <- 'N/A'
 
@@ -28,7 +28,7 @@ study_code <- 'YEP'
 
 material <- 'Sediment'
 
-outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/YEP_Data_Package/YEP_Data_Package/YEP_Sample_Data/'
+outdir <- "C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_YEP/Ions/04_PublishReadyData/"
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
 

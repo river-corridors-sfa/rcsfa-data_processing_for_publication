@@ -80,7 +80,8 @@ precip <- gsheet2tbl(precip_link)%>%
          Vegetation = case_when(Vegetation == 'No change' ~ NA,
                                 TRUE ~ Vegetation),
          Metadata_Type = case_when(!is.na(Parent_ID) ~ 'Precipitation; Rain gauge download',
-                                   is.na(Parent_ID) ~ 'Rain gauge deployment',
+                                   Date %in% as.Date(c("2025-08-05", "2025-08-06")) ~ 'Rain gauge deployment',
+                                   is.na(Parent_ID) ~ 'Rain gauge download',
                                  TRUE ~ NA)) %>%
   select(-"Where there changes to the obstructions?") %>%
   rename(Precipitation_Sampler_Bottle1_Fullness = "Precipitation_Sampler_Bottle_Fullness [Bottle 1]",
@@ -168,7 +169,7 @@ combine_clean <- combine %>%
          Longitude = as.numeric(str_remove_all(Longitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] |\\[G01\\] |\\[G02\\] |\\[M01A\\] '))) %>%
   # clean up column names
   rename(Surface_Water_Parent_ID = SW_Parent_ID,
-         Camera_Height = Game_Camera_Height_cm,
+         Game_Camera_Height = Camera_Height_cm,
          Point_A_Depth = Point_A_Depth_cm,
          Point_B_Depth = Point_B_Depth_cm,
          Point_C_Depth = Point_C_Depth_cm,
@@ -259,7 +260,7 @@ final_sensor_metadata <- combine_clean %>%
 # Reminder: I will probably need to filter out early game cam metadata since the pics were bad,
 # need to figure this out later 
 final_game_cam_metadata <- combine_clean %>%
-  select(Site_ID, Date, Latitude, Longitude, Game_Camera_SN, Camera_Height, 
+  select(Site_ID, Date, Latitude, Longitude, Game_Camera_SN, Game_Camera_Height, 
          River_Width, Depth_At_Sensor, Point_A_Depth, Point_B_Depth, Point_C_Depth,
          Point_D_Depth, Point_E_Depth, Notes) %>%
   filter(Game_Camera_SN != 'N/A') %>%

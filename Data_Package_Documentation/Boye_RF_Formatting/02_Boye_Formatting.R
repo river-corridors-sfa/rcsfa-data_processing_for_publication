@@ -24,9 +24,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_HJW/NPOC_TN'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_PRT/ISO'
 
-study_code <- 'HJW'
+study_code <- 'PRT'
   
 material <- 'Water'
 
@@ -125,6 +125,10 @@ for (file in files) {
      if(data_type == 'Ions'){
        
        analyte <- 'Ions'
+       
+     } else if(data_type == 'ISO'){
+       
+       analyte <- 'ISO'
        
      } else {
       
@@ -225,6 +229,11 @@ for (file in files) {
       
       boye_file_headers <- boye_file_headers %>%
         assign_in(list(column, 9), LOD_final)
+    } else if(data_type == 'ISO'){
+      
+      boye_file_headers <- boye_file_headers %>%
+        assign_in(list(column, 9), -999)
+      
     } else {
 
       if(data_type == 'Ions' & str_detect(ion_LOD_file, 'MCRL')){
