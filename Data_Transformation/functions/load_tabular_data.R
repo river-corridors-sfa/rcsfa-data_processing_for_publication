@@ -131,7 +131,7 @@ load_tabular_data <- function(files_df,
       
     } # end of loop that reads in each tabular file
     
-  } # end of query_header_info == F
+  }else if (query_header_info == T) { # end of query_header_info == F
   
   
   ### query_header_info = T ####################################################
@@ -152,7 +152,7 @@ load_tabular_data <- function(files_df,
   # Each file (a row in the df) needs the row the column headers are on and the
   # row the data start.
   
-  else if (query_header_info == T) {
+  
     
     # get tabular files
     tabular_metadata <- tabular_metadata %>% 

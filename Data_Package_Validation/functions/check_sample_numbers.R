@@ -267,9 +267,9 @@ check_sample_numbers <- function(data_package_data,
     # Load and process sample data
     # Extract Parent_ID by removing various suffixes from Sample_Name
     data <- data_package_data[["tabular_data"]][[sample_file]] %>%
-      mutate(Parent_ID_step1 = str_remove(Sample_Name, "_r\\d+$"), # remove ICR replicate suffix (_r1, _r2, etc.)
-             Parent_ID_step2 = str_remove(Parent_ID_step1, "-([A-Za-z]\\d+|\\d+|[A-Za-z])$"), # remove rep (-1, -D2, etc.)
-             Parent_ID = str_remove(Parent_ID_step2, "_[A-Za-z]{2,3}$") # remove analyte code (_OCN, etc.)
+      mutate(Parent_ID_step1 = str_remove(Sample_Name, "_r\\d+$"), 
+             Parent_ID_step2 = str_remove(Parent_ID_step1, "-[A-Za-z0-9]+$"), 
+             Parent_ID = str_remove(Parent_ID_step2, "_[A-Za-z]{2,3}$")
       ) %>%
       select(Sample_Name, Parent_ID) 
     
