@@ -64,9 +64,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 
 # USER INPUTS
-your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits/WHONDRS_Minikits_geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
+your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-2b291ffb7c59bac-20260319T223312400491" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-2942b5d65f06862-20260401T161538356" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
