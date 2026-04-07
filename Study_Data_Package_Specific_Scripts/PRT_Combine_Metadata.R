@@ -142,9 +142,6 @@ rm(gw_sw)
 
 combine <- deploy  %>%
   bind_rows(sw_exo) %>%
-  group_by(Site_ID) %>%
-  fill(Stream_Gradient, Stream_Hydrogeomorphology, .direction = "down") %>%
-  ungroup() %>%
   bind_rows(gw) %>%
   bind_rows(precip) %>%
   bind_rows(veg)
@@ -159,10 +156,11 @@ combine_clean <- combine %>%
          -SW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object,
          -NW_Hypotenuse_Distance_From_Guage_To_Top_of_Tallest_Object
          ) %>%
+  mutate(GPS_Accuracy_ft = na_if(GPS_Accuracy_ft, -9999)) %>%
   # some columns were not included in later metadata because they do not change,
   # we want to populate these for all visits though so populating those
   group_by(Site_ID) %>%
-  fill(Stream_Hydrogeomorphology, Stream_Gradient, .direction = "down") %>%
+  fill(Stream_Hydrogeomorphology, Stream_Gradient, GPS_Accuracy_ft, .direction = "down") %>%
   ungroup() %>%
  # clean up lat/long
   mutate(Latitude = as.numeric(str_remove_all(Latitude, '\\[M01\\] |\\[M02\\] |\\[M03\\] |\\[SF01\\] |\\[NF01\\] |\\[G01\\] |\\[G02\\] |\\[M01A\\] ')),
@@ -347,6 +345,9 @@ result <- verify_split(combine_clean, final_metadata, final_sensor_metadata, fin
 # =================================== output for v1  ==========================
 
 write_csv(final_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_Data_Package/PRT_Field_Metadata.csv')
+
+
+write_csv(final_metadata %>% select(Parent_ID, Site_ID, Date, GPS_Accuracy_ft), 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_GPS_Accuracy.csv')
 
 # =================================== output for v1 game cam dp ==========================
 
