@@ -97,6 +97,18 @@ load_tabular_data <- function(files_df,
   
   log_info(paste0("Planning to load ", nrow(tabular_metadata), " tabular files."))
   
+  if(nrow(tabular_metadata) == 0){
+    
+    output <- list(inputs = list(directory = paste0(abs_directory, parent_directory),
+                                 files_df = files_df,
+                                 flmd_df = flmd_df),
+                   outputs = list(header_row_info = tabular_metadata,
+                                  filtered_file_paths = files_df$all),
+                   tabular_data = NA)
+    
+    return(output)
+  }
+  
   
   ### query_header_info = F ####################################################
   
