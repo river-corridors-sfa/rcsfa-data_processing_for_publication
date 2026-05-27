@@ -24,12 +24,12 @@ dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/'
 
 RC <- 'RC4'
 
-study_code <- 'TAP'
+study_code <- 'S19S_Sediment'
 
 
 # ================================= Build dir ================================
 # boye_dir <- paste0(dir, RC, '/Boye_Files/', study_code, '/')
-boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Sample_Data'
+boye_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_Sediment_v10/v10_WHONDRS_S19S_Sediment/WHONDRS_S19S_Sediment_Sample_Data'
 
 typical_codes <- paste0(dir, 'Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx')
   

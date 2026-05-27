@@ -2,7 +2,7 @@
 #
 # Turn S19S data into boye
 #
-# Status: In progress
+# Status: complete
 #
 # ==============================================================================
 #
@@ -22,6 +22,8 @@ dp_folder <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_Sediment_v10/v10_WHONDRS_S
 # =================================== list files ============================
 
 all_files <- list.files(dp_folder, recursive = T, full.names = T)
+
+all_files <- all_files[!grepl('BoyeTransformed',all_files)]
 
 inc_data <- all_files[grepl('Incubations_Respiration_Rates.csv',all_files)]
 
@@ -46,6 +48,8 @@ iso_data <- all_files[grepl('Isotopes.csv',all_files)]
 xrf_files <- all_files[grepl('WHONDRS_S19S_Sediment_XRF_Data',all_files)]
 
 xrf_data <- all_files[grepl('XRF_ElementalAbundance.csv',all_files)]
+
+metadata_file <- all_files[grepl('Metadata.csv',all_files)]
 
 # =================================== boye function ============================
 add_header_rows <- function(input_file) {
@@ -239,14 +243,14 @@ npoc_icr_boye <- npoc_methods_combine %>%
     TRUE ~ V4
   ),
   V5 = case_when(
-    V1 == "Unit" ~ "milligrams per liter",
-    V1 == "Unit_Basis" ~ "as extractable dissolvable Carbon",
-    V1 == "MethodID_Analysis" ~ "ICR_T_AN_021",
-    V1 == "MethodID_Inspection" ~ "ICR_T_IN_021",
-    V1 == "MethodID_Storage" ~ "ICR_T_ST_021",
-    V1 == "MethodID_Preservation" ~ "ICR_T_PRES_021",
-    V1 == "MethodID_Preparation" ~ "ICR_T_PREP_021",
-    V1 == "MethodID_DataProcessing" ~ "ICR_T_DP_021",
+    V1 == "Unit" ~ "N/A",
+    V1 == "Unit_Basis" ~ "N/A",
+    V1 == "MethodID_Analysis" ~ "ICR_T_AN_001",
+    V1 == "MethodID_Inspection" ~ "ICR_T_IN_001",
+    V1 == "MethodID_Storage" ~ "ICR_T_ST_001",
+    V1 == "MethodID_Preservation" ~ "ICR_T_PRES_001",
+    V1 == "MethodID_Preparation" ~ "ICR_T_PREP_001",
+    V1 == "MethodID_DataProcessing" ~ "ICR_T_DP_001",
     V1 == "Analysis_DetectionLimit" ~ "-9999",
     V1 == "Analysis_Precision" ~ "-9999",
     V1 == "Data_Status" ~ "ready_to_use",
@@ -603,3 +607,6 @@ xrf_boye <- read_csv(xrf_data) %>%
 
 
 write_csv(xrf_boye, str_replace(xrf_data, '.csv', '_BoyeTransformed.csv'), na = '-9999', col_names = F)
+
+
+

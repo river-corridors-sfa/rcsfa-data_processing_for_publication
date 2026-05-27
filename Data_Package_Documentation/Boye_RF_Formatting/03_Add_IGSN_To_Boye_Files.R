@@ -49,7 +49,27 @@ data <- read_csv(file, skip = 2) %>%
     # mutate(Parent_ID = str_extract(Sample_Name, '.+(?=-)'))%>% # EEMs
     mutate(Parent_ID = str_extract(Sample_Name, '.+(?=-)')) # ICR
   
-} else{
+}  else if(str_detect(dp_dir, 'S19S')){ # S19S is different
+  
+  if(str_detect(file, 'XRF')){
+    
+    data <- read_csv(file, skip = 2) %>%
+      filter(!Sample_Name %in% c('N/A', '-9999')) %>%
+      mutate(suffix = str_extract(Sample_Name, "-.*$"), 
+             prefix = str_remove(Sample_Name, suffix), 
+             Parent_ID = paste0(prefix, "_Sediment", suffix))%>%
+      select(-prefix, -suffix)
+  }else{
+  
+  data <- read_csv(file, skip = 2) %>%
+    filter(!Sample_Name %in% c('N/A', '-9999')) %>%
+    mutate(prefix = str_extract(Sample_Name, "^[^_]*_[^_]*"),  
+           suffix = str_extract(Sample_Name, "-.*$"),          
+           Parent_ID = paste0(prefix, "_Sediment", suffix))%>%
+    select(-prefix, -suffix)
+  }
+  
+}else{
   
   data <- read_csv(file, skip = 2) %>%
     filter(!Sample_Name %in% c('N/A', '-9999')) %>%
@@ -91,6 +111,12 @@ if(str_detect(dp_dir, 'EC|EV')){ # IGSN in field metadata for ECA so having to p
     mutate(Parent_ID = str_extract(Sample_Name, paste0('.{', 6, '}')),
            Parent_ID = str_remove(Parent_ID, 'M')) %>%
     select(-Sample_Name, -Material)
+  
+} else if(str_detect(dp_dir, 'S19S')){ # have to pull S19S in a different way
+  
+  igsn <- read_csv(list.files(dp_dir, 'IGSN', full.names = T), skip = 1) %>%
+    select(Sample_Name, IGSN) %>%
+    rename(Parent_ID=Sample_Name)
   
 } else{
   igsn <- read_csv(list.files(dp_dir, 'IGSN', full.names = T), skip = 1) %>%
