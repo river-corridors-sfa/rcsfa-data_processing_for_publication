@@ -33,10 +33,10 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 # USER INPUTS
 
-your_essdive_metadata_file <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_Minikits/WHONDRS_Minikits_ESSDIVE_Metadata.docx"# absolute file path of ESS-DIVE metadata .docx
+your_essdive_metadata_file <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/TAP_ESSDIVE_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
 your_author_spreadsheet <- "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-2094cb4ccc52f7c-20260319T222020442" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-ab321e2a84266f5-20260526T171609176" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 # RUN functions (no modifications needed)
@@ -47,6 +47,29 @@ author_names <- get_authors_from_essdive_metadata(essdive_metadata_file = your_e
 # get author info from spreadsheet
 author_info <- get_author_spreadsheet_info(author_df = author_names, 
                                            author_info_file = your_author_spreadsheet)
+
+additional_authors <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/TAP Authors.csv") %>%
+  mutate('First Name' = case_when(!is.na(`Middle Initial`) ~ str_c(`First Name`,' ', `Middle Initial`),
+                                  TRUE ~ `First Name`)) %>%
+  rename(first_name = 'First Name',
+         last_name = 'Last Name',
+         orcid =  "ORCID" ,
+         email =  "E-mail" ,
+         affiliation = "Institution") %>%
+  select(-`Middle Initial`)
+
+author_info <- author_info %>%
+  bind_rows(additional_authors) %>%
+  arrange(last_name) %>%
+  mutate(
+    sort_order = case_when(
+      last_name == "Goldman" ~ 1,
+      last_name == "Stegen" ~ 999,
+      TRUE ~ row_number() + 1
+    )
+  ) %>%
+  arrange(sort_order) %>%
+  select(-sort_order)
 
 
 # update landing page - warning this will overwrite all existing authors with the new ones you provide
@@ -64,9 +87,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 
 # USER INPUTS
-your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
+your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_TAP_Data_Package/WHONDRS_TAP_geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-2942b5d65f06862-20260401T161538356" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-1b1d2a84b50278d-20260526T173935678417" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
