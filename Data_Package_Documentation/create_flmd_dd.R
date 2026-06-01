@@ -21,10 +21,10 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/TBS_Chem_Data_Package/TBS_Chem_Data_Packages'
+my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/UMP_Data_Package/UMP_Data_Package'
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "TBS_Chem"
+my_dp_keyword = "UMP"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
 my_out_dir = my_directory
@@ -68,7 +68,7 @@ user_query_header_info = T
 user_view_n_max = 20
 
 # add_boye_headers = T/F where the user should select T if they want placeholder rows in the dd for Boye header row names. Optional argument; default is FALSE.
-user_add_boye_headers = T
+user_add_boye_headers = F
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
 user_add_flmd_dd_headers = T
