@@ -9,10 +9,10 @@ rm(list = ls(all = TRUE))
 
 # load libraries
 require(pacman)
-pload(tidyverse, httr2, devtools) 
+p_load(tidyverse, httr2, devtools) 
 
 # load function
-source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_processing_for_publication/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_R_API/download_essdive_csvs.R")
+source_url('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_R_API/ESS-DIVE_download_API_function.R')
 
 
 ### Download Data ##############################################################
