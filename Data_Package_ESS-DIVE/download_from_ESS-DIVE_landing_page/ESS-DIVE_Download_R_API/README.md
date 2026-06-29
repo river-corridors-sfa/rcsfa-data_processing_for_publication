@@ -17,6 +17,8 @@ The function has the following package dependencies:
 - library packages: `tidyverse`, `dplyr`, `httr2`, `purrr`, `readr`, `stringr`, and `tibble`
 
 ``` R
+# source the function
+source_url('https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_R_API/ESS-DIVE_download_API_function.R')
 
 # this is the ESS-DIVE landing page link for a public data package
 your_package_link <- "https://data.ess-dive.lbl.gov/view/doi%3A10.15485%2F3374642"
