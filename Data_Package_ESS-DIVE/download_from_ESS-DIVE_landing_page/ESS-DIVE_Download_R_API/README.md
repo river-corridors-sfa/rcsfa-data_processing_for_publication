@@ -42,3 +42,4 @@ npoc_tn <- data_package_csvs$WHONDRS_TAP_Water_NPOC_TN
 - The function reads top-level csv files and csv files inside relevant zip files.
 - The function prints the ESS-DIVE data package citation in the console.
 - If metadata header rows are skipped, the function returns a warning listing the affected file names.
+- The function, example, and readme were created using Chat GPT-5.5 in Codex
