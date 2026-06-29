@@ -10,7 +10,7 @@ Accepted link formats include:
 - `https://data.ess-dive.lbl.gov/view/doi:10.15485/3374642`
 - `https://data.ess-dive.lbl.gov/datasets/doi:10.15485/3374642`
 
-If the data package is successfully downloaded, the function will return a named list of data frames. The list contains the csv files in the data package. If file-level metadata are available, the function uses the `Header_Rows` and `Column_or_Row_Name_Position` columns to skip metadata header rows before reading tabular data.
+If the data package is successfully downloaded, the function will print the data package citation in the console and return a named list of data frames. Add the printed citation to any resulting publications that use these data. The list contains the csv files in the data package. If file-level metadata are available, the function uses the `Header_Rows` and `Column_or_Row_Name_Position` columns to skip metadata header rows before reading tabular data.
 
 ## Run the function
 The function has the following package dependencies:
@@ -38,5 +38,5 @@ npoc_tn <- data_package_csvs$WHONDRS_TAP_Water_NPOC_TN
 - This function is intended for public ESS-DIVE data packages.
 - The function downloads files to a temporary folder created by R.
 - The function reads top-level csv files and csv files inside relevant zip files.
+- The function prints the ESS-DIVE data package citation in the console.
 - If metadata header rows are skipped, the function returns a warning listing the affected file names.
-

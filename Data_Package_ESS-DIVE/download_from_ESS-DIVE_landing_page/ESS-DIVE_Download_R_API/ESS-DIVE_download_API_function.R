@@ -65,6 +65,12 @@ download_essdive_csvs <- function(package_link) {
     httr2::req_perform() |>
     httr2::resp_body_json(simplifyVector = FALSE)
 
+  if (!is.null(metadata$citation)) {
+    cat("\nData package citation:\n")
+    cat(metadata$citation, "\n\n")
+    cat("Please add this citation to any resulting publications that use these data.\n\n")
+  }
+
   distributions <- metadata$dataset$distribution
 
   if (is.null(distributions) || length(distributions) == 0) {
