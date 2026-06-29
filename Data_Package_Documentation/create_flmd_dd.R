@@ -21,13 +21,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = 'C:/Brieanne/GitHub/ECA_DOM_Thermodynamics'
+my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJA_2016_Data_Package/WHONDRS_HJA_2016_Data_Package'
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "Garayburu-Caruso_2026_ECA_Thermodynamics"
+my_dp_keyword = "WHONDRS_HJA_2016"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
-my_out_dir = 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Data Management and Publishing/Data-Publishing/Manuscript-Data-Package/Files-for-review/Garayburu-Caruso_2026_ECA_Thermodynamics'
+my_out_dir = my_directory
 
 # populate_dd_flmd = indicate if you would like query the database to populate the dd and flmd. T/F
 populate_dd_flmd = T
@@ -50,8 +50,7 @@ populate_dd_flmd = T
 # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = list.files("C:/Brieanne/GitHub/ECA_DOM_Thermodynamics/EC_Data_Package", recursive = T) %>%
-  str_c('EC_Data_Package/', .)
+user_exclude_files = NA_character_
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -116,10 +115,10 @@ my_flmd<- create_flmd(files_df = my_files,
                        view_n_max = user_view_n_max)
 
 my_flmd <- my_flmd %>%
-  filter(File_Path != '/ECA_DOM_Thermodynamics/data_checks_reports') %>%
-  filter(File_Path != '/ECA_DOM_Thermodynamics/Map/cb_2018_us_state_20m')%>%
-  filter(File_Path != '/ECA_DOM_Thermodynamics/Map/HUC2_CONUS_Only')%>%
-  filter(File_Path != '/ECA_DOM_Thermodynamics/Map/NEON_Ecoregoins_CONUS')
+  slice(-c(194:254)) # remove xml files 
+
+my_flmd <- my_flmd %>%
+  slice(-c(16:192)) # remove json, csv, cal files 
 
 
 ### Create DD ##################################################################
@@ -130,9 +129,9 @@ my_dd <- create_dd(files_df = my_files,
                     add_flmd_dd_headers = user_add_flmd_dd_headers, 
                     include_filenames = user_include_filenames)
 
-my_dd <- my_dd %>%
-  slice(-(39:807)) %>%
-  distinct()
+my_dd <- my_dd  %>%
+  distinct()%>%
+  slice(-(42:100))
 
 
 ### Populate dd/flmd from database #############################################
