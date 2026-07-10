@@ -2,6 +2,7 @@
 
 # Objective: Run this script to add new DD and FLMD entries to their respective databases.
 
+rm(list=ls(all=T))
 
 ### User Inputs ################################################################
 # Directions: Fill out the user inputs. Then run the chunk.
@@ -12,10 +13,10 @@ my_publish_date <- Sys.Date()
 # my_publish_date <- '2025-07-21'
   
 # provide the absolute file path of the new DD to add
-my_dd <-"Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_dd.csv"
+my_dd <-"Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/TBS_Chem_Data_Package/TBS_Chem_Data_Package/TBS_Chem_dd.csv"
 
 # provide the absolute file path of the new FLMD to add
-my_flmd <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/WHONDRS_TAP_Data_Package/WHONDRS_TAP_Data_Package/WHONDRS_TAP_flmd.csv"
+my_flmd <- "Z:/00_ESSDIVE/01_Study_DPs/00_ARCHIVE-WHEN-PUBLISHED/TBS_Chem_Data_Package/TBS_Chem_Data_Package/TBS_Chem_flmd.csv"
 
 # absolute file path of the DD database
 dd_database_dir <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv"
