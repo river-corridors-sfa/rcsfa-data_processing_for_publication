@@ -21,10 +21,10 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJA_2016_Data_Package/WHONDRS_HJA_2016_Data_Package'
+my_directory = 'Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package/TBS_Mineralization_Data_Package'
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "WHONDRS_HJA_2016"
+my_dp_keyword = "TBS_Mineralization"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
 my_out_dir = my_directory
@@ -62,13 +62,13 @@ user_include_dot_files = F
 user_add_placeholders = T
 
 # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Header rows that start with "#" can be considered as not having header rows. Optional argument; default is FALSE.  
-user_query_header_info = F
+user_query_header_info = T
 
 # file_n_max = number of rows to load in. The only time you'd want to change this is if there are more than 20 rows before the data matrix starts; if that is the case, then increase this number. Optional argument; default is 20. 
 user_view_n_max = 20
 
 # add_boye_headers = T/F where the user should select T if they want placeholder rows in the dd for Boye header row names. Optional argument; default is FALSE.
-user_add_boye_headers = F
+user_add_boye_headers = T
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
 user_add_flmd_dd_headers = T
@@ -113,12 +113,9 @@ my_flmd<- create_flmd(files_df = my_files,
                        add_placeholders = user_add_placeholders,
                        query_header_info = user_query_header_info,
                        view_n_max = user_view_n_max)
-
-my_flmd <- my_flmd %>%
-  slice(-c(194:254)) # remove xml files 
-
-my_flmd <- my_flmd %>%
-  slice(-c(16:192)) # remove json, csv, cal files 
+# 
+# my_flmd <- my_flmd %>%
+#   slice(-c(16:295)) # remove xml files 
 
 
 ### Create DD ##################################################################
@@ -130,8 +127,7 @@ my_dd <- create_dd(files_df = my_files,
                     include_filenames = user_include_filenames)
 
 my_dd <- my_dd  %>%
-  distinct()%>%
-  slice(-(42:100))
+  distinct()
 
 
 ### Populate dd/flmd from database #############################################
@@ -147,19 +143,17 @@ flmd_populated <- query_flmd_database(flmd_database_abs_path = user_flmd_databas
 
 
 ### Data Package Specific Edits ################################################
-
-# prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_Sediment_v10/Archive/v7_dd.csv") %>%
+# 
+# prelim_dd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v8/Archive/v4_dd.csv") %>%
 #   select(Column_or_Row_Name, Unit, Definition, Data_Type, Term_Type)
 # 
 # 
-# dd_populated <- my_dd %>%
-#   distinct() %>%
-#   slice(-c(165:667)) %>%
+# dd_populated <- my_dd  %>%
 #   rows_patch(prelim_dd, by = c("Column_or_Row_Name"), unmatched = 'ignore') %>%
 #   mutate(Term_Type = case_when(is.na(Term_Type) ~ "column_header",
 #                                T ~ Term_Type))
 # 
-# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_Sediment_v10/Archive/v7_flmd.csv") %>%
+# prelim_flmd <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v8/Archive/v4_flmd.csv") %>%
 #   select(File_Name, File_Description)
 # 
 # 

@@ -19,9 +19,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TGW_Lidia_Data_Package'
+dp_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package'
 
-out_file <- "TBS_Chem_Metadata_IGSN_Mapping.csv"
+out_file <- "TBS_Mineralization_Metadata_IGSN_Mapping.csv"
 
 # ======================= read in site and sample IGSN =========================
 

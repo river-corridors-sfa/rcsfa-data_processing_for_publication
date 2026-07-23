@@ -19,22 +19,22 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJA_2016_Data_Package/WHONDRS_HJA_2016_Data_Package'
+user_directory <- 'Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package/TBS_Mineralization_Data_Package'
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJA_2016_Data_Package'
+report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package'
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
-user_input_has_header_rows <- F
+user_input_has_header_rows <- T
 
 # do you already have an FLMD that has Header_Rows and Column_or_Row_Name_Position filled out? (T/F)
 has_flmd <- T
 
 # if T, then provide the absolute file path of the existing flmd file
-flmd_path <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJA_2016_Data_Package/WHONDRS_HJA_2016_Data_Package/WHONDRS_HJA_2016_flmd.csv"
+flmd_path <- list.files(user_directory, 'flmd', full.names = T)
 
 #### OPTIONAL ----
 
@@ -144,10 +144,10 @@ sample_numbers <- check_sample_numbers(data_package_data = data_package_data,
 
 # 7. Check that all numeric columns contain a Reported_Precision
 
-if(any(str_detect(names(data_package_checks$input$tabular_data), "dd//.csv$"))){
+if(any(str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$"))){
   
   dd_path <- names(data_package_checks$input$tabular_data)[
-    str_detect(names(data_package_checks$input$tabular_data), "dd//.csv$")
+    str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
   ]
   
   ## Pull in dd to get units
@@ -187,7 +187,7 @@ tabular_data <- data_package_checks$tabular_report
 
 # Find the path that contains "dd.csv"
 dd_path <- names(data_package_checks$input$tabular_data)[
-  str_detect(names(data_package_checks$input$tabular_data), "dd//.csv$")
+  str_detect(names(data_package_checks$input$tabular_data), "dd\\.csv$")
 ]
 
 ## Pull in dd to get units
