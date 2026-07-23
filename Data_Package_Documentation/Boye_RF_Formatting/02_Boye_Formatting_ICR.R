@@ -22,19 +22,19 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents'
 
-dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_Data_Package/PRT_Sample_Data'
+dp_outdir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package_v2/v2_WHONDRS_HJW_Data_Package/v2_WHONDRS_HJW_Sample_Data'
 
-study_code <- 'PRT'
+study_code <- 'HJW'
 
 material <- 'Water'
 
 data_status <- 'L0_L1_L2_ICR'
 
-hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
+hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
-typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx'
+typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx'
 
 # =============================== list files ===================================
 
@@ -42,11 +42,11 @@ material_fixed <- case_when(material == 'Sediment' ~ 'Sediment',
                       material == 'Water' ~ 'Liquid>aqueous')
 
 
-analyte_code <- case_when(material == 'Sediment' ~ 'SED',
+analyte_code <- case_when(material == 'Sediment' ~ 'SIR',
                             material == 'Water' ~ 'ICR')
 
-combined_mapping <- list.files(paste0(dir,'/Study_', study_code, '/FTICR/03_ProcessedData/'),'Mapping', full.names = T, recursive = T) %>%
-  read_csv() %>%
+combined_mapping <- list.files(paste0(dir,'/Study_', study_code, '/FTICR/01_RawData/'),'Mapping', full.names = T, recursive = T) %>%
+  readxl::read_excel(., skip = 1) %>%
   filter(str_detect(Sample_ID, analyte_code)) %>% # pull samples with correct analyte code for the material
   filter(if_any(matches("(?i)notes"), ~ is.na(.x) | !str_detect(.x, 'OMIT'), .default = TRUE)) # remove samples that were rerun
 
