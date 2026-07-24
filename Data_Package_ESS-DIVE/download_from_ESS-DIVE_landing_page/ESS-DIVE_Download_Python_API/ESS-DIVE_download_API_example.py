@@ -10,7 +10,15 @@ from urllib.request import urlopen
 
 
 # Load function from GitHub
-function_url = "https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_Python_API/ESS_DIVE_download_API_function.py"
+function_url = (
+    "https://raw.githubusercontent.com/"
+    "river-corridors-sfa/rcsfa-data_processing_for_publication/"
+    "ESS-DIVE_Download_Python_API/"
+    "Data_Package_ESS-DIVE/"
+    "download_from_ESS-DIVE_landing_page/"
+    "ESS-DIVE_Download_Python_API/"
+    "ESS_DIVE_download_API_function.py"
+)
 exec(urlopen(function_url).read().decode("utf-8"), globals())
 
 
