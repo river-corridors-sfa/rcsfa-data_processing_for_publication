@@ -220,8 +220,9 @@ create_flmd <- function(files_df, # required
            File_Path = paste0(parent_dir, relative_dir),
            File_Description = NA_character_, 
            Standard = NA_character_,
+           Join_By_Field = NA_character_,
            header_format = NA_character_) %>% # temporary column
-    select(File_Name, File_Description, Standard, File_Path, header_format, all)
+    select(File_Name, File_Description, Standard, Join_By_Field, File_Path, header_format, all)
     
   ### add columns as indicated by user argument ################################
   
@@ -488,6 +489,24 @@ create_flmd <- function(files_df, # required
                                 str_detect(File_Name, "\\.csv$|\\.tsv$") ~ "ESS-DIVE CSV v1", # csv rf
                                 T ~ "N/A"))
   
+  ### add join by #############################################################
+  # update the standard based on CSV reporting format keywords (https://github.com/ess-dive-workspace/essdive-file-level-metadata/blob/main/RF_FLMD_Standard_Terms.csv)
+  
+  current_flmd_skeleton <- current_flmd_skeleton %>%
+    mutate(Join_By_Field = case_when(!str_detect(File_Name, 'csv') ~ 'N/A', 
+                                     str_detect(File_Name, "Methods_Codes\\.csv$") ~ "Method_ID", 
+                                     str_detect(File_Name, "Installation_Methods\\.csv$") ~ "InstallationMethod_ID", 
+                                     str_detect(File_Name, "flmd\\.csv$") ~ "File_Name", 
+                                     str_detect(File_Name, "dd\\.csv$") ~ "Column_or_Row_Name",
+                                     str_detect(File_Name, "IGSN\\.csv$") ~ "Sample_Name", 
+                                     str_detect(File_Name, "Field_Metadata\\.csv$") ~ "Parent_ID",  
+                                     str_detect(File_Name, "CoreMS_Processed_ICR_Data\\.csv$") ~ "Calibrated_Mass", 
+                                     str_detect(File_Name, "CoreMS_Processed_ICR_Mol\\.csv$") ~ "Calibrated_Mass", 
+                                     str_detect(File_Name, "\\.corems\\.csv$") ~ "Calibrated_Mass", 
+                                     str_detect(Standard, 'ESS-DIVE Water-Soil-Sediment Chem v1') ~ 'Sample_Name',
+                                     T ~ ''))
+  
+  
   
   ### sort flmd ################################################################
   
@@ -495,7 +514,7 @@ create_flmd <- function(files_df, # required
   current_flmd_skeleton <- current_flmd_skeleton %>% 
     mutate(Header_Rows = as.numeric(Header_Rows)) %>% 
     mutate(Column_or_Row_Name_Position = as.numeric(Column_or_Row_Name_Position)) %>% 
-    select(File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, File_Path)
+    select(File_Name, File_Description, Standard, Header_Rows, Column_or_Row_Name_Position, Join_By_Field, File_Path)
   
   # sort rows by readme, flmd, dd, and then by File_Path and File_Name
   current_flmd_skeleton <- current_flmd_skeleton %>% 
