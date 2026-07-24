@@ -19,13 +19,13 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # provide the absolute folder file path (do not include "/" at end)
-user_directory <- 'Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package/TBS_Mineralization_Data_Package'
+user_directory <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v8/v8_WHONDRS_S19S_SW"
 
 # provide the name of the person running the checks
 report_author <- "Brieanne Forbes"
 
 # provide the directory (do not include "/" at the end) for the data package report - the report will be saved as Checks_Report_YYYY-MM-DD.html
-report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package'
+report_out_dir <- 'Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_S19S_SW_v8'
 
 # do the tabular files have header rows? (T/F) - header rows that start with "#" can be considered as not having header rows
 user_input_has_header_rows <- T

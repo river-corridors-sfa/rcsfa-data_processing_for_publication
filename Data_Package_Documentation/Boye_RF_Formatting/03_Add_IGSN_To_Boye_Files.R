@@ -49,7 +49,7 @@ data <- read_csv(file, skip = 2) %>%
     # mutate(Parent_ID = str_extract(Sample_Name, '.+(?=-)'))%>% # EEMs
     mutate(Parent_ID = str_extract(Sample_Name, '.+(?=-)')) # ICR
   
-}  else if(str_detect(dp_dir, 'S19S')){ # S19S is different
+}  else if(str_detect(dp_dir, 'S19S_Sediment')){ # S19S is different
   
   if(str_detect(file, 'XRF')){
     
@@ -69,7 +69,15 @@ data <- read_csv(file, skip = 2) %>%
     select(-prefix, -suffix)
   }
   
-}else{
+} else if(str_detect(dp_dir, 'S19S_SW')){ # S19S is different
+    
+    data <- read_csv(file, skip = 2) %>%
+      filter(!Sample_Name %in% c('N/A', '-9999')) %>%
+      mutate(Parent_ID = str_replace(Sample_Name,
+                                     "^([^_]+_[^_]+).*",
+                                     "\\1_Water"))
+    
+} else{
   
   data <- read_csv(file, skip = 2) %>%
     filter(!Sample_Name %in% c('N/A', '-9999')) %>%

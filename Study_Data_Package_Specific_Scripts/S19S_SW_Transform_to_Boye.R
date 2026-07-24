@@ -5,14 +5,6 @@
 # Status: in progress
 #
 # ==============================================================================
-# Notes
-# - NPOC/ICR: its ready, just need the typical code before outputting
-# - ISO: also ready, just need typical code before outputting; once output fill in unit
-# - DIC: complete and output
-# - Flow cyto: complete and output, I updated unit basis in output csv
-# - anion/TN: its ready, just need the typical code before outputting; once output fill in unit
-# none of the data types have a methods deviation for the 
-# ==============================================================================
 #
 # Author: Brieanne Forbes 
 # 10 July 2026
@@ -146,12 +138,12 @@ npoc_icr_boye <- npoc_methods_combine %>%
   mutate(V4 = case_when(
     V1 == "Unit" ~ "milligrams per liter",
     V1 == "Unit_Basis" ~ "as dissolvable Carbon",
-    V1 == "MethodID_Analysis" ~ "NPOC_T_AN_###",
-    V1 == "MethodID_Inspection" ~ "NPOC_T_IN_###",
-    V1 == "MethodID_Storage" ~ "NPOC_T_ST_###",
-    V1 == "MethodID_Preservation" ~ "NPOC_T_PRES_###",
-    V1 == "MethodID_Preparation" ~ "NPOC_T_PREP_###",
-    V1 == "MethodID_DataProcessing" ~ "NPOC_T_DP_###",
+    V1 == "MethodID_Analysis" ~ "NPOC_T_AN_023",
+    V1 == "MethodID_Inspection" ~ "NPOC_T_IN_023",
+    V1 == "MethodID_Storage" ~ "NPOC_T_ST_023",
+    V1 == "MethodID_Preservation" ~ "NPOC_T_PRES_023",
+    V1 == "MethodID_Preparation" ~ "NPOC_T_PREP_023",
+    V1 == "MethodID_DataProcessing" ~ "NPOC_T_DP_023",
     V1 == "Analysis_DetectionLimit" ~ "-9999",
     V1 == "Analysis_Precision" ~ "-9999",
     V1 == "Data_Status" ~ "ready_to_use",
@@ -160,12 +152,12 @@ npoc_icr_boye <- npoc_methods_combine %>%
   V5 = case_when(
     V1 == "Unit" ~ "N/A",
     V1 == "Unit_Basis" ~ "N/A",
-    V1 == "MethodID_Analysis" ~ "ICR_T_AN_###",
-    V1 == "MethodID_Inspection" ~ "ICR_T_IN_###",
-    V1 == "MethodID_Storage" ~ "ICR_T_ST_###",
-    V1 == "MethodID_Preservation" ~ "ICR_T_PRES_###",
-    V1 == "MethodID_Preparation" ~ "ICR_T_PREP_###",
-    V1 == "MethodID_DataProcessing" ~ "ICR_T_DP_###",
+    V1 == "MethodID_Analysis" ~ "ICR_T_AN_021",
+    V1 == "MethodID_Inspection" ~ "ICR_T_IN_021",
+    V1 == "MethodID_Storage" ~ "ICR_T_ST_021",
+    V1 == "MethodID_Preservation" ~ "ICR_T_PRES_021",
+    V1 == "MethodID_Preparation" ~ "ICR_T_PREP_021",
+    V1 == "MethodID_DataProcessing" ~ "ICR_T_DP_021",
     V1 == "Analysis_DetectionLimit" ~ "-9999",
     V1 == "Analysis_Precision" ~ "-9999",
     V1 == "Data_Status" ~ "ready_to_use",
@@ -191,12 +183,12 @@ iso_boye <- iso_methods_combine %>%
   mutate(across(V4:V9, ~ case_when(
     V1 == "Unit" ~ "[FILL IN UNIT]",
     V1 == "Unit_Basis" ~ "[FILL IN UNIT]",
-    V1 == "MethodID_Analysis" ~ "ISO_T_AN_###",
-    V1 == "MethodID_Inspection" ~ "ISO_T_IN_###",
-    V1 == "MethodID_Storage" ~ "ISO_T_ST_###",
-    V1 == "MethodID_Preservation" ~ "ISO_T_PRES_###",
-    V1 == "MethodID_Preparation" ~ "ISO_T_PREP_###",
-    V1 == "MethodID_DataProcessing" ~ "ISO_T_DP_###",
+    V1 == "MethodID_Analysis" ~ "ISO_T_AN_003",
+    V1 == "MethodID_Inspection" ~ "ISO_T_IN_003",
+    V1 == "MethodID_Storage" ~ "ISO_T_ST_003",
+    V1 == "MethodID_Preservation" ~ "ISO_T_PRES_003",
+    V1 == "MethodID_Preparation" ~ "ISO_T_PREP_003",
+    V1 == "MethodID_DataProcessing" ~ "ISO_T_DP_003",
     V1 == "Analysis_DetectionLimit" ~ "-9999",
     V1 == "Analysis_Precision" ~ "-9999",
     V1 == "Data_Status" ~ "ready_to_use",
@@ -278,12 +270,12 @@ anion_tn_boye <- anion_tn_methods_combine %>%
   mutate(across(V5:V9, ~ case_when(
     V1 == "Unit" ~ "milligrams per liter",
     V1 == "Unit_Basis" ~ "[FILL IN UNIT]",
-    V1 == "MethodID_Analysis" ~ "ION_T_AN_###",
-    V1 == "MethodID_Inspection" ~ "ION_T_IN_###",
-    V1 == "MethodID_Storage" ~ "ION_T_ST_###",
-    V1 == "MethodID_Preservation" ~ "ION_T_PRES_###",
-    V1 == "MethodID_Preparation" ~ "ION_T_PREP_###",
-    V1 == "MethodID_DataProcessing" ~ "ION_T_DP_###",
+    V1 == "MethodID_Analysis" ~ "ION_T_AN_009",
+    V1 == "MethodID_Inspection" ~ "ION_T_IN_009",
+    V1 == "MethodID_Storage" ~ "ION_T_ST_009",
+    V1 == "MethodID_Preservation" ~ "ION_T_PRES_009",
+    V1 == "MethodID_Preparation" ~ "ION_T_PREP_009",
+    V1 == "MethodID_DataProcessing" ~ "ION_T_DP_009",
     V1 == "Analysis_DetectionLimit" ~ "-9999",
     V1 == "Analysis_Precision" ~ "-9999",
     V1 == "Data_Status" ~ "ready_to_use",
@@ -293,12 +285,12 @@ anion_tn_boye <- anion_tn_methods_combine %>%
   mutate(V4 = case_when(
     V1 == "Unit" ~ "microsiemens per centimeter",
     V1 == "Unit_Basis" ~ "as microsiemens per centimeter",
-    V1 == "MethodID_Analysis" ~ "SpC_T_AN_###",
-    V1 == "MethodID_Inspection" ~ "SpC_T_IN_###",
-    V1 == "MethodID_Storage" ~ "SpC_T_ST_###",
-    V1 == "MethodID_Preservation" ~ "SpC_T_PRES_###",
-    V1 == "MethodID_Preparation" ~ "SpC_T_PREP_###",
-    V1 == "MethodID_DataProcessing" ~ "SpC_T_DP_###",
+    V1 == "MethodID_Analysis" ~ "SpC_T_AN_000",
+    V1 == "MethodID_Inspection" ~ "SpC_T_IN_000",
+    V1 == "MethodID_Storage" ~ "SpC_T_ST_000",
+    V1 == "MethodID_Preservation" ~ "SpC_T_PRES_000",
+    V1 == "MethodID_Preparation" ~ "SpC_T_PREP_000",
+    V1 == "MethodID_DataProcessing" ~ "SpC_T_DP_000",
     V1 == "Analysis_DetectionLimit" ~ "-9999",
     V1 == "Analysis_Precision" ~ "-9999",
     V1 == "Data_Status" ~ "ready_to_use",
@@ -307,17 +299,17 @@ anion_tn_boye <- anion_tn_methods_combine %>%
   V10 = case_when(
     V1 == "Unit" ~ "milligrams per liter",
     V1 == "Unit_Basis" ~ "as dissolvable Nitrogen",
-    V1 == "MethodID_Analysis" ~ "TN_T_AN_###",
-    V1 == "MethodID_Inspection" ~ "TN_T_IN_###",
-    V1 == "MethodID_Storage" ~ "TN_T_ST_###",
-    V1 == "MethodID_Preservation" ~ "TN_T_PRES_###",
-    V1 == "MethodID_Preparation" ~ "TN_T_PREP_###",
-    V1 == "MethodID_DataProcessing" ~ "TN_T_DP_###",
+    V1 == "MethodID_Analysis" ~ "TN_T_AN_019",
+    V1 == "MethodID_Inspection" ~ "TN_T_IN_019",
+    V1 == "MethodID_Storage" ~ "TN_T_ST_019",
+    V1 == "MethodID_Preservation" ~ "TN_T_PRES_019",
+    V1 == "MethodID_Preparation" ~ "TN_T_PREP_019",
+    V1 == "MethodID_DataProcessing" ~ "TN_T_DP_019",
     V1 == "Analysis_DetectionLimit" ~ "-9999",
     V1 == "Analysis_Precision" ~ "-9999",
     V1 == "Data_Status" ~ "ready_to_use",
     TRUE ~ V10
   ))
 
-write_csv(anion_tn_boye, str_replace(anion_tn_data, '.csv', '_BoyeTransformed.csv'), na = '-9999', col_names = F)
+write_csv(anion_tn_boye, str_replace(anion_TN_data, '.csv', '_BoyeTransformed.csv'), na = '-9999', col_names = F)
 
