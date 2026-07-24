@@ -31,7 +31,7 @@ from urllib.request import urlopen
 function_url = (
     "https://raw.githubusercontent.com/"
     "river-corridors-sfa/rcsfa-data_processing_for_publication/"
-    "ESS-DIVE_Download_Python_API/"
+    "main/"
     "Data_Package_ESS-DIVE/"
     "download_from_ESS-DIVE_landing_page/"
     "ESS-DIVE_Download_Python_API/"
