@@ -28,7 +28,15 @@ Load the function directly from GitHub, similar to `source_url()` in R:
 from urllib.request import urlopen
 
 # load the function
-function_url = "https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_Python_API/ESS_DIVE_download_API_function.py"
+function_url = (
+    "https://raw.githubusercontent.com/"
+    "river-corridors-sfa/rcsfa-data_processing_for_publication/"
+    "ESS-DIVE_Download_Python_API/"
+    "Data_Package_ESS-DIVE/"
+    "download_from_ESS-DIVE_landing_page/"
+    "ESS-DIVE_Download_Python_API/"
+    "ESS_DIVE_download_API_function.py"
+)
 exec(urlopen(function_url).read().decode("utf-8"), globals())
 
 # this is the ESS-DIVE landing page link for a public data package
