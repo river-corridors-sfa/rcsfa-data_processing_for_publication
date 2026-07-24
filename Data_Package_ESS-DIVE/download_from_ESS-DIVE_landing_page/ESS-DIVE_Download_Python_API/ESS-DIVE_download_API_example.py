@@ -2,11 +2,16 @@
 
 # Function, example, and readme were created using Chat GPT-5.5 in Codex.
 
-from ESS_DIVE_download_API_function import download_essdive_csvs
+from urllib.request import urlopen
 
 
 # For detailed information on the function that uses the API to download csv
 # files from an ESS-DIVE landing page, refer to the README.md file.
+
+
+# Load function from GitHub
+function_url = "https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_Python_API/ESS_DIVE_download_API_function.py"
+exec(urlopen(function_url).read().decode("utf-8"), globals())
 
 
 # USER INPUTS

@@ -22,16 +22,26 @@ Install the required packages if needed:
 pip install pandas
 ```
 
-Place `ESS_DIVE_download_API_function.py` in your working directory, then import and run the function:
+Load the function directly from GitHub, similar to `source_url()` in R:
 
 ``` python
-from ESS_DIVE_download_API_function import download_essdive_csvs
+from urllib.request import urlopen
+
+# load the function
+function_url = "https://github.com/river-corridors-sfa/rcsfa-data_processing_for_publication/raw/refs/heads/main/Data_Package_ESS-DIVE/download_from_ESS-DIVE_landing_page/ESS-DIVE_Download_Python_API/ESS_DIVE_download_API_function.py"
+exec(urlopen(function_url).read().decode("utf-8"), globals())
 
 # this is the ESS-DIVE landing page link for a public data package
 your_package_link = "https://data.ess-dive.lbl.gov/view/doi%3A10.15485%2F3374642"
 
 
 data_package_csvs = download_essdive_csvs(package_link=your_package_link)
+```
+
+If `ESS_DIVE_download_API_function.py` is already saved in your working directory, you can also import it directly:
+
+``` python
+from ESS_DIVE_download_API_function import download_essdive_csvs
 ```
 
 The returned object is a dictionary. Use the csv file name, without the `.csv` extension, to access individual csv files.
