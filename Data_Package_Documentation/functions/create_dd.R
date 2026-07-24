@@ -485,7 +485,8 @@ create_dd <- function(files_df,
     # make Reported_Precision for Reported_Precisoin = -9999
     mutate(Reported_Precision = ifelse(Column_or_Row_Name == "Reported_Precision", -9999, Reported_Precision)) %>%
     # alphabetize
-    arrange(tolower(Column_or_Row_Name))
+    arrange(tolower(Column_or_Row_Name)) %>%
+    distinct()
   
   
   # if include_filenames == F, then drop cols
