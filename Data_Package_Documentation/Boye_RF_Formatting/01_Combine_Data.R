@@ -21,7 +21,7 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_PRT/NPOC_TN'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_PRT/NPOC_TN'
 
 study_code <- 'PRT'
 

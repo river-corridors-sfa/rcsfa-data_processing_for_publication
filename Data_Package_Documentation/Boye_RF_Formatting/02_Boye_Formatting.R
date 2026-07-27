@@ -24,31 +24,31 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/Documents - RC-SFA/Study_PRT/ISO'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_PRT/NPOC_TN'
 
 study_code <- 'PRT'
   
 material <- 'Water'
 
-hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
+hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
-typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx'
+typical_codes_dir <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Method_Typical_Codes.xlsx'
 
-colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Workflows-MethodsCodes/RC-SFA_ColumnHeader_Lookup.csv'
+colnames_lookup_dir <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Workflows-MethodsCodes/RC-SFA_ColumnHeader_Lookup.csv'
 
 # uncomment if data was run at EMSL
-# LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
+# LOD_file_dir <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu EMSL/Limit_of_detection_calculations/TOC_EMSL_LOD.xlsx'
 
 #uncomment if data was run at MCRL
-# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
+# LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu MCRL/Limit_of_detection_calculations/TOC_MCRL_LOD.xlsx'
 
 #uncomment if data was run at BSF
-LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
+LOD_file_dir <-'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Raw_Instrument_Data/NPOC-TN Shimadzu BSF/Limit_of_detection_calculations/TOC_BSF_LOD.xlsx'
  
  #uncomment if ions were run at EMSL and update file name
-ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv'
+ion_LOD_file <-  'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Raw_Instrument_Data/IC-6000 EMSL/Limit_of_detection_calculations/20230915_LOD_RC2_SSS_1-144.csv'
 
-# tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
+# tss_LOD_file <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Raw_Instrument_Data/TSS BSF/Limit_of_detection_calculations/TSS_BSF_LOD.xlsx'
 
 
 # =============================== list files ===================================
