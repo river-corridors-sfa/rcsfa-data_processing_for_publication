@@ -15,13 +15,13 @@ library(tidyverse)
 
 # ================================= User inputs ================================
 metadata_filepath <- file.choose()
-metadata <- read_csv(metadata_filepath, na = c('-9999', 'N/A', 'NA', NA))
+metadata <- read_csv(metadata_filepath, na = c('-9999', 'N/A', 'NA', NA)) 
 
-user_code <- 'IEWDR' # this if for WHONDRS
-# user_code <- 'IEPRS' # this is NOT for WHONDRS
+# user_code <- 'IEWDR' # this if for WHONDRS
+user_code <- 'IEPRS' # this is NOT for WHONDRS
 # user_code <- 'IETGW'#this is for TGW
 
-outdir <- 'Z:/IGSN/HJW_IGSN_Site_ToBeRegistered.csv'
+outdir <- 'Z:/IGSN/NVY_IGSN_Site_ToBeRegistered.csv'
 
 
 # ======================== input column names ============================

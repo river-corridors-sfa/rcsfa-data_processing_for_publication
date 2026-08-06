@@ -21,13 +21,13 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_PRT/NPOC_TN'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_HJW/NPOC_TN'
 
-study_code <- 'PRT'
+study_code <- 'HJW'
 
-analysis <- 'OCN'
+analysis <- 'NPOC_TN'
 
-analyte_code <- 'OCN' # Options are ION, OCN, DIC, TSS, ISO
+analyte_code <- 'SOC' # Options are ION, OCN, DIC, TSS, ISO
 
 qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
@@ -107,10 +107,8 @@ for (mapping_file in mapping_files) {
 # ========================= filter mapping by study code =======================
 
 mapping_filtered <- combine_mapping %>%
-  filter(str_detect(Sample_ID, study_code))
-
-# %>%
-#   filter(str_detect(Sample_ID, analyte_code)) # analyte code should remove need for if statement below, but keeping for now
+  filter(str_detect(Sample_ID, study_code)) %>%
+  filter(str_detect(Sample_ID, analyte_code))
 
 
 # ============================== combine QAQC data =============================
@@ -143,10 +141,8 @@ mapping_filtered <- combine_mapping %>%
   # ===================== filter data by study code and output =================
   
   data_filtered <- combine_qaqc %>%
-    filter(str_detect(Sample_ID, study_code)) 
-  
-  # %>%
-  #   filter(str_detect(Sample_ID, analyte_code)) 
+    filter(str_detect(Sample_ID, study_code)) %>%
+    filter(str_detect(Sample_ID, analyte_code))
   
   #file needed for summary stats code
   write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_CombinedQAQC_', Sys.Date(), '.csv'))
@@ -161,13 +157,20 @@ mapping_filtered <- combine_mapping %>%
               c(Method_Deviation, Flags),
               sep = '; ',
               na.rm = T)
+
+  
   
   # ============================= get LOD date range =============================
   
   date_range = tibble(Date_start = min(merged$Date),
                       Date_end = max(merged$Date))
   
-  # Export LOD dates
+  merged <- data_filtered %>%
+    full_join(mapping_filtered, by = c('Sample_ID', 'Date', 'Randomized_ID')) %>%
+    unite(Deviation,
+          c(Method_Deviation, Flags),
+          sep = '; ',
+          na.rm = T)# Export LOD dates
   write_csv(date_range,paste0(study_out_dir,'/', study_code, '_LOD_Dates_', Sys.Date(), '.csv'))
   
   # ========================= select necessary columns ===========================
@@ -176,6 +179,7 @@ mapping_filtered <- combine_mapping %>%
     select(Date, Randomized_ID, Sample_ID, contains('per_'), Deviation, Method_Notes) %>%
     dplyr::rename(Date_of_Run = Date,
            Methods_Deviation = Deviation)
+
   
   # ===================================== reruns =================================
   
