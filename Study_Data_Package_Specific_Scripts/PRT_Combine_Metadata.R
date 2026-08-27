@@ -26,6 +26,8 @@ precip_link <- 'https://docs.google.com/spreadsheets/d/1YZnEdO1S0yrEXd4kil20QWOb
 
 veg_link <- 'https://docs.google.com/spreadsheets/d/1El9aFTLLs-ImZaouFSa2AHEv1__JtmAH2OLJAM53i8c/edit?usp=sharing'
 
+soil_link <- 'https://docs.google.com/spreadsheets/d/19IRBULv9rcOCAASw4H-7prmt3pjLnrGcjvNwnT-3pmI/edit'
+
 # =================================== read in gsheets ==========================
 
 deploy <- gsheet2tbl(deploy_link) %>%
@@ -113,6 +115,13 @@ veg <- gsheet2tbl(veg_link) %>%
          Time_Leaving_PST = as.character(Time_Leaving_PST)) %>%
   add_column(Metadata_Type = 'Vegetation')
 
+soil <- gsheet2tbl(soil_link)%>%
+  add_column(Metadata_Type = 'Soil')%>%
+  mutate(Time_Arriving_PST = as.character(Time_Arriving_PST),
+         Time_Leaving_PST = as.character(Time_Leaving_PST),
+         Latitude = as.character(Latitude),
+         Longitude = as.character(Longitude))
+
 # =================================== fix spc/temp ==========================
 # move SW spc/temp from GW metadata to SW metadata
 
@@ -144,7 +153,8 @@ combine <- deploy  %>%
   bind_rows(sw_exo) %>%
   bind_rows(gw) %>%
   bind_rows(precip) %>%
-  bind_rows(veg)
+  bind_rows(veg)%>%
+  bind_rows(soil)
 
 
 combine_clean <- combine %>%
@@ -184,7 +194,8 @@ combine_clean <- combine %>%
          NE_Horizontal_Distance_Tallest_Obstruction =  NE_Tallest_Object_Distance_From_Gauge,
          SE_Horizontal_Distance_Tallest_Obstruction =  SE_Tallest_Object_Distance_From_Gauge,
          NW_Horizontal_Distance_Tallest_Obstruction =  NW_Tallest_Object_Distance_From_Gauge,
-         SW_Horizontal_Distance_Tallest_Obstruction =  SW_Tallest_Object_Distance_From_Gauge
+         SW_Horizontal_Distance_Tallest_Obstruction =  SW_Tallest_Object_Distance_From_Gauge,
+         Ground_Plant_Coverage = Ground_Coverage
          ) %>%
   # add in calibration info for deployment, all were lab calibrated (except M01) with the usual standard
   mutate(
@@ -215,7 +226,11 @@ combine_clean <- combine %>%
     Date = as.character(paste0(" ", Date)),
     Field_Crew = str_replace(Field_Crew, ",", ";"),
     Weather = str_replace(Weather, ",", ";"),
-    Vegetation = str_replace(Vegetation, ",", ";")
+    Vegetation = str_replace(Vegetation, ",", ";"),
+    across(
+      c(Time_Arriving_PST, Time_Leaving_PST),
+      ~ if_else(. == "-9999", ., str_sub(., 1, 5))
+    )
   ) %>%
   arrange(Date)
         
@@ -224,7 +239,7 @@ final_metadata <- combine_clean %>%
   select(Parent_ID, Metadata_Type, Site_ID, Date, Time_Arriving_PST, Time_Leaving_PST, Latitude, Longitude, GPS_Accuracy_ft,
          Field_Crew, Weather, Dominant_Sediment_Type, Water_Status, Canopy_Coverage, Macrophyte_Coverage,
          Algal_Mat_Coverage, Vegetation, Stream_Hydrogeomorphology, Stream_Gradient, 
-         Ground_Coverage, Terrain_Gradient, River_Width, 
+         Ground_Plant_Coverage, Terrain_Gradient, River_Width, 
          Depth_At_Sensor, Point_A_Depth, Point_B_Depth, Point_C_Depth, Point_D_Depth, Point_E_Depth, 
          Specific_Conductance, Water_Temperature, Surface_Water_Parent_ID, Rep1_Specific_Conductance, Rep1_Water_Temperature, 
          Rep1_Side_of_Stream, Rep1_Horizontal_Distance_To_Stream_Edge, Rep1_Vertical_Distance_Stream_To_Ground, 
@@ -236,9 +251,12 @@ final_metadata <- combine_clean %>%
          Distance_Between_Rep2_and_Rep3, Rep1_Location, 
          Rep2_Location, Rep3_Location,  
          contains('Precipitation_Sampler'),
+         contains('Specific_Conductance-Bottle'),
+         contains('Temperature-Bottle'),
          contains('Site_ID_'),
          contains('Moisture_Conditions_'),
          contains('Surrounding_Burn_Severity_'),
+         Relative_Elevation, Distance_to_EXO, Bearing_Angle_to_EXO, Relative_Moisture,
          Notes)
 
 final_sensor_metadata <- combine_clean %>%
@@ -247,7 +265,11 @@ final_sensor_metadata <- combine_clean %>%
          Sonde_SN, Wiper_SN, FDOM_SN, DO_SN, SpC_Temp_SN, Turbidity_SN, pH_SN, 
          BaroTROLL_SN, Calibration, Probes_Calibrated, pH_Good_QC_Score, 
          SpC_Good_QC_Score, DO_Good_QC_Score, Turbidity_Good_QC_Score, fDOM_Good_QC_Score, pH_Standard, 
-         SpC_Standard, DO_Standard, Turbidity_Standard, fDOM_Standard,Rain_Gauge_Logger_SN, Rain_Gauge_Tipping_Bucket_SN, 
+         SpC_Standard, DO_Standard, Turbidity_Standard, fDOM_Standard,
+         pH_Lab_Calibrated, pH_Before_Calibration, SpC_Lab_Calibrated, SpC_Before_Calibration, 
+         DO_Lab_Calibrated, DO_Before_Calibration, Turbidity_Lab_Calibrated, Turbidity_Before_Calibration,
+         fDOM_Lab_Calibrated, fDOM_Before_Calibrated, 
+         Rain_Gauge_Logger_SN, Rain_Gauge_Tipping_Bucket_SN, 
          Rain_Gauge_Height, Rain_Gauge_Time_Start_PST, Rain_Gauge_Time_End_PST, 
          NE_Horizontal_Distance_Tallest_Obstruction, SE_Horizontal_Distance_Tallest_Obstruction,  
          SW_Horizontal_Distance_Tallest_Obstruction, NW_Horizontal_Distance_Tallest_Obstruction,
@@ -255,8 +277,6 @@ final_sensor_metadata <- combine_clean %>%
   # filter out rows without sensor metadata
   filter(!Metadata_Type %in% c('Ground water - push points', 'Ground water - well', 'Ground water - spring', 'Precipitation; Rain gauge download', 'Vegetation'))
 
-# Reminder: I will probably need to filter out early game cam metadata since the pics were bad,
-# need to figure this out later 
 final_game_cam_metadata <- combine_clean %>%
   select(Site_ID, Date, Latitude, Longitude, Game_Camera_SN, Game_Camera_Height, 
          River_Width, Depth_At_Sensor, Point_A_Depth, Point_B_Depth, Point_C_Depth,
@@ -343,12 +363,44 @@ verify_split <- function(original_df, df1, df2, df3) {
 result <- verify_split(combine_clean, final_metadata, final_sensor_metadata, final_game_cam_metadata)
 
 # =================================== output for v1  ==========================
-
-write_csv(final_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_Data_Package/PRT_Field_Metadata.csv')
-
-
-write_csv(final_metadata %>% select(Parent_ID, Site_ID, Date, GPS_Accuracy_ft), 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_GPS_Accuracy.csv')
+# 
+# write_csv(final_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_Data_Package/PRT_Field_Metadata.csv')
+# 
+# 
+# write_csv(final_metadata %>% select(Parent_ID, Site_ID, Date, GPS_Accuracy_ft), 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package/PRT_GPS_Accuracy.csv')
 
 # =================================== output for v1 game cam dp ==========================
+# 
+# write_csv(final_game_cam_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_GameCamera_Data_Package/PRT_GameCamera_Data_Package/PRT_GameCamera_Field_Metadata.csv') #outputted on 2026-02-06 for v1 
 
-write_csv(final_game_cam_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_GameCamera_Data_Package/PRT_GameCamera_Data_Package/PRT_GameCamera_Field_Metadata.csv') #outputted on 2026-02-06 for v1 
+# =================================== output for v2  ==========================
+
+v1 <- read_csv('Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/PRT_Field_Metadata.csv') %>%
+  mutate(Date = as.character(str_c(' ', Date)))
+
+
+new_rows <- final_metadata %>%
+  anti_join(
+    v1,
+    by =  c(
+      "Parent_ID",
+      "Site_ID",
+      'Date'
+    )
+  ) %>%
+  add_column(new = 'TRUE', .before = 'Parent_ID')
+
+v2 <- bind_rows(
+  v1,
+  new_rows
+)
+
+write_csv(v2, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Field_Metadata.csv')
+
+# =================================== output for v1 of sensor, v2 dp  ==========================
+
+
+write_csv(final_sensor_metadata, 'Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/Sensor_Data/PRT_Sensor_Metadata.csv')
+
+
+
