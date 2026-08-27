@@ -21,13 +21,13 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_HJW/NPOC_TN'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_PRT/ISO'
 
-study_code <- 'HJW'
+study_code <- 'PRT'
 
-analysis <- 'NPOC_TN'
+analysis <- 'Isotopes'
 
-analyte_code <- 'SOC' # Options are ION, OCN, DIC, TSS, ISO
+analyte_code <- c('SIS', 'IS', 'ISO') # Options are ION, OCN, DIC, TSS, ISO
 
 qaqc <- 'N' # Y or N to QAQC the merged data, necessary when reps have been run on different runs
 
@@ -108,7 +108,7 @@ for (mapping_file in mapping_files) {
 
 mapping_filtered <- combine_mapping %>%
   filter(str_detect(Sample_ID, study_code)) %>%
-  filter(str_detect(Sample_ID, analyte_code))
+  filter(str_detect(Sample_ID, str_c(analyte_code, collapse = "|")))
 
 
 # ============================== combine QAQC data =============================
@@ -142,7 +142,7 @@ mapping_filtered <- combine_mapping %>%
   
   data_filtered <- combine_qaqc %>%
     filter(str_detect(Sample_ID, study_code)) %>%
-    filter(str_detect(Sample_ID, analyte_code))
+    filter(str_detect(Sample_ID, str_c(analyte_code, collapse = "|")))
   
   #file needed for summary stats code
   write_csv(data_filtered,paste0(study_out_dir,'/', study_code, '_CombinedQAQC_', Sys.Date(), '.csv'))
@@ -815,4 +815,5 @@ mapping_filtered <- combine_mapping %>%
 
 
   }
+  
   

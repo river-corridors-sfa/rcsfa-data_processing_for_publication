@@ -39,8 +39,10 @@ rm(list=ls(all=T))
 # select *_Field_Metadata.csv file (either use file.choose to select file or change filepath manually)
 metadata_filepath <- file.choose()
 
+previous_igsn_filepath <- file.choose()
+
 # indicate out directory file path and file name
-outdir <- 'Z:/IGSN/PRT_IGSN_Samples_ToBeRegistered.csv' 
+outdir <- 'Z:/IGSN/v2_PRT_IGSN_Samples_ToBeRegistered.csv' 
 # the user will need to open this csv file and save it as an .xls prior to uploading for registration 
 
 # select user code (options include: "IEWDR", "IEPRS")
@@ -59,6 +61,11 @@ parent_filepath <- file.choose()
 metadata <- read_csv(metadata_filepath, na = c('', '-9999', 'N/A')) %>%
   filter(!is.na(Parent_ID))
 
+previous_igsn <- read_csv(previous_igsn_filepath, skip = 1)
+
+filtered_metadata <- metadata %>%
+  filter(!Parent_ID %in% previous_igsn$Sample_Name)
+
 # load parent IGSN
 if (parent_igsn_present == T) {
   parent <- read_xls(parent_filepath, skip = 1)
@@ -74,30 +81,30 @@ if (parent_igsn_present == T) {
 
 
 # print col names to use as a reference for filling out the variables below
-print(colnames(metadata))
+print(colnames(filtered_metadata))
 
 # `Sample Name`
-a <- metadata$Parent_ID
+a <- filtered_metadata$Parent_ID
 
 # (name of sampling campaign) 'Comment'
 i <- 'Post Retreat Fire Temporal Study  (PRT)'
 
 # 'Latitude (WGS 84)'
-j <- metadata$Latitude
+j <- filtered_metadata$Latitude
 
 # 'Longitude (WGS 84)'
-k <- metadata$Longitude
+k <- filtered_metadata$Longitude
 
 # 'Primary physiographic feature'
 l <- ''
 
 # 'Name of physiographic feature'
-# m <- metadata$Stream_Name
+# m <- filtered_metadata$Stream_Name
 m <- ''
 
 # (site ID) 'Locality'
 n <- ''
-n <- metadata$Site_ID
+n <- filtered_metadata$Site_ID
 
 # 'Locality description'
 # o <- 'In stream site'
@@ -105,14 +112,14 @@ o <- ''
 
 # 'Country'
 p <- 'United States'
-# p <- metadata$Country
+# p <- filtered_metadata$Country
 
 # 'State/Province'
-# q <- metadata$State
+# q <- filtered_metadata$State
 q <- "Washington"
 
 # 'City/Township'
-# r <- metadata$City
+# r <- filtered_metadata$City
 r <- ""
 
 # 'Field program/cruise'
@@ -123,7 +130,7 @@ s <- 'US Department of Energy River Corridor Science Focus Area'
 t <- 'Allison Myers-Pigg'
 
 # 'Collection date' in mm/dd/yyyy format
-u <- metadata$Date
+u <- filtered_metadata$Date
 
 # 'Related URL'
 # v <- 'https://whondrs.pnnl.gov'
@@ -162,10 +169,10 @@ g <- '' # leave blank for now, will get filled in later in the script
 h <- '' # leave blank for now, will get filled in later in the script
 
 
-# create df and add general metadata info
+# create df and add general filtered_metadata info
 output_general <- tibble(a) %>% 
   add_column(b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w) %>%
-  add_column(type = metadata$Metadata_Type)
+  add_column(type = filtered_metadata$Metadata_Type)
 
 
 # add parent IGSNs, if applicable
@@ -197,7 +204,8 @@ output_final <- output_general %>%
                        l == 'Open field' ~ 'Open field at Oak Creek Wildlife Area Unit'),
          e = case_when(str_detect(type, 'water')~'Liquid>aqueous',
                        str_detect(type, 'Precipitation')~'Liquid>aqueous',
-                       str_detect(type, 'Vegetation')~'Organic Material'
+                       str_detect(type, 'Vegetation')~'Organic Material',
+                       str_detect(type, 'Soil')~'Soil'
                        ),
          f = case_when(str_detect(type, 'Surface water')~'Surface water',
                        str_detect(type, 'Ground water')~'Ground water',
@@ -210,7 +218,8 @@ output_final <- output_general %>%
                        type == 'Ground water - well'~'Ground water was pulled into syringe from well waterfaucet and expelled through 0.22 micron filter into sample vials.',
                        type == 'Ground water - spring'~'Ground water was pulled into syringe from flowing water and expelled through 0.22 micron filter into sample vials.',
                        str_detect(type, 'Precipitation')~'Precipitation was pulled into syringe from bottle on precipitation collector and expelled through 0.22 micron filter into sample vials.',
-                       str_detect(type, 'Vegetation')~'Burned and unburned vegetation were clipped and then laid out to dry.'
+                       str_detect(type, 'Vegetation')~'Burned and unburned vegetation were clipped and then laid out to dry.',
+                       str_detect(type, 'Soil')~'Soil from multiple nearby spots was combined in a mason jar to create a composite sample representing the 5–30 cm soil profile.'
          )) %>%
   select(a, b, c, d, e, f, g, h, i, j,k,l,m,n,o,p,q, r, s, t,u ,v, w)
   

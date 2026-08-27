@@ -24,11 +24,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_HJW/NPOC_TN'
+dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_PRT/ISO'
 
-study_code <- 'HJW'
+study_code <- 'PRT'
   
-material <- 'Sediment'
+material <- 'Water'
 
 hub_dir <- 'C:/Users/forb086/OneDrive - PNNL/Core Richland and Sequim Lab-Field Team - Data Generation and Files/Workflows-MethodsCodes/Methods_Codes/Hub-Typical-Codes-by-Study-Code.xlsx'
   
