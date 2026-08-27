@@ -33,10 +33,10 @@ source_url("https://raw.githubusercontent.com/river-corridors-sfa/rcsfa-data_pro
 
 # USER INPUTS
 
-your_essdive_metadata_file <- "Z:/00_ESSDIVE/01_Study_DPs/TBS_Chem_Data_Package/TBS_Chem_ESSDIVE_Metadata.docx"# absolute file path of ESS-DIVE metadata .docx
+your_essdive_metadata_file <- "Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package/ESSDIVE_Mineralization_Metadata_Template.docx"# absolute file path of ESS-DIVE metadata .docx
 your_author_spreadsheet <- "Z:/00_ESSDIVE/00_Instructions/RC_SFA_author_information.xlsx"
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-6d77f07cbb5dfe1-20260708T213902057" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-20c809849cb3680-20260819T201233738" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 # RUN functions (no modifications needed)
@@ -47,13 +47,6 @@ author_names <- get_authors_from_essdive_metadata(essdive_metadata_file = your_e
 # get author info from spreadsheet
 author_info <- get_author_spreadsheet_info(author_df = author_names, 
                                            author_info_file = your_author_spreadsheet)
-
-author_info <- molinas%>%
-  bind_rows(jones) %>%
-  rename(affiliation = institution,
-         email = e_mail) %>%
-  bind_rows(author_info) %>%
-  filter(is.na(is_missing))
 
 # update landing page - warning this will overwrite all existing authors with the new ones you provide
 update_landing_page_authors(api_token = your_api_token,
@@ -70,9 +63,9 @@ update_landing_page_authors(api_token = your_api_token,
 
 
 # USER INPUTS
-your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/TBS_Chem_Data_Package/geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
+your_coordinates_file_path <- "Z:/00_ESSDIVE/01_Study_DPs/TBS_Mineralization_Data_Package/TBS_Mineralization_geospatial.csv" # this is the .csv absolute file path of the coordinates (required cols: Description, Latitude, Longitude)
 your_api_token = "" # this is your personal token that you can get after signing into ess-dive; recommend adding this in the console
-your_essdive_id = "ess-dive-8b21cac2b53e6d6-20260708T222120576347" # id that begins with "ess-dive-" found on the landing page you want to update
+your_essdive_id = "ess-dive-e5bd9585592de0a-20260819T203342518073" # id that begins with "ess-dive-" found on the landing page you want to update
 your_upload_site = "main" # options: c("sandbox", "main")
 
 
