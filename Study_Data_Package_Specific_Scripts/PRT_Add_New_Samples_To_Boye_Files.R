@@ -84,14 +84,14 @@ write_csv(soil,
 
 # =================================== iso ===============================
 
-new_path <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_PRT/ISO/05_PublishReadyData/PRT_Water_ISO_Boye_2026-08-13.csv'
+new_path <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_PRT/ISO/05_PublishReadyData/PRT_Water_ISO_Boye_2026-11-17.csv'
 
 new_file <- read_csv(new_path,
                      skip = 2) %>%
   filter(Sample_Name != 'N/A'&Sample_Name != '-9999') %>%
   filter(!str_detect(Sample_Name, 'ICR'))
 
-old_path <- "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Sample_Data/PRT_Water_Isotopes.csv"
+old_path <- "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/Archive/PRT_Water_Isotopes.csv"
 
 old_file <- read_csv(old_path,
                      skip = 2) %>%
@@ -128,6 +128,13 @@ gw <- combined_file %>%
 soil <-  combined_file %>%
   filter(str_detect(Metadata_Type, 'Soil'))
 
+veg <-  combined_file %>%
+  filter(str_detect(Metadata_Type, 'Veg'))
+
+precip <-  combined_file %>%
+  filter(str_detect(Metadata_Type, 'Precip'))
+
+
 
 write_csv(sw, 
           "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Sample_Data/v2_PRT_SurfaceWater_Isotopes.csv",
@@ -143,5 +150,35 @@ write_csv(soil,
           "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Sample_Data/PRT_Soil_Isotopes.csv",
           append = T,
           col_names = F)
+
+write_csv(precip, 
+          "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Sample_Data/v2_PRT_Precipitation_Isotopes.csv",
+          append = T,
+          col_names = F)
+
+
+# =================================== add sample material to summary file ===============================
+
+summary <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Sample_Data/v2_PRT_Sample_Data_Summary.csv", skip = 2) %>%
+  filter(Sample_Name != 'N/A',
+         Sample_Name != '-9999')
+
+metadata <- read_csv("Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Field_Metadata.csv") %>%
+  select(Parent_ID, Metadata_Type) %>%
+  rename(Sample_Name = Parent_ID)
+
+summary_material <- summary %>%
+  select(-Material) %>%
+  left_join(metadata) %>%
+  mutate(Metadata_Type = str_remove(Metadata_Type, '; EXO and BaroTROLL download'),
+         Metadata_Type = str_remove(Metadata_Type, '; EXO and BaroTROLL deployment'),
+         Metadata_Type = str_remove(Metadata_Type, '; Rain gauge download'),
+         Metadata_Type = str_replace(Metadata_Type, 'Vegetation', 'Vegetation Extract'),
+         Metadata_Type = str_replace(Metadata_Type, 'Soil', 'Soil Extract')) %>%
+  rename(Sample_Material = Metadata_Type) %>%
+  relocate(Sample_Material, .after = 'Sample_Name')
+
+write_csv(summary_material,"Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Sample_Data/v2_PRT_Sample_Data_Summary.csv", append = T, col_names = F)
+
 
 

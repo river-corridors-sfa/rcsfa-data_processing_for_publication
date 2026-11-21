@@ -61,11 +61,11 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-dir <- "Z:/00_ESSDIVE/01_Study_DPs/WHONDRS_HJW_Data_Package_v2/v2_WHONDRS_HJW_Data_Package/v2_WHONDRS_HJW_Sample_Data"
+dir <- "Z:/00_ESSDIVE/01_Study_DPs/PRT_Data_Package_v2/v2_PRT_Data_Package/v2_PRT_Sample_Data"
 
-study_code <- 'v2_WHONDRS_HJW' # this is used to rename the output file
+study_code <- 'v2_PRT' # this is used to rename the output file
 
-material <- 'Sediment' # the material entered here is how the data files are located and the keyword that's used in the sample name
+material <- '' # the material entered here is how the data files are located and the keyword that's used in the sample name
 
 # ====================== functions used in this script =========================
 
@@ -602,13 +602,54 @@ data_headers_renamed <- lapply(names(data$headers), function(df_name) {
 })
 
 # combine headers
-combine_headers <- reduce(data_headers_renamed, left_join, by = c("Field_Name", "Sample_Name", "Material", "Methods_Deviation")) %>% # this takes the list of header info for each file and joins them binding columns across all files together
+join_keys <- c("Field_Name", "Sample_Name", "Material", "Methods_Deviation")
+
+joined_headers <- reduce(
+  data_headers_renamed,
+  left_join,
+  by = join_keys
+) %>%
+  add_column(Mean_Missing_Reps = "N/A")
+
+for (column in setdiff(names(summary), join_keys)) {
+  joined_names <- names(joined_headers)
   
-  # add new Mean_Missing_Reps col
-  add_column(Mean_Missing_Reps = "N/A") %>% 
+  # Find the original name and copies with one or more join suffixes.
+  suffix <- substring(joined_names, nchar(column) + 1L)
+  copies <- joined_names[
+    joined_names == column |
+      (startsWith(joined_names, paste0(column, ".")) &
+         grepl("^(\\.[xy])+$", suffix))
+  ]
   
-  # drop cols that don't exist in summary and reorders to make sure the headers properly line up with the data
-  select(colnames(summary))
+  if (length(copies) <= 1L && column %in% copies) next
+  if (length(copies) == 0L) next
+  
+  values <- lapply(joined_headers[copies], function(x) {
+    x <- as.character(x)
+    x[!is.na(x) & trimws(x) == ""] <- NA_character_
+    x
+  })
+  
+  merged <- Reduce(dplyr::coalesce, values)
+  
+  conflicts <- Reduce(`|`, lapply(values, function(x) {
+    !is.na(x) & x != merged
+  }))
+  
+  if (any(conflicts)) {
+    stop(
+      "Conflicting header values for ", column,
+      " in joined row(s) ", paste(which(conflicts), collapse = ", "),
+      call. = FALSE
+    )
+  }
+  
+  joined_headers[[column]] <- merged
+}
+
+combine_headers <- joined_headers %>%
+  select(all_of(names(summary)))
 
 # verify column order matches
 identical(names(combine_headers), names(summary)) # Should return TRUE

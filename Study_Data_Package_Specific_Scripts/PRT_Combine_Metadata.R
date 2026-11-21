@@ -4,6 +4,8 @@
 #
 # Status: In progress
 #
+# Note: remove fdom parent ID column and filter out rows where ground water was attempted but not successful
+#
 # ==============================================================================
 #
 # Author: Brieanne Forbes 
