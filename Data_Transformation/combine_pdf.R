@@ -16,9 +16,9 @@ rm(list=ls(all=T))
 
 # ================================= User inputs ================================
 
-pdf_dir <- 'Z:/RC2/03_Temporal_Study/01_BarotrollAtm/04_Plots'
+pdf_dir <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_NVY/miniDOT/04_Plots/L2'
 
-outfile <- 'Z:/RC2/03_Temporal_Study/01_BarotrollAtm/05_PublishReadyData/RC2_2022-2024_Air_Press_Temp_TsPlot.pdf'
+outfile <- 'C:/Users/forb086/OneDrive - PNNL/RC-SFA - Documents/Study_NVY/miniDOT/05_PublishReadyData/L2_NVY_Water_miniDOT_Plots.pdf'
 
 # out_dir <- ''
 
