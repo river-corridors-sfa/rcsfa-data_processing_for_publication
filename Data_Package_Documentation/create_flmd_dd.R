@@ -21,10 +21,10 @@ rm(list=ls(all=T))
 #### REQUIRED ----
 
 # directory = string of the absolute folder file path; do not include "/" at end.
-my_directory = 'C:/Brieanne/GitHub/KGML-WHONDRS'
+my_directory = 'C:/Brieanne/GitHub/rcsfa-ST2B-NVY-network-connectivity'
 
 # dp_keyword = string of the data package name; this will be used to name the placeholder flmd, dd, readme files in the flmd and name the FLMD and DD files. Optional argument; default is "data_package".
-my_dp_keyword = "Zheng_2026_KGML"
+my_dp_keyword = "2Connectivity_SULI"
 
 # out_dir = string of the absolute folder you want the flmd and dd saved to; do not include "/" at end.
 my_out_dir = my_directory
@@ -50,7 +50,7 @@ populate_dd_flmd = T
 # single FLMD.
 
 # exclude_files = vector of files (relative file path + file name; no / at beginning of path) to exclude from within the dir. Optional argument; default is NA_character_. (Tip: Select files in file browser. Click "Copy Path". Paste within c() here. To add commas: Shift+Alt > drag to select all lines > end > comma) 
-user_exclude_files = c('README.md', list.files(file.path(my_directory, 'raw_data'), full.names = T) %>% str_remove('C:/Brieanne/GitHub/KGML-WHONDRS/'))
+user_exclude_files = NA_character_
 
 # include_files = vector of files (relative file path + file name) to include from within the dir. Optional argument; default is NA_character_. 
 user_include_files = NA_character_
@@ -59,7 +59,7 @@ user_include_files = NA_character_
 user_include_dot_files = F
 
 # add_placeholders = T/F where the user should select T if they want placeholder rows for the flmd, readme, and dd if those files are missing. Optional argument; default is FALSE.
-user_add_placeholders = T
+user_add_placeholders = F
 
 # query_header_info = T/F where the user should select T if header rows are present and F if all tabular files do NOT have header rows. Header rows that start with "#" can be considered as not having header rows. Optional argument; default is FALSE.  
 user_query_header_info = F
@@ -71,10 +71,10 @@ user_view_n_max = 20
 user_add_boye_headers = F
 
 # add_flmd_dd_headers = T/F where the user should select T if they want placeholder rows for FLMD and DD column headers. Optional argument; default is FALSE. 
-user_add_flmd_dd_headers = T
+user_add_flmd_dd_headers = F
 
 # include_filenames = T/F to indicate whether you want to include the file name(s) the headers came from. Optional argument; default is F. 
-user_include_filenames = F
+user_include_filenames = T
 
 # dd_database_path = absolute path to the dd database 
 user_dd_database_path <- "C:/Brieanne/GitHub/rcsfa-data_processing_for_publication/Data_Package_Documentation/database/data_dictionary_database.csv"
