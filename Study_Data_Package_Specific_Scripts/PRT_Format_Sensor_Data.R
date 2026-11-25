@@ -9,7 +9,7 @@
 # =============================================================================
 #
 # Author: Brieanne Forbes
-# 19 August 2026 (last revised 2026-10-30)
+# 19 August 2026 (last revised 2026-11-23)
 
 rm(list=ls(all=T))
 
@@ -55,7 +55,7 @@ file_dates <- as.Date(str_extract(basename(l1_files), "\\d{4}-\\d{2}-\\d{2}"))
 
 l1_files <- l1_files[file_dates < cutoff]
 
-l2_files <- "C:/Brieanne/GitHub/rcsfa-sensor-processing/Study_Specific_Sensor_Processing/PRT_EXO_L2/data/04_L2_manual_qc_cleaned.csv"
+l2_files <- "C:/Brieanne/GitHub/rcsfa-sensor-processing/Study_Specific_Sensor_Processing/PRT_EXO_L2/data/05_L2_manual_qc_cleaned_v2.csv"
 
 # ========================== read headers ======================================
 headers <- read_xlsx(headers_dir, sheet = 'PRT') %>%
@@ -355,7 +355,6 @@ step_correction_flags <- l2_data %>%
   select(row_id, Flag)
 
 # Flag drift corrections that could not be applied ----------------------
-
 drift_not_corrected_flags <- l2_data %>%
   select(row_id, drift_correction) %>%
   filter(
@@ -364,15 +363,18 @@ drift_not_corrected_flags <- l2_data %>%
   ) %>%
   separate_rows(drift_correction, sep = "\\s*\\|\\s*") %>%
   mutate(
-    drift_correction = str_trim(drift_correction)
+    drift_correction = str_trim(drift_correction),
+    Flag = case_when(
+      drift_correction ==
+        "Drift correction not applied - would create negative values: Turbidity" ~
+        "Turb_NoDriftCorr_01",
+      drift_correction ==
+        "Drift correction not applied - would create negative values: fDOM (temp-corrected)" ~
+        "fDOM_NoDriftCorr_01",
+      TRUE ~ NA_character_
+    )
   ) %>%
-  filter(
-    drift_correction ==
-      "Drift correction not applied - would create negative values: Turbidity"
-  ) %>%
-  mutate(
-    Flag = "Turb_NoDriftCorr_01"
-  ) %>%
+  filter(!is.na(Flag)) %>%
   select(row_id, Flag)
 
 # Combine flags for each row ---------------------------------------------
@@ -530,6 +532,51 @@ l2_data_formatted <- l2_data %>%
       )
     )
     
+  )
+
+# Remove flags when the associated measurement is -9999 -----------------
+# Map flag prefixes to measurement columns
+flag_map <- c(
+  Temp  = "Temperature",
+  SpC   = "Specific_Conductance",
+  DO    = "Dissolved_Oxygen",
+  DOsat = "Dissolved_Oxygen_Saturation",
+  pH    = "pH",
+  Turb  = "Turbidity",
+  fDOM  = "fDOM_QSU",
+  Depth = "Depth"
+)
+
+# Remove correction flags when corresponding data are missing
+for (prefix in names(flag_map)) {
+  
+  var <- flag_map[[prefix]]
+  
+  if (!var %in% names(l2_data_formatted)) next
+  
+  l2_data_formatted <- l2_data_formatted %>%
+    mutate(
+      Flag = if_else(
+        is.na(.data[[var]]) | .data[[var]] == -9999,
+        str_remove_all(
+          Flag,
+          paste0(
+            "\\b", prefix,
+            "_(DriftCorr|StepCorr|Int)_\\d+\\b"
+          )
+        ),
+        Flag
+      )
+    )
+}
+
+# Clean up flag separators and replace empty flags with N/A
+l2_data_formatted <- l2_data_formatted %>%
+  mutate(
+    Flag = str_replace_all(Flag, "(\\s*;\\s*)+", "; "),
+    Flag = str_remove_all(Flag, "^\\s*;\\s*|\\s*;\\s*$"),
+    Flag = str_trim(Flag),
+    Flag = if_else(is.na(Flag) | Flag == "", "N/A", Flag)
   )
 
 missing_headers <- setdiff(
